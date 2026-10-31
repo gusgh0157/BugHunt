@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="ASan" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="BugHunt/BugHunt.vcxproj" Id="7c2e9b41-3f5a-4d8e-9a61-b0d4c3e2f815" />
+</Solution>
