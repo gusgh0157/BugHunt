@@ -53,3 +53,15 @@ void lab11_quests()
     const QuestDb db = loadQuests(kQuestTable);
     expect("dragon_hunt 선행 퀘스트 수", 5, countAllPrereqs(db, "dragon_hunt"));
 }
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+// 호출 스택이 같은 함수로 가득 차 있습니다. 몇 개 프레임을 더블클릭해서 questId를 확인하세요.
+#pragma endregion
+
+#pragma region 힌트 2
+// questId 값이 어떤 순서로 반복되나요? kQuestTable과 비교해 보세요.
+#pragma endregion

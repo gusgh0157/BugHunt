@@ -38,3 +38,15 @@ void lab03_titles()
     expect("첫 번째 칭호", std::string("[Northwind Rangers] Kael the Wanderer"), std::string(titles[0]));
     expect("세 번째 칭호", std::string("[Deepforge Clan] Doran Ironhand"), std::string(titles[2]));
 }
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+// titleOf가 돌려주는 string_view가 가리키는 문자열은 누가 소유하나요?
+#pragma endregion
+
+#pragma region 힌트 2
+// 그 문자열의 수명은 어디서 끝나나요? ASan으로 확인해 보세요.
+#pragma endregion

@@ -46,3 +46,21 @@ void cs03_battle_log()
 {
     lab3::printBattleLog();
 }
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)
+// damagePerSecond에서 seconds는 0입니다.
+// 0으로 나누는 이 함수는 받은 값을 썼을 뿐입니다. 왜 0이 들어왔을까요?
+#pragma endregion
+
+#pragma region 힌트 2
+// 한 칸 아래 printBattleSummary 프레임에서 battle을 펼쳐 보세요.
+// 어떤 적이고, durationMs는 얼마인가요?
+#pragma endregion
+
+#pragma region 힌트 3
+// 800 / 1000 은 정수 나눗셈으로 얼마인가요?
+#pragma endregion

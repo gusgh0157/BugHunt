@@ -104,7 +104,15 @@ BugHunt.exe!lab1::showProfile(const std::string & name) 줄 40
 | 7 | HP 이벤트 | HP 바 갱신에서 죽는다 | **람다/std::function** 프레임, `this == nullptr`, 스택이 "과거"를 보여 주지 않을 때 | ★★★ |
 | 8 | 몬스터 웨이브 | 3번째 웨이브에서 멈춘다 | 깊은 스택에서 **잘못 넘긴 인자** 찾기 (종합) | ★★★ |
 
-막히면 [HINTS.md](HINTS.md)를 한 단계씩 열어 보고, 다 풀면 [SOLUTIONS.md](SOLUTIONS.md)로 맞춰 보세요.
+## 힌트 보는 법
+
+힌트는 각 랩 소스 파일 **맨 아래**에 `#pragma region`으로 접혀 있습니다.
+
+1. 랩 파일을 처음 열면 **Ctrl+M, Ctrl+O**를 눌러 전부 접습니다. (VS가 처음에는 펼친 상태로 보여 주기 때문입니다. 한 번 접으면 그 상태를 기억합니다.)
+2. 막힐 때 파일 맨 아래로 가서 **힌트 1**만 펼쳐 봅니다. (region 왼쪽 `+` 클릭)
+3. 그래도 막히면 다음 힌트를 하나씩 펼칩니다.
+
+다 풀면 [SOLUTIONS.md](SOLUTIONS.md)로 맞춰 보세요.
 
 ---
 

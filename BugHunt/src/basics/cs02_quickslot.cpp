@@ -47,3 +47,23 @@ void cs02_quickslot()
     std::cout << "  (기대 출력: Healing Potion, Fire Scroll, Mana Potion, Return Scroll)\n";
     lab2::replayInput();
 }
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)
+// Assertion 창에서 "다시 시도(Retry)"를 누르세요.
+// 호출 스택 맨 위의 std::vector<...>::operator[]나 [외부 코드]는 건너뛰고,
+// lab2:: 로 시작하는 첫 줄을 찾으세요.
+#pragma endregion
+
+#pragma region 힌트 2
+// itemAt 프레임의 slotIndex, onNumberKey 프레임의 key를 보세요.
+// slots_에는 원소가 몇 개 있나요?
+#pragma endregion
+
+#pragma region 힌트 3
+// 콘솔 출력도 단서입니다. 1번 키를 눌렀는데 무엇이 나왔나요?
+// 크래시가 나지 않은 줄들도 사실 틀렸던 겁니다.
+#pragma endregion

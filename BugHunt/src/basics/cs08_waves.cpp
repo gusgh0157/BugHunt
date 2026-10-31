@@ -74,3 +74,21 @@ void cs08_waves()
 {
     lab8::runWaves();
 }
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)
+// Assertion 창에서 다시 시도를 누르세요.
+// statsFor 프레임의 level은 얼마인가요? kLevelTable의 크기는요?
+#pragma endregion
+
+#pragma region 힌트 2
+// 한 칸씩 아래로 내려가면서 level이 어디서 왔는지 보세요.
+// createMonster → spawnMonster → spawnWave
+#pragma endregion
+
+#pragma region 힌트 3
+// spawnMonster의 매개변수 순서와, spawnWave에서 넘긴 인자 순서를 비교해 보세요.
+#pragma endregion

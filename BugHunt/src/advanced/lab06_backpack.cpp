@@ -34,3 +34,15 @@ void lab06_backpack()
 
     expect("크기 3짜리 아이템을 주울 수 있나?", false, canPickUp(bag, 3));
 }
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+// canPickUp 안에서 freeSlots 값을 조사식으로 보세요.
+#pragma endregion
+
+#pragma region 힌트 2
+// unsigned에서 20 - 22 는?
+#pragma endregion
