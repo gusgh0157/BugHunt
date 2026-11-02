@@ -36,3 +36,13 @@ void lab09_guild_bank();
 void lab10_party();
 void lab11_quests();
 void lab12_status_flags();
+
+// 3부: 흐름 추적 - 크래시 없음 (src/flow)
+void ft01_attendance();
+void ft02_critical();
+void ft03_shield();
+void ft04_quest();
+void ft05_discount();
+void ft06_repair();
+void ft07_achievements();
+void ft08_difficulty();

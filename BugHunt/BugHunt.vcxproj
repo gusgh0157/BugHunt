@@ -112,6 +112,14 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\advanced\lab10_party.cpp" />
     <ClCompile Include="src\advanced\lab11_quests.cpp" />
     <ClCompile Include="src\advanced\lab12_status_flags.cpp" />
+    <ClCompile Include="src\flow\ft01_attendance.cpp" />
+    <ClCompile Include="src\flow\ft02_critical.cpp" />
+    <ClCompile Include="src\flow\ft03_shield.cpp" />
+    <ClCompile Include="src\flow\ft04_quest.cpp" />
+    <ClCompile Include="src\flow\ft05_discount.cpp" />
+    <ClCompile Include="src\flow\ft06_repair.cpp" />
+    <ClCompile Include="src\flow\ft07_achievements.cpp" />
+    <ClCompile Include="src\flow\ft08_difficulty.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
