@@ -71,6 +71,8 @@ constexpr LabEntry kLabs[] = {
     { "던전 문 퍼즐",       "퍼즐 점수가 거꾸로 매겨진다",          ct05_dungeon_doors, ct05_dungeon_doors_hidden },
     { "이름표",             "칭호를 받으면 이름표가 깨진다",        ct06_nameplates,   ct06_nameplates_hidden },
     { "시즌 랭킹",          "우승자가 1위에 오르지 않는다",         ct07_season_ranking, ct07_season_ranking_hidden },
+    // 람다 캡처 (임시 번호, 재배치 때 포인터 부로 옮긴다)
+    { "분노 버프",          "분노가 끝나도 공격력이 원래대로 안 돌아온다", pt07_rage_timer, pt07_rage_timer_hidden },
 };
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;

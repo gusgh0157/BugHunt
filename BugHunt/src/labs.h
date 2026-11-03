@@ -90,6 +90,7 @@ void ct04_repair_shop();
 void ct05_dungeon_doors();
 void ct06_nameplates();
 void ct07_season_ranking();
+void pt07_rage_timer();
 
 // 채점용 숨은 테스트 케이스: 화면에 나오는 것과 다른 데이터로 같은 코드를 검사한다.
 // 각 랩 파일 맨 아래 "채점용 숨은 테스트" region에 있다. (src/grader.cpp 참고)
@@ -119,3 +120,4 @@ void ct04_repair_shop_hidden();
 void ct05_dungeon_doors_hidden();
 void ct06_nameplates_hidden();
 void ct07_season_ranking_hidden();
+void pt07_rage_timer_hidden();

@@ -315,6 +315,25 @@ std::string guildNameOf(const Member& member)
 **구성별:** 세 구성 모두 똑같이 FAIL이다. 크래시도, 어설션도, ASan 리포트도 없다(Windows의 ASan에는 누수 검사기가 없다). 2부 랩 16처럼 CRT 누수 측정이나 소멸자 중단점으로 확인한다.
 **교훈:** 스마트 포인터도 소유 관계에 고리가 생기면 샌다. "누가 누구를 소유하는가"를 한 방향으로 정하고, 거꾸로 가는 쪽은 `weak_ptr`로 둔다.
 
+## Lab 47 — [&] 람다가 끝난 함수의 지역 변수를 참조
+```
+중단점:      람다 안 hero.attack -= bonus; (Kael 차례)
+지역 창:     bonus = 45   ← 분노를 걸 때 출력은 (+30)
+호출 스택:   TurnTimers::advance → 람다. castRage는 이미 끝나서 스택에 없음
+조사식:      &bonus 가 castRage 안에서 본 &bonus와 같은 주소 → 끝난 함수의 스택 자리.
+             그 자리를 나중에 Doran의 castRage가 다시 써서 Doran의 bonus(45)가 들어 있다
+진짜 원인:   [&]가 지역 변수 bonus를 참조로 캡처했는데, 람다는 타이머에 맡겨져 castRage보다 오래 산다
+```
+**수정:** 함수보다 오래 사는 람다는 지역 변수를 값으로 가져간다. `hero`는 호출한 쪽이 계속 들고 있으므로 참조로 둔다.
+```cpp
+timers.after(3, [&hero, bonus] {
+    hero.attack -= bonus;
+    ...
+});
+```
+**구성별:** Debug는 Kael만 틀리고(45) Doran은 우연히 맞는다. Release는 둘 다 다른 값으로 틀린다. ASan은 쓰레기 값으로 틀리지만 리포트가 없다. 기본 ASan은 stack-use-after-return을 잡지 않는다(README "람다 캡처와 ASan").
+**교훈:** `[&]`는 람다가 **지금 이 자리에서** 실행될 때만 안전하다. 콜백, 타이머, 스레드, 나중에 실행할 목록에 넣는 람다는 캡처 목록을 하나씩 적고, 무엇을 참조로 들고 가는지 확인한다. `hero`를 참조로 가져가는 것도 "Hero가 타이머보다 오래 산다"는 약속에 기댄 것이다.
+
 ---
 
 # 5부: 멈춤 - 무한루프와 데드락
@@ -481,3 +500,4 @@ void recordMatch(Player* p, int points)
 ```
 (C++17의 `extract`로 노드를 꺼내 고친 뒤 `insert`해도 된다.)
 **교훈:** `set`/`map`의 키는 const지만, 포인터를 키로 쓰면 가리키는 대상까지 지켜 주지 않는다.
+

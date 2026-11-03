@@ -141,6 +141,7 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\containers\ct05_dungeon_doors.cpp" />
     <ClCompile Include="src\containers\ct06_nameplates.cpp" />
     <ClCompile Include="src\containers\ct07_season_ranking.cpp" />
+    <ClCompile Include="src\pointers\pt07_rage_timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
