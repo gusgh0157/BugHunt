@@ -114,6 +114,14 @@ void io04_npc_dialogue();
 void io05_reward_table();
 void io06_settings_bom();
 void io07_safe_save();
+// 직렬화 - JSON/XML (src/serialize)
+void sz01_pet_slot();
+void sz02_crit_multiplier();
+void sz03_skill_bar();
+void sz04_nickname_cut();
+void sz05_float_position();
+void sz06_bestiary();
+void sz07_guild_list();
 
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();
@@ -185,3 +193,10 @@ void io04_npc_dialogue_hidden();
 void io05_reward_table_hidden();
 void io06_settings_bom_hidden();
 void io07_safe_save_hidden();
+void sz01_pet_slot_hidden();
+void sz02_crit_multiplier_hidden();
+void sz03_skill_bar_hidden();
+void sz04_nickname_cut_hidden();
+void sz05_float_position_hidden();
+void sz06_bestiary_hidden();
+void sz07_guild_list_hidden();

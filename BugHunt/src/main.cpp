@@ -94,6 +94,14 @@ constexpr LabEntry kLabs[] = {
     { "보상표",             "보상 목록이 통째로 비어 있다",         io05_reward_table, io05_reward_table_hidden },
     { "설정 파일",          "메모장으로 고친 첫 줄 설정만 무시된다", io06_settings_bom, io06_settings_bom_hidden },
     { "안전한 저장",        "저장에 실패하면 이전 세이브까지 날아간다", io07_safe_save, io07_safe_save_hidden },
+    // 직렬화 (JSON/XML)
+    { "펫 슬롯",            "펫이 없는데 소환 버튼이 켜진다",       sz01_pet_slot,     sz01_pet_slot_hidden },
+    { "치명타 배율",        "배율 1.5가 1배로 들어간다",            sz02_crit_multiplier, sz02_crit_multiplier_hidden },
+    { "스킬 바",            "스킬 바 순서가 뒤죽박죽이 된다",       sz03_skill_bar,    sz03_skill_bar_hidden },
+    { "닉네임 자르기",      "어떤 한글 닉네임은 저장이 안 된다",    sz04_nickname_cut, sz04_nickname_cut_hidden },
+    { "캐릭터 위치",        "불러올 때마다 캐릭터가 조금씩 움직인다", sz05_float_position, sz05_float_position_hidden },
+    { "몬스터 도감",        "패치 뒤 몬스터 HP가 전부 0이다",       sz06_bestiary,     sz06_bestiary_hidden },
+    { "길드 목록",          "어떤 길드 이름이 있으면 목록이 통째로 안 열린다", sz07_guild_list, sz07_guild_list_hidden },
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)

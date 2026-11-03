@@ -53,6 +53,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\third_party\nlohmann_json\include;$(MSBuildProjectDirectory)\..\third_party\pugixml\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,6 +142,14 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\fileio\io05_reward_table.cpp" />
     <ClCompile Include="src\fileio\io06_settings_bom.cpp" />
     <ClCompile Include="src\fileio\io07_safe_save.cpp" />
+    <ClCompile Include="src\serialize\sz01_pet_slot.cpp" />
+    <ClCompile Include="src\serialize\sz02_crit_multiplier.cpp" />
+    <ClCompile Include="src\serialize\sz03_skill_bar.cpp" />
+    <ClCompile Include="src\serialize\sz04_nickname_cut.cpp" />
+    <ClCompile Include="src\serialize\sz05_float_position.cpp" />
+    <ClCompile Include="src\serialize\sz06_bestiary.cpp" />
+    <ClCompile Include="src\serialize\sz07_guild_list.cpp" />
+    <ClCompile Include="..\third_party\pugixml\src\pugixml.cpp" />
     <ClCompile Include="src\containers\ct01_bag_lookup.cpp" />
     <ClCompile Include="src\containers\ct02_party_finder.cpp" />
     <ClCompile Include="src\containers\ct03_leaderboard.cpp" />
