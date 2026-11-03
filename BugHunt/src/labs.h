@@ -106,6 +106,14 @@ void ft09_member_ids();
 void ft10_best_combo();
 void ft11_cave_gate();
 void ft12_lockpicks();
+// 파일 입출력 (src/fileio)
+void io01_patch_prices();
+void io02_quest_journal();
+void io03_high_scores();
+void io04_npc_dialogue();
+void io05_reward_table();
+void io06_settings_bom();
+void io07_safe_save();
 
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();
@@ -170,3 +178,10 @@ void ft09_member_ids_hidden();
 void ft10_best_combo_hidden();
 void ft11_cave_gate_hidden();
 void ft12_lockpicks_hidden();
+void io01_patch_prices_hidden();
+void io02_quest_journal_hidden();
+void io03_high_scores_hidden();
+void io04_npc_dialogue_hidden();
+void io05_reward_table_hidden();
+void io06_settings_bom_hidden();
+void io07_safe_save_hidden();

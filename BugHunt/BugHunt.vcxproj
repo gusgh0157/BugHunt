@@ -90,6 +90,7 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
   <ItemGroup>
     <ClInclude Include="src\labs.h" />
     <ClInclude Include="src\perf\perf_kit.h" />
+    <ClInclude Include="src\fileio\io_kit.h" />
     <ClInclude Include="src\challenge\c1_auction.h" />
     <ClInclude Include="src\challenge\c2_event_bus.h" />
     <ClInclude Include="src\challenge\c2_systems.h" />
@@ -133,6 +134,13 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\flow\ft10_best_combo.cpp" />
     <ClCompile Include="src\flow\ft11_cave_gate.cpp" />
     <ClCompile Include="src\flow\ft12_lockpicks.cpp" />
+    <ClCompile Include="src\fileio\io01_patch_prices.cpp" />
+    <ClCompile Include="src\fileio\io02_quest_journal.cpp" />
+    <ClCompile Include="src\fileio\io03_high_scores.cpp" />
+    <ClCompile Include="src\fileio\io04_npc_dialogue.cpp" />
+    <ClCompile Include="src\fileio\io05_reward_table.cpp" />
+    <ClCompile Include="src\fileio\io06_settings_bom.cpp" />
+    <ClCompile Include="src\fileio\io07_safe_save.cpp" />
     <ClCompile Include="src\containers\ct01_bag_lookup.cpp" />
     <ClCompile Include="src\containers\ct02_party_finder.cpp" />
     <ClCompile Include="src\containers\ct03_leaderboard.cpp" />

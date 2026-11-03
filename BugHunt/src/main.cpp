@@ -86,6 +86,14 @@ constexpr LabEntry kLabs[] = {
     { "최고 콤보",          "기록을 갱신할 때마다 콤보가 2씩 오른다", ft10_best_combo, ft10_best_combo_hidden },
     { "어둠의 동굴",        "열쇠도 횃불도 있는데 입장을 못 한다",  ft11_cave_gate,    ft11_cave_gate_hidden },
     { "자물쇠 따개",        "열쇠가 있는데도 따개가 줄어든다",      ft12_lockpicks,    ft12_lockpicks_hidden },
+    // 파일 입출력
+    { "패치된 가격표",      "어떤 실행에서는 패치 전 가격이 나온다", io01_patch_prices, io01_patch_prices_hidden },
+    { "모험 일지",          "방금 적은 일지가 일지 창에 안 보인다", io02_quest_journal, io02_quest_journal_hidden },
+    { "점수판",             "마지막 기록이 두 번 나온다",           io03_high_scores,  io03_high_scores_hidden },
+    { "여관 주인 대사",     "첫 대사가 비고 마지막 대사가 빠진다",  io04_npc_dialogue, io04_npc_dialogue_hidden },
+    { "보상표",             "보상 목록이 통째로 비어 있다",         io05_reward_table, io05_reward_table_hidden },
+    { "설정 파일",          "메모장으로 고친 첫 줄 설정만 무시된다", io06_settings_bom, io06_settings_bom_hidden },
+    { "안전한 저장",        "저장에 실패하면 이전 세이브까지 날아간다", io07_safe_save, io07_safe_save_hidden },
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)
