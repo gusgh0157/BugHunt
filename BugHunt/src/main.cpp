@@ -80,6 +80,12 @@ constexpr LabEntry kLabs[] = {
     { "세이브 파일",        "큰 맵에서 저장이 몇 초씩 걸린다",      pf04_save_log,     pf04_save_log_hidden },
     { "전장의 안개",        "큰 맵에서만 프레임이 뚝 떨어진다",     pf05_fog_map,      pf05_fog_map_hidden },
     { "어그로 검사",        "몬스터가 많으면 서버 틱이 밀린다",     pf06_aggro_scan,   pf06_aggro_scan_hidden },
+    // 추가 랩 (임시 번호 54~. 최종 번호와 부 배치는 재배치 때 정한다)
+    // 연산자와 평가 순서 (3부 흐름 추적 끝에 붙일 예정)
+    { "길드 회원 번호",     "새 회원이 기존 회원과 같은 번호를 받는다", ft09_member_ids, ft09_member_ids_hidden },
+    { "최고 콤보",          "기록을 갱신할 때마다 콤보가 2씩 오른다", ft10_best_combo, ft10_best_combo_hidden },
+    { "어둠의 동굴",        "열쇠도 횃불도 있는데 입장을 못 한다",  ft11_cave_gate,    ft11_cave_gate_hidden },
+    { "자물쇠 따개",        "열쇠가 있는데도 따개가 줄어든다",      ft12_lockpicks,    ft12_lockpicks_hidden },
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)

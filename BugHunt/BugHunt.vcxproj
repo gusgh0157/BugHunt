@@ -129,6 +129,10 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\flow\ft06_repair.cpp" />
     <ClCompile Include="src\flow\ft07_achievements.cpp" />
     <ClCompile Include="src\flow\ft08_difficulty.cpp" />
+    <ClCompile Include="src\flow\ft09_member_ids.cpp" />
+    <ClCompile Include="src\flow\ft10_best_combo.cpp" />
+    <ClCompile Include="src\flow\ft11_cave_gate.cpp" />
+    <ClCompile Include="src\flow\ft12_lockpicks.cpp" />
     <ClCompile Include="src\containers\ct01_bag_lookup.cpp" />
     <ClCompile Include="src\containers\ct02_party_finder.cpp" />
     <ClCompile Include="src\containers\ct03_leaderboard.cpp" />

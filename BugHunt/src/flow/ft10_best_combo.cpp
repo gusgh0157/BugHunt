@@ -1,0 +1,90 @@
+#include "../labs.h"
+#include <vector>
+
+// 공격이 맞으면 콤보가 1 오르고, 빗나가면 0으로 돌아간다.
+// best에는 이번 전투의 최고 콤보를 남긴다.
+namespace flow10
+{
+#define BUGHUNT_MAX(a, b) ((a) > (b) ? (a) : (b))
+
+struct Combo
+{
+    int current = 0;
+    int best = 0;
+};
+
+void onAttack(Combo& c, bool hit)
+{
+    if (!hit)
+    {
+        c.current = 0;
+        return;
+    }
+    // 콤보를 올리면서 최고 기록과 비교한다.
+    c.best = BUGHUNT_MAX(c.best, ++c.current);
+}
+}
+
+void ft10_best_combo()
+{
+    using namespace flow10;
+
+    // 맞음 x3, 빗나감, 맞음 x2
+    const std::vector<bool> attacks = { true, true, true, false, true, true };
+
+    Combo combo;
+    std::vector<int> shown;           // 매 공격 뒤 화면에 띄운 콤보 숫자
+    for (bool hit : attacks)
+    {
+        onAttack(combo, hit);
+        shown.push_back(combo.current);
+    }
+
+    std::cout << "  화면에 뜬 콤보:";
+    for (int n : shown)
+        std::cout << ' ' << n;
+    std::cout << '\n';
+
+    expect("세 번째 공격 뒤 콤보", 3, shown[2]);
+    expect("최고 콤보", 3, combo.best);
+    expect("마지막 콤보", 2, combo.current);
+}
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+// c.current에 데이터 중단점(값이 바뀌면 멈추는 중단점, watchpoint)을 걸어 보세요.
+// 공격 한 번에 몇 번 멈추나요? 멈출 때마다 호출 스택의 맨 위 줄이 어디인지 보세요.
+#pragma endregion
+
+#pragma region 힌트 2
+// BUGHUNT_MAX는 함수가 아니라 매크로입니다. 인자 자리에 ++c.current를 그대로 붙여 넣어 펼쳐 보세요.
+// 조건 식이 참일 때와 거짓일 때 ++c.current는 각각 몇 번 계산되나요?
+#pragma endregion
+
+#pragma region 힌트 3
+// 부작용(++, 함수 호출)이 있는 식은 매크로 인자로 넘기지 마세요.
+// 값을 먼저 올리고 비교만 따로 하거나, 인자를 한 번만 계산하는 std::max를 쓰세요.
+#pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft10_best_combo_hidden()
+{
+    using namespace flow10;
+
+    Combo c;
+    c.best = 4;                       // 이전 구간에서 4콤보를 이미 찍었다
+    const bool pattern[] = { true, true, false, true, true, true, true, true, true };
+    const int expected[] = { 1, 2, 0, 1, 2, 3, 4, 5, 6 };
+    for (int i = 0; i < 9; ++i)
+    {
+        onAttack(c, pattern[i]);
+        expect("공격 뒤 콤보", expected[i], c.current);
+    }
+    expect("숨은 전투: 최고 콤보", 6, c.best);
+}
+#pragma endregion

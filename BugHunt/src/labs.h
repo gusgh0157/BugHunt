@@ -100,6 +100,13 @@ void pf04_save_log();
 void pf05_fog_map();
 void pf06_aggro_scan();
 
+// 추가 랩 (임시 번호, 최종 배치는 재배치 때)
+// 연산자와 평가 순서 (src/flow)
+void ft09_member_ids();
+void ft10_best_combo();
+void ft11_cave_gate();
+void ft12_lockpicks();
+
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();
 void chC2_raid_night();
@@ -159,3 +166,7 @@ void chB5_hidden();
 void chB6_hidden();
 void chB7_hidden();
 void chB8_hidden();
+void ft09_member_ids_hidden();
+void ft10_best_combo_hidden();
+void ft11_cave_gate_hidden();
+void ft12_lockpicks_hidden();
