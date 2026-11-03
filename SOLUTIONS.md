@@ -237,6 +237,53 @@ if (kill || gold || level) ...
 
 **교훈:** 버그가 "어떤 입력에서" 나는 게 아니라 "어떤 **순서**로" 나는 경우, 시작부터 따라가며 **두 사본을 나란히** 조사식에 띄워 언제 갈라지는지 본다.
 
+## 연산자 실수 (랩 61~64, 번호는 임시)
+
+
+## Lab 61 — 후위 증가의 값은 올리기 전 값
+```
+틀린 결과:     새봄이 1007번 (도윤과 같은 번호). lastId는 1010으로 맞지만 실제로 준 번호는 1007~1009
+멈춘 위치:     issueId의 return 줄, 첫 join
+기대값 → 실제값: lastId 1007 → 새 번호 1008 기대 / 실제 반환 1007
+진짜 원인:     return guild.lastId++; 는 올리기 전 값(마지막으로 이미 준 번호)을 돌려준다
+```
+**수정:** `return ++guild.lastId;`
+**교훈:** `x++`는 "x를 올린다" + "식의 값은 옛 x"라는 두 가지 일을 한다. 변수의 뜻("마지막으로 준 번호" vs "다음에 줄 번호")을 먼저 정하고 전위/후위를 고른다. `if (hits++ == 3)`도 같은 실수로, 네 번째 타격에서야 참이 된다.
+
+## Lab 62 — 매크로가 부작용 있는 인자를 두 번 평가
+```
+틀린 결과:     화면 콤보 2 4 6 0 2 4 (기대 1 2 3 0 1 2), 최고 콤보 6
+멈춘 위치:     c.current 데이터 중단점 → 공격 한 번에 두 번 멈춤
+처음 어긋난 줄: c.best = BUGHUNT_MAX(c.best, ++c.current);
+진짜 원인:     ((a) > (b) ? (a) : (b))로 펼쳐져 조건에서 한 번, 고른 쪽에서 또 한 번 ++c.current
+```
+**수정:**
+```cpp
+++c.current;
+c.best = std::max(c.best, c.current);
+```
+**교훈:** 매크로는 함수가 아니라 글자 치환이다. 인자에 `++`, `--`, 함수 호출을 넣지 않는다. 가능하면 `std::max`나 `inline`/`constexpr` 함수를 쓴다. (`?:`는 조건을 먼저 계산하고 고른 쪽만 계산하도록 순서가 정해져 있어서, 이 결과는 어느 컴파일러에서나 같다.)
+
+## Lab 63 — `&&` 자리에 비트 AND `&`
+```
+틀린 결과:     보람(열쇠 2, 횃불 1) 입장 불가, 들어간 인원 1
+멈춘 위치:     canEnterCave, 조건 a.name == "보람"
+기대값 → 실제값: a.keys & a.torches → 기대 참 / 실제 0 (2 = 10, 1 = 01)
+진짜 원인:     정수 두 개를 &로 묶어 공통 비트가 없으면 0(거짓)
+```
+**수정:** `return a.keys > 0 && a.torches > 0;`
+**교훈:** `&`는 정수의 비트끼리, `&&`는 참/거짓끼리 계산한다. 둘 다 1일 때만 우연히 같은 답이 나와서 처음 테스트(1, 1)를 통과한다. 개수를 참/거짓으로 쓸 때는 `> 0`으로 뜻을 적어 준다.
+
+## Lab 64 — `||` 자리에 `|` → 단락 평가가 사라짐
+```
+틀린 결과:     연 문 4 (기대 5), 남은 따개 0 (기대 1)
+멈춘 위치:     useLockpick의 --t.lockpicks 줄, 호출 스택에서 openDoor의 door 확인
+처음 어긋난 곳: "감옥" 문 (열쇠가 있는데 따개가 줄어듦)
+진짜 원인:     hasKey(...) | useLockpick(...) 는 앞이 true여도 뒤를 호출한다
+```
+**수정:** `return hasKey(t, door) || useLockpick(t);`
+**교훈:** `||`/`&&`만 단락 평가를 한다. 뒤쪽 피연산자에 부작용(소모, 저장, 로그)이 있으면 `|`/`&`는 그 부작용을 항상 일으킨다. 랩 27과 짝: 27은 단락 평가 때문에 **필요한 호출이 빠졌고**, 57은 단락 평가가 없어서 **불필요한 호출이 일어났다**. `p == nullptr | p->hp <= 0`처럼 앞의 검사가 뒤를 지켜 주는 식에서는 `|`가 null 역참조 크래시가 된다.
+
 ---
 
 # 4부: 컨테이너
@@ -337,6 +384,280 @@ void recordMatch(Player* p, int points)
 ```
 (C++17의 `extract`로 노드를 꺼내 고친 뒤 `insert`해도 된다.)
 **교훈:** `set`/`map`의 키는 const지만, 포인터를 키로 쓰면 가리키는 대상까지 지켜 주지 않는다.
+
+---
+
+# 인터페이스와 상속 (랩 79~84, 번호는 임시)
+
+
+## Lab 79 — `const`가 빠져 재정의가 아니라 숨김
+```
+틀린 결과:     등 뒤 백스탭 20 (기대 60)
+멈춘 위치:     Backstab::damage 중단점은 걸리지 않음 → useSkill에서 Step Into → Skill::damage
+진짜 원인:     Backstab::damage에 const가 없어 Skill::damage(const Target&) const와 다른 함수. Skill&로 부르면 기반 버전
+```
+**수정:** `int damage(const Target& t) const override { ... }`
+**교훈:** 재정의하려는 함수에는 항상 `override`. 붙이는 순간 `const` 누락, 매개변수 형식 차이(`int` vs `long`, `const&` vs 값), 기반 쪽 이름 변경을 컴파일러가 오류로 알려 준다. clang은 `-Wall`에서 `-Woverloaded-virtual` 경고를 내지만, MSVC는 기본 경고 수준(/W3)에서 아무 말이 없다.
+
+## Lab 80 — `vector<Monster>`에 담아 Boss가 잘림 (슬라이싱)
+```
+틀린 결과:     전리품 3개, 황금 왕관 없음 (기대 4개)
+멈춘 위치:     Boss::loot 중단점이 걸리지 않음 → collectLoot에서 wave[2]를 펼치면 형식이 Monster, rare_ 없음
+진짜 원인:     wave.push_back(Boss(...))가 Boss의 Monster 부분만 복사해 담는다
+```
+**수정:**
+```cpp
+std::vector<std::unique_ptr<Monster>> spawnWave(const std::vector<SpawnInfo>& infos)
+{
+    std::vector<std::unique_ptr<Monster>> wave;
+    for (const SpawnInfo& info : infos)
+    {
+        if (info.rareDrop.empty())
+            wave.push_back(std::make_unique<Monster>(info.name, info.hp));
+        else
+            wave.push_back(std::make_unique<Boss>(info.name, info.hp, info.rareDrop));
+    }
+    return wave;
+}
+// collectLoot도 같은 형식을 받고 m->loot()
+```
+**교훈:** 다형 객체는 포인터(소유는 `unique_ptr`)로 담는다. 값으로 받는 함수 매개변수(`void f(Monster m)`)도 똑같이 자른다. 다형 기반 클래스의 복사를 `= delete`로 막아 두면 이 실수가 컴파일 오류가 된다.
+
+## Lab 81 — 생성자 안의 가상 호출
+```
+틀린 결과:     저격 탑 사거리 3 (기대 8), 거리 7을 못 쏨
+멈춘 위치:     Tower::baseRange 중단점 → 호출 스택에 Tower::Tower ← SniperTower::SniperTower
+진짜 원인:     기반 생성자가 도는 동안 객체의 동적 형식은 아직 Tower. 가상 호출도 Tower 버전으로 간다
+```
+**수정:** 사거리를 필요할 때 묻는다.
+```cpp
+int range() const { return baseRange(); }
+bool canHit(int distance) const { return distance <= range(); }
+```
+(또는 `Tower(int range)` 생성자로 파생 클래스가 값을 넘긴다)
+**교훈:** 생성자와 소멸자 안에서 가상 함수는 "지금 만들고 있는(부수고 있는) 클래스"의 버전이 불린다. 이것은 표준이 정한 동작이라 어느 컴파일러에서나 같다. 소멸자에서 **순수** 가상 함수를 부르는 경우는 정의되지 않은 동작이라 이 랩에서 뺐다(아래 미포함).
+
+## Lab 82 — 가상 함수의 기본 인자는 정적 형식을 따름
+```
+틀린 결과:     사제 기본 치유 15 (기대 30), 파티 총 25 (기대 40). 직접 priest.heal()은 30
+멈춘 위치:     Priest::heal 안, castDefaultHeal에서 들어왔을 때 amount == 10
+진짜 원인:     어느 heal이 불릴지는 동적 형식(Priest)으로, 기본 인자는 정적 형식(Healer)으로 정해진다
+```
+**수정:** 기본값도 가상 함수로 묻는다.
+```cpp
+// Healer
+virtual int defaultAmount() const { return 10; }
+// Priest: return 25;  Druid: return 18;
+int castDefaultHeal(const Healer& healer)
+{
+    return healer.heal(healer.defaultAmount());
+}
+```
+**교훈:** 가상 함수에 기본 인자를 두지 않는다(두더라도 기반과 같은 값만). 흔한 정석은 기본값을 쓰는 비가상 함수가 가상 함수를 부르는 NVI(non-virtual interface) 형태다. 기반의 기본값만 25로 바꾸면 드루이드(18)가 틀린다(숨은 테스트).
+
+## Lab 83 — 파생 클래스의 오버로드 하나가 기반 오버로드를 전부 가림
+```
+틀린 결과:     골드 0 (기대 500), 아이템 2개 (기대 1). 아이템 목록에 500번
+멈춘 위치:     box.give(500)에서 Step Into → Item::Item(int)로 들어감
+진짜 원인:     EventMailbox가 give(const Item&)를 선언해 Mailbox::give(int)가 가려짐. 500은 explicit 없는 Item(int)로 변환
+```
+**수정:** `EventMailbox`에 `using Mailbox::give;` (그리고 `Item`의 생성자에 `explicit`)
+**교훈:** 이름 찾기가 오버로드 결정보다 먼저다. 파생 클래스에서 같은 이름을 하나라도 선언하면 기반의 같은 이름은 모두 안 보인다. 보이는 후보가 하나뿐이고 암시적 변환이 가능하면 오류 없이 엉뚱한 함수가 불린다. 숫자 하나로 만드는 생성자에는 `explicit`.
+
+## Lab 84 — `dynamic_cast` 결과의 nullptr 확인 누락
+```
+틀린 결과:     크래시 (액세스 위반 / SIGSEGV)
+멈춘 위치:     Mage::restoreMana, this == nullptr → 호출 스택 한 칸 위 drinkManaPotions: unit은 Warrior, mage는 nullptr
+진짜 원인:     포인터에 대한 dynamic_cast는 형식이 맞지 않으면 nullptr를 돌려준다. 확인 없이 호출
+```
+**수정:**
+```cpp
+if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
+{
+    mage->restoreMana(amount);
+    ++used;
+}
+```
+**교훈:** `dynamic_cast<T*>`는 "형식이 맞는지 묻는" 연산이다. 결과를 확인하지 않을 거라면 질문할 이유가 없다. 실패를 예외로 받고 싶으면 참조 버전(`dynamic_cast<T&>`, 실패 시 `std::bad_cast`). 형식에 따라 분기가 많아지면 가상 함수로 옮길 신호다.
+
+---
+
+# 파일 입출력 (랩 65~71, 번호는 임시)
+
+
+## Lab 65 — 상대 경로가 작업 디렉터리 기준으로 열림
+```
+틀린 결과:     포션 100 (기대 120), 귀환서 -1 (가격표에 없음)
+멈춘 위치:     loadPrices의 std::ifstream 줄
+기대값 → 실제값: 열린 파일 game/data/prices.txt 기대 / 실제 workspace/data/prices.txt (예전 복사본)
+진짜 원인:     "data/prices.txt"는 실행 파일 폴더가 아니라 현재 작업 디렉터리 기준
+```
+**수정:** `std::ifstream in(gameDir() / "data/prices.txt");`
+**교훈:** 작업 디렉터리는 프로그램을 띄운 쪽(IDE, 바로 가기, 다른 프로그램)이 정한다. 실행 파일 옆의 데이터는 실행 파일 위치를 기준으로 절대 경로를 만든다. 파일을 못 열었을 때 빈 목록을 조용히 돌려주지 말고 알린다(숨은 테스트처럼 파일이 아예 없으면 품목 0개가 된다).
+
+## Lab 66 — 버퍼에만 있고 파일에는 아직 없는 내용을 다시 읽음
+```
+틀린 결과:     일지 창 0줄 (기대 3)
+멈춘 위치:     readJournal 호출 줄에서 멈춘 뒤 journal.txt 확인 → 0바이트
+진짜 원인:     ofstream이 열려 있는 동안 쓴 내용은 스트림 버퍼에 있고, flush/close 전에는 디스크에 없다
+```
+**수정:** `record`에서 쓴 뒤 `out_.flush();` (또는 읽기 전에 flush/close)
+**교훈:** 같은 프로그램 안에서 쓰고 다시 읽으면, 읽기 전에 쓴 내용이 디스크에 있는지 보장한다. 7부 랩 51(`std::endl`이 매번 flush해서 느림)과 짝: flush는 필요한 순간에만.
+
+## Lab 67 — `while (!in.eof())`로 마지막 기록이 두 번
+```
+틀린 결과:     4줄, 마지막에 "도윤 7100" 한 번 더, 총점 32100 (기대 25000)
+멈춘 위치:     push_back, 조건 scores.size() == 3
+기대값 → 실제값: 네 번째 바퀴는 없어야 함 / 실제 in.fail() == true인데 지난 값으로 push_back
+진짜 원인:     eof()는 끝을 넘어 읽으려다 실패한 "뒤에" 켜진다. 마지막 줄바꿈이 남아 한 바퀴 더 돈다
+```
+**수정:** `while (in >> name >> points) scores.push_back({ name, points });`
+**교훈:** 읽기는 "읽고 → 성공했는지 확인 → 쓴다" 순서. 실패한 `>>`는 변수를 그대로 두므로(이 랩) 지난 값이 한 번 더 들어간다. `pop_back` 땜질은 줄바꿈 없이 끝나는 파일에서 진짜 기록을 지운다.
+
+## Lab 68 — `>>` 뒤의 `getline`이 남은 줄바꿈을 읽음
+```
+틀린 결과:     첫 대사 "" (빈 줄), 셋째 대사 자리에 둘째 대사, 마지막 대사 없음
+멈춘 위치:     push_back, 첫 바퀴 line.size() == 0
+진짜 원인:     in >> count는 "3"까지만 읽고 줄바꿈을 남긴다. getline은 그 줄바꿈까지를 빈 줄로 읽는다
+```
+**수정:** `in >> count;` 다음에 `in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');` (`<limits>`)
+**교훈:** `>>`(토큰 단위)와 `getline`(줄 단위)을 섞으면 경계의 줄바꿈을 직접 처리해야 한다. `in >> std::ws`도 통과처럼 보이지만 다음 줄 앞의 공백까지 먹어서 들여 쓴 대사를 망친다(숨은 테스트).
+
+## Lab 69 — failbit가 남아 이후 읽기가 모두 무시됨
+```
+틀린 결과:     몬스터 3종, 보상 0개 (기대 3), 102번 보상 0
+멈춘 위치:     in >> header 줄, 조사식 in.fail() == true
+진짜 원인:     첫 while이 "보상"을 숫자로 읽으려다 실패 → failbit. 지우지 않아 header와 골드 읽기가 전부 그냥 넘어감
+```
+**수정:** `std::string header;` 앞에 `in.clear();`
+**교훈:** 실패 표시는 저절로 꺼지지 않는다. 실패를 "예상한" 지점(섹션 끝)에서는 `clear()`로 지우고 계속 읽는다. `clear()`는 글자를 버리지 않으므로 실패를 일으킨 토큰("보상")은 그대로 다음 읽기에 들어간다.
+
+## Lab 70 — UTF-8 BOM이 첫 키에 붙음
+```
+틀린 결과:     음량 80 (기본값, 기대 30). 전체 화면(둘째 줄)은 정상
+멈춘 위치:     getInt, 조건 key == "volume" → settings의 첫 키가 "volume"처럼 보이지만 size() == 9
+진짜 원인:     파일 맨 앞의 BOM(EF BB BF) 3바이트가 첫 줄의 키 앞에 붙어 "\xEF\xBB\xBFvolume"이 됨
+```
+**수정:** 첫 줄이 `"\xEF\xBB\xBF"`로 시작할 때만 3바이트를 지운다.
+```cpp
+bool firstLine = true;
+while (std::getline(in, line))
+{
+    if (firstLine && line.rfind("\xEF\xBB\xBF", 0) == 0)
+        line.erase(0, 3);
+    firstLine = false;
+    ...
+```
+**교훈:** "첫 줄만 이상하다"면 파일 앞부분의 보이지 않는 바이트를 의심한다. 디버거가 보여 주는 글자보다 `size()`와 바이트 값을 믿는다. 무조건 3바이트를 버리는 땜질은 BOM 없는 파일의 첫 키를 망친다(숨은 테스트).
+
+## Lab 71 — 저장 도중 실패로 반쯤 쓴 세이브
+```
+틀린 결과:     저장 실패 뒤 불러온 아이템 3종 (기대 5종)
+멈춘 위치:     writeItem의 throw 줄, 멈춘 채로 save.txt 열기 → 이미 지워지고 앞의 몇 줄만 있음
+진짜 원인:     trunc로 여는 순간 옛 세이브가 지워지고, 예외로 빠져나갈 때 ofstream 소멸자가 앞부분만 쓴 파일을 닫는다
+```
+**수정:** 임시 파일에 끝까지 쓰고 닫은 뒤에만 바꿔치기한다.
+```cpp
+fs::path temp = file;
+temp += ".tmp";
+try
+{
+    {
+        std::ofstream out(temp, std::ios::trunc);
+        for (const Item& item : items)
+            writeItem(out, item);
+        out.close();
+        if (!out)
+            throw std::runtime_error("쓰기 실패");
+    }
+    fs::rename(temp, file);          // 같은 폴더 안에서 바꿔치기
+    return true;
+}
+catch (const std::exception& e)
+{
+    std::cout << "  저장 실패: " << e.what() << '\n';
+    std::error_code ec;
+    fs::remove(temp, ec);            // 실패한 임시 파일 정리
+    return false;
+}
+```
+**교훈:** 저장은 "전부 아니면 전무"여야 한다. 새 내용은 임시 파일에, 성공한 뒤에만 `rename`. 임시 파일은 같은 폴더(같은 드라이브)에 둬야 rename이 복사 없이 바꿔치기가 된다. rename 전에 스트림을 닫아야 한다(열린 파일은 OS에 따라 이름을 바꿀 수 없다). 실제 게임에서는 전원이 꺼지는 경우까지 대비해 rename 전에 디스크 동기화(OS API)를 하기도 한다. 이 랩은 표준 C++ 범위에서 예외 경로만 다룬다.
+
+---
+
+# 직렬화 (JSON/XML) (랩 72~78, 번호는 임시)
+
+
+## Lab 72 — `json::operator[]`가 없는 키를 null로 만듦
+```
+틀린 결과:     소환 버튼 켬 (기대 끔), 다시 저장한 세이브에 "pet":null 추가
+멈춘 위치:     petLabel 전후, 조사식 save.size() 3 → 4
+처음 어긋난 줄: if (save["pet"].is_null())
+진짜 원인:     const가 아닌 json의 []는 없는 키를 null로 삽입한다 (std::map::operator[]와 같음)
+```
+**수정:** `if (!save.contains("pet"))` (읽기만 하는 함수는 `const json&`로 받고 `contains`/`find`/`at`)
+**교훈:** "있는지 확인"과 "꺼내기"를 구분한다. const json에 없는 키로 `[]`를 쓰는 것은 정의되지 않은 동작(Debug에서는 assert)이므로 const로 바꾸기만 해서는 안 되고 `contains`로 확인한다.
+
+## Lab 73 — `value("crit", 1)`이 int로 읽어 1.5를 1로 자름
+```
+틀린 결과:     단검 치명타 30 (기대 45). 도끼(정수 2)와 지팡이(없음)는 정상
+멈춘 위치:     loadWeapon의 return, 조건 w.name == "단검" → w.crit == 1
+진짜 원인:     value()의 반환 형식은 기본값 1(int)이 정한다. nlohmann은 실수 → 정수 변환에서 예외 없이 자른다
+```
+**수정:** `w.crit = j.value("crit", 1.0);` (또는 `j.value<double>("crit", 1)`)
+**교훈:** 라이브러리의 변환 함수는 "형식을 어디서 정하는지" 확인한다. `get<int>()`도 1.5를 1로 조용히 자른다. 정수로 저장되던 값을 실수로 바꾸는 데이터 패치에서 잘 터진다. 반올림 땜질은 1.75, 2.25에서 다시 틀린다(숨은 테스트).
+
+## Lab 74 — `json`이 키를 정렬해서 순서가 사라짐
+```
+틀린 결과:     불러온 순서 "번개 얼음창 치유 화염구" (기대 "화염구 얼음창 번개 치유"), 저장 후에도 정렬됨
+멈춘 위치:     loadSkillBar의 for, j를 펼쳐 보면 이미 정렬되어 있음
+진짜 원인:     nlohmann::json의 객체는 std::map(키 정렬)에 담긴다. JSON 표준도 객체 키 순서에 의미를 두지 않는다
+```
+**수정:** `using Json = nlohmann::ordered_json;` (읽기와 저장이 함께 바뀜)
+**교훈:** 순서가 의미 있는 데이터는 배열로 저장하는 것이 정석이다. 객체 키 순서에 기대면 라이브러리·언어를 바꿀 때마다 깨진다. 한글 키는 UTF-8 바이트순으로 정렬되어 "가나다순처럼 보이지만 아닌" 결과가 나오기도 한다.
+
+## Lab 75 — UTF-8을 바이트로 잘라 `dump`가 예외를 던짐
+```
+틀린 결과:     "Lv99용감한전사" 저장 실패: [json.exception.type_error.316] incomplete UTF-8 string; last byte: 0x95
+멈춘 위치:     catch 블록 → clampName의 return에서 마지막 바이트 확인 (0xED 0x95 = "한"의 앞 2바이트)
+진짜 원인:     4 + 3 + 3 = 10바이트 뒤 "한"(3바이트)의 중간인 12바이트에서 잘림
+```
+**수정:**
+```cpp
+size_t cut = kMaxNameBytes;
+while (cut > 0 && (static_cast<unsigned char>(name[cut]) & 0xC0) == 0x80)
+    --cut;
+return name.substr(0, cut);
+```
+**교훈:** 바이트 수 제한은 글자 경계에서 자른다(이어지는 바이트는 `10xxxxxx`). `dump`의 오류 처리기(`error_handler_t::replace/ignore`)로 예외만 막으면 깨진 이름이 화면과 서버에 남는다. CP949로 읽은 문자열을 그대로 넣어도 같은 예외(type_error 316)가 난다. 원인은 "JSON에 UTF-8이 아닌 바이트가 들어갔다"로 같다.
+
+## Lab 76 — 기본 정밀도 6자리로 float 왕복 손실
+```
+틀린 결과:     저장한 문자열 {"x":1234.57,"y":-87.6543,"z":3.33333} → 불러온 위치가 1234.56995 등으로 달라짐
+멈춘 위치:     savePosition의 return (out.str()), 디버거의 p.x 표시(1234.56775)와 비교
+진짜 원인:     ostream의 기본 정밀도는 유효 숫자 6자리. float을 정확히 되살리려면 max_digits10(9)자리가 필요
+```
+**수정:** `out << std::setprecision(std::numeric_limits<float>::max_digits10);` (`<limits>`) 또는 json 객체에 넣어 `dump()`
+**교훈:** 사람이 읽는 출력과 다시 읽을 저장은 다르다. 저장은 왕복(round-trip)이 보장되는 형식으로. `std::fixed`는 소수점 아래 자릿수라 0.0003141 같은 작은 값을 망친다. 숨은 테스트는 7~8자리로는 부족한 값도 넣었다(MSVC와 clang에서 같은 결과를 확인).
+
+## Lab 77 — 속성을 자식 요소로 읽어 빈 노드의 0
+```
+틀린 결과:     모든 몬스터 HP 0 (공격력은 정상)
+멈춘 위치:     m.hp = ... 줄, 조사식 node.child("hp").empty() == true, node.attribute("hp").value() == "320"
+진짜 원인:     hp는 속성(hp="320")인데 child("hp")로 찾음 → 빈 노드 → as_int() 0
+```
+**수정:** `m.hp = node.attribute("hp").as_int();`
+**교훈:** pugixml은 없는 노드/속성에 예외 대신 빈 객체를 돌려준다. 오타, 대소문자("Attack"/"attack"), 속성/자식 혼동이 모두 조용한 0이 된다. 필수 값은 `if (!attr)`로 확인하고 데이터 오류로 알린다.
+
+## Lab 78 — 이스케이프하지 않고 이어 붙인 XML
+```
+틀린 결과:     길드 목록 읽기 실패: Error parsing element attribute → 0개 (기대 3)
+멈춘 위치:     loadGuilds 실패 쪽, xml.c_str() + result.offset → "방패>..." 부분
+진짜 원인:     이름 "<검과 방패>"의 <가 새 태그 시작으로 해석됨
+```
+**수정:** 이름을 넣기 전에 `&` → `&amp;`(가장 먼저), `<` → `&lt;`, `>` → `&gt;`, `"` → `&quot;`, `'` → `&apos;` (또는 pugixml로 문서를 만들어 `doc.save()`)
+**교훈:** 문자열 이어 붙이기로 구조화된 형식(XML, JSON, SQL, HTML)을 만들면 이스케이프를 빠뜨린다. 더 무서운 경우는 오류가 없는 쪽이다: 이름 "I &lt;3 PvP"는 "I <3 PvP"로 조용히 바뀐다(숨은 테스트). pugixml은 짝 없는 `&`를 너그럽게 넘겨서 "Tom & Jerry"는 읽히지만, 다른 파서에서는 오류다.
+**참고(보안):** 외부에서 받은 XML을 읽을 때는 외부 엔티티(XXE)와 엔티티 확장 폭탄을 조심한다. pugixml은 DTD 안의 엔티티를 처리하지 않아 이 두 공격에 해당하지 않지만, 다른 파서(libxml2, MSXML, .NET의 예전 기본값)는 설정에 따라 파일을 읽거나 메모리를 다 쓸 수 있다.
 
 ---
 
