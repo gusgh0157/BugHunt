@@ -760,7 +760,7 @@ BugHunt는 채점이 흔들리지 않도록 Debug와 Release에 **메모리 검�
 | 79 이름 패킷 | FAIL, `Nighting` | 같음 | FAIL, `Nighting` | 같음 |
 | 80 스킬 트리 | CRASH, `array subscript out of range` 어설션 | FAIL, 2번 스킬 레벨 0, 골드 801 (4번 스킬이 골드를 1 올림) | CRASH, 어설션 (Debug CRT) | FAIL (Release CRT라 어설션 없음, 같은 객체 안이라 ASan도 못 잡음) |
 
-80은 요청대로 "Debug는 잡고 Release는 조용히 덮는다"를 보여 주는 랩이라 구성마다 증상이 다릅니다. 판정은 FAIL 또는 CRASH로 어느 구성에서도 0점입니다. 나머지 넷은 구성 안에서 MSVC와 clang++의 판정이 같습니다. 검증: MSVC 14.51, clang++ 22(Windows, MSVC STL). GCC와 Linux(스택 8 MB)는 확인하지 않았지만, 76(16 MB)와 77(160 × 96 KB ≈ 15 MB)는 8 MB 스택도 넘도록 크기를 잡았습니다.
+80은 "Debug는 잡고 Release는 조용히 덮는다"를 보여 주려고 만든 랩이라 구성마다 증상이 다릅니다. 판정은 FAIL 또는 CRASH로 어느 구성에서도 0점입니다. 나머지 넷은 구성 안에서 MSVC와 clang++의 판정이 같습니다. 검증: MSVC 14.51, clang++ 22(Windows, MSVC STL). GCC와 Linux(스택 8 MB)는 확인하지 않았지만, 76(16 MB)와 77(160 × 96 KB ≈ 15 MB)는 8 MB 스택도 넘도록 크기를 잡았습니다.
 
 스택 오버플로 랩과 채점기: 두 랩 모두 감시 타이머를 쓰지 않는 보통 랩이고, 채점기는 자식 프로세스의 종료 코드(0xC00000FD, ASan은 종료 코드 1)로 CRASH를 판정합니다. 크래시까지 100 ms 안쪽이라 시간 제한과 부딪히지 않습니다. 77은 버퍼를 96 KB로 잡아, ASan의 `detect_stack_use_after_return`이 켜져 있어도(가짜 스택은 64 KB 이하 프레임만 옮김) 진짜 스택에서 넘치게 했습니다.
 
