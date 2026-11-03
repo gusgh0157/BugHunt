@@ -900,7 +900,7 @@ timers.after(3, [&hero, bonus] {
     ...
 });
 ```
-**構成ごと:** 間違った値はコンパイラーと構成ごとに違います(このリポジトリでの Kael: MSVC Debug -124、MSVC・Clang Release 45、Clang Debug 85、ASan はゴミ値)。上のウォッチは Release で45が出た理由です。既定の ASan は stack-use-after-return を捕まえません。Clang の ASan は `ASAN_OPTIONS=detect_stack_use_after_return=1` で実行すると、このラムダの行で `stack-use-after-return` で止まります(README.ja.md「ラムダキャプチャと ASan」)。
+**構成ごと:** 間違った値はコンパイラーと構成ごとに違います(このリポジトリでの Kael: MSVC Debug -124、MSVC・Clang Release 45、Clang Debug 85、ASan はゴミ値)。上のウォッチは Release で45が出た理由です。既定の ASan は stack-use-after-return を捕まえません。Clang の ASan は `ASAN_OPTIONS=detect_stack_use_after_return=1` で実行すると、このラムダの行で `stack-use-after-return` で止まります(README.md「ラムダキャプチャと ASan」)。
 **教訓:** `[&]` はラムダが **今この場で** 実行されるときだけ安全です。コールバック、タイマー、スレッド、後で実行するリストに入れるラムダはキャプチャリストを一つずつ書き、何を参照で持っていくかを確認します。`hero` を参照で持っていくのも「Hero がタイマーより長生きする」という約束に頼っています。
 
 ## あふれ: スタックとヒープの境界 (ラボ76~80)
