@@ -127,6 +127,12 @@ constexpr LabEntry kLabs[] = {
     { "던전 불러오기",      "불러오기에 실패할 때마다 텍스처가 남는다", lg07_dungeon_load, lg07_dungeon_load_hidden },
     { "세이브 파일 닫기",   "저장 실패 메시지 대신 게임이 꺼진다",  lg08_save_close,   lg08_save_close_hidden },
     { "연계 퀘스트",        "연계 퀘스트가 한 차례에 한 단계씩만 열린다", lg09_quest_chain, lg09_quest_chain_hidden },
+    // 스택/힙 오버플로 (포인터 오용 부 끝에 붙일 예정)
+    { "미니맵",             "작은 지도인데도 미니맵을 열면 바로 죽는다", of01_minimap,  of01_minimap_hidden },
+    { "던전 생성기",        "방이 많은 던전을 만들면 죽는다",       of02_dungeon_gen,  of02_dungeon_gen_hidden },
+    { "리플레이 녹화",      "녹화를 끝내고 녹화기를 닫을 때 죽는다", of03_replay_buffer, of03_replay_buffer_hidden },
+    { "이름 패킷",          "긴 이름이 잘리고 앞사람 이름이 붙는다", of04_name_packet, of04_name_packet_hidden },
+    { "스킬 트리",          "스킬을 배웠더니 골드가 이상하게 바뀐다", of05_skill_tree, of05_skill_tree_hidden },
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)

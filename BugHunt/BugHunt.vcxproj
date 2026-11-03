@@ -183,6 +183,11 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\lang\lg07_dungeon_load.cpp" />
     <ClCompile Include="src\lang\lg08_save_close.cpp" />
     <ClCompile Include="src\lang\lg09_quest_chain.cpp" />
+    <ClCompile Include="src\overflow\of01_minimap.cpp" />
+    <ClCompile Include="src\overflow\of02_dungeon_gen.cpp" />
+    <ClCompile Include="src\overflow\of03_replay_buffer.cpp" />
+    <ClCompile Include="src\overflow\of04_name_packet.cpp" />
+    <ClCompile Include="src\overflow\of05_skill_tree.cpp" />
     <ClCompile Include="src\containers\ct01_bag_lookup.cpp" />
     <ClCompile Include="src\containers\ct02_party_finder.cpp" />
     <ClCompile Include="src\containers\ct03_leaderboard.cpp" />

@@ -170,6 +170,12 @@ void lg06_save_screen();
 void lg07_dungeon_load();
 void lg08_save_close();
 void lg09_quest_chain();
+// 스택/힙 오버플로 (src/overflow, 포인터 오용 부에 붙일 예정)
+void of01_minimap();
+void of02_dungeon_gen();
+void of03_replay_buffer();
+void of04_name_packet();
+void of05_skill_tree();
 
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();
@@ -270,3 +276,8 @@ void lg06_save_screen_hidden();
 void lg07_dungeon_load_hidden();
 void lg08_save_close_hidden();
 void lg09_quest_chain_hidden();
+void of01_minimap_hidden();
+void of02_dungeon_gen_hidden();
+void of03_replay_buffer_hidden();
+void of04_name_packet_hidden();
+void of05_skill_tree_hidden();
