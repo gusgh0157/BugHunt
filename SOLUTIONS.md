@@ -440,6 +440,113 @@ timers.after(3, [&hero, bonus] {
 
 ---
 
+# 비동기와 동시성 (랩 54~60, 번호는 임시)
+
+## Lab 54 — 버린 future가 비동기를 순차로 만듦
+```
+메인 스레드:  startLoading의 for 문 → std::future<void>::~future → 작업이 끝나기를 기다림
+작업 스레드:  한 번에 하나만 ChunkDisk::read 안에 있음 (300 ms 기다린 뒤 콜드 읽기)
+진짜 원인:    std::async의 반환값을 저장하지 않아 임시 future가 그 줄 끝에서 파괴됨.
+              std::launch::async로 만든 future의 소멸자는 작업이 끝날 때까지 기다린다
+```
+**수정:** `jobs_.push_back(std::async(std::launch::async, [this, i] { chunks_[i] = disk_.read(i); }));` 그러면 `finishLoading`이 모아 둔 future를 기다린다.
+**구성별:** 어느 컴파일러에서나 같다(표준이 정한 동작). C++20부터 `std::async`는 `[[nodiscard]]`라서 경고(MSVC C4858, GCC·Clang `-Wunused-result`)가 이 줄을 가리킨다.
+**교훈:** "비동기로 띄웠다"와 "기다리지 않는다"는 다르다. future를 어디에 두고 언제 기다리는지가 코드의 실행 순서를 정한다.
+
+## Lab 55 — 비동기 작업의 예외는 get()에서 나옴
+```
+예외가 던져질 때 멈춤:  작업 스레드의 craft("Mithril Helm") throw
+abort 시점 호출 스택:   메인 스레드 craftAll → std::future<int>::get → 예외 다시 던지기
+진짜 원인:             try/catch가 std::async 호출만 감쌌다. 작업 안의 예외는 future에 담겼다가 get()에서 던져진다
+```
+**수정:** `get()`을 try 안으로 옮긴다.
+```cpp
+for (std::future<int>& job : jobs)
+{
+    try { report.revenue += job.get(); }
+    catch (const std::exception& e) { std::cout << "  제작 실패: " << e.what() << '\n'; ++report.failed; }
+}
+```
+(`std::async` 자체도 스레드를 만들지 못하면 `std::system_error`를 던지므로 원래 try를 남겨 두어도 된다.)
+**교훈:** 비동기 작업의 예외는 **결과를 꺼내는 곳**에서 처리한다. `get()`은 future 하나에 한 번만 부를 수 있다. 두 번째 호출 전에는 `valid()`가 false이고, 그때 `get()`을 부르는 것은 정의되지 않은 동작이다(구현 대부분은 `std::future_error`를 던진다).
+
+## Lab 56 — 조건 없는 condition_variable 대기
+```
+모두 중단:  공대원 스레드는 모두 끝남. lab-worker(공대장)는 ReadyCheck::waitForAll의 wait 안
+조사식:     readyCount_ == 4, memberCount_ == 4  → 기다릴 이유가 없다
+진짜 원인:  notify_one은 공대장이 wait하기 전에 이미 네 번 불렸다. 알림은 저장되지 않으므로 사라졌다
+```
+**수정:** `allReady_.wait(lock, [&] { return readyCount_ >= memberCount_; });`
+조건이 이미 참이면 기다리지 않고, 가짜로 깨어나도 조건이 거짓이면 다시 기다린다.
+**구성별:** 어느 구성에서나 TIMEOUT. `if (readyCount_ < memberCount_) allReady_.wait(lock);`처럼 한 번만 검사하면 화면은 통과하지만, 공대장이 먼저 기다리는 숨은 케이스에서 첫 알림에 깨어나 3명 중 1명만 준비한 채 입장한다(FAIL).
+**교훈:** `condition_variable`은 "무엇인가 바뀌었을 수 있다"는 신호일 뿐이다. 기다리는 **조건**은 mutex로 지키는 변수에 있고, `wait`는 항상 그 조건과 함께 쓴다.
+
+## Lab 57 — 떼어 낸 스레드의 [this]
+```
+중단점:     board.post(bid_)  (작업 스레드. 호출 스택에 bidAndCloseWindow 없음)
+조사식:     bid_ == -286331154 (0xEEEEEEEE = 해제된 메모리)
+진짜 원인:  람다가 this를 캡처했는데, AuctionWindow(unique_ptr)는 bidAndCloseWindow가 끝날 때 지워졌다.
+            람다는 마감 종이 울린 뒤, 창이 사라진 다음에 실행된다
+```
+**수정:** 필요한 값만 복사해 간다. `std::thread([bid = bid_, &bell, &board] { bell.waitForRing(); board.post(bid); }).detach();`
+(종과 게시판은 서버가 켜져 있는 동안 사는 객체라 참조로 둔다. 그 약속이 없다면 `shared_ptr`로 함께 소유한다.)
+더 튼튼한 설계는 스레드를 떼어 내지 않는 것이다. 창이 `std::jthread`를 소유하고 소멸자에서 멈춰 달라고 요청하고 기다리거나, 알림을 서버 쪽 객체에 등록한다.
+**구성별:** Debug와 Release는 메모리 검사기의 `0xEE`로 FAIL. ASan은 작업 스레드에서 heap-use-after-free(해제한 곳은 메인 스레드의 `bidAndCloseWindow`)로 CRASH.
+**교훈:** `detach`는 "이 스레드의 수명을 아무도 책임지지 않는다"는 뜻이다. 떼어 낸 스레드에 넘긴 람다는 캡처한 모든 것이 그 스레드보다 오래 사는지 확인한다(5부 랩 42와 같은 실수가 스레드로 옮겨 온 것).
+
+## Lab 58 — atomic 확인 후 행동 레이스
+```
+조건부 중단점:  --stock_; 에서 stock_ <= 0 일 때 멈춤
+스레드 목록:    다섯 구매 스레드가 모두 stock_.load() > 0 검사를 통과해 payment_.charge에서 기다리는 중이었다
+진짜 원인:      "남았나 확인 → 결제 → 하나 빼기"가 원자적이지 않다. atomic 하나하나는 안전하지만,
+                확인과 빼기 사이에 다른 스레드가 모두 확인을 끝낼 수 있다
+```
+**수정:** 결제하기 전에 수량을 원자적으로 확보한다.
+```cpp
+int left = stock_.load();
+do
+{
+    if (left <= 0)
+        return false;
+} while (!stock_.compare_exchange_weak(left, left - 1));
+payment_.charge(player, price_);
+++sold_;
+return true;
+```
+(`fetch_sub`로 빼고 결과가 0 이하면 되돌리는 방법도 있다. 결제가 실패할 수 있다면 실패했을 때 수량을 돌려놓는다.) `buy` 전체를 `std::mutex`로 감싸도 맞지만, 결제를 기다리는 동안 다른 구매자가 모두 줄을 선다.
+**구성별:** 어느 구성에서나 판매 5, 수량 -2. 랩 17과 달리 **데이터 레이스가 아니다.** 모든 접근이 `atomic`이라 ThreadSanitizer도 보고하지 않는다.
+**교훈:** 불변식("판매 수 + 남은 수량 = 처음 수량", "수량 ≥ 0")은 그것을 이루는 값 전체를 한 번에 바꾸는 연산으로 지킨다. 변수마다 `atomic`을 붙인다고 불변식이 지켜지지 않는다.
+
+## Lab 59 — join 없이 파괴된 std::thread
+```
+호출 스택:  std::terminate ← std::thread::~thread ← runMatchmaking의 return result; (둘째 대기열)
+진짜 원인:  인원이 모자라 취소하는 경로가 matcher.join() 없이 함수를 빠져나간다.
+            joinable한 std::thread의 소멸자는 std::terminate를 부른다
+```
+**수정:** 취소 경로에서도 기다린다. 결과는 스레드가 끝난 뒤에 고친다(아직 도는 스레드가 `result.matches`를 쓰고 있으므로).
+```cpp
+cancel = true;
+matcher.join();
+result.cancelled = true;
+result.matches = 0;
+return result;
+```
+`std::jthread`로 바꾸면 모든 빠져나가는 길에서 자동으로 멈춰 달라고 요청하고 join한다. 다만 jthread는 함수가 끝날 때 join하므로, 위처럼 "멈추고 기다린 뒤 결과를 고치기"가 필요하면 `request_stop()`과 `join()`을 직접 부른다.
+**교훈:** 스레드 객체도 리소스다. 예외와 이른 `return`을 포함한 모든 길에서 정리되도록 RAII(`std::jthread`)를 쓴다.
+
+## Lab 60 — 코루틴의 참조 매개변수
+```
+중단점:     talkTo의 첫 줄 (호출 스택: as07_cutscene → Cutscene::step → 코루틴 재개. startVillageScene은 이미 끝남)
+조사식:     npc.affinity == -286331154 (0xEEEEEEEE)
+진짜 원인:  talkTo는 initial_suspend에서 바로 멈추고, 코루틴 프레임에는 npc의 참조만 저장된다.
+            startVillageScene이 끝나면서 Npc(unique_ptr)가 지워진 뒤에 엔진이 코루틴을 처음 실행한다
+```
+**수정:** 코루틴이 쓸 값은 프레임 안으로 복사해 간다. `Cutscene talkTo(Npc npc, DialogueLog& log)` (`log`는 호출한 쪽이 컷신보다 오래 들고 있으므로 참조로 둔다.)
+**구성별:** Debug와 Release는 메모리 검사기의 `0xEE`로 FAIL. ASan은 heap-use-after-free로 CRASH. MSVC 14.51과 Clang 22에서 확인했다.
+**교훈:** 코루틴의 참조 매개변수는 "처음 멈추는 곳까지"만 안전하다. 멈췄다 이어지는 코루틴은 람다를 나중에 실행하는 것과 같은 수명 문제를 가진다.
+
+---
+
 # 6부: 멈춤 - 무한루프와 데드락
 
 ## Lab 43 — float 누적과 != 종료 조건

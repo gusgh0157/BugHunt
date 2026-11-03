@@ -80,6 +80,14 @@ constexpr LabEntry kLabs[] = {
     { "세이브 파일",        "큰 맵에서 저장이 몇 초씩 걸린다",      pf04_save_log,     pf04_save_log_hidden },
     { "전장의 안개",        "큰 맵에서만 프레임이 뚝 떨어진다",     pf05_fog_map,      pf05_fog_map_hidden },
     { "어그로 검사",        "몬스터가 많으면 서버 틱이 밀린다",     pf06_aggro_scan,   pf06_aggro_scan_hidden },
+    // 비동기와 동시성 (임시 번호 54~60)
+    { "맵 로딩",            "비동기로 불러오는데 로딩이 하나씩 진행된다", as01_loading,      as01_loading_hidden },
+    { "대장간 일괄 제작",   "주문 하나가 실패하면 대장간이 통째로 멈춘다", as02_crafting,    as02_crafting_hidden },
+    { "레이드 입장 대기",   "모두 준비했는데 공대장이 입장하지 않는다",   as03_raid_ready,   as03_raid_ready_hidden },
+    { "낙찰 공지",          "경매 창을 닫으면 낙찰가가 이상하게 공지된다", as04_auction_notice, as04_auction_notice_hidden },
+    { "한정 판매",          "3개 한정인데 5개가 팔렸다",                 as05_limited_sale, as05_limited_sale_hidden },
+    { "매치메이킹",         "대기열 인원이 모자라면 서버가 죽는다",       as06_matchmaking,  as06_matchmaking_hidden },
+    { "컷신 대화",          "컷신의 호감도 숫자가 이상하다",             as07_cutscene,     as07_cutscene_hidden },
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)
@@ -108,7 +116,7 @@ constexpr ChallengeEntry kChallenges[] = {
     { "B-7", 207, "챌린지 B-7", "무료 배송 금액인데 배송비가 붙는다",    chB7, chB7_hidden },
     { "B-8", 208, "챌린지 B-8", "포탑이 경보에 제대로 반응하지 않는다",  chB8, chB8_hidden },
 };
-constexpr int kChallengePart = 8;   // grade-report.json의 part (마지막 부 다음 번호)
+constexpr int kChallengePart = 9;   // grade-report.json의 part (마지막 부 다음 번호)
 
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
@@ -117,6 +125,7 @@ constexpr int kFlowLabEnd = 28;
 constexpr int kContainerLabEnd = 35;
 constexpr int kPointerLabEnd = 42;
 constexpr int kHangLabEnd = 47;
+constexpr int kPerfLabEnd = 53;
 
 int partOf(int labNumber)
 {
@@ -126,7 +135,8 @@ int partOf(int labNumber)
     if (labNumber <= kContainerLabEnd) return 4;
     if (labNumber <= kPointerLabEnd) return 5;
     if (labNumber <= kHangLabEnd) return 6;
-    return 7;
+    if (labNumber <= kPerfLabEnd) return 7;
+    return 8;   // 비동기와 동시성 (임시)
 }
 
 const char* buildName()
@@ -153,6 +163,8 @@ void printMenu()
             std::cout << "\n[6부] 멈춤 - 무한루프와 데드락. 멈추면 디버거에서 모두 중단(break all)\n";
         else if (i == kHangLabEnd)
             std::cout << "\n[7부] 성능 - 틀리지 않지만 느리다. Release + CPU 프로파일러\n";
+        else if (i == kPerfLabEnd)
+            std::cout << "\n[비동기와 동시성] (임시 번호) future, condition_variable, atomic, 스레드 수명, 코루틴\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }

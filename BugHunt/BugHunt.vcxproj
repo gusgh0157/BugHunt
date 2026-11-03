@@ -104,6 +104,13 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\grader.cpp" />
     <ClCompile Include="src\watchdog.cpp" />
+    <ClCompile Include="src\async\as01_loading.cpp" />
+    <ClCompile Include="src\async\as02_crafting.cpp" />
+    <ClCompile Include="src\async\as03_raid_ready.cpp" />
+    <ClCompile Include="src\async\as04_auction_notice.cpp" />
+    <ClCompile Include="src\async\as05_limited_sale.cpp" />
+    <ClCompile Include="src\async\as06_matchmaking.cpp" />
+    <ClCompile Include="src\async\as07_cutscene.cpp" />
     <ClCompile Include="src\platform\build_name.cpp" />
     <ClCompile Include="src\platform\platform_windows.cpp" />
     <ClCompile Include="src\platform\platform_posix.cpp" />

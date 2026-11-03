@@ -123,6 +123,15 @@ void pf04_save_log();
 void pf05_fog_map();
 void pf06_aggro_scan();
 
+// 비동기와 동시성 (src/async). 임시 번호 54~60, 마지막 번호 재배치 때 멈춤 앞으로 옮긴다
+void as01_loading();
+void as02_crafting();
+void as03_raid_ready();
+void as04_auction_notice();
+void as05_limited_sale();
+void as06_matchmaking();
+void as07_cutscene();
+
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();
 void chC2_raid_night();
@@ -171,6 +180,13 @@ void pf03_combat_log_hidden();
 void pf04_save_log_hidden();
 void pf05_fog_map_hidden();
 void pf06_aggro_scan_hidden();
+void as01_loading_hidden();
+void as02_crafting_hidden();
+void as03_raid_ready_hidden();
+void as04_auction_notice_hidden();
+void as05_limited_sale_hidden();
+void as06_matchmaking_hidden();
+void as07_cutscene_hidden();
 void chC1_auction_night_hidden();
 void chC2_raid_night_hidden();
 void chC3_shrine_hidden();
