@@ -5,9 +5,13 @@
 #include <vector>
 
 // 챌린지 C-3: 영웅을 다루는 게임 시스템들.
+
+// [JA] チャレンジ C-3: 英雄を扱うゲームシステムです。
 namespace chal3
 {
 // 공격력 = (기본 공격력 + 레벨 x 2 + 펫 보너스) x (100 + 프레스티지 x 5 + 버프%) / 100
+
+// [JA] 攻撃力 = (基本攻撃力 + レベル x 2 + ペットボーナス) x (100 + プレステージ x 5 + バフ%) / 100
 class StatSystem
 {
 public:
@@ -22,6 +26,8 @@ public:
 };
 
 // 성소에서 영웅 상태를 저장해 두고, 죽으면 그 상태로 되돌린다.
+
+// [JA] 聖所で英雄の状態を保存しておき、死んだらその状態に戻します。
 class CheckpointSystem
 {
 public:
@@ -52,6 +58,8 @@ private:
 };
 
 // 전투 피해 기록
+
+// [JA] 戦闘ダメージ記録
 class DamageMeter
 {
 public:

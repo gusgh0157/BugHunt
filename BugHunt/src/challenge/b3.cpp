@@ -3,6 +3,8 @@
 #include <vector>
 
 // 챌린지 B-3
+
+// [JA] チャレンジ B-3
 namespace blind3
 {
 struct Tile
@@ -11,6 +13,8 @@ struct Tile
 };
 
 // 지형 한 줄의 높이 변화 합 (오르막만)
+
+// [JA] 地形1列分の高さの変化の合計です(上り坂のみ)。
 int climbOf(const std::vector<Tile>& row)
 {
     int climb = 0;
@@ -42,7 +46,7 @@ void chB3()
     });
 }
 
-#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 void chB3_hidden()
 {
     using namespace blind3;

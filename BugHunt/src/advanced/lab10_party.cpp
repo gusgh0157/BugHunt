@@ -27,6 +27,8 @@ void setName(Character& c, const char* newName)
 }
 
 // 레벨 10 이상인 캐릭터에게 기사 작위를 준다.
+
+// [JA] レベル10以上のキャラクターに騎士の称号を与えます。
 void grantKnighthood(std::vector<Character>& party)
 {
     for (Character& c : party)
@@ -67,22 +69,33 @@ void lab10_party()
 
 // ============================================================================
 // 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
+// [JA] ヒント: 行き詰まったときに一つずつ開いてください。(エディターの折りたたみ機能ですべて折りたたんでおいてください)
 // ============================================================================
 
-#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+#pragma region 힌트 1 / ヒント 1 (먼저 직접 추적해 보고 펼치세요 / まず自分で追跡してから開いてください)
 // 첫 levelUpAll(party); 줄에 중단점 → 조사식에 &party[0].hp
 // → 그 주소에 데이터 중단점(watchpoint, "값이 바뀌면 멈춤")을 걸고 계속 실행
+
+// [JA] 最初の levelUpAll(party); の行にブレークポイント → ウォッチに &party[0].hp
+// [JA] → そのアドレスにデータブレークポイント(watchpoint、「値が変わったら中断」)を置いて続行
 #pragma endregion
 
-#pragma region 힌트 2
+#pragma region 힌트 2 / ヒント 2
 // 멈춘 곳의 호출 스택을 보세요. hp를 쓰는 코드가 아닌데 hp가 바뀌었다면?
+
+// [JA] 止まった場所の呼び出し履歴を見てください。hp に書き込むコードではないのに hp が変わったとしたら?
 #pragma endregion
 
-#pragma region 힌트 3
+#pragma region 힌트 3 / ヒント 3
 // 메모리 보기에 &party[0]을 넣고 name과 hp가 메모리에서 어떻게 붙어 있는지 보세요.
 // "Sir Kael"은 몇 바이트인가요?
+
+// [JA] メモリ ウィンドウに &party[0] を入れて、name と hp がメモリ上でどう並んでいるかを見てください。
+// [JA] "Sir Kael" は何バイトですか?
 #pragma endregion
 
-#pragma region 참고
+#pragma region 참고 / 参考
 // 이 버그는 ASan도 못 잡습니다(구조체 안에서 넘친 것이라 할당 범위 밖이 아님). 데이터 중단점이 답입니다.
+
+// [JA] このバグは ASan でも捕まえられません(構造体の中であふれたので、割り当て範囲の外ではありません)。データブレークポイントが答えです。
 #pragma endregion

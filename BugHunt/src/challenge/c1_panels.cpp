@@ -1,6 +1,8 @@
 #include "c1_auction.h"
 
 // 챌린지 C-1: 경매장 화면의 패널들. 게임 루프가 틈날 때마다 refresh를 부른다.
+
+// [JA] チャレンジ C-1: オークション会場画面のパネルです。ゲームループが手の空いたときに refresh を呼びます。
 namespace chal1
 {
 namespace

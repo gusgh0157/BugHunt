@@ -3,6 +3,9 @@
 
 // 챌린지 C-1
 // 경매 한 건을 처음부터 끝까지 재생한다. 입찰 사이사이에 게임 루프가 화면 패널을 새로 그린다.
+
+// [JA] チャレンジ C-1
+// [JA] オークション1件を最初から最後まで再生します。入札の合間に、ゲームループが画面のパネルを描き直します。
 namespace chal1
 {
 namespace
@@ -34,6 +37,8 @@ std::string winnerOf(const AuctionHouse& house)
 }
 
 // 게임 루프의 한 프레임: 화면을 다시 그린다.
+
+// [JA] ゲームループの1フレーム: 画面を描き直します。
 void drawFrame(AuctionHouse& house, BidderPanel& bidders, StatusPanel& status)
 {
     bidders.refresh(house);
@@ -80,8 +85,10 @@ void chC1_auction_night()
     expect("판매자 수령액 (450 - 수수료 5%)", 428, house.sellerProceeds());
 }
 
-#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
 void chC1_auction_night_hidden()
 {
     using namespace chal1;

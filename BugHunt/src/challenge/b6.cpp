@@ -3,6 +3,8 @@
 #include <vector>
 
 // 챌린지 B-6
+
+// [JA] チャレンジ B-6
 namespace blind6
 {
 long long g_compares = 0;
@@ -19,6 +21,8 @@ struct PlayerId
 };
 
 // 오늘 접속한 플레이어 기록에서 서로 다른 플레이어만 뽑는다. 처음 나온 순서를 지킨다.
+
+// [JA] 今日ログインしたプレイヤーの記録から、互いに異なるプレイヤーだけを取り出します。最初に現れた順序を守ります。
 std::vector<PlayerId> uniquePlayers(const std::vector<PlayerId>& logins)
 {
     std::vector<PlayerId> unique;
@@ -60,7 +64,7 @@ void chB6()
     expect("PlayerId 비교가 기록 수의 4배 이하인가?", true, g_compares <= 4LL * static_cast<long long>(logins.size()));
 }
 
-#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 void chB6_hidden()
 {
     using namespace blind6;

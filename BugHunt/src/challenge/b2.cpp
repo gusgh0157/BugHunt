@@ -3,6 +3,8 @@
 #include <vector>
 
 // 챌린지 B-2
+
+// [JA] チャレンジ B-2
 namespace blind2
 {
 struct Notice
@@ -43,7 +45,7 @@ void chB2()
     expect("셋째 줄", std::string("길드전 신청 - Kael"), lines.at(2));
 }
 
-#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 void chB2_hidden()
 {
     using namespace blind2;

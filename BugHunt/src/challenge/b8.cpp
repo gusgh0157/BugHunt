@@ -4,6 +4,8 @@
 #include <vector>
 
 // 챌린지 B-8
+
+// [JA] チャレンジ B-8
 namespace blind8
 {
 class AlarmBell
@@ -39,6 +41,8 @@ private:
 };
 
 // 성벽에 포탑을 세우고 경보에 연결한다. 세울 때마다 바로 연결한다.
+
+// [JA] 城壁に砲塔を建てて警報につなぎます。建てるたびにすぐつなぎます。
 std::vector<Turret> buildWall(AlarmBell& bell, const std::vector<std::string>& names)
 {
     std::vector<Turret> turrets;
@@ -64,7 +68,7 @@ void chB8()
     expect("서문 포탑", 5, turrets.at(2).shots());
 }
 
-#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 void chB8_hidden()
 {
     using namespace blind8;

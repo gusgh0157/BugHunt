@@ -3,6 +3,8 @@
 #include <vector>
 
 // 챌린지 B-4
+
+// [JA] チャレンジ B-4
 namespace blind4
 {
 class Monster
@@ -51,7 +53,7 @@ void chB4()
     expect("오우거 체력 바 (378/400)", 9, wave[1].barCells());
 }
 
-#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 void chB4_hidden()
 {
     using namespace blind4;

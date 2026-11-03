@@ -3,6 +3,8 @@
 #include <vector>
 
 // 챌린지 B-1
+
+// [JA] チャレンジ B-1
 namespace blind1
 {
 struct ShopItem
@@ -12,6 +14,8 @@ struct ShopItem
 };
 
 // 진열대의 물건이 가격 오름차순으로 놓여 있는가?
+
+// [JA] 陳列棚の品物が価格の昇順に並んでいますか?
 bool isSortedByPrice(const std::vector<ShopItem>& shelf)
 {
     for (size_t i = 0; i < shelf.size() - 1; ++i)
@@ -53,7 +57,7 @@ void chB1()
     expect("가격 순으로 정리된 진열대 수", 3, countSortedShelves(market));
 }
 
-#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 void chB1_hidden()
 {
     using namespace blind1;

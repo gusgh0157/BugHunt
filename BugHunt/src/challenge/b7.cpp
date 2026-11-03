@@ -4,6 +4,8 @@
 #include <vector>
 
 // 챌린지 B-7
+
+// [JA] チャレンジ B-7
 namespace blind7
 {
 struct Order
@@ -21,6 +23,8 @@ double cartTotal(const std::vector<Order>& cart)
 }
 
 // 10금화 이상이면 무료 배송, 아니면 배송비 1.5금화
+
+// [JA] 10金貨以上なら送料無料、そうでなければ送料は1.5金貨です。
 double withShipping(const std::vector<Order>& cart)
 {
     const double total = cartTotal(cart);
@@ -36,7 +40,7 @@ void chB7()
     expect("결제 금액 (10금화, 무료 배송)", 10.0, withShipping(cart));
 }
 
-#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 void chB7_hidden()
 {
     using namespace blind7;

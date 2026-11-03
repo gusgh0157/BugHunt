@@ -6,6 +6,9 @@
 
 // 챌린지 C-2: 게임 이벤트 버스.
 // 시스템들은 관심 있는 이벤트를 구독하고, 전투 코드는 일어난 일을 publish한다.
+
+// [JA] チャレンジ C-2: ゲームイベントバスです。
+// [JA] システムは関心のあるイベントを購読し、戦闘コードは起きたことを publish します。
 namespace chal2
 {
 enum class EventType
@@ -28,6 +31,9 @@ using Handler = std::function<void(const Event&)>;
 
 // 구독한 순서대로 핸들러를 부른다.
 // 핸들러 안에서 unsubscribe를 불러도 된다. (퀘스트가 끝나면 스스로 구독을 끊는 식)
+
+// [JA] 購読した順にハンドラーを呼びます。
+// [JA] ハンドラーの中で unsubscribe を呼んでもかまいません。(クエストが終わったら自分で購読を解除する、といった使い方です)
 class EventBus
 {
 public:

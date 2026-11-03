@@ -4,6 +4,8 @@
 #include <vector>
 
 // 챌린지 C-3: 영웅 데이터.
+
+// [JA] チャレンジ C-3: 英雄データです。
 namespace chal3
 {
 struct Pet
