@@ -50,20 +50,7 @@ constexpr LabEntry kLabs[] = {
     { "장비 수리",          "골드는 빠졌는데 내구도가 그대로다",    ft06_repair,       ft06_repair_hidden },
     { "업적 해금",          "조건을 채운 업적 하나가 안 열린다",    ft07_achievements, ft07_achievements_hidden },
     { "난이도 설정",        "어려움으로 저장했는데 적이 약하다",    ft08_difficulty,   ft08_difficulty_hidden },
-    // 4부: 포인터 오용
-    { "랭킹 보드",          "랭킹 줄이 전부 깨져서 나온다",        pt01_ranking,      pt01_ranking_hidden },
-    { "현상금 사냥",        "골드가 음수 수억이 된다",              pt02_bounty,       pt02_bounty_hidden },
-    { "폭발 이펙트",        "이펙트가 끝날 때 멈춘다",              pt03_particles,    pt03_particles_hidden },
-    { "전리품 패킷",        "받은 아이템 개수가 엉망이다",          pt04_loot_packet,  pt04_loot_packet_hidden },
-    { "장비 공격력",        "맨손 파티원에서 죽는다",               pt05_equipment,    pt05_equipment_hidden },
-    { "길드 해산",          "길드를 내려도 메모리가 남는다",        pt06_guild,        pt06_guild_hidden },
-    // 5부: 멈춤 - 무한루프와 데드락
-    { "스킬 쿨다운",        "파이어볼 쿨다운 계산에서 멈춘다",      hg01_cooldown,     hg01_cooldown_hidden },
-    { "부활 카운트다운",    "부활 알림을 세다가 멈춘다",            hg02_respawn,      hg02_respawn_hidden },
-    { "채팅 명령어",        "명령어를 입력하면 멈춘다",             hg03_chat_command, hg03_chat_command_hidden },
-    { "자동 이동 경로",     "숲을 경로에 넣으면 멈춘다",            hg04_route,        hg04_route_hidden },
-    { "동시 거래",          "두 사람이 서로 팔면 둘 다 멈춘다",     hg05_trade,        hg05_trade_hidden },
-    // 컨테이너
+    // 4부: 컨테이너
     { "가방 조회",          "상점을 열었을 뿐인데 가방이 꽉 찬다",  ct01_bag_lookup,   ct01_bag_lookup_hidden },
     { "파티 찾기",          "고른 사람과 다른 사람이 초대된다",     ct02_party_finder, ct02_party_finder_hidden },
     { "아레나 순위표",      "순위표를 정렬하다가 멈춘다",           ct03_leaderboard,  ct03_leaderboard_hidden },
@@ -71,9 +58,21 @@ constexpr LabEntry kLabs[] = {
     { "던전 문 퍼즐",       "퍼즐 점수가 거꾸로 매겨진다",          ct05_dungeon_doors, ct05_dungeon_doors_hidden },
     { "이름표",             "칭호를 받으면 이름표가 깨진다",        ct06_nameplates,   ct06_nameplates_hidden },
     { "시즌 랭킹",          "우승자가 1위에 오르지 않는다",         ct07_season_ranking, ct07_season_ranking_hidden },
-    // 람다 캡처 (임시 번호, 재배치 때 포인터 부로 옮긴다)
+    // 5부: 포인터 오용
+    { "랭킹 보드",          "랭킹 줄이 전부 깨져서 나온다",        pt01_ranking,      pt01_ranking_hidden },
+    { "현상금 사냥",        "골드가 음수 수억이 된다",              pt02_bounty,       pt02_bounty_hidden },
+    { "폭발 이펙트",        "이펙트가 끝날 때 멈춘다",              pt03_particles,    pt03_particles_hidden },
+    { "전리품 패킷",        "받은 아이템 개수가 엉망이다",          pt04_loot_packet,  pt04_loot_packet_hidden },
+    { "장비 공격력",        "맨손 파티원에서 죽는다",               pt05_equipment,    pt05_equipment_hidden },
+    { "길드 해산",          "길드를 내려도 메모리가 남는다",        pt06_guild,        pt06_guild_hidden },
     { "분노 버프",          "분노가 끝나도 공격력이 원래대로 안 돌아온다", pt07_rage_timer, pt07_rage_timer_hidden },
-    // 성능 - 틀리지는 않지만 느리다
+    // 6부: 멈춤 - 무한루프와 데드락
+    { "스킬 쿨다운",        "파이어볼 쿨다운 계산에서 멈춘다",      hg01_cooldown,     hg01_cooldown_hidden },
+    { "부활 카운트다운",    "부활 알림을 세다가 멈춘다",            hg02_respawn,      hg02_respawn_hidden },
+    { "채팅 명령어",        "명령어를 입력하면 멈춘다",             hg03_chat_command, hg03_chat_command_hidden },
+    { "자동 이동 경로",     "숲을 경로에 넣으면 멈춘다",            hg04_route,        hg04_route_hidden },
+    { "동시 거래",          "두 사람이 서로 팔면 둘 다 멈춘다",     hg05_trade,        hg05_trade_hidden },
+    // 7부: 성능 - 틀리지는 않지만 느리다
     { "채팅 큐",            "메시지가 몰리면 서버가 굳는다",        pf01_chat_queue,   pf01_chat_queue_hidden },
     { "장비 무게 HUD",      "장비가 많으면 프레임이 떨어진다",      pf02_loadout,      pf02_loadout_hidden },
     { "전투 기록 내보내기", "긴 레이드일수록 내보내기가 오래 걸린다", pf03_combat_log, pf03_combat_log_hidden },
@@ -85,18 +84,18 @@ constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
 constexpr int kAdvancedLabEnd = 20;
 constexpr int kFlowLabEnd = 28;
-constexpr int kPointerLabEnd = 34;
-constexpr int kHangLabEnd = 39;
-constexpr int kContainerLabEnd = 47;
+constexpr int kContainerLabEnd = 35;
+constexpr int kPointerLabEnd = 42;
+constexpr int kHangLabEnd = 47;
 
 int partOf(int labNumber)
 {
     if (labNumber <= kBasicLabCount) return 1;
     if (labNumber <= kAdvancedLabEnd) return 2;
     if (labNumber <= kFlowLabEnd) return 3;
-    if (labNumber <= kPointerLabEnd) return 4;
-    if (labNumber <= kHangLabEnd) return 5;
-    if (labNumber <= kContainerLabEnd) return 6;
+    if (labNumber <= kContainerLabEnd) return 4;
+    if (labNumber <= kPointerLabEnd) return 5;
+    if (labNumber <= kHangLabEnd) return 6;
     return 7;
 }
 
@@ -123,12 +122,12 @@ void printMenu()
         else if (i == kAdvancedLabEnd)
             std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 F10/F11로 따라가세요\n";
         else if (i == kFlowLabEnd)
-            std::cout << "\n[4부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요\n";
-        else if (i == kPointerLabEnd)
-            std::cout << "\n[5부] 멈춤 - 무한루프와 데드락. 멈추면 디버그 → 모두 중단(Ctrl+Alt+Break)\n";
-        else if (i == kHangLabEnd)
-            std::cout << "\n[6부] 컨테이너 - 표준 컨테이너와 알고리즘의 함정\n";
+            std::cout << "\n[4부] 컨테이너 - 표준 컨테이너와 알고리즘의 함정\n";
         else if (i == kContainerLabEnd)
+            std::cout << "\n[5부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요\n";
+        else if (i == kPointerLabEnd)
+            std::cout << "\n[6부] 멈춤 - 무한루프와 데드락. 멈추면 디버그 → 모두 중단(Ctrl+Alt+Break)\n";
+        else if (i == kHangLabEnd)
             std::cout << "\n[7부] 성능 - 틀리지 않지만 느리다. Release + 성능 프로파일러(Alt+F2)\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';

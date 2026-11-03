@@ -236,9 +236,110 @@ if (kill || gold || level) ...
 
 ---
 
-# 4부: 포인터 오용
+# 4부: 컨테이너
 
-## Lab 29 — 지역 변수의 주소를 반환
+## Lab 29 — map::operator[]가 없는 키를 만듦
+```
+관찰:        openShop 전 bag.size() == 3, 후 == 6 ("Mana Potion", "Fire Scroll", "Rope"가 개수 0으로 생김)
+진짜 원인:   countOf의 bag[item]은 키가 없으면 기본값(0)으로 원소를 새로 만든다
+```
+**수정:** 읽기만 할 때는 `find`(또는 C++20 `contains`)를 쓰고 `const Bag&`로 받는다.
+```cpp
+int countOf(const Bag& bag, const std::string& item)
+{
+    const auto it = bag.find(item);
+    return it == bag.end() ? 0 : it->second;
+}
+```
+`const Bag&`로 바꾸면 `bag[item]`은 컴파일 오류가 되어 같은 실수를 막아 준다.
+**교훈:** `operator[]`는 "찾기"가 아니라 "찾고 없으면 만들기"다.
+
+## Lab 30 — rehash 뒤에 "몇 번째 줄"이 다른 사람을 가리킴
+```
+조사식:      registerWave(..., 60) 전후로 bucket_count가 크게 늘고, selectedName()이 Mira → 다른 사람으로 바뀜
+진짜 원인:   선택을 순회 순서의 위치(줄 번호)로 기억함. rehash가 원소를 새 버킷에 다시 나눠 담으면서 순서가 바뀐다
+```
+**수정:** rehash에도 변하지 않는 것으로 기억한다. 표준은 rehash가 이터레이터를 무효화해도 **원소에 대한 참조와 포인터는 유지**된다고 보장한다.
+```cpp
+void select(size_t row) { selected_ = &*std::next(board_.begin(), row); }
+const std::string& selectedName() const { return selected_->first; }
+std::string confirmInvite()
+{
+    auto it = board_.find(selected_->first);
+    ...
+}
+Board::value_type* selected_ = nullptr;
+```
+키(이름)를 복사해 두고 `find`해도 된다.
+**교훈:** `unordered_map`의 순회 순서는 약속이 아니다. 오래 들고 있을 것은 키나 원소 포인터로.
+
+## Lab 31 — 비교자가 strict weak ordering을 어김
+```
+어설션:      xutility : invalid comparator
+조사식:      comp(Kael, Doran) == true, comp(Doran, Kael) == true  (둘 다 1500점)
+진짜 원인:   >= 는 같은 값에 대해 true를 돌려준다. "a가 b보다 앞서고 b도 a보다 앞선다"는 모순
+```
+**수정:** `return a.score > b.score;`
+**구성별:** Debug와 ASan(Debug 라이브러리 사용)은 어설션으로 알려 준다. Release는 검사가 없어서 원소가 적으면 우연히 맞게 정렬되고, 같은 값이 아주 많으면 정렬이 배열 밖까지 읽어 나가 죽기도 한다.
+**교훈:** 비교자는 "엄격하게 앞서는가"를 답한다. 같으면 false.
+
+## Lab 32 — remove_if만 하고 erase를 빼먹음
+```
+관찰:        호출 뒤에도 size 6. 앞 3칸은 남길 장비, 뒤 3칸은 옮겨지고 남은 찌꺼기 (Silver Ring이 두 번 보이기도 함)
+경고:        C4858 반환값을 버리고 있습니다 (remove/remove_if는 erase가 필요)
+```
+**수정:** C++20 `std::erase_if(bag, pred);` 또는 erase-remove 관용구 `bag.erase(std::remove_if(bag.begin(), bag.end(), pred), bag.end());`
+**교훈:** 알고리즘은 이터레이터만 받으므로 컨테이너의 크기를 바꿀 수 없다. 경고를 0개로 유지하면 이 버그는 빌드할 때 보인다.
+
+## Lab 33 — vector<bool>의 프록시 참조
+```
+지역 창:     wasOpen의 형식이 bool이 아니라 std::_Vb_reference<...>
+             토글한 다음 줄에서 wasOpen도 같이 바뀜
+진짜 원인:   vector<bool>은 비트로 압축되어 있어 operator[]가 bool&를 줄 수 없고, 비트를 가리키는 프록시 객체를 준다.
+             auto는 그 프록시를 복사하므로 "이전 값"이 아니라 "지금 값"을 계속 가리킨다
+```
+**수정:** `const bool wasOpen = doorsOpen[door];` (타입을 적어서 값으로 꺼낸다). 비트 압축이 필요 없다면 `std::vector<char>`나 `std::vector<std::uint8_t>`도 좋다.
+**교훈:** `auto x = v[i];`가 복사라는 믿음은 `vector<bool>`에서 깨진다. 지역 창의 형식 열을 보자.
+
+## Lab 34 — c_str() 포인터 수명과 SSO
+```
+조사식:      (void*)heroes[i].name.c_str() 가 grantTitle 뒤에 바뀜 (Doran, Selene), Kael은 그대로
+Kael:        "Kael the Brave" 14글자 → 여전히 객체 안 버퍼(SSO) → 같은 주소라 우연히 맞음
+Doran:       21글자 → 객체 안 버퍼에서 힙으로 이사. 이름표는 객체 안의 옛 버퍼(지금은 힙 포인터가 들어 있음)를 읽어 깨진 글자
+Selene:      원래 힙(18글자, 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (Debug에서 0xDD 계열 글자)
+```
+**수정:** 이름표가 문자열 버퍼가 아니라 문자열을 가진 객체를 가리키게 한다.
+```cpp
+explicit Nameplate(const Hero& hero) : hero_(&hero) {}
+const char* text() const { return hero_->name.c_str(); }
+const Hero* hero_;
+```
+**구성별:** ASan은 Selene만 잡는다(heap-use-after-free). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
+**교훈:** `c_str()`/`data()`/`string_view`는 문자열이 바뀌면 무효가 될 수 있다. 짧은 문자열은 SSO 때문에 "되는 것처럼" 보여서 더 늦게 발견된다.
+
+## Lab 35 — set 안에 있는 원소의 정렬 기준을 바꿈
+```
+조사식:      season.ranked_ 순서가 Mira(1450), Selene, Kael, Doran(1700) → 점수 순이 아님
+진짜 원인:   recordMatch가 set에 들어 있는 Player의 score를 직접 바꿈. set은 넣을 때만 자리를 정하므로 트리가 정렬 불변식을 잃는다.
+             그 뒤의 find/erase는 엉뚱한 가지로 내려가 원소를 못 찾을 수 있다
+```
+**수정:** 꺼내고, 바꾸고, 다시 넣는다.
+```cpp
+void recordMatch(Player* p, int points)
+{
+    ranked_.erase(p);
+    p->score += points;
+    ranked_.insert(p);
+}
+```
+(C++17의 `extract`로 노드를 꺼내 고친 뒤 `insert`해도 된다.)
+**교훈:** `set`/`map`의 키는 const지만, 포인터를 키로 쓰면 가리키는 대상까지 지켜 주지 않는다.
+
+---
+
+# 5부: 포인터 오용
+
+## Lab 36 — 지역 변수의 주소를 반환
 ```
 조사식:      board[0], board[1], board[2] 가 모두 같은 주소
 진짜 원인:   formatEntry가 지역 배열 line의 주소를 반환. 함수가 끝나면 line은 사라지고,
@@ -248,7 +349,7 @@ if (kill || gold || level) ...
 **구성별:** Debug와 Release 모두 깨진 글자. ASan도 기본 설정으로는 잡지 못한다(`/fsanitize-address-use-after-return`과 `ASAN_OPTIONS=detect_stack_use_after_return=1`이 필요). 가장 빠른 단서는 컴파일러 경고 **C4172**였다.
 **교훈:** 포인터를 돌려줄 때는 "가리키는 대상이 함수보다 오래 사는가?"를 먼저 묻는다.
 
-## Lab 30 — 해제된 몬스터에서 현상금을 읽음 (use-after-free)
+## Lab 37 — 해제된 몬스터에서 현상금을 읽음 (use-after-free)
 ```
 이상한 값:     hunter.target->bounty == -572662307 (0xDDDDDDDD = 해제된 힙)
 처음 어긋난 줄: field.removeDefeated()  (타깃 몬스터를 delete)
@@ -264,7 +365,7 @@ field.removeDefeated();
 **구성별:** Debug는 `0xDD`로 채워져 FAIL. Release는 해제된 메모리에 옛 값이 남아 **PASS**. ASan은 heap-use-after-free와 함께 읽은 곳(`hunt`), 해제한 곳(`removeDefeated`), 할당한 곳(`spawn`)의 호출 스택을 보여 준다.
 **교훈:** Release에서 통과했다고 버그가 없는 게 아니다. 해제된 메모리를 읽는 버그는 Debug의 `0xDD`와 ASan으로 드러낸다.
 
-## Lab 31 — new[]로 만들고 delete로 지움
+## Lab 38 — new[]로 만들고 delete로 지움
 ```
 멈춘 곳:     어설션 _CrtIsValidHeapPointer(block) ← ~Explosion의 delete particles_
 관찰:        첫 폭발이 끝날 때 ~Particle()이 16번이 아니라 1번만 불림
@@ -275,7 +376,7 @@ field.removeDefeated();
 **구성별:** Debug는 힙 검사 어설션. Release는 힙 손상(`0xC0000374`)으로 죽는다. ASan은 "attempting free on address which was not malloc()-ed". 소멸자가 없는 타입(`int` 등)이면 앞의 개수 칸이 없어서 Debug와 Release에서는 아무 증상 없이 지나가기도 한다. 그래도 정의되지 않은 동작이다.
 **교훈:** 소멸자를 가진 타입의 배열은 `new[]`가 앞에 개수를 몰래 적어 둔다. 만든 방법과 지우는 방법은 항상 짝을 맞춘다.
 
-## Lab 32 — 포인터 산술 단위 실수
+## Lab 39 — 포인터 산술 단위 실수
 ```
 조사식:      (const char*)entries - (const char*)header == 16  (헤더 바로 뒤라면 4)
 진짜 원인:   header는 PacketHeader*. header + sizeof(PacketHeader) 는 "4바이트 뒤"가 아니라
@@ -285,7 +386,7 @@ field.removeDefeated();
 **구성별:** Debug는 패킷 바로 뒤의 경계 바이트 `0xFDFD`(= 65021)를 개수로 읽어 합계가 6만대가 된다. Release는 쓰레기 값. ASan은 heap-buffer-overflow(READ of size 2)로 그 줄에서 멈춘다.
 **교훈:** 포인터에 더하는 수의 단위는 "가리키는 타입 하나"다. 바이트 단위로 움직이려면 `char*`/`uint8_t*`에서 계산한다.
 
-## Lab 33 — 초기화 안 된 포인터 멤버
+## Lab 40 — 초기화 안 된 포인터 멤버
 ```
 멈춘 곳:     Hero::attackPower의 power += weapon_->bonus  (읽기 액세스 위반)
 지역 창:     this->weapon_ == 0xcccccccccccccccc
@@ -296,7 +397,7 @@ field.removeDefeated();
 **구성별:** Debug는 `/RTC1`이 스택을 `0xCC`로 채워서 매번 같은 곳에서 죽는다. Release는 그 자리에 남은 쓰레기에 따라 통과하기도 하고 엉뚱한 공격력이 나오기도 한다. ASan 구성은 `/RTC`가 꺼져 있어 역시 쓰레기 값이다. 쓰레기 주소가 어디를 가리키느냐에 따라 stack-buffer-overflow처럼 엉뚱한 이름의 리포트가 나오기도 한다. ASan은 "초기화 안 된 값" 자체를 잡는 도구가 아니다.
 **교훈:** x64에서 `0xCCCC...` 같은 주소를 읽으면 예외 메시지에는 `0xFFFFFFFFFFFFFFFF`로 나올 수 있다. 예외 메시지보다 지역 창의 포인터 값을 본다. 랩 12처럼 코드 분석 경고 C26495가 미리 알려 준다.
 
-## Lab 34 — shared_ptr 순환 참조
+## Lab 41 — shared_ptr 순환 참조
 ```
 지역 창:     guild [strong ref=4]  (지역 변수 1 + 길드원 3명의 guild 멤버)
 진짜 원인:   Guild → members(shared_ptr) → Member → guild(shared_ptr) → Guild
@@ -315,7 +416,7 @@ std::string guildNameOf(const Member& member)
 **구성별:** 세 구성 모두 똑같이 FAIL이다. 크래시도, 어설션도, ASan 리포트도 없다(Windows의 ASan에는 누수 검사기가 없다). 2부 랩 16처럼 CRT 누수 측정이나 소멸자 중단점으로 확인한다.
 **교훈:** 스마트 포인터도 소유 관계에 고리가 생기면 샌다. "누가 누구를 소유하는가"를 한 방향으로 정하고, 거꾸로 가는 쪽은 `weak_ptr`로 둔다.
 
-## Lab 47 — [&] 람다가 끝난 함수의 지역 변수를 참조
+## Lab 42 — [&] 람다가 끝난 함수의 지역 변수를 참조
 ```
 중단점:      람다 안 hero.attack -= bonus; (Kael 차례)
 지역 창:     bonus = 45   ← 분노를 걸 때 출력은 (+30)
@@ -336,9 +437,9 @@ timers.after(3, [&hero, bonus] {
 
 ---
 
-# 5부: 멈춤 - 무한루프와 데드락
+# 6부: 멈춤 - 무한루프와 데드락
 
-## Lab 35 — float 누적과 != 종료 조건
+## Lab 43 — float 누적과 != 종료 조건
 ```
 모두 중단:     랩 작업 스레드 → ticksUntilReady. 다시 모두 중단할 때마다 ticks가 커져 있음 (무한루프)
 조건부 중단점: ticks == 15 일 때 t == 1.50000024, cooldownSeconds == 1.5
@@ -352,7 +453,7 @@ return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));   // #inclu
 `t < cooldownSeconds`로만 바꾸면 멈추지는 않지만 오차 때문에 한 틱을 더 센다. 예를 들어 1.2초 / 0.05초는 24가 아니라 25가 나온다(채점기의 숨은 케이스가 이것을 잡는다).
 **교훈:** 실수는 `==`, `!=`로 비교하지 않는다. "몇 번 반복하는가"는 정수로 센다.
 
-## Lab 36 — unsigned의 s >= 0
+## Lab 44 — unsigned의 s >= 0
 ```
 모두 중단:   s가 12보다 훨씬 큰 수 (수십억). 조건부 중단점 s == 0 에서 F10을 하면 4294967295 (0xFFFFFFFF)
 진짜 원인:   unsigned에는 음수가 없어서 s >= 0 이 항상 참. 0에서 --s 하면 4294967295로 돌아간다.
@@ -360,7 +461,7 @@ return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));   // #inclu
 **수정:** `for (unsigned int s = waitSeconds + 1; s-- > 0;)` 또는 부호 있는 정수로 센다: `for (int s = static_cast<int>(waitSeconds); s >= 0; --s)`.
 **교훈:** 이 실수를 알려 주는 경고 C4296("식이 항상 true")은 `/W4`에서도 꺼져 있다. `/w14296`이나 `/Wall`로 켜야 보인다. 거꾸로 세는 반복에서 `unsigned`/`size_t`를 보면 의심한다.
 
-## Lab 37 — continue가 ++i를 건너뜀
+## Lab 45 — continue가 ++i를 건너뜀
 ```
 모두 중단:   i == 6 (첫 공백), c == ' ', words == { "/party" }. F10을 계속 눌러도 i가 그대로
 진짜 원인:   공백 분기가 i를 늘리지 않고 continue → 같은 공백을 영원히 다시 읽는다
@@ -368,7 +469,7 @@ return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));   // #inclu
 **수정:** `continue;` 앞에 `++i;`. 또는 `for (char c : line)`처럼 인덱스를 직접 다루지 않는 반복으로 바꾼다.
 **교훈:** `while` 반복의 모든 경로가 루프 변수를 앞으로 움직이는지 확인한다. 다음 문 설정으로 `++i;`를 한 번 실행시켜 보면 가설을 바로 시험할 수 있다.
 
-## Lab 38 — 끼워 넣기 순서가 바뀌어 자기 자신을 가리킴
+## Lab 46 — 끼워 넣기 순서가 바뀌어 자기 자신을 가리킴
 ```
 모두 중단:   countStops 안, stops가 수천만, p->name == "Forest"
 조사식:      p == p->next  (Forest의 next가 자기 자신)
@@ -382,7 +483,7 @@ pos->next = wp;
 방어하려면 순회할 때 순환을 검사한다(토끼와 거북이: 한 칸씩 가는 포인터와 두 칸씩 가는 포인터가 만나면 순환).
 **교훈:** 연결 리스트에서 무한루프가 나면 조사식에 `p`, `p->next`, `p->next->next`를 넣고 **주소**를 비교한다.
 
-## Lab 39 — 잠금 순서가 엇갈리는 데드락
+## Lab 47 — 잠금 순서가 엇갈리는 데드락
 ```
 병렬 스택:   trade 스레드 2개가 모두 lock_guard → mutex lock 에서 대기 (CPU 0%)
 스레드 A:    seller = Kael. Kael.lock을 가졌고 Mira.lock을 기다림
@@ -399,107 +500,6 @@ if (!verifyItem(seller, item))
 또는 언제나 같은 기준(플레이어 ID가 작은 쪽, 주소가 작은 쪽)으로 먼저 잠근다. 숨은 케이스의 세 명 원형 거래도 이 방법으로 풀린다.
 위조 검사를 잠금 전으로 옮기기만 하면 50ms의 틈이 줄어 대부분 통과하지만, 잠금 순서 문제는 그대로라 아주 가끔만 멈추는 더 찾기 어려운 버그가 된다. 게다가 잠금 없이 검사하면 검사와 거래 사이에 아이템이 바뀔 수 있다.
 **교훈:** 데드락은 "누가 무엇을 가졌고 무엇을 기다리는가"를 스레드마다 적어 보면 고리가 보인다. 여러 잠금은 한 번에, 또는 항상 같은 순서로 잡는다.
-
----
-
-# 6부: 컨테이너
-
-## Lab 40 — map::operator[]가 없는 키를 만듦
-```
-관찰:        openShop 전 bag.size() == 3, 후 == 6 ("Mana Potion", "Fire Scroll", "Rope"가 개수 0으로 생김)
-진짜 원인:   countOf의 bag[item]은 키가 없으면 기본값(0)으로 원소를 새로 만든다
-```
-**수정:** 읽기만 할 때는 `find`(또는 C++20 `contains`)를 쓰고 `const Bag&`로 받는다.
-```cpp
-int countOf(const Bag& bag, const std::string& item)
-{
-    const auto it = bag.find(item);
-    return it == bag.end() ? 0 : it->second;
-}
-```
-`const Bag&`로 바꾸면 `bag[item]`은 컴파일 오류가 되어 같은 실수를 막아 준다.
-**교훈:** `operator[]`는 "찾기"가 아니라 "찾고 없으면 만들기"다.
-
-## Lab 41 — rehash 뒤에 "몇 번째 줄"이 다른 사람을 가리킴
-```
-조사식:      registerWave(..., 60) 전후로 bucket_count가 크게 늘고, selectedName()이 Mira → 다른 사람으로 바뀜
-진짜 원인:   선택을 순회 순서의 위치(줄 번호)로 기억함. rehash가 원소를 새 버킷에 다시 나눠 담으면서 순서가 바뀐다
-```
-**수정:** rehash에도 변하지 않는 것으로 기억한다. 표준은 rehash가 이터레이터를 무효화해도 **원소에 대한 참조와 포인터는 유지**된다고 보장한다.
-```cpp
-void select(size_t row) { selected_ = &*std::next(board_.begin(), row); }
-const std::string& selectedName() const { return selected_->first; }
-std::string confirmInvite()
-{
-    auto it = board_.find(selected_->first);
-    ...
-}
-Board::value_type* selected_ = nullptr;
-```
-키(이름)를 복사해 두고 `find`해도 된다.
-**교훈:** `unordered_map`의 순회 순서는 약속이 아니다. 오래 들고 있을 것은 키나 원소 포인터로.
-
-## Lab 42 — 비교자가 strict weak ordering을 어김
-```
-어설션:      xutility : invalid comparator
-조사식:      comp(Kael, Doran) == true, comp(Doran, Kael) == true  (둘 다 1500점)
-진짜 원인:   >= 는 같은 값에 대해 true를 돌려준다. "a가 b보다 앞서고 b도 a보다 앞선다"는 모순
-```
-**수정:** `return a.score > b.score;`
-**구성별:** Debug와 ASan(Debug 라이브러리 사용)은 어설션으로 알려 준다. Release는 검사가 없어서 원소가 적으면 우연히 맞게 정렬되고, 같은 값이 아주 많으면 정렬이 배열 밖까지 읽어 나가 죽기도 한다.
-**교훈:** 비교자는 "엄격하게 앞서는가"를 답한다. 같으면 false.
-
-## Lab 43 — remove_if만 하고 erase를 빼먹음
-```
-관찰:        호출 뒤에도 size 6. 앞 3칸은 남길 장비, 뒤 3칸은 옮겨지고 남은 찌꺼기 (Silver Ring이 두 번 보이기도 함)
-경고:        C4858 반환값을 버리고 있습니다 (remove/remove_if는 erase가 필요)
-```
-**수정:** C++20 `std::erase_if(bag, pred);` 또는 erase-remove 관용구 `bag.erase(std::remove_if(bag.begin(), bag.end(), pred), bag.end());`
-**교훈:** 알고리즘은 이터레이터만 받으므로 컨테이너의 크기를 바꿀 수 없다. 경고를 0개로 유지하면 이 버그는 빌드할 때 보인다.
-
-## Lab 44 — vector<bool>의 프록시 참조
-```
-지역 창:     wasOpen의 형식이 bool이 아니라 std::_Vb_reference<...>
-             토글한 다음 줄에서 wasOpen도 같이 바뀜
-진짜 원인:   vector<bool>은 비트로 압축되어 있어 operator[]가 bool&를 줄 수 없고, 비트를 가리키는 프록시 객체를 준다.
-             auto는 그 프록시를 복사하므로 "이전 값"이 아니라 "지금 값"을 계속 가리킨다
-```
-**수정:** `const bool wasOpen = doorsOpen[door];` (타입을 적어서 값으로 꺼낸다). 비트 압축이 필요 없다면 `std::vector<char>`나 `std::vector<std::uint8_t>`도 좋다.
-**교훈:** `auto x = v[i];`가 복사라는 믿음은 `vector<bool>`에서 깨진다. 지역 창의 형식 열을 보자.
-
-## Lab 45 — c_str() 포인터 수명과 SSO
-```
-조사식:      (void*)heroes[i].name.c_str() 가 grantTitle 뒤에 바뀜 (Doran, Selene), Kael은 그대로
-Kael:        "Kael the Brave" 14글자 → 여전히 객체 안 버퍼(SSO) → 같은 주소라 우연히 맞음
-Doran:       21글자 → 객체 안 버퍼에서 힙으로 이사. 이름표는 객체 안의 옛 버퍼(지금은 힙 포인터가 들어 있음)를 읽어 깨진 글자
-Selene:      원래 힙(18글자, 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (Debug에서 0xDD 계열 글자)
-```
-**수정:** 이름표가 문자열 버퍼가 아니라 문자열을 가진 객체를 가리키게 한다.
-```cpp
-explicit Nameplate(const Hero& hero) : hero_(&hero) {}
-const char* text() const { return hero_->name.c_str(); }
-const Hero* hero_;
-```
-**구성별:** ASan은 Selene만 잡는다(heap-use-after-free). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
-**교훈:** `c_str()`/`data()`/`string_view`는 문자열이 바뀌면 무효가 될 수 있다. 짧은 문자열은 SSO 때문에 "되는 것처럼" 보여서 더 늦게 발견된다.
-
-## Lab 46 — set 안에 있는 원소의 정렬 기준을 바꿈
-```
-조사식:      season.ranked_ 순서가 Mira(1450), Selene, Kael, Doran(1700) → 점수 순이 아님
-진짜 원인:   recordMatch가 set에 들어 있는 Player의 score를 직접 바꿈. set은 넣을 때만 자리를 정하므로 트리가 정렬 불변식을 잃는다.
-             그 뒤의 find/erase는 엉뚱한 가지로 내려가 원소를 못 찾을 수 있다
-```
-**수정:** 꺼내고, 바꾸고, 다시 넣는다.
-```cpp
-void recordMatch(Player* p, int points)
-{
-    ranked_.erase(p);
-    p->score += points;
-    ranked_.insert(p);
-}
-```
-(C++17의 `extract`로 노드를 꺼내 고친 뒤 `insert`해도 된다.)
-**교훈:** `set`/`map`의 키는 const지만, 포인터를 키로 쓰면 가리키는 대상까지 지켜 주지 않는다.
 
 ---
 

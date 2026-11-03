@@ -26,7 +26,7 @@ bool expect(const char* what, const T& expected, const T& actual)
     return ok;
 }
 
-// 5부(멈춤) 랩용 감시 타이머 (src/watchdog.cpp)
+// 6부(멈춤) 랩용 감시 타이머 (src/watchdog.cpp)
 // work를 작업 스레드에서 실행하고, timeoutMs 안에 끝나지 않으면
 // "[FAIL] what  응답 없음 (N ms 초과)"를 출력한 뒤 프로세스를 끝낸다 (종료 코드 kExitTimeout).
 // 디버거가 붙어 있으면 타이머를 끄고 끝날 때까지 기다린다. 멈춘 상태를 모두 중단(Ctrl+Alt+Break)으로 관찰하라는 뜻이다.
@@ -67,22 +67,7 @@ void ft06_repair();
 void ft07_achievements();
 void ft08_difficulty();
 
-// 4부: 포인터 오용 (src/pointers)
-void pt01_ranking();
-void pt02_bounty();
-void pt03_particles();
-void pt04_loot_packet();
-void pt05_equipment();
-void pt06_guild();
-
-// 5부: 멈춤 - 무한루프와 데드락 (src/hangs)
-void hg01_cooldown();
-void hg02_respawn();
-void hg03_chat_command();
-void hg04_route();
-void hg05_trade();
-
-// 컨테이너 (src/containers)
+// 4부: 컨테이너 (src/containers)
 void ct01_bag_lookup();
 void ct02_party_finder();
 void ct03_leaderboard();
@@ -90,7 +75,24 @@ void ct04_repair_shop();
 void ct05_dungeon_doors();
 void ct06_nameplates();
 void ct07_season_ranking();
+
+// 5부: 포인터 오용 (src/pointers)
+void pt01_ranking();
+void pt02_bounty();
+void pt03_particles();
+void pt04_loot_packet();
+void pt05_equipment();
+void pt06_guild();
 void pt07_rage_timer();
+
+// 6부: 멈춤 - 무한루프와 데드락 (src/hangs)
+void hg01_cooldown();
+void hg02_respawn();
+void hg03_chat_command();
+void hg04_route();
+void hg05_trade();
+
+// 7부: 성능 - 틀리지 않지만 느리다 (src/perf)
 void pf01_chat_queue();
 void pf02_loadout();
 void pf03_combat_log();
@@ -108,17 +110,6 @@ void ft05_discount_hidden();
 void ft06_repair_hidden();
 void ft07_achievements_hidden();
 void ft08_difficulty_hidden();
-void pt01_ranking_hidden();
-void pt02_bounty_hidden();
-void pt03_particles_hidden();
-void pt04_loot_packet_hidden();
-void pt05_equipment_hidden();
-void pt06_guild_hidden();
-void hg01_cooldown_hidden();
-void hg02_respawn_hidden();
-void hg03_chat_command_hidden();
-void hg04_route_hidden();
-void hg05_trade_hidden();
 void ct01_bag_lookup_hidden();
 void ct02_party_finder_hidden();
 void ct03_leaderboard_hidden();
@@ -126,7 +117,18 @@ void ct04_repair_shop_hidden();
 void ct05_dungeon_doors_hidden();
 void ct06_nameplates_hidden();
 void ct07_season_ranking_hidden();
+void pt01_ranking_hidden();
+void pt02_bounty_hidden();
+void pt03_particles_hidden();
+void pt04_loot_packet_hidden();
+void pt05_equipment_hidden();
+void pt06_guild_hidden();
 void pt07_rage_timer_hidden();
+void hg01_cooldown_hidden();
+void hg02_respawn_hidden();
+void hg03_chat_command_hidden();
+void hg04_route_hidden();
+void hg05_trade_hidden();
 void pf01_chat_queue_hidden();
 void pf02_loadout_hidden();
 void pf03_combat_log_hidden();
