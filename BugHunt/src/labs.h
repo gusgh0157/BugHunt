@@ -160,6 +160,16 @@ void ih03_sniper_tower();
 void ih04_priest_heal();
 void ih05_reward_mail();
 void ih06_mana_potion();
+// C++ 언어 함정 (src/lang)
+void lg01_trade_items();
+void lg02_exp_cap();
+void lg03_exchange();
+void lg04_level_bonus();
+void lg05_stat_table();
+void lg06_save_screen();
+void lg07_dungeon_load();
+void lg08_save_close();
+void lg09_quest_chain();
 
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();
@@ -251,3 +261,12 @@ void ih03_sniper_tower_hidden();
 void ih04_priest_heal_hidden();
 void ih05_reward_mail_hidden();
 void ih06_mana_potion_hidden();
+void lg01_trade_items_hidden();
+void lg02_exp_cap_hidden();
+void lg03_exchange_hidden();
+void lg04_level_bonus_hidden();
+void lg05_stat_table_hidden();
+void lg06_save_screen_hidden();
+void lg07_dungeon_load_hidden();
+void lg08_save_close_hidden();
+void lg09_quest_chain_hidden();

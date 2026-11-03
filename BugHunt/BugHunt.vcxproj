@@ -93,6 +93,8 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClInclude Include="src\labs.h" />
     <ClInclude Include="src\perf\perf_kit.h" />
     <ClInclude Include="src\fileio\io_kit.h" />
+    <ClInclude Include="src\lang\lg05_stats.h" />
+    <ClInclude Include="src\lang\lg06_save_stats.h" />
     <ClInclude Include="src\challenge\c1_auction.h" />
     <ClInclude Include="src\challenge\c2_event_bus.h" />
     <ClInclude Include="src\challenge\c2_systems.h" />
@@ -170,6 +172,17 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\inherit\ih04_priest_heal.cpp" />
     <ClCompile Include="src\inherit\ih05_reward_mail.cpp" />
     <ClCompile Include="src\inherit\ih06_mana_potion.cpp" />
+    <ClCompile Include="src\lang\lg01_trade_items.cpp" />
+    <ClCompile Include="src\lang\lg02_exp_cap.cpp" />
+    <ClCompile Include="src\lang\lg03_exchange.cpp" />
+    <ClCompile Include="src\lang\lg04_level_bonus.cpp" />
+    <ClCompile Include="src\lang\lg05_class_stats.cpp" />
+    <ClCompile Include="src\lang\lg05_stat_table.cpp" />
+    <ClCompile Include="src\lang\lg06_autosave.cpp" />
+    <ClCompile Include="src\lang\lg06_save_screen.cpp" />
+    <ClCompile Include="src\lang\lg07_dungeon_load.cpp" />
+    <ClCompile Include="src\lang\lg08_save_close.cpp" />
+    <ClCompile Include="src\lang\lg09_quest_chain.cpp" />
     <ClCompile Include="src\containers\ct01_bag_lookup.cpp" />
     <ClCompile Include="src\containers\ct02_party_finder.cpp" />
     <ClCompile Include="src\containers\ct03_leaderboard.cpp" />
