@@ -403,7 +403,7 @@ int countOf(const Bag& bag, const std::string& item)
 
 ## Lab 41 — rehash 뒤에 "몇 번째 줄"이 다른 사람을 가리킴
 ```
-조사식:      registerWave(..., 60) 전 bucket_count 8 → 후 512, selectedName()이 Mira → Evening36
+조사식:      registerWave(..., 60) 전후로 bucket_count가 크게 늘고, selectedName()이 Mira → 다른 사람으로 바뀜
 진짜 원인:   선택을 순회 순서의 위치(줄 번호)로 기억함. rehash가 원소를 새 버킷에 다시 나눠 담으면서 순서가 바뀐다
 ```
 **수정:** rehash에도 변하지 않는 것으로 기억한다. 표준은 rehash가 이터레이터를 무효화해도 **원소에 대한 참조와 포인터는 유지**된다고 보장한다.
