@@ -27,7 +27,7 @@ bool expect(const char* what, const T& expected, const T& actual)
     return ok;
 }
 
-// 6부(멈춤) 랩용 감시 타이머 (src/watchdog.cpp)
+// 10부(비동기와 동시성)와 11부(멈춤) 랩용 감시 타이머 (src/watchdog.cpp)
 // work를 작업 스레드에서 실행하고, timeoutMs 안에 끝나지 않으면
 // "[FAIL] what  응답 없음 (N ms 초과)"를 출력한 뒤 프로세스를 끝낸다 (종료 코드 kExitTimeout).
 // 디버거가 붙어 있으면 타이머를 끄고 끝날 때까지 기다린다. 멈춘 상태를 "모두 중단(break all)"으로 관찰하라는 뜻이다.
@@ -89,6 +89,11 @@ void ft05_discount();
 void ft06_repair();
 void ft07_achievements();
 void ft08_difficulty();
+// 3부 끝: 연산자와 평가 순서 (src/flow)
+void ft09_member_ids();
+void ft10_best_combo();
+void ft11_cave_gate();
+void ft12_lockpicks();
 
 // 4부: 컨테이너 (src/containers)
 void ct01_bag_lookup();
@@ -99,68 +104,7 @@ void ct05_dungeon_doors();
 void ct06_nameplates();
 void ct07_season_ranking();
 
-// 5부: 포인터 오용 (src/pointers)
-void pt01_ranking();
-void pt02_bounty();
-void pt03_particles();
-void pt04_loot_packet();
-void pt05_equipment();
-void pt06_guild();
-void pt07_rage_timer();
-
-// 6부: 멈춤 - 무한루프와 데드락 (src/hangs)
-void hg01_cooldown();
-void hg02_respawn();
-void hg03_chat_command();
-void hg04_route();
-void hg05_trade();
-
-// 7부: 성능 - 틀리지 않지만 느리다 (src/perf)
-void pf01_chat_queue();
-void pf02_loadout();
-void pf03_combat_log();
-void pf04_save_log();
-void pf05_fog_map();
-void pf06_aggro_scan();
-
-// 비동기와 동시성 (src/async). 임시 번호 54~60, 마지막 번호 재배치 때 멈춤 앞으로 옮긴다
-void as01_loading();
-void as02_crafting();
-void as03_raid_ready();
-void as04_auction_notice();
-void as05_limited_sale();
-void as06_matchmaking();
-void as07_cutscene();
-// 추가 랩 (임시 번호, 최종 배치는 재배치 때)
-// 연산자와 평가 순서 (src/flow)
-void ft09_member_ids();
-void ft10_best_combo();
-void ft11_cave_gate();
-void ft12_lockpicks();
-// 파일 입출력 (src/fileio)
-void io01_patch_prices();
-void io02_quest_journal();
-void io03_high_scores();
-void io04_npc_dialogue();
-void io05_reward_table();
-void io06_settings_bom();
-void io07_safe_save();
-// 직렬화 - JSON/XML (src/serialize)
-void sz01_pet_slot();
-void sz02_crit_multiplier();
-void sz03_skill_bar();
-void sz04_nickname_cut();
-void sz05_float_position();
-void sz06_bestiary();
-void sz07_guild_list();
-// 인터페이스와 상속 (src/inherit)
-void ih01_backstab();
-void ih02_boss_loot();
-void ih03_sniper_tower();
-void ih04_priest_heal();
-void ih05_reward_mail();
-void ih06_mana_potion();
-// C++ 언어 함정 (src/lang)
+// 5부: C++ 언어 함정 (src/lang)
 void lg01_trade_items();
 void lg02_exp_cap();
 void lg03_exchange();
@@ -170,12 +114,71 @@ void lg06_save_screen();
 void lg07_dungeon_load();
 void lg08_save_close();
 void lg09_quest_chain();
-// 스택/힙 오버플로 (src/overflow, 포인터 오용 부에 붙일 예정)
+
+// 6부: 인터페이스와 상속 (src/inherit)
+void ih01_backstab();
+void ih02_boss_loot();
+void ih03_sniper_tower();
+void ih04_priest_heal();
+void ih05_reward_mail();
+void ih06_mana_potion();
+
+// 7부: 파일 입출력 (src/fileio)
+void io01_patch_prices();
+void io02_quest_journal();
+void io03_high_scores();
+void io04_npc_dialogue();
+void io05_reward_table();
+void io06_settings_bom();
+void io07_safe_save();
+
+// 8부: 직렬화 (JSON/XML) (src/serialize)
+void sz01_pet_slot();
+void sz02_crit_multiplier();
+void sz03_skill_bar();
+void sz04_nickname_cut();
+void sz05_float_position();
+void sz06_bestiary();
+void sz07_guild_list();
+
+// 9부: 포인터 오용 (src/pointers)
+void pt01_ranking();
+void pt02_bounty();
+void pt03_particles();
+void pt04_loot_packet();
+void pt05_equipment();
+void pt06_guild();
+void pt07_rage_timer();
+// 9부 끝: 스택/힙 오버플로 (src/overflow)
 void of01_minimap();
 void of02_dungeon_gen();
 void of03_replay_buffer();
 void of04_name_packet();
 void of05_skill_tree();
+
+// 10부: 비동기와 동시성 (src/async)
+void as01_loading();
+void as02_crafting();
+void as03_raid_ready();
+void as04_auction_notice();
+void as05_limited_sale();
+void as06_matchmaking();
+void as07_cutscene();
+
+// 11부: 멈춤 - 무한루프와 데드락 (src/hangs)
+void hg01_cooldown();
+void hg02_respawn();
+void hg03_chat_command();
+void hg04_route();
+void hg05_trade();
+
+// 12부: 성능 - 틀리지 않지만 느리다 (src/perf)
+void pf01_chat_queue();
+void pf02_loadout();
+void pf03_combat_log();
+void pf04_save_log();
+void pf05_fog_map();
+void pf06_aggro_scan();
 
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();

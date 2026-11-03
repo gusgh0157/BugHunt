@@ -51,6 +51,11 @@ constexpr LabEntry kLabs[] = {
     { "장비 수리",          "골드는 빠졌는데 내구도가 그대로다",    ft06_repair,       ft06_repair_hidden },
     { "업적 해금",          "조건을 채운 업적 하나가 안 열린다",    ft07_achievements, ft07_achievements_hidden },
     { "난이도 설정",        "어려움으로 저장했는데 적이 약하다",    ft08_difficulty,   ft08_difficulty_hidden },
+    // 3부 끝: 연산자와 평가 순서
+    { "길드 회원 번호",     "새 회원이 기존 회원과 같은 번호를 받는다", ft09_member_ids, ft09_member_ids_hidden },
+    { "최고 콤보",          "기록을 갱신할 때마다 콤보가 2씩 오른다", ft10_best_combo, ft10_best_combo_hidden },
+    { "어둠의 동굴",        "열쇠도 횃불도 있는데 입장을 못 한다",  ft11_cave_gate,    ft11_cave_gate_hidden },
+    { "자물쇠 따개",        "열쇠가 있는데도 따개가 줄어든다",      ft12_lockpicks,    ft12_lockpicks_hidden },
     // 4부: 컨테이너
     { "가방 조회",          "상점을 열었을 뿐인데 가방이 꽉 찬다",  ct01_bag_lookup,   ct01_bag_lookup_hidden },
     { "파티 찾기",          "고른 사람과 다른 사람이 초대된다",     ct02_party_finder, ct02_party_finder_hidden },
@@ -59,65 +64,7 @@ constexpr LabEntry kLabs[] = {
     { "던전 문 퍼즐",       "퍼즐 점수가 거꾸로 매겨진다",          ct05_dungeon_doors, ct05_dungeon_doors_hidden },
     { "이름표",             "칭호를 받으면 이름표가 깨진다",        ct06_nameplates,   ct06_nameplates_hidden },
     { "시즌 랭킹",          "우승자가 1위에 오르지 않는다",         ct07_season_ranking, ct07_season_ranking_hidden },
-    // 5부: 포인터 오용
-    { "랭킹 보드",          "랭킹 줄이 전부 깨져서 나온다",        pt01_ranking,      pt01_ranking_hidden },
-    { "현상금 사냥",        "골드가 음수 수억이 된다",              pt02_bounty,       pt02_bounty_hidden },
-    { "폭발 이펙트",        "이펙트가 끝날 때 멈춘다",              pt03_particles,    pt03_particles_hidden },
-    { "전리품 패킷",        "받은 아이템 개수가 엉망이다",          pt04_loot_packet,  pt04_loot_packet_hidden },
-    { "장비 공격력",        "맨손 파티원에서 죽는다",               pt05_equipment,    pt05_equipment_hidden },
-    { "길드 해산",          "길드를 내려도 메모리가 남는다",        pt06_guild,        pt06_guild_hidden },
-    { "분노 버프",          "분노가 끝나도 공격력이 원래대로 안 돌아온다", pt07_rage_timer, pt07_rage_timer_hidden },
-    // 6부: 멈춤 - 무한루프와 데드락
-    { "스킬 쿨다운",        "파이어볼 쿨다운 계산에서 멈춘다",      hg01_cooldown,     hg01_cooldown_hidden },
-    { "부활 카운트다운",    "부활 알림을 세다가 멈춘다",            hg02_respawn,      hg02_respawn_hidden },
-    { "채팅 명령어",        "명령어를 입력하면 멈춘다",             hg03_chat_command, hg03_chat_command_hidden },
-    { "자동 이동 경로",     "숲을 경로에 넣으면 멈춘다",            hg04_route,        hg04_route_hidden },
-    { "동시 거래",          "두 사람이 서로 팔면 둘 다 멈춘다",     hg05_trade,        hg05_trade_hidden },
-    // 7부: 성능 - 틀리지는 않지만 느리다
-    { "채팅 큐",            "메시지가 몰리면 서버가 굳는다",        pf01_chat_queue,   pf01_chat_queue_hidden },
-    { "장비 무게 HUD",      "장비가 많으면 프레임이 떨어진다",      pf02_loadout,      pf02_loadout_hidden },
-    { "전투 기록 내보내기", "긴 레이드일수록 내보내기가 오래 걸린다", pf03_combat_log, pf03_combat_log_hidden },
-    { "세이브 파일",        "큰 맵에서 저장이 몇 초씩 걸린다",      pf04_save_log,     pf04_save_log_hidden },
-    { "전장의 안개",        "큰 맵에서만 프레임이 뚝 떨어진다",     pf05_fog_map,      pf05_fog_map_hidden },
-    { "어그로 검사",        "몬스터가 많으면 서버 틱이 밀린다",     pf06_aggro_scan,   pf06_aggro_scan_hidden },
-    // 비동기와 동시성 (임시 번호 54~60)
-    { "맵 로딩",            "비동기로 불러오는데 로딩이 하나씩 진행된다", as01_loading,      as01_loading_hidden },
-    { "대장간 일괄 제작",   "주문 하나가 실패하면 대장간이 통째로 멈춘다", as02_crafting,    as02_crafting_hidden },
-    { "레이드 입장 대기",   "모두 준비했는데 공대장이 입장하지 않는다",   as03_raid_ready,   as03_raid_ready_hidden },
-    { "낙찰 공지",          "경매 창을 닫으면 낙찰가가 이상하게 공지된다", as04_auction_notice, as04_auction_notice_hidden },
-    { "한정 판매",          "3개 한정인데 5개가 팔렸다",                 as05_limited_sale, as05_limited_sale_hidden },
-    { "매치메이킹",         "대기열 인원이 모자라면 서버가 죽는다",       as06_matchmaking,  as06_matchmaking_hidden },
-    { "컷신 대화",          "컷신의 호감도 숫자가 이상하다",             as07_cutscene,     as07_cutscene_hidden },
-    // 추가 랩 (임시 번호 61~. 최종 번호와 부 배치는 재배치 때 정한다)
-    // 연산자와 평가 순서 (3부 흐름 추적 끝에 붙일 예정)
-    { "길드 회원 번호",     "새 회원이 기존 회원과 같은 번호를 받는다", ft09_member_ids, ft09_member_ids_hidden },
-    { "최고 콤보",          "기록을 갱신할 때마다 콤보가 2씩 오른다", ft10_best_combo, ft10_best_combo_hidden },
-    { "어둠의 동굴",        "열쇠도 횃불도 있는데 입장을 못 한다",  ft11_cave_gate,    ft11_cave_gate_hidden },
-    { "자물쇠 따개",        "열쇠가 있는데도 따개가 줄어든다",      ft12_lockpicks,    ft12_lockpicks_hidden },
-    // 파일 입출력
-    { "패치된 가격표",      "어떤 실행에서는 패치 전 가격이 나온다", io01_patch_prices, io01_patch_prices_hidden },
-    { "모험 일지",          "방금 적은 일지가 일지 창에 안 보인다", io02_quest_journal, io02_quest_journal_hidden },
-    { "점수판",             "마지막 기록이 두 번 나온다",           io03_high_scores,  io03_high_scores_hidden },
-    { "여관 주인 대사",     "첫 대사가 비고 마지막 대사가 빠진다",  io04_npc_dialogue, io04_npc_dialogue_hidden },
-    { "보상표",             "보상 목록이 통째로 비어 있다",         io05_reward_table, io05_reward_table_hidden },
-    { "설정 파일",          "메모장으로 고친 첫 줄 설정만 무시된다", io06_settings_bom, io06_settings_bom_hidden },
-    { "안전한 저장",        "저장에 실패하면 이전 세이브까지 날아간다", io07_safe_save, io07_safe_save_hidden },
-    // 직렬화 (JSON/XML)
-    { "펫 슬롯",            "펫이 없는데 소환 버튼이 켜진다",       sz01_pet_slot,     sz01_pet_slot_hidden },
-    { "치명타 배율",        "배율 1.5가 1배로 들어간다",            sz02_crit_multiplier, sz02_crit_multiplier_hidden },
-    { "스킬 바",            "스킬 바 순서가 뒤죽박죽이 된다",       sz03_skill_bar,    sz03_skill_bar_hidden },
-    { "닉네임 자르기",      "어떤 한글 닉네임은 저장이 안 된다",    sz04_nickname_cut, sz04_nickname_cut_hidden },
-    { "캐릭터 위치",        "불러올 때마다 캐릭터가 조금씩 움직인다", sz05_float_position, sz05_float_position_hidden },
-    { "몬스터 도감",        "패치 뒤 몬스터 HP가 전부 0이다",       sz06_bestiary,     sz06_bestiary_hidden },
-    { "길드 목록",          "어떤 길드 이름이 있으면 목록이 통째로 안 열린다", sz07_guild_list, sz07_guild_list_hidden },
-    // 인터페이스와 상속 (최종 위치: 컨테이너 다음, 파일 입출력 앞)
-    { "백스탭",             "등 뒤에서 찔러도 일반 피해만 들어간다", ih01_backstab,     ih01_backstab_hidden },
-    { "보스 전리품",        "보스를 잡아도 희귀 아이템이 안 나온다", ih02_boss_loot,    ih02_boss_loot_hidden },
-    { "저격 탑",            "저격 탑 사거리가 기본 탑과 같다",      ih03_sniper_tower, ih03_sniper_tower_hidden },
-    { "사제의 치유",        "사제의 기본 치유량이 너무 적다",       ih04_priest_heal,  ih04_priest_heal_hidden },
-    { "보상 우편",          "골드 500을 보냈는데 500번 아이템이 왔다", ih05_reward_mail, ih05_reward_mail_hidden },
-    { "마나 물약",          "전사가 파티에 끼면 죽는다",            ih06_mana_potion,  ih06_mana_potion_hidden },
-    // C++ 언어 함정 (최종 위치: 컨테이너 뒤, 인터페이스와 상속 앞)
+    // 5부: C++ 언어 함정
     { "아이템 거래",        "거래한 아이템이 내 거래 창에 그대로 남는다", lg01_trade_items, lg01_trade_items_hidden },
     { "경험치 상한",        "이벤트 경험치를 받았더니 경험치가 음수가 된다", lg02_exp_cap, lg02_exp_cap_hidden },
     { "환전소",             "은화가 1개 모자라고, 큰 묶음 판매액은 음수가 된다", lg03_exchange, lg03_exchange_hidden },
@@ -127,12 +74,64 @@ constexpr LabEntry kLabs[] = {
     { "던전 불러오기",      "불러오기에 실패할 때마다 텍스처가 남는다", lg07_dungeon_load, lg07_dungeon_load_hidden },
     { "세이브 파일 닫기",   "저장 실패 메시지 대신 게임이 꺼진다",  lg08_save_close,   lg08_save_close_hidden },
     { "연계 퀘스트",        "연계 퀘스트가 한 차례에 한 단계씩만 열린다", lg09_quest_chain, lg09_quest_chain_hidden },
-    // 스택/힙 오버플로 (포인터 오용 부 끝에 붙일 예정)
+    // 6부: 인터페이스와 상속
+    { "백스탭",             "등 뒤에서 찔러도 일반 피해만 들어간다", ih01_backstab,     ih01_backstab_hidden },
+    { "보스 전리품",        "보스를 잡아도 희귀 아이템이 안 나온다", ih02_boss_loot,    ih02_boss_loot_hidden },
+    { "저격 탑",            "저격 탑 사거리가 기본 탑과 같다",      ih03_sniper_tower, ih03_sniper_tower_hidden },
+    { "사제의 치유",        "사제의 기본 치유량이 너무 적다",       ih04_priest_heal,  ih04_priest_heal_hidden },
+    { "보상 우편",          "골드 500을 보냈는데 500번 아이템이 왔다", ih05_reward_mail, ih05_reward_mail_hidden },
+    { "마나 물약",          "전사가 파티에 끼면 죽는다",            ih06_mana_potion,  ih06_mana_potion_hidden },
+    // 7부: 파일 입출력
+    { "패치된 가격표",      "어떤 실행에서는 패치 전 가격이 나온다", io01_patch_prices, io01_patch_prices_hidden },
+    { "모험 일지",          "방금 적은 일지가 일지 창에 안 보인다", io02_quest_journal, io02_quest_journal_hidden },
+    { "점수판",             "마지막 기록이 두 번 나온다",           io03_high_scores,  io03_high_scores_hidden },
+    { "여관 주인 대사",     "첫 대사가 비고 마지막 대사가 빠진다",  io04_npc_dialogue, io04_npc_dialogue_hidden },
+    { "보상표",             "보상 목록이 통째로 비어 있다",         io05_reward_table, io05_reward_table_hidden },
+    { "설정 파일",          "메모장으로 고친 첫 줄 설정만 무시된다", io06_settings_bom, io06_settings_bom_hidden },
+    { "안전한 저장",        "저장에 실패하면 이전 세이브까지 날아간다", io07_safe_save, io07_safe_save_hidden },
+    // 8부: 직렬화 (JSON/XML)
+    { "펫 슬롯",            "펫이 없는데 소환 버튼이 켜진다",       sz01_pet_slot,     sz01_pet_slot_hidden },
+    { "치명타 배율",        "배율 1.5가 1배로 들어간다",            sz02_crit_multiplier, sz02_crit_multiplier_hidden },
+    { "스킬 바",            "스킬 바 순서가 뒤죽박죽이 된다",       sz03_skill_bar,    sz03_skill_bar_hidden },
+    { "닉네임 자르기",      "어떤 한글 닉네임은 저장이 안 된다",    sz04_nickname_cut, sz04_nickname_cut_hidden },
+    { "캐릭터 위치",        "불러올 때마다 캐릭터가 조금씩 움직인다", sz05_float_position, sz05_float_position_hidden },
+    { "몬스터 도감",        "패치 뒤 몬스터 HP가 전부 0이다",       sz06_bestiary,     sz06_bestiary_hidden },
+    { "길드 목록",          "어떤 길드 이름이 있으면 목록이 통째로 안 열린다", sz07_guild_list, sz07_guild_list_hidden },
+    // 9부: 포인터 오용
+    { "랭킹 보드",          "랭킹 줄이 전부 깨져서 나온다",        pt01_ranking,      pt01_ranking_hidden },
+    { "현상금 사냥",        "골드가 음수 수억이 된다",              pt02_bounty,       pt02_bounty_hidden },
+    { "폭발 이펙트",        "이펙트가 끝날 때 멈춘다",              pt03_particles,    pt03_particles_hidden },
+    { "전리품 패킷",        "받은 아이템 개수가 엉망이다",          pt04_loot_packet,  pt04_loot_packet_hidden },
+    { "장비 공격력",        "맨손 파티원에서 죽는다",               pt05_equipment,    pt05_equipment_hidden },
+    { "길드 해산",          "길드를 내려도 메모리가 남는다",        pt06_guild,        pt06_guild_hidden },
+    { "분노 버프",          "분노가 끝나도 공격력이 원래대로 안 돌아온다", pt07_rage_timer, pt07_rage_timer_hidden },
+    // 9부 끝: 스택/힙 오버플로
     { "미니맵",             "작은 지도인데도 미니맵을 열면 바로 죽는다", of01_minimap,  of01_minimap_hidden },
     { "던전 생성기",        "방이 많은 던전을 만들면 죽는다",       of02_dungeon_gen,  of02_dungeon_gen_hidden },
     { "리플레이 녹화",      "녹화를 끝내고 녹화기를 닫을 때 죽는다", of03_replay_buffer, of03_replay_buffer_hidden },
     { "이름 패킷",          "긴 이름이 잘리고 앞사람 이름이 붙는다", of04_name_packet, of04_name_packet_hidden },
     { "스킬 트리",          "스킬을 배웠더니 골드가 이상하게 바뀐다", of05_skill_tree, of05_skill_tree_hidden },
+    // 10부: 비동기와 동시성
+    { "맵 로딩",            "비동기로 불러오는데 로딩이 하나씩 진행된다", as01_loading,      as01_loading_hidden },
+    { "대장간 일괄 제작",   "주문 하나가 실패하면 대장간이 통째로 멈춘다", as02_crafting,    as02_crafting_hidden },
+    { "레이드 입장 대기",   "모두 준비했는데 공대장이 입장하지 않는다",   as03_raid_ready,   as03_raid_ready_hidden },
+    { "낙찰 공지",          "경매 창을 닫으면 낙찰가가 이상하게 공지된다", as04_auction_notice, as04_auction_notice_hidden },
+    { "한정 판매",          "3개 한정인데 5개가 팔렸다",                 as05_limited_sale, as05_limited_sale_hidden },
+    { "매치메이킹",         "대기열 인원이 모자라면 서버가 죽는다",       as06_matchmaking,  as06_matchmaking_hidden },
+    { "컷신 대화",          "컷신의 호감도 숫자가 이상하다",             as07_cutscene,     as07_cutscene_hidden },
+    // 11부: 멈춤 - 무한루프와 데드락
+    { "스킬 쿨다운",        "파이어볼 쿨다운 계산에서 멈춘다",      hg01_cooldown,     hg01_cooldown_hidden },
+    { "부활 카운트다운",    "부활 알림을 세다가 멈춘다",            hg02_respawn,      hg02_respawn_hidden },
+    { "채팅 명령어",        "명령어를 입력하면 멈춘다",             hg03_chat_command, hg03_chat_command_hidden },
+    { "자동 이동 경로",     "숲을 경로에 넣으면 멈춘다",            hg04_route,        hg04_route_hidden },
+    { "동시 거래",          "두 사람이 서로 팔면 둘 다 멈춘다",     hg05_trade,        hg05_trade_hidden },
+    // 12부: 성능 - 틀리지 않지만 느리다
+    { "채팅 큐",            "메시지가 몰리면 서버가 굳는다",        pf01_chat_queue,   pf01_chat_queue_hidden },
+    { "장비 무게 HUD",      "장비가 많으면 프레임이 떨어진다",      pf02_loadout,      pf02_loadout_hidden },
+    { "전투 기록 내보내기", "긴 레이드일수록 내보내기가 오래 걸린다", pf03_combat_log, pf03_combat_log_hidden },
+    { "세이브 파일",        "큰 맵에서 저장이 몇 초씩 걸린다",      pf04_save_log,     pf04_save_log_hidden },
+    { "전장의 안개",        "큰 맵에서만 프레임이 뚝 떨어진다",     pf05_fog_map,      pf05_fog_map_hidden },
+    { "어그로 검사",        "몬스터가 많으면 서버 틱이 밀린다",     pf06_aggro_scan,   pf06_aggro_scan_hidden },
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)
@@ -161,27 +160,41 @@ constexpr ChallengeEntry kChallenges[] = {
     { "B-7", 207, "챌린지 B-7", "무료 배송 금액인데 배송비가 붙는다",    chB7, chB7_hidden },
     { "B-8", 208, "챌린지 B-8", "포탑이 경보에 제대로 반응하지 않는다",  chB8, chB8_hidden },
 };
-constexpr int kChallengePart = 9;   // grade-report.json의 part (마지막 부 다음 번호)
-
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
-constexpr int kBasicLabCount = 8;
-constexpr int kAdvancedLabEnd = 20;
-constexpr int kFlowLabEnd = 28;
-constexpr int kContainerLabEnd = 35;
-constexpr int kPointerLabEnd = 42;
-constexpr int kHangLabEnd = 47;
-constexpr int kPerfLabEnd = 53;
+
+// 부마다 마지막 랩 번호와 메뉴 머리말
+struct PartEntry
+{
+    int lastLab;
+    const char* header;
+};
+
+constexpr PartEntry kParts[] = {
+    {  8, "[1부] 호출 스택 입문 - 디버거로 실행하세요" },
+    { 20, "[2부] 심화" },
+    { 32, "[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 한 줄씩 따라가세요 (29~32: 연산자 실수)" },
+    { 39, "[4부] 컨테이너 - 표준 컨테이너와 알고리즘의 함정" },
+    { 48, "[5부] C++ 언어 함정 - 컴파일러가 받아들이는 코드. 조사식으로 식을 나누고 경고를 읽으세요" },
+    { 54, "[6부] 인터페이스와 상속 - 엉뚱한 함수가 불린다. Step Into로 실제 형식을 보세요" },
+    { 61, "[7부] 파일 입출력 - 스트림 상태와 디스크의 실제 바이트" },
+    { 68, "[8부] 직렬화 (JSON/XML) - nlohmann/json, pugixml" },
+    { 80, "[9부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요 (76~80: 스택/힙 오버플로)" },
+    { 87, "[10부] 비동기와 동시성 - future, condition_variable, atomic, 스레드 수명, 코루틴" },
+    { 92, "[11부] 멈춤 - 무한루프와 데드락. 멈추면 디버거에서 모두 중단(break all)" },
+    { 98, "[12부] 성능 - 틀리지 않지만 느리다. Release + CPU 프로파일러" },
+};
+static_assert(kParts[std::size(kParts) - 1].lastLab == static_cast<int>(std::size(kLabs)), "kParts와 kLabs의 랩 수가 다르다");
+
+constexpr int kChallengePart = static_cast<int>(std::size(kParts)) + 1;   // grade-report.json의 part (마지막 부 다음 번호)
 
 int partOf(int labNumber)
 {
-    if (labNumber <= kBasicLabCount) return 1;
-    if (labNumber <= kAdvancedLabEnd) return 2;
-    if (labNumber <= kFlowLabEnd) return 3;
-    if (labNumber <= kContainerLabEnd) return 4;
-    if (labNumber <= kPointerLabEnd) return 5;
-    if (labNumber <= kHangLabEnd) return 6;
-    if (labNumber <= kPerfLabEnd) return 7;
-    return 8;   // 비동기와 동시성 (임시)
+    for (int p = 0; p < static_cast<int>(std::size(kParts)); ++p)
+    {
+        if (labNumber <= kParts[p].lastLab)
+            return p + 1;
+    }
+    return kChallengePart;
 }
 
 const char* buildName()
@@ -192,24 +205,11 @@ const char* buildName()
 void printMenu()
 {
     std::cout << "=== BugHunt: C++ 버그 추적 실습 [" << buildName() << "] ===\n";
+    int part = 0;
     for (int i = 0; i < kLabCount; ++i)
     {
-        if (i == 0)
-            std::cout << "\n[1부] 호출 스택 입문 - 디버거로 실행하세요\n";
-        else if (i == kBasicLabCount)
-            std::cout << "\n[2부] 심화\n";
-        else if (i == kAdvancedLabEnd)
-            std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 한 줄씩 따라가세요\n";
-        else if (i == kFlowLabEnd)
-            std::cout << "\n[4부] 컨테이너 - 표준 컨테이너와 알고리즘의 함정\n";
-        else if (i == kContainerLabEnd)
-            std::cout << "\n[5부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요\n";
-        else if (i == kPointerLabEnd)
-            std::cout << "\n[6부] 멈춤 - 무한루프와 데드락. 멈추면 디버거에서 모두 중단(break all)\n";
-        else if (i == kHangLabEnd)
-            std::cout << "\n[7부] 성능 - 틀리지 않지만 느리다. Release + CPU 프로파일러\n";
-        else if (i == kPerfLabEnd)
-            std::cout << "\n[비동기와 동시성] (임시 번호) future, condition_variable, atomic, 스레드 수명, 코루틴\n";
+        if (i == 0 || i == kParts[part - 1].lastLab)
+            std::cout << '\n' << kParts[part++].header << '\n';
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }

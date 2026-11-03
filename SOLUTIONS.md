@@ -1,6 +1,6 @@
 # 해답 (스포일러!)
 
-1~7부의 해답입니다. 챌린지(C, B)의 해답은 `CHALLENGE_SOLUTIONS.md`에 따로 있습니다.
+1~12부의 해답입니다. 챌린지(C, B)의 해답은 `CHALLENGE_SOLUTIONS.md`에 따로 있습니다.
 
 # 1부: 호출 스택 입문
 
@@ -237,10 +237,10 @@ if (kill || gold || level) ...
 
 **교훈:** 버그가 "어떤 입력에서" 나는 게 아니라 "어떤 **순서**로" 나는 경우, 시작부터 따라가며 **두 사본을 나란히** 조사식에 띄워 언제 갈라지는지 본다.
 
-## 연산자 실수 (랩 61~64, 번호는 임시)
+## 연산자 실수 (랩 29~32)
 
 
-## Lab 61 — 후위 증가의 값은 올리기 전 값
+## Lab 29 — 후위 증가의 값은 올리기 전 값
 ```
 틀린 결과:     새봄이 1007번 (도윤과 같은 번호). lastId는 1010으로 맞지만 실제로 준 번호는 1007~1009
 멈춘 위치:     issueId의 return 줄, 첫 join
@@ -250,7 +250,7 @@ if (kill || gold || level) ...
 **수정:** `return ++guild.lastId;`
 **교훈:** `x++`는 "x를 올린다" + "식의 값은 옛 x"라는 두 가지 일을 한다. 변수의 뜻("마지막으로 준 번호" vs "다음에 줄 번호")을 먼저 정하고 전위/후위를 고른다. `if (hits++ == 3)`도 같은 실수로, 네 번째 타격에서야 참이 된다.
 
-## Lab 62 — 매크로가 부작용 있는 인자를 두 번 평가
+## Lab 30 — 매크로가 부작용 있는 인자를 두 번 평가
 ```
 틀린 결과:     화면 콤보 2 4 6 0 2 4 (기대 1 2 3 0 1 2), 최고 콤보 6
 멈춘 위치:     c.current 데이터 중단점 → 공격 한 번에 두 번 멈춤
@@ -264,7 +264,7 @@ c.best = std::max(c.best, c.current);
 ```
 **교훈:** 매크로는 함수가 아니라 글자 치환이다. 인자에 `++`, `--`, 함수 호출을 넣지 않는다. 가능하면 `std::max`나 `inline`/`constexpr` 함수를 쓴다. (`?:`는 조건을 먼저 계산하고 고른 쪽만 계산하도록 순서가 정해져 있어서, 이 결과는 어느 컴파일러에서나 같다.)
 
-## Lab 63 — `&&` 자리에 비트 AND `&`
+## Lab 31 — `&&` 자리에 비트 AND `&`
 ```
 틀린 결과:     보람(열쇠 2, 횃불 1) 입장 불가, 들어간 인원 1
 멈춘 위치:     canEnterCave, 조건 a.name == "보람"
@@ -274,7 +274,7 @@ c.best = std::max(c.best, c.current);
 **수정:** `return a.keys > 0 && a.torches > 0;`
 **교훈:** `&`는 정수의 비트끼리, `&&`는 참/거짓끼리 계산한다. 둘 다 1일 때만 우연히 같은 답이 나와서 처음 테스트(1, 1)를 통과한다. 개수를 참/거짓으로 쓸 때는 `> 0`으로 뜻을 적어 준다.
 
-## Lab 64 — `||` 자리에 `|` → 단락 평가가 사라짐
+## Lab 32 — `||` 자리에 `|` → 단락 평가가 사라짐
 ```
 틀린 결과:     연 문 4 (기대 5), 남은 따개 0 (기대 1)
 멈춘 위치:     useLockpick의 --t.lockpicks 줄, 호출 스택에서 openDoor의 door 확인
@@ -282,13 +282,13 @@ c.best = std::max(c.best, c.current);
 진짜 원인:     hasKey(...) | useLockpick(...) 는 앞이 true여도 뒤를 호출한다
 ```
 **수정:** `return hasKey(t, door) || useLockpick(t);`
-**교훈:** `||`/`&&`만 단락 평가를 한다. 뒤쪽 피연산자에 부작용(소모, 저장, 로그)이 있으면 `|`/`&`는 그 부작용을 항상 일으킨다. 랩 27과 짝: 27은 단락 평가 때문에 **필요한 호출이 빠졌고**, 64는 단락 평가가 없어서 **불필요한 호출이 일어났다**. `p == nullptr | p->hp <= 0`처럼 앞의 검사가 뒤를 지켜 주는 식에서는 `|`가 null 역참조 크래시가 된다.
+**교훈:** `||`/`&&`만 단락 평가를 한다. 뒤쪽 피연산자에 부작용(소모, 저장, 로그)이 있으면 `|`/`&`는 그 부작용을 항상 일으킨다. 랩 27과 짝: 27은 단락 평가 때문에 **필요한 호출이 빠졌고**, 32는 단락 평가가 없어서 **불필요한 호출이 일어났다**. `p == nullptr | p->hp <= 0`처럼 앞의 검사가 뒤를 지켜 주는 식에서는 `|`가 null 역참조 크래시가 된다.
 
 ---
 
 # 4부: 컨테이너
 
-## Lab 29 — map::operator[]가 없는 키를 만듦
+## Lab 33 — map::operator[]가 없는 키를 만듦
 ```
 관찰:        openShop 전 bag.size() == 3, 후 == 6 ("Mana Potion", "Fire Scroll", "Rope"가 개수 0으로 생김)
 진짜 원인:   countOf의 bag[item]은 키가 없으면 기본값(0)으로 원소를 새로 만든다
@@ -304,7 +304,7 @@ int countOf(const Bag& bag, const std::string& item)
 `const Bag&`로 바꾸면 `bag[item]`은 컴파일 오류가 되어 같은 실수를 막아 준다.
 **교훈:** `operator[]`는 "찾기"가 아니라 "찾고 없으면 만들기"다.
 
-## Lab 30 — rehash 뒤에 "몇 번째 줄"이 다른 사람을 가리킴
+## Lab 34 — rehash 뒤에 "몇 번째 줄"이 다른 사람을 가리킴
 ```
 조사식:      registerWave(..., 60) 전후로 bucket_count가 크게 늘고, selectedName()이 Mira → 다른 사람으로 바뀜
 진짜 원인:   선택을 순회 순서의 위치(줄 번호)로 기억함. rehash가 원소를 새 버킷에 다시 나눠 담으면서 순서가 바뀐다
@@ -323,7 +323,7 @@ Board::value_type* selected_ = nullptr;
 키(이름)를 복사해 두고 `find`해도 된다.
 **교훈:** `unordered_map`의 순회 순서는 약속이 아니다. 오래 들고 있을 것은 키나 원소 포인터로.
 
-## Lab 31 — 비교자가 strict weak ordering을 어김
+## Lab 35 — 비교자가 strict weak ordering을 어김
 ```
 멈춘 곳:     [CRASH] 정렬 검사: 비교 함수가 엄격한 약순서를 어겼다 ← bughunt::checkedOrder ← std::sort
 조사식:      comp(Kael, Doran) == true, comp(Doran, Kael) == true  (둘 다 1500점)
@@ -333,7 +333,7 @@ Board::value_type* selected_ = nullptr;
 **구성별:** 랩은 비교자를 `bughunt::checkedOrder`로 감싸서 어느 컴파일러, 어느 구성에서나 같은 자리에서 멈추게 했다. 검사가 없으면 표준 라이브러리마다 다르다. MSVC의 Debug STL은 `invalid comparator` 어설션을 내고, libstdc++는 `-D_GLIBCXX_DEBUG`, libc++는 하드닝 모드에서만 검사한다. 검사 없는 Release에서는 원소가 적으면 우연히 맞게 정렬되고, 같은 값이 아주 많으면 정렬이 배열 밖까지 읽어 나가 죽기도 한다.
 **교훈:** 비교자는 "엄격하게 앞서는가"를 답한다. 같으면 false.
 
-## Lab 32 — remove_if만 하고 erase를 빼먹음
+## Lab 36 — remove_if만 하고 erase를 빼먹음
 ```
 관찰:        호출 뒤에도 size 6. 앞 3칸은 남길 장비, 뒤 3칸은 옮겨지고 남은 찌꺼기 (remove_if가 원소를 **이동**하므로 이름은 비고 내구도만 남음)
 경고:        반환값을 버리고 있다 (MSVC C4858, GCC·Clang -Wunused-result. remove_if는 [[nodiscard]])
@@ -341,7 +341,7 @@ Board::value_type* selected_ = nullptr;
 **수정:** C++20 `std::erase_if(bag, pred);` 또는 erase-remove 관용구 `bag.erase(std::remove_if(bag.begin(), bag.end(), pred), bag.end());`
 **교훈:** 알고리즘은 이터레이터만 받으므로 컨테이너의 크기를 바꿀 수 없다. 경고를 0개로 유지하면 이 버그는 빌드할 때 보인다.
 
-## Lab 33 — vector<bool>의 프록시 참조
+## Lab 37 — vector<bool>의 프록시 참조
 ```
 지역 변수:   wasOpen의 형식이 bool이 아니라 비트 프록시 (MSVC std::_Vb_reference, libstdc++ std::_Bit_reference, libc++ std::__bit_reference)
              토글한 다음 줄에서 wasOpen도 같이 바뀜
@@ -351,7 +351,7 @@ Board::value_type* selected_ = nullptr;
 **수정:** `const bool wasOpen = doorsOpen[door];` (타입을 적어서 값으로 꺼낸다). 비트 압축이 필요 없다면 `std::vector<char>`나 `std::vector<std::uint8_t>`도 좋다.
 **교훈:** `auto x = v[i];`가 복사라는 믿음은 `vector<bool>`에서 깨진다. 디버거에서 변수의 형식을 보자(gdb `ptype`, lldb `frame variable -T`).
 
-## Lab 34 — c_str() 포인터 수명과 SSO
+## Lab 38 — c_str() 포인터 수명과 SSO
 ```
 조사식:      (void*)heroes[i].name.c_str() 가 grantTitle 뒤에 바뀜 (Doran, Selene), Kael은 그대로
 Kael:        "Kael the Brave" 14글자 → 여전히 객체 안 버퍼(SSO) → 같은 주소라 우연히 맞음
@@ -367,7 +367,7 @@ const Hero* hero_;
 **구성별:** 위 글자 수 경계는 MSVC STL과 libstdc++(객체 안 버퍼 15글자) 기준이다. libc++(macOS 기본)는 22글자까지 객체 안에 두므로 Doran도 우연히 맞을 수 있다. ASan은 Selene만 잡는다(heap-use-after-free). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
 **교훈:** `c_str()`/`data()`/`string_view`는 문자열이 바뀌면 무효가 될 수 있다. 짧은 문자열은 SSO 때문에 "되는 것처럼" 보여서 더 늦게 발견된다.
 
-## Lab 35 — set 안에 있는 원소의 정렬 기준을 바꿈
+## Lab 39 — set 안에 있는 원소의 정렬 기준을 바꿈
 ```
 조사식:      season.ranked_ 순서가 Mira(1450), Selene, Kael, Doran(1700) → 점수 순이 아님
 진짜 원인:   recordMatch가 set에 들어 있는 Player의 score를 직접 바꿈. set은 넣을 때만 자리를 정하므로 트리가 정렬 불변식을 잃는다.
@@ -387,10 +387,10 @@ void recordMatch(Player* p, int points)
 
 ---
 
-# C++ 언어 함정 (랩 85~93, 번호는 임시)
+# 5부: C++ 언어 함정
 
 
-## Lab 85 — `const`에 `std::move`는 복사, 옮긴 뒤 원본에 기대기
+## Lab 40 — `const`에 `std::move`는 복사, 옮긴 뒤 원본에 기대기
 ```
 틀린 결과:     내 거래 창에 3개가 그대로 (기대 0), 복사 3번 (기대 0)
 멈춘 위치:     Item의 복사 생성자 중단점 → 호출 스택 한 칸 위 trade의 push_back(const Item&)
@@ -408,7 +408,7 @@ void trade(Trader& from, Trader& to)
 ```
 **교훈:** `std::move`는 캐스트일 뿐 아무것도 옮기지 않는다. `const` 객체에 쓰면 조용히 복사가 된다. 옮겨진 객체는 "유효하지만 정해지지 않은 상태"라서 대입하거나 비우는 것만 안전하고, 크기나 내용에 기대면 안 된다(use-after-move). 정적 분석 도구에는 두 실수를 모두 찾는 검사가 있다.
 
-## Lab 86 — 부호 있는 정수 오버플로, 넘친 뒤에 하는 검사
+## Lab 41 — 부호 있는 정수 오버플로, 넘친 뒤에 하는 검사
 ```
 틀린 결과:     경험치 -2144967296 (기대 2000000000)
 멈춘 위치:     addExp의 if 줄, 조건부 중단점 total < 0. current 1950000000, baseExp * multiplier 200000000
@@ -423,7 +423,7 @@ return static_cast<int>(total);
 ```
 **교훈:** 부호 있는 정수의 오버플로는 정의되지 않은 동작이다. 대개 음수로 돌아가지만 컴파일러는 "넘치지 않는다"고 가정해도 되므로, `if (a + b < a)` 같은 "넘쳤는지 보는" 검사는 Release에서 통째로 지워지기도 한다(이 저장소의 랩은 그런 검사를 쓰지 않아 구성마다 결과가 같다). 검사는 넘치기 **전에**: 더 넓은 형식으로 계산하거나 `std::numeric_limits<int>::max() - current < gain`처럼 남은 여유를 본다. 넘친 뒤 `total < 0`을 보는 땜질은 곱셈이 넘쳐 양수로 돌아오는 경우(숨은 테스트)를 놓친다.
 
-## Lab 87 — 축소 변환 두 곳 (`double`→`int`, `int`→`short`)
+## Lab 42 — 축소 변환 두 곳 (`double`→`int`, `int`→`short`)
 ```
 틀린 결과:     물약 1개 은화 114 (기대 115), 300개 묶음 -31336 (기대 34500)
 멈춘 위치:     toSilver의 return 줄, 조사식 gold * 100 = 114.99999999999999 / sellBundle에서 toSilver(unitGold) * count와 record.totalSilver
@@ -432,7 +432,7 @@ return static_cast<int>(total);
 **수정:** `return static_cast<int>(std::lround(gold * 100));`, `SaleRecord::totalSilver`를 `int`로
 **교훈:** `=`와 `return`의 축소 변환은 경고만 나거나(MSVC C4244) 아무 말이 없다. 중괄호 초기화(`int silver{ gold * 100 };`)는 축소 변환을 컴파일 오류로 만들어 두 곳을 한 번에 찾아 준다. 돈은 처음부터 가장 작은 단위의 정수로 들고 다닌다. `+ 1`로 맞춘 땜질은 2.5골드(정확히 250)에서 틀린다.
 
-## Lab 88 — `std::min<std::size_t>`가 음수를 아주 큰 양수로
+## Lab 43 — `std::min<std::size_t>`가 음수를 아주 큰 양수로
 ```
 틀린 결과:     궁수 진(평균보다 12 높음) 보너스 20 (기대 0)
 멈춘 위치:     levelBonus, 조건부 중단점 myLevel > average. average - myLevel = -12, size_t로는 18446744073709551604
@@ -441,7 +441,7 @@ return static_cast<int>(total);
 **수정:** `return std::clamp(average - myLevel, 0, static_cast<int>(maxBonus));`
 **교훈:** 부호 있는 값과 없는 값이 만나면 부호 있는 쪽이 부호 없는 형식으로 바뀐다(`-1 < v.size()`가 false인 것과 같은 규칙). 형식이 안 맞아 나는 컴파일 오류를 캐스트로 누르면 그 오류가 알려 주던 문제가 숨는다. 섞어 비교해야 하면 C++20 `std::cmp_less` 등을 쓴다.
 
-## Lab 89 — 두 파일의 전역 변수가 서로를 씀 (초기화 순서)
+## Lab 44 — 두 파일의 전역 변수가 서로를 씀 (초기화 순서)
 ```
 틀린 결과:     전사 체력 0 (기대 300). 파일 순서를 바꿔 빌드하면 보스 공격력 0
 멈춘 위치:     g_warriorHp 초기화 줄 중단점, 호출 스택에 main이 없음. 그때 g_baseHp == 0
@@ -455,7 +455,7 @@ int bossAttack() { static const int value = baseAttack() * 4; return value; }
 ```
 **교훈:** 다른 파일의 전역 객체에 기대는 전역 초기화는 순서에 맡긴 도박이다. 함수 안의 static은 처음 불릴 때 만들어지고(C++11부터 스레드 안전) 의존하는 쪽이 부르는 순간 준비된다. 컴파일할 때 정할 수 있는 값이면 `constexpr`/`constinit`이 가장 좋다. 이 랩은 두 방향으로 의존하게 만들어, 링크 순서가 바뀌어도 버그 상태가 늘 FAIL이다. 화면의 두 값만 상수로 박는 땜질은 숨은 테스트의 다른 두 값에서 걸린다.
 
-## Lab 90 — 헤더의 `static` 변수가 파일마다 따로
+## Lab 45 — 헤더의 `static` 변수가 파일마다 따로
 ```
 틀린 결과:     저장 횟수 0, 마지막 슬롯 "" (기대 3, "auto-용의 둥지")
 멈춘 위치:     lg06_autosave.cpp의 ++g_saveStats.count와 showSaveScreen에서 &g_saveStats가 서로 다름
@@ -464,7 +464,7 @@ int bossAttack() { static const int value = baseAttack() * 4; return value; }
 **수정:** 헤더에서 `inline SaveStats g_saveStats;` (C++17 inline 변수). 또는 헤더에 `extern` 선언, .cpp 한 곳에 정의.
 **교훈:** 헤더에 정의를 둘 때 `static`은 "하나만"이 아니라 "파일마다 하나씩"이다. 컴파일러도 링커도 경고하지 않는다. 헤더의 `const`/`constexpr` 변수도 기본으로 내부 링크라 값은 같지만 주소는 다르다.
 
-## Lab 91 — 예외 경로에서만 새는 텍스처
+## Lab 46 — 예외 경로에서만 새는 텍스처
 ```
 틀린 결과:     남은 텍스처 2개 (기대 0)
 멈춘 위치:     Texture 생성자/소멸자 중단점: 생성 6번, 소멸 4번. 남은 둘은 "저주받은 성"
@@ -480,7 +480,7 @@ return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
 ```
 **교훈:** 예외가 나면 그 사이 함수들의 남은 줄은 실행되지 않고, 소멸자가 불리는 것은 스택의 객체뿐이다. 자원은 만들자마자 소유 객체(RAII)에 맡긴다. 정상 경로만 보면 new/delete 짝이 맞아 보여서 찾기 어려운 누수다.
 
-## Lab 92 — 소멸자에서 던져 `std::terminate`
+## Lab 47 — 소멸자에서 던져 `std::terminate`
 ```
 틀린 결과:     CRASH, abort() (저장 실패 메시지가 나오지 않음)
 멈춘 위치:     예외가 던져진 ~SaveFile. 호출 스택 아래에 saveGame의 catch가 아니라 std::terminate
@@ -506,7 +506,7 @@ void close()
 ```
 **교훈:** 소멸자는 실패를 알릴 길이 없는 곳이다. 실패할 수 있는 정리는 명시적인 함수(`close`, `commit`)로 꺼내고, 소멸자는 삼킨다. `noexcept(false)`로 바꾸는 땜질은 다른 예외로 스택을 푸는 중에 소멸자가 또 던지면 여전히 terminate다(숨은 테스트). MSVC는 C4297, clang은 `-Wexceptions`로 이미 경고한다. 함수에 `noexcept`를 붙여 두고 안에서 던지는 경우도 같은 결과다.
 
-## Lab 93 — 범위 for는 범위를 처음 한 번만 평가한다
+## Lab 48 — 범위 for는 범위를 처음 한 번만 평가한다
 ```
 틀린 결과:     이번 차례 완료 1 (기대 3), 일지 3개 (기대 5)
 멈춘 위치:     endTurn의 for. 반복은 두 번, 그 사이 log.size()는 3으로 늘었다. &q는 일지 안이 아니라 entries()가 돌려준 사본 안
@@ -529,10 +529,10 @@ for (std::size_t i = 0; i < log.size(); ++i)
 
 ---
 
-# 인터페이스와 상속 (랩 79~84, 번호는 임시)
+# 6부: 인터페이스와 상속
 
 
-## Lab 79 — `const`가 빠져 재정의가 아니라 숨김
+## Lab 49 — `const`가 빠져 재정의가 아니라 숨김
 ```
 틀린 결과:     등 뒤 백스탭 20 (기대 60)
 멈춘 위치:     Backstab::damage 중단점은 걸리지 않음 → useSkill에서 Step Into → Skill::damage
@@ -541,7 +541,7 @@ for (std::size_t i = 0; i < log.size(); ++i)
 **수정:** `int damage(const Target& t) const override { ... }`
 **교훈:** 재정의하려는 함수에는 항상 `override`. 붙이는 순간 `const` 누락, 매개변수 형식 차이(`int` vs `long`, `const&` vs 값), 기반 쪽 이름 변경을 컴파일러가 오류로 알려 준다. clang은 `-Wall`에서 `-Woverloaded-virtual` 경고를 내지만, MSVC는 기본 경고 수준(/W3)에서 아무 말이 없다.
 
-## Lab 80 — `vector<Monster>`에 담아 Boss가 잘림 (슬라이싱)
+## Lab 50 — `vector<Monster>`에 담아 Boss가 잘림 (슬라이싱)
 ```
 틀린 결과:     전리품 3개, 황금 왕관 없음 (기대 4개)
 멈춘 위치:     Boss::loot 중단점이 걸리지 않음 → collectLoot에서 wave[2]를 펼치면 형식이 Monster, rare_ 없음
@@ -565,7 +565,7 @@ std::vector<std::unique_ptr<Monster>> spawnWave(const std::vector<SpawnInfo>& in
 ```
 **교훈:** 다형 객체는 포인터(소유는 `unique_ptr`)로 담는다. 값으로 받는 함수 매개변수(`void f(Monster m)`)도 똑같이 자른다. 다형 기반 클래스의 복사를 `= delete`로 막아 두면 이 실수가 컴파일 오류가 된다.
 
-## Lab 81 — 생성자 안의 가상 호출
+## Lab 51 — 생성자 안의 가상 호출
 ```
 틀린 결과:     저격 탑 사거리 3 (기대 8), 거리 7을 못 쏨
 멈춘 위치:     Tower::baseRange 중단점 → 호출 스택에 Tower::Tower ← SniperTower::SniperTower
@@ -579,7 +579,7 @@ bool canHit(int distance) const { return distance <= range(); }
 (또는 `Tower(int range)` 생성자로 파생 클래스가 값을 넘긴다)
 **교훈:** 생성자와 소멸자 안에서 가상 함수는 "지금 만들고 있는(부수고 있는) 클래스"의 버전이 불린다. 이것은 표준이 정한 동작이라 어느 컴파일러에서나 같다. 소멸자에서 **순수** 가상 함수를 부르는 경우는 정의되지 않은 동작이라 이 랩에서 뺐다(아래 미포함).
 
-## Lab 82 — 가상 함수의 기본 인자는 정적 형식을 따름
+## Lab 52 — 가상 함수의 기본 인자는 정적 형식을 따름
 ```
 틀린 결과:     사제 기본 치유 15 (기대 30), 파티 총 25 (기대 40). 직접 priest.heal()은 30
 멈춘 위치:     Priest::heal 안, castDefaultHeal에서 들어왔을 때 amount == 10
@@ -597,7 +597,7 @@ int castDefaultHeal(const Healer& healer)
 ```
 **교훈:** 가상 함수에 기본 인자를 두지 않는다(두더라도 기반과 같은 값만). 흔한 정석은 기본값을 쓰는 비가상 함수가 가상 함수를 부르는 NVI(non-virtual interface) 형태다. 기반의 기본값만 25로 바꾸면 드루이드(18)가 틀린다(숨은 테스트).
 
-## Lab 83 — 파생 클래스의 오버로드 하나가 기반 오버로드를 전부 가림
+## Lab 53 — 파생 클래스의 오버로드 하나가 기반 오버로드를 전부 가림
 ```
 틀린 결과:     골드 0 (기대 500), 아이템 2개 (기대 1). 아이템 목록에 500번
 멈춘 위치:     box.give(500)에서 Step Into → Item::Item(int)로 들어감
@@ -606,7 +606,7 @@ int castDefaultHeal(const Healer& healer)
 **수정:** `EventMailbox`에 `using Mailbox::give;` (그리고 `Item`의 생성자에 `explicit`)
 **교훈:** 이름 찾기가 오버로드 결정보다 먼저다. 파생 클래스에서 같은 이름을 하나라도 선언하면 기반의 같은 이름은 모두 안 보인다. 보이는 후보가 하나뿐이고 암시적 변환이 가능하면 오류 없이 엉뚱한 함수가 불린다. 숫자 하나로 만드는 생성자에는 `explicit`.
 
-## Lab 84 — `dynamic_cast` 결과의 nullptr 확인 누락
+## Lab 54 — `dynamic_cast` 결과의 nullptr 확인 누락
 ```
 틀린 결과:     크래시 (액세스 위반 / SIGSEGV)
 멈춘 위치:     Mage::restoreMana, this == nullptr → 호출 스택 한 칸 위 drinkManaPotions: unit은 Warrior, mage는 nullptr
@@ -624,10 +624,10 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 
 ---
 
-# 파일 입출력 (랩 65~71, 번호는 임시)
+# 7부: 파일 입출력
 
 
-## Lab 65 — 상대 경로가 작업 디렉터리 기준으로 열림
+## Lab 55 — 상대 경로가 작업 디렉터리 기준으로 열림
 ```
 틀린 결과:     포션 100 (기대 120), 귀환서 -1 (가격표에 없음)
 멈춘 위치:     loadPrices의 std::ifstream 줄
@@ -637,16 +637,16 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 **수정:** `std::ifstream in(gameDir() / "data/prices.txt");`
 **교훈:** 작업 디렉터리는 프로그램을 띄운 쪽(IDE, 바로 가기, 다른 프로그램)이 정한다. 실행 파일 옆의 데이터는 실행 파일 위치를 기준으로 절대 경로를 만든다. 파일을 못 열었을 때 빈 목록을 조용히 돌려주지 말고 알린다(숨은 테스트처럼 파일이 아예 없으면 품목 0개가 된다).
 
-## Lab 66 — 버퍼에만 있고 파일에는 아직 없는 내용을 다시 읽음
+## Lab 56 — 버퍼에만 있고 파일에는 아직 없는 내용을 다시 읽음
 ```
 틀린 결과:     일지 창 0줄 (기대 3)
 멈춘 위치:     readJournal 호출 줄에서 멈춘 뒤 journal.txt 확인 → 0바이트
 진짜 원인:     ofstream이 열려 있는 동안 쓴 내용은 스트림 버퍼에 있고, flush/close 전에는 디스크에 없다
 ```
 **수정:** `record`에서 쓴 뒤 `out_.flush();` (또는 읽기 전에 flush/close)
-**교훈:** 같은 프로그램 안에서 쓰고 다시 읽으면, 읽기 전에 쓴 내용이 디스크에 있는지 보장한다. 7부 랩 51(`std::endl`이 매번 flush해서 느림)과 짝: flush는 필요한 순간에만.
+**교훈:** 같은 프로그램 안에서 쓰고 다시 읽으면, 읽기 전에 쓴 내용이 디스크에 있는지 보장한다. 12부 랩 96(`std::endl`이 매번 flush해서 느림)과 짝: flush는 필요한 순간에만.
 
-## Lab 67 — `while (!in.eof())`로 마지막 기록이 두 번
+## Lab 57 — `while (!in.eof())`로 마지막 기록이 두 번
 ```
 틀린 결과:     4줄, 마지막에 "도윤 7100" 한 번 더, 총점 32100 (기대 25000)
 멈춘 위치:     push_back, 조건 scores.size() == 3
@@ -656,7 +656,7 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 **수정:** `while (in >> name >> points) scores.push_back({ name, points });`
 **교훈:** 읽기는 "읽고 → 성공했는지 확인 → 쓴다" 순서. 실패한 `>>`는 변수를 그대로 두므로(이 랩) 지난 값이 한 번 더 들어간다. `pop_back` 땜질은 줄바꿈 없이 끝나는 파일에서 진짜 기록을 지운다.
 
-## Lab 68 — `>>` 뒤의 `getline`이 남은 줄바꿈을 읽음
+## Lab 58 — `>>` 뒤의 `getline`이 남은 줄바꿈을 읽음
 ```
 틀린 결과:     첫 대사 "" (빈 줄), 셋째 대사 자리에 둘째 대사, 마지막 대사 없음
 멈춘 위치:     push_back, 첫 바퀴 line.size() == 0
@@ -665,7 +665,7 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 **수정:** `in >> count;` 다음에 `in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');` (`<limits>`)
 **교훈:** `>>`(토큰 단위)와 `getline`(줄 단위)을 섞으면 경계의 줄바꿈을 직접 처리해야 한다. `in >> std::ws`도 통과처럼 보이지만 다음 줄 앞의 공백까지 먹어서 들여 쓴 대사를 망친다(숨은 테스트).
 
-## Lab 69 — failbit가 남아 이후 읽기가 모두 무시됨
+## Lab 59 — failbit가 남아 이후 읽기가 모두 무시됨
 ```
 틀린 결과:     몬스터 3종, 보상 0개 (기대 3), 102번 보상 0
 멈춘 위치:     in >> header 줄, 조사식 in.fail() == true
@@ -674,7 +674,7 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 **수정:** `std::string header;` 앞에 `in.clear();`
 **교훈:** 실패 표시는 저절로 꺼지지 않는다. 실패를 "예상한" 지점(섹션 끝)에서는 `clear()`로 지우고 계속 읽는다. `clear()`는 글자를 버리지 않으므로 실패를 일으킨 토큰("보상")은 그대로 다음 읽기에 들어간다.
 
-## Lab 70 — UTF-8 BOM이 첫 키에 붙음
+## Lab 60 — UTF-8 BOM이 첫 키에 붙음
 ```
 틀린 결과:     음량 80 (기본값, 기대 30). 전체 화면(둘째 줄)은 정상
 멈춘 위치:     getInt, 조건 key == "volume" → settings의 첫 키가 "volume"처럼 보이지만 size() == 9
@@ -692,7 +692,7 @@ while (std::getline(in, line))
 ```
 **교훈:** "첫 줄만 이상하다"면 파일 앞부분의 보이지 않는 바이트를 의심한다. 디버거가 보여 주는 글자보다 `size()`와 바이트 값을 믿는다. 무조건 3바이트를 버리는 땜질은 BOM 없는 파일의 첫 키를 망친다(숨은 테스트).
 
-## Lab 71 — 저장 도중 실패로 반쯤 쓴 세이브
+## Lab 61 — 저장 도중 실패로 반쯤 쓴 세이브
 ```
 틀린 결과:     저장 실패 뒤 불러온 아이템 3종 (기대 5종)
 멈춘 위치:     writeItem의 throw 줄, 멈춘 채로 save.txt 열기 → 이미 지워지고 앞의 몇 줄만 있음
@@ -727,10 +727,10 @@ catch (const std::exception& e)
 
 ---
 
-# 직렬화 (JSON/XML) (랩 72~78, 번호는 임시)
+# 8부: 직렬화 (JSON/XML)
 
 
-## Lab 72 — `json::operator[]`가 없는 키를 null로 만듦
+## Lab 62 — `json::operator[]`가 없는 키를 null로 만듦
 ```
 틀린 결과:     소환 버튼 켬 (기대 끔), 다시 저장한 세이브에 "pet":null 추가
 멈춘 위치:     petLabel 전후, 조사식 save.size() 3 → 4
@@ -740,7 +740,7 @@ catch (const std::exception& e)
 **수정:** `if (!save.contains("pet"))` (읽기만 하는 함수는 `const json&`로 받고 `contains`/`find`/`at`)
 **교훈:** "있는지 확인"과 "꺼내기"를 구분한다. const json에 없는 키로 `[]`를 쓰는 것은 정의되지 않은 동작(Debug에서는 assert)이므로 const로 바꾸기만 해서는 안 되고 `contains`로 확인한다.
 
-## Lab 73 — `value("crit", 1)`이 int로 읽어 1.5를 1로 자름
+## Lab 63 — `value("crit", 1)`이 int로 읽어 1.5를 1로 자름
 ```
 틀린 결과:     단검 치명타 30 (기대 45). 도끼(정수 2)와 지팡이(없음)는 정상
 멈춘 위치:     loadWeapon의 return, 조건 w.name == "단검" → w.crit == 1
@@ -749,7 +749,7 @@ catch (const std::exception& e)
 **수정:** `w.crit = j.value("crit", 1.0);` (또는 `j.value<double>("crit", 1)`)
 **교훈:** 라이브러리의 변환 함수는 "형식을 어디서 정하는지" 확인한다. `get<int>()`도 1.5를 1로 조용히 자른다. 정수로 저장되던 값을 실수로 바꾸는 데이터 패치에서 잘 터진다. 반올림 땜질은 1.75, 2.25에서 다시 틀린다(숨은 테스트).
 
-## Lab 74 — `json`이 키를 정렬해서 순서가 사라짐
+## Lab 64 — `json`이 키를 정렬해서 순서가 사라짐
 ```
 틀린 결과:     불러온 순서 "번개 얼음창 치유 화염구" (기대 "화염구 얼음창 번개 치유"), 저장 후에도 정렬됨
 멈춘 위치:     loadSkillBar의 for, j를 펼쳐 보면 이미 정렬되어 있음
@@ -758,7 +758,7 @@ catch (const std::exception& e)
 **수정:** `using Json = nlohmann::ordered_json;` (읽기와 저장이 함께 바뀜)
 **교훈:** 순서가 의미 있는 데이터는 배열로 저장하는 것이 정석이다. 객체 키 순서에 기대면 라이브러리·언어를 바꿀 때마다 깨진다. 한글 키는 UTF-8 바이트순으로 정렬되어 "가나다순처럼 보이지만 아닌" 결과가 나오기도 한다.
 
-## Lab 75 — UTF-8을 바이트로 잘라 `dump`가 예외를 던짐
+## Lab 65 — UTF-8을 바이트로 잘라 `dump`가 예외를 던짐
 ```
 틀린 결과:     "Lv99용감한전사" 저장 실패: [json.exception.type_error.316] incomplete UTF-8 string; last byte: 0x95
 멈춘 위치:     catch 블록 → clampName의 return에서 마지막 바이트 확인 (0xED 0x95 = "한"의 앞 2바이트)
@@ -773,7 +773,7 @@ return name.substr(0, cut);
 ```
 **교훈:** 바이트 수 제한은 글자 경계에서 자른다(이어지는 바이트는 `10xxxxxx`). `dump`의 오류 처리기(`error_handler_t::replace/ignore`)로 예외만 막으면 깨진 이름이 화면과 서버에 남는다. CP949로 읽은 문자열을 그대로 넣어도 같은 예외(type_error 316)가 난다. 원인은 "JSON에 UTF-8이 아닌 바이트가 들어갔다"로 같다.
 
-## Lab 76 — 기본 정밀도 6자리로 float 왕복 손실
+## Lab 66 — 기본 정밀도 6자리로 float 왕복 손실
 ```
 틀린 결과:     저장한 문자열 {"x":1234.57,"y":-87.6543,"z":3.33333} → 불러온 위치가 1234.56995 등으로 달라짐
 멈춘 위치:     savePosition의 return (out.str()), 디버거의 p.x 표시(1234.56775)와 비교
@@ -782,7 +782,7 @@ return name.substr(0, cut);
 **수정:** `out << std::setprecision(std::numeric_limits<float>::max_digits10);` (`<limits>`) 또는 json 객체에 넣어 `dump()`
 **교훈:** 사람이 읽는 출력과 다시 읽을 저장은 다르다. 저장은 왕복(round-trip)이 보장되는 형식으로. `std::fixed`는 소수점 아래 자릿수라 0.0003141 같은 작은 값을 망친다. 숨은 테스트는 7~8자리로는 부족한 값도 넣었다(MSVC와 clang에서 같은 결과를 확인).
 
-## Lab 77 — 속성을 자식 요소로 읽어 빈 노드의 0
+## Lab 67 — 속성을 자식 요소로 읽어 빈 노드의 0
 ```
 틀린 결과:     모든 몬스터 HP 0 (공격력은 정상)
 멈춘 위치:     m.hp = ... 줄, 조사식 node.child("hp").empty() == true, node.attribute("hp").value() == "320"
@@ -791,7 +791,7 @@ return name.substr(0, cut);
 **수정:** `m.hp = node.attribute("hp").as_int();`
 **교훈:** pugixml은 없는 노드/속성에 예외 대신 빈 객체를 돌려준다. 오타, 대소문자("Attack"/"attack"), 속성/자식 혼동이 모두 조용한 0이 된다. 필수 값은 `if (!attr)`로 확인하고 데이터 오류로 알린다.
 
-## Lab 78 — 이스케이프하지 않고 이어 붙인 XML
+## Lab 68 — 이스케이프하지 않고 이어 붙인 XML
 ```
 틀린 결과:     길드 목록 읽기 실패: Error parsing element attribute → 0개 (기대 3)
 멈춘 위치:     loadGuilds 실패 쪽, xml.c_str() + result.offset → "방패>..." 부분
@@ -803,9 +803,9 @@ return name.substr(0, cut);
 
 ---
 
-# 5부: 포인터 오용
+# 9부: 포인터 오용
 
-## Lab 36 — 지역 변수의 주소를 반환
+## Lab 69 — 지역 변수의 주소를 반환
 ```
 조사식:      board[0], board[1], board[2] 가 모두 같은 주소
 진짜 원인:   formatEntry가 지역 배열 line의 주소를 반환. 함수가 끝나면 line은 사라지고,
@@ -815,7 +815,7 @@ return name.substr(0, cut);
 **구성별:** Debug와 Release 모두 깨진 글자. MSVC ASan은 기본 설정으로는 잡지 못한다. Clang ASan은 `stack-use-after-scope`로 잡기도 한다(이 저장소에서 확인). 가장 빠른 단서는 컴파일러 경고(MSVC C4172, Clang `-Wreturn-stack-address`, GCC `-Wreturn-local-addr`)였다.
 **교훈:** 포인터를 돌려줄 때는 "가리키는 대상이 함수보다 오래 사는가?"를 먼저 묻는다.
 
-## Lab 37 — 해제된 몬스터에서 현상금을 읽음 (use-after-free)
+## Lab 70 — 해제된 몬스터에서 현상금을 읽음 (use-after-free)
 ```
 이상한 값:     hunter.target->bounty == -286331154 (0xEEEEEEEE = 메모리 검사기가 채운 해제된 힙)
 처음 어긋난 줄: field.removeDefeated()  (타깃 몬스터를 delete)
@@ -831,7 +831,7 @@ field.removeDefeated();
 **구성별:** Debug와 Release는 메모리 검사기가 `0xEE`로 채워 FAIL(골드 -572662308). 검사기가 없는 진짜 프로그램이라면 해제된 메모리에 옛 값이 남아 **PASS**할 수도 있다(검사기를 넣기 전 MSVC Release가 그랬다). ASan은 heap-use-after-free와 함께 읽은 곳(`hunt`), 해제한 곳(`removeDefeated`), 할당한 곳(`spawn`)의 호출 스택을 보여 준다.
 **교훈:** Release에서 통과했다고 버그가 없는 게 아니다. 해제된 메모리를 읽는 버그는 알아볼 수 있는 채움 값(검사기의 `0xEE`, MSVC 디버그 힙의 `0xDD`)과 ASan으로 드러낸다.
 
-## Lab 38 — new[]로 만들고 delete로 지움
+## Lab 71 — new[]로 만들고 delete로 지움
 ```
 멈춘 곳:     [CRASH] 메모리 검사: new로 받은 주소가 아닌 곳을 해제했다 ← operator delete ← ~Explosion의 delete particles_
 관찰:        첫 폭발이 끝날 때 ~Particle()이 16번이 아니라 1번만 불림
@@ -842,7 +842,7 @@ field.removeDefeated();
 **구성별:** Debug와 Release는 메모리 검사기가 그 자리에서 `[CRASH]`. 검사기가 없으면 MSVC Debug는 CRT 힙 어설션, Release는 힙 손상(Windows `0xC0000374`, glibc `free(): invalid pointer`)으로 죽는다. ASan은 "attempting free on address which was not malloc()-ed". 소멸자가 없는 타입(`int` 등)이면 앞의 개수 칸이 없어서 Debug와 Release에서는 아무 증상 없이 지나가기도 한다. 그래도 정의되지 않은 동작이다.
 **교훈:** 소멸자를 가진 타입의 배열은 `new[]`가 앞에 개수를 몰래 적어 둔다. 만든 방법과 지우는 방법은 항상 짝을 맞춘다.
 
-## Lab 39 — 포인터 산술 단위 실수
+## Lab 72 — 포인터 산술 단위 실수
 ```
 조사식:      (const char*)entries - (const char*)header == 16  (헤더 바로 뒤라면 4)
 진짜 원인:   header는 PacketHeader*. header + sizeof(PacketHeader) 는 "4바이트 뒤"가 아니라
@@ -852,7 +852,7 @@ field.removeDefeated();
 **구성별:** Debug와 Release는 패킷 바로 뒤에 메모리 검사기가 둔 경계 바이트 `0xBDBD`(= 48573)를 개수로 읽어 합계가 145722가 된다. 검사기가 없으면 쓰레기 값. ASan은 heap-buffer-overflow(READ of size 2)로 그 줄에서 멈춘다.
 **교훈:** 포인터에 더하는 수의 단위는 "가리키는 타입 하나"다. 바이트 단위로 움직이려면 `char*`/`uint8_t*`에서 계산한다.
 
-## Lab 40 — 초기화 안 된 포인터 멤버
+## Lab 73 — 초기화 안 된 포인터 멤버
 ```
 멈춘 곳:     Hero::attackPower의 power += weapon_->bonus  (읽기 액세스 위반)
 지역 변수:   this->weapon_ == 0xa5a5a5a5a5a5a5a5
@@ -863,7 +863,7 @@ field.removeDefeated();
 **구성별:** 파티는 재사용 메모리(`bughunt::recycledStorage`, `0xA5`로 채워져 있음) 위에 만들어지므로 Debug와 Release 모두 매번 같은 곳에서 죽는다(Windows 액세스 위반, POSIX `SIGSEGV`). 재사용 메모리가 아니었다면 남은 쓰레기에 따라 통과하기도 하고 엉뚱한 공격력이 나오기도 한다. 쓰레기 주소가 어디를 가리키느냐에 따라 stack-buffer-overflow처럼 엉뚱한 이름의 리포트가 나오기도 한다. ASan은 "초기화 안 된 값" 자체를 잡는 도구가 아니다.
 **교훈:** x64에서 `0xA5A5...`처럼 정규 주소가 아닌 값을 읽으면 예외 메시지에는 `0xFFFFFFFFFFFFFFFF`로 나올 수 있다. 예외 메시지보다 디버거의 포인터 값을 본다. 랩 12처럼 "멤버를 초기화하지 않음" 정적 분석 경고가 미리 알려 준다.
 
-## Lab 41 — shared_ptr 순환 참조
+## Lab 74 — shared_ptr 순환 참조
 ```
 지역 변수:   guild [strong ref=4]  (지역 변수 1 + 길드원 3명의 guild 멤버)
 진짜 원인:   Guild → members(shared_ptr) → Member → guild(shared_ptr) → Guild
@@ -882,7 +882,7 @@ std::string guildNameOf(const Member& member)
 **구성별:** 세 구성 모두 똑같이 FAIL이다. 크래시도, 어설션도, ASan 리포트도 없다(Windows의 ASan에는 누수 검사기가 없다. Linux·macOS의 ASan은 LeakSanitizer가 프로그램이 끝날 때 누수를 보고할 수 있다). 2부 랩 16처럼 인스턴스 수나 소멸자 중단점으로 확인한다.
 **교훈:** 스마트 포인터도 소유 관계에 고리가 생기면 샌다. "누가 누구를 소유하는가"를 한 방향으로 정하고, 거꾸로 가는 쪽은 `weak_ptr`로 둔다.
 
-## Lab 42 — [&] 람다가 끝난 함수의 지역 변수를 참조
+## Lab 75 — [&] 람다가 끝난 함수의 지역 변수를 참조
 ```
 중단점:      람다 안 hero.attack -= bonus; (Kael 차례)
 지역 변수:   bonus = 45   ← 분노를 걸 때 출력은 (+30)
@@ -901,10 +901,10 @@ timers.after(3, [&hero, bonus] {
 **구성별:** 틀린 값은 컴파일러와 구성마다 다르다(이 저장소에서 Kael: MSVC Debug -124, MSVC·Clang Release 45, Clang Debug 85, ASan 쓰레기 값). 위 조사식은 Release의 45가 나온 이유다. 기본 ASan은 stack-use-after-return을 잡지 않는다. Clang ASan은 `ASAN_OPTIONS=detect_stack_use_after_return=1`로 실행하면 이 람다 줄에서 `stack-use-after-return`으로 멈춘다(README "람다 캡처와 ASan").
 **교훈:** `[&]`는 람다가 **지금 이 자리에서** 실행될 때만 안전하다. 콜백, 타이머, 스레드, 나중에 실행할 목록에 넣는 람다는 캡처 목록을 하나씩 적고, 무엇을 참조로 들고 가는지 확인한다. `hero`를 참조로 가져가는 것도 "Hero가 타이머보다 오래 산다"는 약속에 기댄 것이다.
 
-## 넘침: 스택과 힙의 경계 (랩 94~98, 번호는 임시)
+## 넘침: 스택과 힙의 경계 (랩 76~80)
 
 
-## Lab 94 — 16 MB 지역 배열로 스택 오버플로
+## Lab 76 — 16 MB 지역 배열로 스택 오버플로
 ```
 틀린 결과:     CRASH, 스택 오버플로 (0xC00000FD / ASan stack-overflow)
 멈춘 위치:     countReachable의 첫 줄(또는 스택을 미리 건드리는 도우미 함수). 호출 스택은 lab → countReachable 두어 줄뿐
@@ -913,7 +913,7 @@ timers.after(3, [&hero, bonus] {
 **수정:** `std::vector<std::vector<int>> dist(map.height, std::vector<int>(map.width, -1));` (또는 1차원 `std::vector<int>`에 `y * width + x`)
 **교훈:** 스택 오버플로가 늘 재귀인 것은 아니다. 호출 스택이 짧은데 스택 오버플로라면 큰 지역 변수를 의심한다. 크기가 실행 중에 정해지거나 수십 KB를 넘는 데이터는 힙(`vector`)에. `static` 배열로 바꾸면 죽지는 않지만 16 MB를 늘 붙잡고 여러 스레드에서 쓸 수 없다.
 
-## Lab 95 — 프레임마다 96 KB 버퍼 × 재귀 160겹
+## Lab 77 — 프레임마다 96 KB 버퍼 × 재귀 160겹
 ```
 틀린 결과:     CRASH, 스택 오버플로. "방 8번 생성"까지 출력되고 죽음 (방 5개 시험 던전은 통과)
 멈춘 위치:     buildRooms가 열 겹 남짓 쌓인 호출 스택. 이웃한 두 프레임의 &layout 차이 ≈ 98,000바이트
@@ -922,16 +922,16 @@ timers.after(3, [&hero, bonus] {
 **수정:** `std::vector<char> layout(kLayoutBytes);` (프레임에는 vector 하나만 남는다). 또는 보물 상자를 재귀 전에 세고 버퍼를 일찍 끝내거나, 재귀를 반복문으로.
 **교훈:** 스택 사용량은 "프레임 크기 × 깊이"다. 깊이가 데이터(방 수, 트리 높이)에 따라 정해지는 재귀는 스택 한도를 생각해야 한다. 프레임 크기는 구성마다 다르다(Debug는 검사용 공간, ASan은 변수 사이 경계). 그래서 프레임이 작고 깊이가 경계에 걸린 재귀는 Debug에서만, 또는 ASan에서만 죽기도 한다. 직접 보려면 `kLayoutBytes`를 8 KB로 줄이고 방 수를 늘려 Debug와 Release에서 죽는 방 번호를 비교해 보라.
 
-## Lab 96 — `new Frame[n]` 뒤 `<=`로 한 칸 더 쓰기, 해제할 때 드러남
+## Lab 78 — `new Frame[n]` 뒤 `<=`로 한 칸 더 쓰기, 해제할 때 드러남
 ```
 틀린 결과:     CRASH, [CRASH] 메모리 검사: 할당한 크기를 넘어서 썼다 (ASan: heap-buffer-overflow)
 멈춘 위치:     ~ReplayRecorder의 delete[]. 데이터 중단점(&frames_[ticks_])을 걸면 recordAll의 frames_[t] = ... 에서 t == 600
 진짜 원인:     for (t = 0; t <= ticks_; ++t)가 원소 600개 배열의 frames_[600]에 쓴다
 ```
 **수정:** `for (int t = 0; t < ticks_; ++t)`
-**교훈:** 힙 넘침은 쓰는 순간이 아니라 그 자리를 다른 누가 볼 때(해제, 다음 할당, 옆 블록 사용) 드러난다. 크래시 위치와 원인이 멀면 **데이터 중단점**으로 "그 바이트를 누가 바꾸는지"를 묻는다. ASan은 쓰는 순간 잡는다. 랩 39(포인터 산술의 단위, 읽기)와 달리 이 랩은 반복 경계의 한 칸 쓰기다.
+**교훈:** 힙 넘침은 쓰는 순간이 아니라 그 자리를 다른 누가 볼 때(해제, 다음 할당, 옆 블록 사용) 드러난다. 크래시 위치와 원인이 멀면 **데이터 중단점**으로 "그 바이트를 누가 바꾸는지"를 묻는다. ASan은 쓰는 순간 잡는다. 랩 72(포인터 산술의 단위, 읽기)와 달리 이 랩은 반복 경계의 한 칸 쓰기다.
 
-## Lab 97 — `memcpy`에 `sizeof(포인터)`
+## Lab 79 — `memcpy`에 `sizeof(포인터)`
 ```
 틀린 결과:     첫 번째 이름 "Nighting" (기대 "Nightingale"), 두 번째 이름 "Moonshadingale" 같은 이어 붙음
 멈춘 위치:     writeName, 조사식 sizeof(dst) == 8, std::strlen(src) == 11. 메모리 창에서 packet.name 9바이트째부터 앞사람 이름
@@ -949,7 +949,7 @@ void writeName(char* dst, std::size_t cap, const char* src)
 ```
 **교훈:** 배열은 함수 매개변수가 되는 순간 포인터로 바뀐다(배열 붕괴). 크기는 같이 넘기거나 `char (&dst)[N]` 템플릿으로 받는다. C 문자열 복사는 "길이 + 널 문자 1"과 "버퍼 크기 - 1로 자르기"를 둘 다 챙겨야 한다. clang은 `-Wsizeof-pointer-memaccess`로 이미 경고한다. 패킷 밖에서는 `std::string`.
 
-## Lab 98 — 1부터 세는 스킬 번호로 `std::array` 인덱스, 옆 멤버 `gold`를 덮음
+## Lab 80 — 1부터 세는 스킬 번호로 `std::array` 인덱스, 옆 멤버 `gold`를 덮음
 ```
 틀린 결과:     Debug: CRASH, "array subscript out of range" / Release: 2번 스킬 레벨 0, 골드 801 (기대 800)
 멈춘 위치:     Debug: learnSkill의 hero.skillLevels[skillId] 줄 (어설션) / Release: hero.gold 데이터 중단점이 같은 줄에서 멈춤
@@ -960,9 +960,9 @@ void writeName(char* dst, std::size_t cap, const char* src)
 
 ---
 
-# 비동기와 동시성 (랩 54~60, 번호는 임시)
+# 10부: 비동기와 동시성
 
-## Lab 54 — 버린 future가 비동기를 순차로 만듦
+## Lab 81 — 버린 future가 비동기를 순차로 만듦
 ```
 메인 스레드:  startLoading의 for 문 → std::future<void>::~future → 작업이 끝나기를 기다림
 작업 스레드:  한 번에 하나만 ChunkDisk::read 안에 있음 (300 ms 기다린 뒤 콜드 읽기)
@@ -973,7 +973,7 @@ void writeName(char* dst, std::size_t cap, const char* src)
 **구성별:** 어느 컴파일러에서나 같다(표준이 정한 동작). C++20부터 `std::async`는 `[[nodiscard]]`라서 경고(MSVC C4858, GCC·Clang `-Wunused-result`)가 이 줄을 가리킨다.
 **교훈:** "비동기로 띄웠다"와 "기다리지 않는다"는 다르다. future를 어디에 두고 언제 기다리는지가 코드의 실행 순서를 정한다.
 
-## Lab 55 — 비동기 작업의 예외는 get()에서 나옴
+## Lab 82 — 비동기 작업의 예외는 get()에서 나옴
 ```
 예외가 던져질 때 멈춤:  작업 스레드의 craft("Mithril Helm") throw
 abort 시점 호출 스택:   메인 스레드 craftAll → std::future<int>::get → 예외 다시 던지기
@@ -990,7 +990,7 @@ for (std::future<int>& job : jobs)
 (`std::async` 자체도 스레드를 만들지 못하면 `std::system_error`를 던지므로 원래 try를 남겨 두어도 된다.)
 **교훈:** 비동기 작업의 예외는 **결과를 꺼내는 곳**에서 처리한다. `get()`은 future 하나에 한 번만 부를 수 있다. 두 번째 호출 전에는 `valid()`가 false이고, 그때 `get()`을 부르는 것은 정의되지 않은 동작이다(구현 대부분은 `std::future_error`를 던진다).
 
-## Lab 56 — 조건 없는 condition_variable 대기
+## Lab 83 — 조건 없는 condition_variable 대기
 ```
 모두 중단:  공대원 스레드는 모두 끝남. lab-worker(공대장)는 ReadyCheck::waitForAll의 wait 안
 조사식:     readyCount_ == 4, memberCount_ == 4  → 기다릴 이유가 없다
@@ -1001,7 +1001,7 @@ for (std::future<int>& job : jobs)
 **구성별:** 어느 구성에서나 TIMEOUT. `if (readyCount_ < memberCount_) allReady_.wait(lock);`처럼 한 번만 검사하면 화면은 통과하지만, 공대장이 먼저 기다리는 숨은 케이스에서 첫 알림에 깨어나 3명 중 1명만 준비한 채 입장한다(FAIL).
 **교훈:** `condition_variable`은 "무엇인가 바뀌었을 수 있다"는 신호일 뿐이다. 기다리는 **조건**은 mutex로 지키는 변수에 있고, `wait`는 항상 그 조건과 함께 쓴다.
 
-## Lab 57 — 떼어 낸 스레드의 [this]
+## Lab 84 — 떼어 낸 스레드의 [this]
 ```
 중단점:     board.post(bid_)  (작업 스레드. 호출 스택에 bidAndCloseWindow 없음)
 조사식:     bid_ == -286331154 (0xEEEEEEEE = 해제된 메모리)
@@ -1012,9 +1012,9 @@ for (std::future<int>& job : jobs)
 (종과 게시판은 서버가 켜져 있는 동안 사는 객체라 참조로 둔다. 그 약속이 없다면 `shared_ptr`로 함께 소유한다.)
 더 튼튼한 설계는 스레드를 떼어 내지 않는 것이다. 창이 `std::jthread`를 소유하고 소멸자에서 멈춰 달라고 요청하고 기다리거나, 알림을 서버 쪽 객체에 등록한다.
 **구성별:** Debug와 Release는 메모리 검사기의 `0xEE`로 FAIL. ASan은 작업 스레드에서 heap-use-after-free(해제한 곳은 메인 스레드의 `bidAndCloseWindow`)로 CRASH.
-**교훈:** `detach`는 "이 스레드의 수명을 아무도 책임지지 않는다"는 뜻이다. 떼어 낸 스레드에 넘긴 람다는 캡처한 모든 것이 그 스레드보다 오래 사는지 확인한다(5부 랩 42와 같은 실수가 스레드로 옮겨 온 것).
+**교훈:** `detach`는 "이 스레드의 수명을 아무도 책임지지 않는다"는 뜻이다. 떼어 낸 스레드에 넘긴 람다는 캡처한 모든 것이 그 스레드보다 오래 사는지 확인한다(9부 랩 75와 같은 실수가 스레드로 옮겨 온 것).
 
-## Lab 58 — atomic 확인 후 행동 레이스
+## Lab 85 — atomic 확인 후 행동 레이스
 ```
 조건부 중단점:  --stock_; 에서 stock_ <= 0 일 때 멈춤
 스레드 목록:    다섯 구매 스레드가 모두 stock_.load() > 0 검사를 통과해 payment_.charge에서 기다리는 중이었다
@@ -1037,7 +1037,7 @@ return true;
 **구성별:** 어느 구성에서나 판매 5, 수량 -2. 랩 17과 달리 **데이터 레이스가 아니다.** 모든 접근이 `atomic`이라 ThreadSanitizer도 보고하지 않는다.
 **교훈:** 불변식("판매 수 + 남은 수량 = 처음 수량", "수량 ≥ 0")은 그것을 이루는 값 전체를 한 번에 바꾸는 연산으로 지킨다. 변수마다 `atomic`을 붙인다고 불변식이 지켜지지 않는다.
 
-## Lab 59 — join 없이 파괴된 std::thread
+## Lab 86 — join 없이 파괴된 std::thread
 ```
 호출 스택:  std::terminate ← std::thread::~thread ← runMatchmaking의 return result; (둘째 대기열)
 진짜 원인:  인원이 모자라 취소하는 경로가 matcher.join() 없이 함수를 빠져나간다.
@@ -1054,7 +1054,7 @@ return result;
 `std::jthread`로 바꾸면 모든 빠져나가는 길에서 자동으로 멈춰 달라고 요청하고 join한다. 다만 jthread는 함수가 끝날 때 join하므로, 위처럼 "멈추고 기다린 뒤 결과를 고치기"가 필요하면 `request_stop()`과 `join()`을 직접 부른다.
 **교훈:** 스레드 객체도 리소스다. 예외와 이른 `return`을 포함한 모든 길에서 정리되도록 RAII(`std::jthread`)를 쓴다.
 
-## Lab 60 — 코루틴의 참조 매개변수
+## Lab 87 — 코루틴의 참조 매개변수
 ```
 중단점:     talkTo의 첫 줄 (호출 스택: as07_cutscene → Cutscene::step → 코루틴 재개. startVillageScene은 이미 끝남)
 조사식:     npc.affinity == -286331154 (0xEEEEEEEE)
@@ -1067,9 +1067,9 @@ return result;
 
 ---
 
-# 6부: 멈춤 - 무한루프와 데드락
+# 11부: 멈춤 - 무한루프와 데드락
 
-## Lab 43 — float 누적과 != 종료 조건
+## Lab 88 — float 누적과 != 종료 조건
 ```
 모두 중단:     랩 작업 스레드 → ticksUntilReady. 다시 모두 중단할 때마다 ticks가 커져 있음 (무한루프)
 조건부 중단점: ticks == 15 일 때 t == 1.50000024, cooldownSeconds == 1.5
@@ -1083,7 +1083,7 @@ return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));   // #inclu
 `t < cooldownSeconds`로만 바꾸면 멈추지는 않지만 오차 때문에 한 틱을 더 센다. 예를 들어 1.2초 / 0.05초는 24가 아니라 25가 나온다(채점기의 숨은 케이스가 이것을 잡는다).
 **교훈:** 실수는 `==`, `!=`로 비교하지 않는다. "몇 번 반복하는가"는 정수로 센다.
 
-## Lab 44 — unsigned의 s >= 0
+## Lab 89 — unsigned의 s >= 0
 ```
 모두 중단:   s가 12보다 훨씬 큰 수 (수십억). 조건부 중단점 s == 0 에서 한 줄 실행하면 4294967295 (0xFFFFFFFF)
 진짜 원인:   unsigned에는 음수가 없어서 s >= 0 이 항상 참. 0에서 --s 하면 4294967295로 돌아간다.
@@ -1091,7 +1091,7 @@ return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));   // #inclu
 **수정:** `for (unsigned int s = waitSeconds + 1; s-- > 0;)` 또는 부호 있는 정수로 센다: `for (int s = static_cast<int>(waitSeconds); s >= 0; --s)`.
 **교훈:** 이 실수를 알려 주는 "식이 항상 true" 경고는 기본 경고 수준에서 보이지 않는 경우가 많다. MSVC C4296은 `/W4`에서도 꺼져 있어 `/w14296`으로 켜고, GCC는 `-Wtype-limits`(`-Wextra`에 포함), Clang은 `-Wtautological-unsigned-zero-compare`로 켠다. 거꾸로 세는 반복에서 `unsigned`/`size_t`를 보면 의심한다.
 
-## Lab 45 — continue가 ++i를 건너뜀
+## Lab 90 — continue가 ++i를 건너뜀
 ```
 모두 중단:   i == 6 (첫 공백), c == ' ', words == { "/party" }. 한 줄씩 계속 실행해도 i가 그대로
 진짜 원인:   공백 분기가 i를 늘리지 않고 continue → 같은 공백을 영원히 다시 읽는다
@@ -1099,7 +1099,7 @@ return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));   // #inclu
 **수정:** `continue;` 앞에 `++i;`. 또는 `for (char c : line)`처럼 인덱스를 직접 다루지 않는 반복으로 바꾼다.
 **교훈:** `while` 반복의 모든 경로가 루프 변수를 앞으로 움직이는지 확인한다. 다음 문 설정으로 `++i;`를 한 번 실행시켜 보면 가설을 바로 시험할 수 있다.
 
-## Lab 46 — 끼워 넣기 순서가 바뀌어 자기 자신을 가리킴
+## Lab 91 — 끼워 넣기 순서가 바뀌어 자기 자신을 가리킴
 ```
 모두 중단:   countStops 안, stops가 수천만, p->name == "Forest"
 조사식:      p == p->next  (Forest의 next가 자기 자신)
@@ -1113,7 +1113,7 @@ pos->next = wp;
 방어하려면 순회할 때 순환을 검사한다(토끼와 거북이: 한 칸씩 가는 포인터와 두 칸씩 가는 포인터가 만나면 순환).
 **교훈:** 연결 리스트에서 무한루프가 나면 조사식에 `p`, `p->next`, `p->next->next`를 넣고 **주소**를 비교한다.
 
-## Lab 47 — 잠금 순서가 엇갈리는 데드락
+## Lab 92 — 잠금 순서가 엇갈리는 데드락
 ```
 병렬 스택:   trade 스레드 2개가 모두 lock_guard → mutex lock 에서 대기 (CPU 0%)
 스레드 A:    seller = Kael. Kael.lock을 가졌고 Mira.lock을 기다림
@@ -1133,11 +1133,11 @@ if (!verifyItem(seller, item))
 
 ---
 
-# 7부: 성능
+# 12부: 성능
 
-7부는 모두 "결과는 맞는데 일을 너무 많이 한다"입니다. 기록표의 **세는 값**이 수정 전후로 어떻게 바뀌는지 함께 적었습니다.
+12부는 모두 "결과는 맞는데 일을 너무 많이 한다"입니다. 기록표의 **세는 값**이 수정 전후로 어떻게 바뀌는지 함께 적었습니다.
 
-## Lab 48 — vector 앞에서 하나씩 지우기 (O(n²))
+## Lab 93 — vector 앞에서 하나씩 지우기 (O(n²))
 ```
 세는 값:     원소 이동 31,996,000번 (메시지 8000개) → 16000개면 약 4배
 핫 경로:     ChatQueue::drain → vector::erase → Message 이동 대입 / memmove
@@ -1153,7 +1153,7 @@ queue_.clear();
 **수정 후:** 원소 이동 0번.
 **교훈:** "앞에서 하나씩 지우기"는 vector에서 가장 흔한 O(n²)다. 크기를 두 배로 해서 시간이나 횟수가 네 배가 되면 의심한다.
 
-## Lab 49 — 큰 객체를 값으로 넘기고 값으로 돌기
+## Lab 94 — 큰 객체를 값으로 넘기고 값으로 돌기
 ```
 세는 값:     Item 복사 144,000번 = 120개 × 600프레임 × 2
 복사 생성자 중단점의 호출 스택:  (1) drawHud → totalWeight 호출(인자 복사)  (2) totalWeight의 for (Item item : items)
@@ -1169,7 +1169,7 @@ for (const Item& item : items)
 **수정 후:** Item 복사 0번. 둘 중 하나만 고치면 72,000번이 남는다.
 **교훈:** 읽기만 하는 큰 인자는 `const&`, 범위 for도 `const auto&`가 기본이다.
 
-## Lab 50 — 루프 안의 s = s + ...
+## Lab 95 — 루프 안의 s = s + ...
 ```
 세는 값:     할당 약 250MB (결과 58KB). 이벤트를 2배로 하면 약 4배
 핫 경로:     exportLog → operator+ → 문자열 복사(memcpy), 할당/해제
@@ -1188,7 +1188,7 @@ log += "\n";
 **수정 후:** Release 기준 할당 20번, 약 200KB. Debug는 반복자 디버깅용 보조 할당 때문에 횟수가 더 많지만 결과 길이에 비례한다.
 **교훈:** 문자열을 누적할 때 `s = s + x`는 O(n²), `s += x`는 분할 상환 O(n)이다.
 
-## Lab 51 — std::endl은 매번 flush
+## Lab 96 — std::endl은 매번 flush
 ```
 세는 값:     flush 5002번 (오브젝트 5000개 + 머리줄 + 마지막 flush)
 FakeLogFile::sync 중단점의 호출 스택:  writeSave의 << std::endl 두 줄
@@ -1204,7 +1204,7 @@ out << o.id << ' ' << o.x << ' ' << o.y << '\n';
 **수정 후:** flush 1번. (마지막 flush까지 지우면 0번이 되어 FAIL. 다 쓴 뒤 한 번은 내보내야 한다.)
 **교훈:** 줄바꿈은 `'\n'`, flush는 필요할 때 한 번. 콘솔 출력도 같다.
 
-## Lab 52 — 열 우선으로 도는 행 우선 배열
+## Lab 97 — 열 우선으로 도는 행 우선 배열
 ```
 세는 값:     건너뛴 접근 3,999,999번 (거의 모든 접근)
 조건부 중단점 (jumps_ < 5):  row가 0, 1, 2...로 바뀌고 col은 그대로 → index가 cols(2000)씩, 8000바이트씩 건너뜀
@@ -1220,7 +1220,7 @@ for (int r = 0; r < map.rows(); ++r)
 **수정 후:** 건너뛴 접근 0번.
 **교훈:** 2차원 배열은 메모리에 놓인 순서대로 돈다. 프로파일러는 "countFog가 느리다"까지만 알려 주고, 왜 느린지는 같은 일을 하는 reveal과 비교해야 보인다.
 
-## Lab 53 — shared_ptr를 값으로 넘기고 값으로 돌기
+## Lab 98 — shared_ptr를 값으로 넘기고 값으로 돌기
 ```
 세는 값:     한 몬스터를 동시에 붙잡은 shared_ptr 최대 3개 (목록 + 범위 for의 m + threatOf의 인자)
 조건부 중단점 (use_count() > 1)의 호출 스택:  mostDangerous의 for (MonsterPtr m : monsters), threatOf(MonsterPtr monster)

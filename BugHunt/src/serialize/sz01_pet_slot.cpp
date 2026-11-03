@@ -59,10 +59,10 @@ void sz01_pet_slot()
 #pragma endregion
 
 #pragma region 힌트 2 / ヒント 2
-// const가 아닌 json의 operator[]는 std::map의 operator[](4부 랩 29)처럼, 없는 키를 null 값으로 "만들어서" 돌려줍니다.
+// const가 아닌 json의 operator[]는 std::map의 operator[](4부 랩 33)처럼, 없는 키를 null 값으로 "만들어서" 돌려줍니다.
 // 그래서 "없는지 확인"하려고 쓴 save["pet"]이 키를 만들어 버립니다.
 
-// [JA] const でない json の operator[] は、std::map の operator[](第4部ラボ29)と同じく、ないキーを null 値で「作って」返します。
+// [JA] const でない json の operator[] は、std::map の operator[](第4部ラボ33)と同じく、ないキーを null 値で「作って」返します。
 // [JA] そのため「ないことを確認」しようと書いた save["pet"] が、キーを作ってしまいます。
 #pragma endregion
 
