@@ -2,12 +2,31 @@
 #include <memory>
 #include <vector>
 
-#ifdef _DEBUG
-#include <crtdbg.h>
-#endif
-
 namespace
 {
+// 화상의 턴별 피해표. 효과 하나마다 하나씩 만들어지고, 효과가 사라질 때 함께 사라져야 한다.
+// 몇 개가 살아 있는지 세어 두었다가 누수를 확인한다.
+
+// [JA] やけどのターンごとのダメージ表です。効果一つごとに一つずつ作られ、効果が消えるときに一緒に消えなければなりません。
+// [JA] いくつ生きているかを数えておき、リークを確認します。
+class DamageSchedule
+{
+public:
+    DamageSchedule() { ++s_alive; }
+    DamageSchedule(const DamageSchedule&) = delete;
+    DamageSchedule& operator=(const DamageSchedule&) = delete;
+    ~DamageSchedule() { --s_alive; }
+
+    int at(size_t turn) const { return turn < perTurn_.size() ? perTurn_[turn] : 0; }
+    size_t turns() const { return perTurn_.size(); }
+
+    static int alive() { return s_alive; }
+
+private:
+    std::vector<int> perTurn_ = { 8, 6, 4, 2 };
+    static inline int s_alive = 0;
+};
+
 class StatusEffect
 {
 public:
@@ -20,12 +39,12 @@ class Burn : public StatusEffect
 public:
     void tick(int& hp) override
     {
-        if (turn_ < damagePerTurn_.size())
-            hp -= damagePerTurn_[turn_++];
+        if (turn_ < schedule_.turns())
+            hp -= schedule_.at(turn_++);
     }
 
 private:
-    std::vector<int> damagePerTurn_ = { 8, 6, 4, 2 };
+    DamageSchedule schedule_;
     size_t turn_ = 0;
 };
 
@@ -43,33 +62,26 @@ void simulateBattles(int battleCount)
 
 void lab08_effects()
 {
-#if defined(_DEBUG) && !defined(__SANITIZE_ADDRESS__)
-    _CrtMemState before, after, diff;
-    _CrtMemCheckpoint(&before);
-
     simulateBattles(1000);
 
-    _CrtMemCheckpoint(&after);
-    long long leakedBytes = 0;
-    if (_CrtMemDifference(&diff, &before, &after))
-        leakedBytes = static_cast<long long>(diff.lSizes[_NORMAL_BLOCK]);
-
-    expect("전투 1000번 후 새어 나간 바이트", 0LL, leakedBytes);
-#else
-    simulateBattles(1000);
-    std::cout << "  이 랩의 누수 측정은 Debug 구성에서만 동작한다. Debug로 다시 빌드하세요.\n";
-#endif
+    expect("전투 1000번 후 메모리에 남은 화상 피해표", 0, DamageSchedule::alive());
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
+// [JA] ヒント: 行き詰まったときに一つずつ開いてください。(エディターの折りたたみ機能ですべて折りたたんでおいてください)
 // ============================================================================
 
-#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
-// Burn에 소멸자를 직접 만들고 중단점을 걸어 보세요. 불리나요?
+#pragma region 힌트 1 / ヒント 1 (먼저 직접 추적해 보고 펼치세요 / まず自分で追跡してから開いてください)
+// DamageSchedule의 소멸자에 중단점을 걸어 보세요. 불리나요?
+
+// [JA] DamageSchedule のデストラクターにブレークポイントを置いてみてください。呼ばれますか?
 #pragma endregion
 
-#pragma region 힌트 2
+#pragma region 힌트 2 / ヒント 2
 // unique_ptr<StatusEffect>는 어떤 타입의 포인터로 delete를 할까요?
-// 빌드 경고도 다시 읽어 보세요.
+// 빌드 경고도 다시 읽어 보세요. (MSVC /W4의 C5205, GCC·Clang -Wall의 -Wdelete-non-virtual-dtor)
+
+// [JA] unique_ptr<StatusEffect> はどの型のポインターとして delete するでしょうか?
+// [JA] ビルド警告ももう一度読んでみてください。(MSVC /W4 の C5205、GCC・Clang -Wall の -Wdelete-non-virtual-dtor)
 #pragma endregion

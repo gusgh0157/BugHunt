@@ -4,6 +4,8 @@
 #include <vector>
 
 // "늑대 5마리 처치" 퀘스트. 적이 죽으면 이벤트가 구독자들에게 차례로 전달된다.
+
+// [JA] 「オオカミを5匹倒す」クエストです。敵が倒れると、イベントが購読者たちに順番に伝えられます。
 namespace flow4
 {
 class EventBus
@@ -101,17 +103,49 @@ void ft04_quest()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
+// [JA] ヒント: 行き詰まったときに一つずつ開いてください。(エディターの折りたたみ機能ですべて折りたたんでおいてください)
 // ============================================================================
 
-#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
-// 멈추지 않는 중단점(추적점)을 두 개 거세요. 중단점 우클릭 → 작업 → 메시지 입력, "실행 계속" 체크.
+#pragma region 힌트 1 / ヒント 1 (먼저 직접 추적해 보고 펼치세요 / まず自分で追跡してから開いてください)
+// 멈추지 않고 메시지만 남기는 중단점(추적점, logpoint)을 두 개 거세요.
 //   KillCounter::onKill의 if 줄:            카운터: {enemy}, 증가 전 {wolves_}
 //   WolfQuest::onKill의 if (counter_... 줄: 퀘스트 검사: 카운터 값 {counter_.wolves()}
-// F5로 실행하고 출력 창(Ctrl+Alt+O)에서 두 메시지가 어떤 순서로 찍히는지 보세요.
+// 디버거로 실행하고 디버거 출력에서 두 메시지가 어떤 순서로 찍히는지 보세요.
+
+// [JA] 止まらずにメッセージだけを残すブレークポイント(トレースポイント、logpoint)を二つ置いてください。
+// [JA]   KillCounter::onKill の if の行:            カウンター: {enemy}, 増加前 {wolves_}
+// [JA]   WolfQuest::onKill の if (counter_... の行: クエスト検査: カウンター値 {counter_.wolves()}
+// [JA] デバッガーで実行し、デバッガーの出力で二つのメッセージがどの順番で出力されるかを見てください。
 #pragma endregion
 
-#pragma region 힌트 2
+#pragma region 힌트 2 / ヒント 2
 // 다섯 번째 늑대를 잡았을 때, 퀘스트가 본 카운터 값은 몇이었나요?
 // 그 순서는 누가 정했나요? EventBus::publishKill이 handlers_를 도는 순서를 거슬러 올라가 보세요.
+
+// [JA] 5匹目のオオカミを倒したとき、クエストが見たカウンターの値はいくつでしたか?
+// [JA] その順番は誰が決めたのでしょうか? EventBus::publishKill が handlers_ を回る順番をさかのぼってみてください。
+#pragma endregion
+
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft04_quest_hidden()
+{
+    {
+        flow4::Game game;            // 늑대 4마리: 아직 완료되면 안 된다
+        game.setup();
+        for (const char* enemy : { "Wolf", "Boar", "Wolf", "Wolf", "Boar", "Wolf" })
+            game.bus.publishKill(enemy);
+        expect("늑대 4마리 후 완료 번호 (미완료 = 0)", 0, game.quest.completedAtKill());
+    }
+    {
+        flow4::Game game;            // 늑대 7마리 사이사이에 멧돼지
+        game.setup();
+        for (const char* enemy : { "Boar", "Wolf", "Wolf", "Boar", "Wolf", "Boar", "Wolf", "Wolf", "Wolf", "Wolf" })
+            game.bus.publishKill(enemy);
+        expect("늑대 7마리 중 완료된 처치 번호", 5, game.quest.completedAtKill());
+        expect("통계의 늑대 수", 7, game.counter.wolves());
+    }
+}
 #pragma endregion

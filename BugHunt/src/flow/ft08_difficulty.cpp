@@ -4,6 +4,9 @@
 
 // 게임을 켜면 저장된 설정을 읽고, 볼륨을 적용하고, 첫 웨이브를 소환한다.
 // 플레이어는 "어려움" 난이도와 볼륨 35로 저장해 두었다.
+
+// [JA] ゲームを起動すると、保存された設定を読み込み、音量を適用し、最初のウェーブを召喚します。
+// [JA] プレイヤーは「むずかしい」難易度と音量35で保存しておきました。
 namespace flow8
 {
 enum class Difficulty { Easy, Normal, Hard };
@@ -80,9 +83,9 @@ class Game
 public:
     Game() : audio_(g_settings), world_(g_settings) {}
 
-    void boot()
+    void boot(const std::string& saveText)
     {
-        loadSettings(g_settings, kSaveFile);
+        loadSettings(g_settings, saveText);
         volume_ = audio_.applyVolume();
         firstWaveHp_ = world_.spawnWave();
     }
@@ -101,29 +104,58 @@ private:
 void ft08_difficulty()
 {
     flow8::Game game;
-    game.boot();
+    game.boot(flow8::kSaveFile);
 
     expect("볼륨 (저장값 35)", 35, game.volume());
     expect("첫 웨이브 적 HP (어려움 = 150)", 150, game.firstWaveHp());
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
+// [JA] ヒント: 行き詰まったときに一つずつ開いてください。(エディターの折りたたみ機能ですべて折りたたんでおいてください)
 // ============================================================================
 
-#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
-// 이번에는 수상한 반복문도, 실패하는 특정 입력도 없습니다. ft08_difficulty 첫 줄부터 F11로 따라가세요.
+#pragma region 힌트 1 / ヒント 1 (먼저 직접 추적해 보고 펼치세요 / まず自分で追跡してから開いてください)
+// 이번에는 수상한 반복문도, 실패하는 특정 입력도 없습니다. ft08_difficulty 첫 줄부터 함수 안으로(step into) 따라가세요.
 // 조사식에 두 개를 고정해 두고 한 단계마다 비교하면 됩니다:
 //     flow8::g_settings.difficulty
 //     game.world_.settings_.difficulty      (boot 안에서는 world_.settings_.difficulty)
+
+// [JA] 今回は怪しいループも、失敗する特定の入力もありません。ft08_difficulty の最初の行から、ステップイン(step into)でたどってください。
+// [JA] ウォッチに二つを固定しておき、1ステップごとに比べれば大丈夫です:
+// [JA]     flow8::g_settings.difficulty
+// [JA]     game.world_.settings_.difficulty      (boot の中では world_.settings_.difficulty)
 #pragma endregion
 
-#pragma region 힌트 2
+#pragma region 힌트 2 / ヒント 2
 // 볼륨은 제대로 들어가는데 난이도는 안 들어갑니다. AudioSystem과 World는 설정을 똑같이 "보관"하고 있나요?
 // 멤버 선언을 비교해 보세요. 그리고 그 멤버가 만들어진 시점은 loadSettings보다 앞인가요, 뒤인가요?
+
+// [JA] 音量はきちんと反映されるのに、難易度は反映されません。AudioSystem と World は設定を同じように「保持」していますか?
+// [JA] メンバーの宣言を比べてみてください。そして、そのメンバーが作られた時点は loadSettings より前ですか、後ですか?
 #pragma endregion
 
-#pragma region 힌트 3
+#pragma region 힌트 3 / ヒント 3
 // 고치는 방법은 여러 가지입니다: 참조로 보관하기, 설정을 다 읽은 뒤에 World를 만들기,
 // spawnWave가 그때그때 설정을 인자로 받기. 각각의 장단점은 무엇일까요?
+
+// [JA] 直し方はいくつかあります: 参照で保持する、設定をすべて読み込んだ後に World を作る、
+// [JA] spawnWave がその都度設定を引数で受け取る。それぞれの長所と短所は何でしょうか?
+#pragma endregion
+
+#pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft08_difficulty_hidden()
+{
+    const char* otherSave =
+        "difficulty=easy\n"
+        "volume=60\n";
+
+    flow8::Game game;
+    game.boot(otherSave);
+
+    expect("볼륨 (저장값 60)", 60, game.volume());
+    expect("첫 웨이브 적 HP (쉬움 = 70)", 70, game.firstWaveHp());
+}
 #pragma endregion

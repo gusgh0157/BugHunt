@@ -10,6 +10,7 @@ public:
     void deposit(int amount)
     {
         const int current = gold_;
+        std::this_thread::yield();   // 장부를 확인하는 동안 다른 스레드에 차례가 갈 수 있다
         gold_ = current + amount;
     }
 
@@ -23,11 +24,11 @@ private:
 void lab09_guild_bank()
 {
     constexpr int kMembers = 4;
-    constexpr int kDepositsPerMember = 100000;
+    constexpr int kDepositsPerMember = 20000;
 
     GuildBank bank;
 
-    // 길드원 4명이 동시에 1골드씩 10만 번 입금한다.
+    // 길드원 4명이 동시에 1골드씩 2만 번 입금한다.
     std::vector<std::thread> members;
     for (int m = 0; m < kMembers; ++m)
     {
@@ -43,18 +44,28 @@ void lab09_guild_bank()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
+// [JA] ヒント: 行き詰まったときに一つずつ開いてください。(エディターの折りたたみ機能ですべて折りたたんでおいてください)
 // ============================================================================
 
-#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+#pragma region 힌트 1 / ヒント 1 (먼저 직접 추적해 보고 펼치세요 / まず自分で追跡してから開いてください)
 // 여러 번 실행해 보세요. 결과가 매번 다르면 무엇을 의심해야 할까요?
+
+// [JA] 何回か実行してみてください。結果が毎回違うなら、何を疑うべきでしょうか?
 #pragma endregion
 
-#pragma region 힌트 2
-// deposit 안에 중단점을 걸고 스레드 창을 보세요.
+#pragma region 힌트 2 / ヒント 2
+// deposit 안에 중단점을 걸고 스레드 목록을 보세요.
 // 두 스레드가 같은 current 값을 읽는 상황을 상상해 보세요.
+
+// [JA] deposit の中にブレークポイントを置いて、スレッド一覧を見てください。
+// [JA] 二つのスレッドが同じ current の値を読む状況を想像してみてください。
 #pragma endregion
 
-#pragma region 참고
-// Release에서는 최적화 때문에 우연히 맞게 나올 수도 있습니다. 그래도 버그입니다.
+#pragma region 참고 / 参考
+// 데이터 경쟁(data race)은 정의되지 않은 동작입니다. yield가 없으면 최적화 컴파일러가 반복을 합쳐
+// 우연히 맞게 나올 수도 있지만, 그래도 버그입니다.
+
+// [JA] データ競合(data race)は未定義動作です。yield がないと、最適化コンパイラーがループをまとめて
+// [JA] たまたま正しい結果が出ることもありますが、それでもバグです。
 #pragma endregion

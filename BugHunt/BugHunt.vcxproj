@@ -48,11 +48,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\third_party\nlohmann_json\include;$(MSBuildProjectDirectory)\..\third_party\pugixml\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -89,9 +91,37 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\labs.h" />
+    <ClInclude Include="src\perf\perf_kit.h" />
+    <ClInclude Include="src\fileio\io_kit.h" />
+    <ClInclude Include="src\lang\lg05_stats.h" />
+    <ClInclude Include="src\lang\lg06_save_stats.h" />
+    <ClInclude Include="src\challenge\c1_auction.h" />
+    <ClInclude Include="src\challenge\c2_event_bus.h" />
+    <ClInclude Include="src\challenge\c2_systems.h" />
+    <ClInclude Include="src\challenge\c3_hero.h" />
+    <ClInclude Include="src\challenge\c3_systems.h" />
+    <ClInclude Include="src\grader.h" />
+    <ClInclude Include="src\i18n\i18n.h" />
+    <None Include="src\i18n\strings_expect.inc" />
+    <ClInclude Include="src\platform\platform.h" />
+    <ClInclude Include="src\platform\asan_detect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\grader.cpp" />
+    <ClCompile Include="src\i18n\i18n.cpp" />
+    <ClCompile Include="src\watchdog.cpp" />
+    <ClCompile Include="src\async\as01_loading.cpp" />
+    <ClCompile Include="src\async\as02_crafting.cpp" />
+    <ClCompile Include="src\async\as03_raid_ready.cpp" />
+    <ClCompile Include="src\async\as04_auction_notice.cpp" />
+    <ClCompile Include="src\async\as05_limited_sale.cpp" />
+    <ClCompile Include="src\async\as06_matchmaking.cpp" />
+    <ClCompile Include="src\async\as07_cutscene.cpp" />
+    <ClCompile Include="src\platform\build_name.cpp" />
+    <ClCompile Include="src\platform\platform_windows.cpp" />
+    <ClCompile Include="src\platform\platform_posix.cpp" />
+    <ClCompile Include="src\support\heap_guard.cpp" />
     <ClCompile Include="src\basics\cs01_profile.cpp" />
     <ClCompile Include="src\basics\cs02_quickslot.cpp" />
     <ClCompile Include="src\basics\cs03_battle_log.cpp" />
@@ -120,6 +150,87 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\flow\ft06_repair.cpp" />
     <ClCompile Include="src\flow\ft07_achievements.cpp" />
     <ClCompile Include="src\flow\ft08_difficulty.cpp" />
+    <ClCompile Include="src\flow\ft09_member_ids.cpp" />
+    <ClCompile Include="src\flow\ft10_best_combo.cpp" />
+    <ClCompile Include="src\flow\ft11_cave_gate.cpp" />
+    <ClCompile Include="src\flow\ft12_lockpicks.cpp" />
+    <ClCompile Include="src\fileio\io01_patch_prices.cpp" />
+    <ClCompile Include="src\fileio\io02_quest_journal.cpp" />
+    <ClCompile Include="src\fileio\io03_high_scores.cpp" />
+    <ClCompile Include="src\fileio\io04_npc_dialogue.cpp" />
+    <ClCompile Include="src\fileio\io05_reward_table.cpp" />
+    <ClCompile Include="src\fileio\io06_settings_bom.cpp" />
+    <ClCompile Include="src\fileio\io07_safe_save.cpp" />
+    <ClCompile Include="src\serialize\sz01_pet_slot.cpp" />
+    <ClCompile Include="src\serialize\sz02_crit_multiplier.cpp" />
+    <ClCompile Include="src\serialize\sz03_skill_bar.cpp" />
+    <ClCompile Include="src\serialize\sz04_nickname_cut.cpp" />
+    <ClCompile Include="src\serialize\sz05_float_position.cpp" />
+    <ClCompile Include="src\serialize\sz06_bestiary.cpp" />
+    <ClCompile Include="src\serialize\sz07_guild_list.cpp" />
+    <ClCompile Include="..\third_party\pugixml\src\pugixml.cpp" />
+    <ClCompile Include="src\inherit\ih01_backstab.cpp" />
+    <ClCompile Include="src\inherit\ih02_boss_loot.cpp" />
+    <ClCompile Include="src\inherit\ih03_sniper_tower.cpp" />
+    <ClCompile Include="src\inherit\ih04_priest_heal.cpp" />
+    <ClCompile Include="src\inherit\ih05_reward_mail.cpp" />
+    <ClCompile Include="src\inherit\ih06_mana_potion.cpp" />
+    <ClCompile Include="src\lang\lg01_trade_items.cpp" />
+    <ClCompile Include="src\lang\lg02_exp_cap.cpp" />
+    <ClCompile Include="src\lang\lg03_exchange.cpp" />
+    <ClCompile Include="src\lang\lg04_level_bonus.cpp" />
+    <ClCompile Include="src\lang\lg05_class_stats.cpp" />
+    <ClCompile Include="src\lang\lg05_stat_table.cpp" />
+    <ClCompile Include="src\lang\lg06_autosave.cpp" />
+    <ClCompile Include="src\lang\lg06_save_screen.cpp" />
+    <ClCompile Include="src\lang\lg07_dungeon_load.cpp" />
+    <ClCompile Include="src\lang\lg08_save_close.cpp" />
+    <ClCompile Include="src\lang\lg09_quest_chain.cpp" />
+    <ClCompile Include="src\overflow\of01_minimap.cpp" />
+    <ClCompile Include="src\overflow\of02_dungeon_gen.cpp" />
+    <ClCompile Include="src\overflow\of03_replay_buffer.cpp" />
+    <ClCompile Include="src\overflow\of04_name_packet.cpp" />
+    <ClCompile Include="src\overflow\of05_skill_tree.cpp" />
+    <ClCompile Include="src\containers\ct01_bag_lookup.cpp" />
+    <ClCompile Include="src\containers\ct02_party_finder.cpp" />
+    <ClCompile Include="src\containers\ct03_leaderboard.cpp" />
+    <ClCompile Include="src\containers\ct04_repair_shop.cpp" />
+    <ClCompile Include="src\containers\ct05_dungeon_doors.cpp" />
+    <ClCompile Include="src\containers\ct06_nameplates.cpp" />
+    <ClCompile Include="src\containers\ct07_season_ranking.cpp" />
+    <ClCompile Include="src\pointers\pt01_ranking.cpp" />
+    <ClCompile Include="src\pointers\pt02_bounty.cpp" />
+    <ClCompile Include="src\pointers\pt03_particles.cpp" />
+    <ClCompile Include="src\pointers\pt04_loot_packet.cpp" />
+    <ClCompile Include="src\pointers\pt05_equipment.cpp" />
+    <ClCompile Include="src\pointers\pt06_guild.cpp" />
+    <ClCompile Include="src\pointers\pt07_rage_timer.cpp" />
+    <ClCompile Include="src\hangs\hg01_cooldown.cpp" />
+    <ClCompile Include="src\hangs\hg02_respawn.cpp" />
+    <ClCompile Include="src\hangs\hg03_chat_command.cpp" />
+    <ClCompile Include="src\hangs\hg04_route.cpp" />
+    <ClCompile Include="src\hangs\hg05_trade.cpp" />
+    <ClCompile Include="src\perf\pf01_chat_queue.cpp" />
+    <ClCompile Include="src\perf\pf02_loadout.cpp" />
+    <ClCompile Include="src\perf\pf03_combat_log.cpp" />
+    <ClCompile Include="src\perf\pf04_save_log.cpp" />
+    <ClCompile Include="src\perf\pf05_fog_map.cpp" />
+    <ClCompile Include="src\perf\pf06_aggro_scan.cpp" />
+    <ClCompile Include="src\challenge\c1_auction.cpp" />
+    <ClCompile Include="src\challenge\c1_panels.cpp" />
+    <ClCompile Include="src\challenge\c1_auction_night.cpp" />
+    <ClCompile Include="src\challenge\c2_systems.cpp" />
+    <ClCompile Include="src\challenge\c2_raid_night.cpp" />
+    <ClCompile Include="src\challenge\c3_hero.cpp" />
+    <ClCompile Include="src\challenge\c3_shrine.cpp" />
+    <ClCompile Include="src\challenge\b1.cpp" />
+    <ClCompile Include="src\challenge\b2.cpp" />
+    <ClCompile Include="src\challenge\b3.cpp" />
+    <ClCompile Include="src\challenge\b4.cpp" />
+    <ClCompile Include="src\challenge\b5.cpp" />
+    <ClCompile Include="src\challenge\b6.cpp" />
+    <ClCompile Include="src\challenge\b7.cpp" />
+    <ClCompile Include="src\challenge\b8.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
