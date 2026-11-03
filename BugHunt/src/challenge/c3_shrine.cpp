@@ -1,0 +1,69 @@
+#include "../labs.h"
+#include "c3_hero.h"
+#include "c3_systems.h"
+
+// 챌린지 C-3
+// 성소에서 저장하고, 보스에게 쓰러진 뒤 성소에서 되살아나 다시 싸운다.
+void chC3_shrine()
+{
+    using namespace chal3;
+
+    Hero aria("Aria", 1, 40);
+    aria.prestigeUp();          // 시즌 1, 2 만렙 달성
+    aria.prestigeUp();
+    aria.adoptPet("Fox", 6);
+    aria.addBuff({ "전투 함성", 10 });
+
+    CheckpointSystem checkpoints;
+    RespawnSystem respawns(checkpoints);
+    DamageMeter meter;
+
+    checkpoints.save(aria);     // 보스방 앞 성소
+    meter.hit(aria, "문지기");
+    const int beforeDeath = meter.lastHit();
+
+    aria.setHp(0);              // 보스의 광역기
+    respawns.respawn(aria);
+    meter.hit(aria, "문지기");
+    const int afterRespawn = meter.lastHit();
+
+    for (const std::string& line : meter.log())
+        std::cout << "  " << line << '\n';
+    std::cout << "  부활 후 체력 " << aria.hp() << "/" << aria.maxHp() << ", 버프 " << aria.buffs().size() << "개\n";
+
+    expect("쓰러지기 전 한 방 (전투 함성 포함)", 57, beforeDeath);
+    expect("부활 후 체력 (절반)", 50, aria.hp());
+    expect("부활 후 한 방 (버프는 사라졌으므로 전투 함성 없이)", 52, afterRespawn);
+}
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+void chC3_shrine_hidden()
+{
+    using namespace chal3;
+
+    Hero brom("Brom", 1, 60);
+    brom.prestigeUp();
+    brom.prestigeUp();
+    brom.prestigeUp();
+    CheckpointSystem checkpoints;
+    RespawnSystem respawns(checkpoints);
+
+    checkpoints.save(brom);
+    expect("성소에 저장된 프레스티지", 3, checkpoints.snapshotOf("Brom").prestige());
+    brom.addBuff({ "광폭화", 25 });
+    brom.setHp(0);
+    respawns.respawn(brom);
+    expect("부활 후 프레스티지", 3, brom.prestige());
+    expect("부활 후 버프는 사라져야 한다 (기획서 7.1)", static_cast<size_t>(0), brom.buffs().size());
+    expect("부활 후 공격력 (62 x 115%)", 71, StatSystem::attackOf(brom));
+
+    const Hero copy = brom;
+    expect("복사본의 프레스티지", 3, copy.prestige());
+    Hero other("Other", 1, 10);
+    other.adoptPet("Owl", 2);
+    other = brom;
+    expect("대입한 뒤의 프레스티지", 3, other.prestige());
+    expect("대입하면 펫도 대입한 쪽을 따른다 (Brom은 펫 없음)", true, other.pet() == nullptr);
+}
+#pragma endregion

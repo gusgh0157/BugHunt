@@ -100,6 +100,19 @@ void pf04_save_log();
 void pf05_fog_map();
 void pf06_aggro_scan();
 
+// 챌린지 (src/challenge). 힌트 없음
+void chC1_auction_night();
+void chC2_raid_night();
+void chC3_shrine();
+void chB1();
+void chB2();
+void chB3();
+void chB4();
+void chB5();
+void chB6();
+void chB7();
+void chB8();
+
 // 채점용 숨은 테스트 케이스: 화면에 나오는 것과 다른 데이터로 같은 코드를 검사한다.
 // 각 랩 파일 맨 아래 "채점용 숨은 테스트" region에 있다. (src/grader.cpp 참고)
 void ft01_attendance_hidden();
@@ -135,3 +148,14 @@ void pf03_combat_log_hidden();
 void pf04_save_log_hidden();
 void pf05_fog_map_hidden();
 void pf06_aggro_scan_hidden();
+void chC1_auction_night_hidden();
+void chC2_raid_night_hidden();
+void chC3_shrine_hidden();
+void chB1_hidden();
+void chB2_hidden();
+void chB3_hidden();
+void chB4_hidden();
+void chB5_hidden();
+void chB6_hidden();
+void chB7_hidden();
+void chB8_hidden();

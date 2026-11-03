@@ -90,6 +90,11 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
   <ItemGroup>
     <ClInclude Include="src\labs.h" />
     <ClInclude Include="src\perf\perf_kit.h" />
+    <ClInclude Include="src\challenge\c1_auction.h" />
+    <ClInclude Include="src\challenge\c2_event_bus.h" />
+    <ClInclude Include="src\challenge\c2_systems.h" />
+    <ClInclude Include="src\challenge\c3_hero.h" />
+    <ClInclude Include="src\challenge\c3_systems.h" />
     <ClInclude Include="src\grader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -149,6 +154,21 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\perf\pf04_save_log.cpp" />
     <ClCompile Include="src\perf\pf05_fog_map.cpp" />
     <ClCompile Include="src\perf\pf06_aggro_scan.cpp" />
+    <ClCompile Include="src\challenge\c1_auction.cpp" />
+    <ClCompile Include="src\challenge\c1_panels.cpp" />
+    <ClCompile Include="src\challenge\c1_auction_night.cpp" />
+    <ClCompile Include="src\challenge\c2_systems.cpp" />
+    <ClCompile Include="src\challenge\c2_raid_night.cpp" />
+    <ClCompile Include="src\challenge\c3_hero.cpp" />
+    <ClCompile Include="src\challenge\c3_shrine.cpp" />
+    <ClCompile Include="src\challenge\b1.cpp" />
+    <ClCompile Include="src\challenge\b2.cpp" />
+    <ClCompile Include="src\challenge\b3.cpp" />
+    <ClCompile Include="src\challenge\b4.cpp" />
+    <ClCompile Include="src\challenge\b5.cpp" />
+    <ClCompile Include="src\challenge\b6.cpp" />
+    <ClCompile Include="src\challenge\b7.cpp" />
+    <ClCompile Include="src\challenge\b8.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

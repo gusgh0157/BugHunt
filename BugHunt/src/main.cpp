@@ -2,6 +2,7 @@
 #include "grader.h"
 
 #include <windows.h>
+#include <cctype>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -80,6 +81,35 @@ constexpr LabEntry kLabs[] = {
     { "전장의 안개",        "큰 맵에서만 프레임이 뚝 떨어진다",     pf05_fog_map,      pf05_fog_map_hidden },
     { "어그로 검사",        "몬스터가 많으면 서버 틱이 밀린다",     pf06_aggro_scan,   pf06_aggro_scan_hidden },
 };
+// 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
+// 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)
+struct ChallengeEntry
+{
+    const char* code;
+    int gradeId;
+    const char* title;
+    const char* symptom;
+    void (*run)();
+    void (*hidden)();
+};
+
+constexpr ChallengeEntry kChallenges[] = {
+    // 깊은 추적
+    { "C-1", 101, "챌린지 C-1", "낙찰자와 금화가 엉뚱하게 정산된다",     chC1_auction_night, chC1_auction_night_hidden },
+    { "C-2", 102, "챌린지 C-2", "무피격 연속 처치 칭호를 받지 못한다",   chC2_raid_night,    chC2_raid_night_hidden },
+    { "C-3", 103, "챌린지 C-3", "부활하고 나면 피해량이 줄어든다",       chC3_shrine,        chC3_shrine_hidden },
+    // 블라인드
+    { "B-1", 201, "챌린지 B-1", "시장 진열대를 검사하다가 죽는다",       chB1, chB1_hidden },
+    { "B-2", 202, "챌린지 B-2", "공지 게시판의 작성자 이름이 깨진다",    chB2, chB2_hidden },
+    { "B-3", 203, "챌린지 B-3", "넓은 지형에서 계산이 끝나지 않는다",    chB3, chB3_hidden },
+    { "B-4", 204, "챌린지 B-4", "몬스터 체력 바가 이상하다",             chB4, chB4_hidden },
+    { "B-5", 205, "챌린지 B-5", "소환사가 부른 부하가 일부만 나온다",     chB5, chB5_hidden },
+    { "B-6", 206, "챌린지 B-6", "접속 기록 정리가 너무 오래 걸린다",     chB6, chB6_hidden },
+    { "B-7", 207, "챌린지 B-7", "무료 배송 금액인데 배송비가 붙는다",    chB7, chB7_hidden },
+    { "B-8", 208, "챌린지 B-8", "포탑이 경보에 제대로 반응하지 않는다",  chB8, chB8_hidden },
+};
+constexpr int kChallengePart = 8;   // grade-report.json의 part (마지막 부 다음 번호)
+
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
 constexpr int kAdvancedLabEnd = 20;
@@ -132,47 +162,101 @@ void printMenu()
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }
-    std::cout << "  (명령줄 인자로 번호를 넘겨도 된다: BugHunt.exe 3)\n";
+    std::cout << "\n[챌린지] 기본 부를 모두 끝낸 뒤에 푸세요. 힌트 없음 (README의 \"챌린지\")\n";
+    for (const ChallengeEntry& c : kChallenges)
+        std::cout << "  " << c.code << ". " << c.symptom << '\n';
+    std::cout << "  (명령줄 인자로 번호를 넘겨도 된다: BugHunt.exe 3, BugHunt.exe C-1)\n";
     std::cout << "  (채점: grade.bat 또는 BugHunt.exe --grade)\n";
 }
 
-int grade(int onlyLab)
+const ChallengeEntry* findChallenge(int gradeId)
 {
+    for (const ChallengeEntry& c : kChallenges)
+    {
+        if (c.gradeId == gradeId)
+            return &c;
+    }
+    return nullptr;
+}
+
+// "7" → 7, "C-1" / "c1" / "101" → 101, "B-3" → 203. 알 수 없으면 0
+int parseId(const std::string& text)
+{
+    if (text.empty())
+        return 0;
+    const char head = static_cast<char>(std::toupper(static_cast<unsigned char>(text[0])));
+    if (head == 'C' || head == 'B')
+    {
+        const size_t digits = text.find_first_of("0123456789");
+        if (digits == std::string::npos)
+            return 0;
+        const int id = (head == 'C' ? 100 : 200) + std::atoi(text.c_str() + digits);
+        return findChallenge(id) ? id : 0;
+    }
+    const int id = std::atoi(text.c_str());
+    return (id >= 1 && id <= kLabCount) || findChallenge(id) ? id : 0;
+}
+
+// 대상: "" = 전부, "labs" = 기본 랩만, "challenges" = 챌린지만, 그 밖에는 번호 하나
+int grade(const std::string& what)
+{
+    const bool all = what.empty();
+    const int only = all || what == "labs" || what == "challenges" ? 0 : parseId(what);
+
     std::vector<GradeTarget> targets;
     for (int i = 0; i < kLabCount; ++i)
     {
         const int id = i + 1;
-        if (onlyLab == 0 || onlyLab == id)
-            targets.push_back({ id, kLabs[i].title, partOf(id), kLabs[i].hidden != nullptr });
+        if (all || what == "labs" || only == id)
+            targets.push_back({ id, std::to_string(id), kLabs[i].title, partOf(id), kLabs[i].hidden != nullptr });
+    }
+    for (const ChallengeEntry& c : kChallenges)
+    {
+        if (all || what == "challenges" || only == c.gradeId)
+            targets.push_back({ c.gradeId, c.code, c.title, kChallengePart, c.hidden != nullptr });
     }
     if (targets.empty())
     {
-        std::cout << "1 ~ " << kLabCount << " 사이의 번호를 입력하세요.\n";
+        std::cout << "1 ~ " << kLabCount << " 사이의 번호, C-1 같은 챌린지 번호, labs, challenges 중 하나를 넣으세요.\n";
         return 1;
     }
-    return runGrader(targets, kLabCount, buildName());
+    return runGrader(targets, kLabCount + static_cast<int>(std::size(kChallenges)), buildName());
 }
 
-int runLab(int choice, bool hiddenCase)
+int runLab(int id, bool hiddenCase)
 {
-    if (choice < 1 || choice > kLabCount)
+    void (*run)() = nullptr;
+    void (*hidden)() = nullptr;
+    std::string heading;
+    if (id >= 1 && id <= kLabCount)
     {
-        std::cout << "1 ~ " << kLabCount << " 사이의 번호를 입력하세요.\n";
-        return 1;
+        const LabEntry& lab = kLabs[id - 1];
+        heading = "Lab " + std::to_string(id) + ": " + lab.title;
+        run = lab.run;
+        hidden = lab.hidden;
     }
-
-    const LabEntry& lab = kLabs[choice - 1];
-    if (hiddenCase)
+    else if (const ChallengeEntry* c = findChallenge(id))
     {
-        if (lab.hidden == nullptr)
-            return kExitPass;
-        std::cout << "\n--- Lab " << choice << ": " << lab.title << " (숨은 케이스) [" << buildName() << "] ---\n";
-        lab.hidden();
+        heading = c->title;
+        run = c->run;
+        hidden = c->hidden;
     }
     else
     {
-        std::cout << "\n--- Lab " << choice << ": " << lab.title << " [" << buildName() << "] ---\n";
-        lab.run();
+        std::cout << "1 ~ " << kLabCount << " 사이의 번호나 C-1 같은 챌린지 번호를 입력하세요.\n";
+        return 1;
+    }
+    if (hiddenCase)
+    {
+        if (hidden == nullptr)
+            return kExitPass;
+        std::cout << "\n--- " << heading << " (숨은 케이스) [" << buildName() << "] ---\n";
+        hidden();
+    }
+    else
+    {
+        std::cout << "\n--- " << heading << " [" << buildName() << "] ---\n";
+        run();
     }
     std::cout << "--- 종료 ---\n";
     return g_failCount == 0 ? kExitPass : kExitFail;
@@ -183,11 +267,11 @@ int main(int argc, char** argv)
 {
     SetConsoleOutputCP(CP_UTF8);
 
-    // 채점: BugHunt.exe --grade [번호]
+    // 채점: BugHunt.exe --grade [번호 | C-1 | labs | challenges]
     if (argc > 1 && std::strcmp(argv[1], "--grade") == 0)
-        return grade(argc > 2 ? std::atoi(argv[2]) : 0);
+        return grade(argc > 2 ? argv[2] : "");
 
-    // 채점기가 띄우는 자식 프로세스: BugHunt.exe --grade-child 번호 [--hidden]
+    // 채점기가 띄우는 자식 프로세스: BugHunt.exe --grade-child 채점번호 [--hidden]
     if (argc > 2 && std::strcmp(argv[1], "--grade-child") == 0)
     {
         prepareGradeChild();
@@ -195,17 +279,17 @@ int main(int argc, char** argv)
         return runLab(std::atoi(argv[2]), hiddenCase);
     }
 
-    int choice = 0;
+    std::string choice;
     if (argc > 1)
     {
-        choice = std::atoi(argv[1]);
+        choice = argv[1];
     }
     else
     {
         printMenu();
-        std::cout << "\n실행할 랩 번호: ";
+        std::cout << "\n실행할 랩 번호 (챌린지는 C-1, B-1처럼): ";
         std::cin >> choice;
     }
 
-    return runLab(choice, false);
+    return runLab(parseId(choice), false);
 }

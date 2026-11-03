@@ -140,7 +140,7 @@ std::string cleanDetail(std::string s)
     }
 
     std::string out;
-    for (size_t i = 0; i < s.size() && out.size() < 200;)
+    for (size_t i = 0; i < s.size() && out.size() < 300;)
     {
         const unsigned char c = static_cast<unsigned char>(s[i]);
         const size_t len = c < 0x80 ? 1 : (c >> 5) == 0x6 ? 2 : (c >> 4) == 0xE ? 3 : (c >> 3) == 0x1E ? 4 : 0;
@@ -192,7 +192,8 @@ struct Verdict
 
 Verdict judge(const ChildResult& r, bool hiddenCase)
 {
-    const std::string prefix = hiddenCase ? "숨은 케이스: " : "";
+    // 평소 데이터는 통과했는데 숨은 케이스에서 실패 = 증상만 가린 수정 (BugHunt 네 판 공통 문구)
+    const std::string prefix = hiddenCase ? "증상은 사라졌지만 원인이 남아 있음 (숨은 케이스) " : "";
     if (r.timedOut)
         return { "TIMEOUT", prefix + "채점기 시간 제한 " + std::to_string(kChildTimeoutMs) + " ms 초과" };
 
@@ -321,17 +322,19 @@ void prepareGradeChild()
     std::cout << std::unitbuf;
 }
 
-int runGrader(const std::vector<GradeTarget>& targets, int totalLabCount, const char* buildName)
+int runGrader(const std::vector<GradeTarget>& targets, int totalCount, const char* buildName)
 {
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
 
     std::cout << "=== BugHunt 채점 [" << buildName << "] - 랩 " << targets.size()
-              << "개 (전체 " << totalLabCount << "개) ===\n"
+              << "개 (전체 " << totalCount << "개) ===\n"
               << "  랩마다 프로세스를 따로 띄워 실행합니다. 숨은 케이스가 있는 랩은 다른 데이터로 한 번 더 실행합니다.\n\n"
-              << "   #  부  결과       시간  랩\n";
+              << "    #  부  결과       시간  랩\n";
 
     std::vector<LabRecord> records;
     int passed = 0;
+    int challengeCount = 0;
+    int challengePassed = 0;
     for (const GradeTarget& t : targets)
     {
         ChildResult r = runChild(t.id, false);
@@ -343,11 +346,23 @@ int runGrader(const std::vector<GradeTarget>& targets, int totalLabCount, const 
             v = judge(hidden, true);
             ms += hidden.ms;
         }
-        if (std::string(v.result) == "PASS")
+        const bool pass = std::string(v.result) == "PASS";
+        if (pass)
             ++passed;
 
-        char line[64];
-        std::snprintf(line, sizeof(line), "  %2d  %d부  %-7s %6lld ms  ", t.id, t.part, v.result, ms);
+        const bool challenge = t.id > 100;
+        if (challenge)
+        {
+            if (challengeCount == 0)
+                std::cout << "  ---- 챌린지 ----\n";
+            ++challengeCount;
+            if (pass)
+                ++challengePassed;
+        }
+
+        const std::string part = challenge ? " C " : std::to_string(t.part) + "부";
+        char line[96];
+        std::snprintf(line, sizeof(line), "  %3s  %s  %-7s %6lld ms  ", t.label.c_str(), part.c_str(), v.result, ms);
         std::cout << line << t.title;
         if (!v.detail.empty())
             std::cout << "\n                              └ " << v.detail;
@@ -359,7 +374,10 @@ int runGrader(const std::vector<GradeTarget>& targets, int totalLabCount, const 
     const char* reportPath = "grade-report.json";
     writeJson(reportPath, records, passed);
 
-    std::cout << "\n총점: " << passed << "/" << targets.size() << '\n'
-              << "결과 파일: " << reportPath << '\n';
+    std::cout << "\n총점: " << passed << "/" << targets.size() << '\n';
+    if (challengeCount > 0 && challengeCount < static_cast<int>(targets.size()))
+        std::cout << "  (기본 랩 " << passed - challengePassed << "/" << targets.size() - challengeCount << ", 챌린지 "
+                  << challengePassed << "/" << challengeCount << ")\n";
+    std::cout << "결과 파일: " << reportPath << '\n';
     return passed == static_cast<int>(targets.size()) ? 0 : 1;
 }
