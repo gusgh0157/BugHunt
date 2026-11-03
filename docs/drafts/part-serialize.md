@@ -3,7 +3,9 @@
 > README/SOLUTIONS/커버리지 표에 합칠 **초안**입니다. 랩 번호 65~71은 임시 번호이고, 부 번호도 재배치 때 정합니다.
 > 파일: `BugHunt/src/serialize/sz01_pet_slot.cpp` ~ `sz07_guild_list.cpp`
 > 외부 라이브러리: `third_party/` (nlohmann/json 3.11.3, pugixml 1.14, 둘 다 MIT, 라이선스 파일 포함, `third_party/README.md` 참고)
-> 빌드: 포함 경로 `third_party/nlohmann_json/include`, `third_party/pugixml/src` + `pugixml.cpp` 컴파일. vcxproj에는 넣었고, CMake로 옮길 때 같은 두 줄이 필요합니다.
+> 빌드: 포함 경로 `third_party/nlohmann_json/include`, `third_party/pugixml/src` + `pugixml.cpp` 컴파일. vcxproj와 CMake(`bughunt_pugixml` 정적 라이브러리 + nlohmann 포함 경로) 양쪽에 넣었습니다.
+> **번호 변경(머지 뒤)**: 비동기 부(임시 54~60)가 먼저 들어와 이 초안의 랩은 실행 파일에서 **72~78**번입니다(아래 표의 번호 + 7). 본문 번호는 최종 재배치 때 한꺼번에 바꿉니다.
+> [JA] **番号の変更(マージ後)**: 非同期の部(仮番号54~60)が先に入ったため、この草案のラボは実行ファイルでは **72~78** 番です(下の表の番号 + 7)。本文の番号は最終的な再配置のときにまとめて変更します。
 
 ## README: 부 소개
 
