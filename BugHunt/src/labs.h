@@ -82,6 +82,15 @@ void hg03_chat_command();
 void hg04_route();
 void hg05_trade();
 
+// 컨테이너 (src/containers)
+void ct01_bag_lookup();
+void ct02_party_finder();
+void ct03_leaderboard();
+void ct04_repair_shop();
+void ct05_dungeon_doors();
+void ct06_nameplates();
+void ct07_season_ranking();
+
 // 채점용 숨은 테스트 케이스: 화면에 나오는 것과 다른 데이터로 같은 코드를 검사한다.
 // 각 랩 파일 맨 아래 "채점용 숨은 테스트" region에 있다. (src/grader.cpp 참고)
 void ft01_attendance_hidden();
@@ -103,3 +112,10 @@ void hg02_respawn_hidden();
 void hg03_chat_command_hidden();
 void hg04_route_hidden();
 void hg05_trade_hidden();
+void ct01_bag_lookup_hidden();
+void ct02_party_finder_hidden();
+void ct03_leaderboard_hidden();
+void ct04_repair_shop_hidden();
+void ct05_dungeon_doors_hidden();
+void ct06_nameplates_hidden();
+void ct07_season_ranking_hidden();

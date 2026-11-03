@@ -134,6 +134,13 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\hangs\hg03_chat_command.cpp" />
     <ClCompile Include="src\hangs\hg04_route.cpp" />
     <ClCompile Include="src\hangs\hg05_trade.cpp" />
+    <ClCompile Include="src\containers\ct01_bag_lookup.cpp" />
+    <ClCompile Include="src\containers\ct02_party_finder.cpp" />
+    <ClCompile Include="src\containers\ct03_leaderboard.cpp" />
+    <ClCompile Include="src\containers\ct04_repair_shop.cpp" />
+    <ClCompile Include="src\containers\ct05_dungeon_doors.cpp" />
+    <ClCompile Include="src\containers\ct06_nameplates.cpp" />
+    <ClCompile Include="src\containers\ct07_season_ranking.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

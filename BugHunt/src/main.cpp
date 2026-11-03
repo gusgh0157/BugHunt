@@ -63,12 +63,21 @@ constexpr LabEntry kLabs[] = {
     { "채팅 명령어",        "명령어를 입력하면 멈춘다",             hg03_chat_command, hg03_chat_command_hidden },
     { "자동 이동 경로",     "숲을 경로에 넣으면 멈춘다",            hg04_route,        hg04_route_hidden },
     { "동시 거래",          "두 사람이 서로 팔면 둘 다 멈춘다",     hg05_trade,        hg05_trade_hidden },
+    // 컨테이너
+    { "가방 조회",          "상점을 열었을 뿐인데 가방이 꽉 찬다",  ct01_bag_lookup,   ct01_bag_lookup_hidden },
+    { "파티 찾기",          "고른 사람과 다른 사람이 초대된다",     ct02_party_finder, ct02_party_finder_hidden },
+    { "아레나 순위표",      "순위표를 정렬하다가 멈춘다",           ct03_leaderboard,  ct03_leaderboard_hidden },
+    { "장비 정리",          "부서진 장비를 버렸는데 가방이 그대로다", ct04_repair_shop, ct04_repair_shop_hidden },
+    { "던전 문 퍼즐",       "퍼즐 점수가 거꾸로 매겨진다",          ct05_dungeon_doors, ct05_dungeon_doors_hidden },
+    { "이름표",             "칭호를 받으면 이름표가 깨진다",        ct06_nameplates,   ct06_nameplates_hidden },
+    { "시즌 랭킹",          "우승자가 1위에 오르지 않는다",         ct07_season_ranking, ct07_season_ranking_hidden },
 };
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
 constexpr int kAdvancedLabEnd = 20;
 constexpr int kFlowLabEnd = 28;
 constexpr int kPointerLabEnd = 34;
+constexpr int kHangLabEnd = 39;
 
 int partOf(int labNumber)
 {
@@ -76,7 +85,8 @@ int partOf(int labNumber)
     if (labNumber <= kAdvancedLabEnd) return 2;
     if (labNumber <= kFlowLabEnd) return 3;
     if (labNumber <= kPointerLabEnd) return 4;
-    return 5;
+    if (labNumber <= kHangLabEnd) return 5;
+    return 6;
 }
 
 const char* buildName()
@@ -105,6 +115,8 @@ void printMenu()
             std::cout << "\n[4부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요\n";
         else if (i == kPointerLabEnd)
             std::cout << "\n[5부] 멈춤 - 무한루프와 데드락. 멈추면 디버그 → 모두 중단(Ctrl+Alt+Break)\n";
+        else if (i == kHangLabEnd)
+            std::cout << "\n[6부] 컨테이너 - 표준 컨테이너와 알고리즘의 함정\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }

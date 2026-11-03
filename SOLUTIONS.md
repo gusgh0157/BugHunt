@@ -380,3 +380,104 @@ if (!verifyItem(seller, item))
 또는 언제나 같은 기준(플레이어 ID가 작은 쪽, 주소가 작은 쪽)으로 먼저 잠근다. 숨은 케이스의 세 명 원형 거래도 이 방법으로 풀린다.
 위조 검사를 잠금 전으로 옮기기만 하면 50ms의 틈이 줄어 대부분 통과하지만, 잠금 순서 문제는 그대로라 아주 가끔만 멈추는 더 찾기 어려운 버그가 된다. 게다가 잠금 없이 검사하면 검사와 거래 사이에 아이템이 바뀔 수 있다.
 **교훈:** 데드락은 "누가 무엇을 가졌고 무엇을 기다리는가"를 스레드마다 적어 보면 고리가 보인다. 여러 잠금은 한 번에, 또는 항상 같은 순서로 잡는다.
+
+---
+
+# 6부: 컨테이너
+
+## Lab 40 — map::operator[]가 없는 키를 만듦
+```
+관찰:        openShop 전 bag.size() == 3, 후 == 6 ("Mana Potion", "Fire Scroll", "Rope"가 개수 0으로 생김)
+진짜 원인:   countOf의 bag[item]은 키가 없으면 기본값(0)으로 원소를 새로 만든다
+```
+**수정:** 읽기만 할 때는 `find`(또는 C++20 `contains`)를 쓰고 `const Bag&`로 받는다.
+```cpp
+int countOf(const Bag& bag, const std::string& item)
+{
+    const auto it = bag.find(item);
+    return it == bag.end() ? 0 : it->second;
+}
+```
+`const Bag&`로 바꾸면 `bag[item]`은 컴파일 오류가 되어 같은 실수를 막아 준다.
+**교훈:** `operator[]`는 "찾기"가 아니라 "찾고 없으면 만들기"다.
+
+## Lab 41 — rehash 뒤에 "몇 번째 줄"이 다른 사람을 가리킴
+```
+조사식:      registerWave(..., 60) 전 bucket_count 8 → 후 512, selectedName()이 Mira → Evening36
+진짜 원인:   선택을 순회 순서의 위치(줄 번호)로 기억함. rehash가 원소를 새 버킷에 다시 나눠 담으면서 순서가 바뀐다
+```
+**수정:** rehash에도 변하지 않는 것으로 기억한다. 표준은 rehash가 이터레이터를 무효화해도 **원소에 대한 참조와 포인터는 유지**된다고 보장한다.
+```cpp
+void select(size_t row) { selected_ = &*std::next(board_.begin(), row); }
+const std::string& selectedName() const { return selected_->first; }
+std::string confirmInvite()
+{
+    auto it = board_.find(selected_->first);
+    ...
+}
+Board::value_type* selected_ = nullptr;
+```
+키(이름)를 복사해 두고 `find`해도 된다.
+**교훈:** `unordered_map`의 순회 순서는 약속이 아니다. 오래 들고 있을 것은 키나 원소 포인터로.
+
+## Lab 42 — 비교자가 strict weak ordering을 어김
+```
+어설션:      xutility : invalid comparator
+조사식:      comp(Kael, Doran) == true, comp(Doran, Kael) == true  (둘 다 1500점)
+진짜 원인:   >= 는 같은 값에 대해 true를 돌려준다. "a가 b보다 앞서고 b도 a보다 앞선다"는 모순
+```
+**수정:** `return a.score > b.score;`
+**구성별:** Debug와 ASan(Debug 라이브러리 사용)은 어설션으로 알려 준다. Release는 검사가 없어서 원소가 적으면 우연히 맞게 정렬되고, 같은 값이 아주 많으면 정렬이 배열 밖까지 읽어 나가 죽기도 한다.
+**교훈:** 비교자는 "엄격하게 앞서는가"를 답한다. 같으면 false.
+
+## Lab 43 — remove_if만 하고 erase를 빼먹음
+```
+관찰:        호출 뒤에도 size 6. 앞 3칸은 남길 장비, 뒤 3칸은 옮겨지고 남은 찌꺼기 (Silver Ring이 두 번 보이기도 함)
+경고:        C4858 반환값을 버리고 있습니다 (remove/remove_if는 erase가 필요)
+```
+**수정:** C++20 `std::erase_if(bag, pred);` 또는 erase-remove 관용구 `bag.erase(std::remove_if(bag.begin(), bag.end(), pred), bag.end());`
+**교훈:** 알고리즘은 이터레이터만 받으므로 컨테이너의 크기를 바꿀 수 없다. 경고를 0개로 유지하면 이 버그는 빌드할 때 보인다.
+
+## Lab 44 — vector<bool>의 프록시 참조
+```
+지역 창:     wasOpen의 형식이 bool이 아니라 std::_Vb_reference<...>
+             토글한 다음 줄에서 wasOpen도 같이 바뀜
+진짜 원인:   vector<bool>은 비트로 압축되어 있어 operator[]가 bool&를 줄 수 없고, 비트를 가리키는 프록시 객체를 준다.
+             auto는 그 프록시를 복사하므로 "이전 값"이 아니라 "지금 값"을 계속 가리킨다
+```
+**수정:** `const bool wasOpen = doorsOpen[door];` (타입을 적어서 값으로 꺼낸다). 비트 압축이 필요 없다면 `std::vector<char>`나 `std::vector<std::uint8_t>`도 좋다.
+**교훈:** `auto x = v[i];`가 복사라는 믿음은 `vector<bool>`에서 깨진다. 지역 창의 형식 열을 보자.
+
+## Lab 45 — c_str() 포인터 수명과 SSO
+```
+조사식:      (void*)heroes[i].name.c_str() 가 grantTitle 뒤에 바뀜 (Doran, Selene), Kael은 그대로
+Kael:        "Kael the Brave" 14글자 → 여전히 객체 안 버퍼(SSO) → 같은 주소라 우연히 맞음
+Doran:       21글자 → 객체 안 버퍼에서 힙으로 이사. 이름표는 객체 안의 옛 버퍼(지금은 힙 포인터가 들어 있음)를 읽어 깨진 글자
+Selene:      원래 힙(18글자, 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (Debug에서 0xDD 계열 글자)
+```
+**수정:** 이름표가 문자열 버퍼가 아니라 문자열을 가진 객체를 가리키게 한다.
+```cpp
+explicit Nameplate(const Hero& hero) : hero_(&hero) {}
+const char* text() const { return hero_->name.c_str(); }
+const Hero* hero_;
+```
+**구성별:** ASan은 Selene만 잡는다(heap-use-after-free). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
+**교훈:** `c_str()`/`data()`/`string_view`는 문자열이 바뀌면 무효가 될 수 있다. 짧은 문자열은 SSO 때문에 "되는 것처럼" 보여서 더 늦게 발견된다.
+
+## Lab 46 — set 안에 있는 원소의 정렬 기준을 바꿈
+```
+조사식:      season.ranked_ 순서가 Mira(1450), Selene, Kael, Doran(1700) → 점수 순이 아님
+진짜 원인:   recordMatch가 set에 들어 있는 Player의 score를 직접 바꿈. set은 넣을 때만 자리를 정하므로 트리가 정렬 불변식을 잃는다.
+             그 뒤의 find/erase는 엉뚱한 가지로 내려가 원소를 못 찾을 수 있다
+```
+**수정:** 꺼내고, 바꾸고, 다시 넣는다.
+```cpp
+void recordMatch(Player* p, int points)
+{
+    ranked_.erase(p);
+    p->score += points;
+    ranked_.insert(p);
+}
+```
+(C++17의 `extract`로 노드를 꺼내 고친 뒤 `insert`해도 된다.)
+**교훈:** `set`/`map`의 키는 const지만, 포인터를 키로 쓰면 가리키는 대상까지 지켜 주지 않는다.
