@@ -10,7 +10,7 @@
 
 ## 준비
 
-1. `BugHunt.slnx`를 Visual Studio로 엽니다.
+1. `BugHunt.sln`을 Visual Studio로 엽니다. (VS 2022 17.13 이상이면 `BugHunt.slnx`를 열어도 됩니다. Rider 등 다른 IDE는 `.sln`을 쓰세요.)
 2. 위쪽 도구 모음에서 구성을 **Debug**, 플랫폼을 **x64**로 둡니다.
 3. **F5**(디버깅 시작)로 실행 → 메뉴에서 랩 번호 입력.
    - 매번 같은 랩을 돌리려면: 솔루션 탐색기에서 BugHunt 우클릭 → 속성 → 디버깅 → **명령 인수**에 번호 입력 (예: `1`)

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BugHunt", "BugHunt\BugHunt.vcxproj", "{7C2E9B41-3F5A-4D8E-9A61-B0D4C3E2F815}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		ASan|x64 = ASan|x64
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C2E9B41-3F5A-4D8E-9A61-B0D4C3E2F815}.ASan|x64.ActiveCfg = ASan|x64
+		{7C2E9B41-3F5A-4D8E-9A61-B0D4C3E2F815}.ASan|x64.Build.0 = ASan|x64
+		{7C2E9B41-3F5A-4D8E-9A61-B0D4C3E2F815}.Debug|x64.ActiveCfg = Debug|x64
+		{7C2E9B41-3F5A-4D8E-9A61-B0D4C3E2F815}.Debug|x64.Build.0 = Debug|x64
+		{7C2E9B41-3F5A-4D8E-9A61-B0D4C3E2F815}.Release|x64.ActiveCfg = Release|x64
+		{7C2E9B41-3F5A-4D8E-9A61-B0D4C3E2F815}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
