@@ -5,6 +5,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 // 플레이어 간 거래. 거래 서버는 거래마다 스레드 하나를 쓴다.
@@ -13,6 +14,8 @@ namespace hang5
 {
 struct Inventory
 {
+    Inventory(std::string o, int g, std::vector<std::string> i) : owner(std::move(o)), gold(g), items(std::move(i)) {}
+
     std::string owner;
     int gold;
     std::vector<std::string> items;
@@ -88,16 +91,16 @@ void hg05_trade()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (README의 "따라 해 보기"를 먼저 하세요)
-// 멈추면 모두 중단(Ctrl+Alt+Break) → 디버그 → 창 → 병렬 스택(Ctrl+Shift+D, S).
+// 멈추면 모두 중단(break all) → 모든 스레드의 호출 스택을 보세요. (VS: 병렬 스택, gdb: thread apply all bt)
 // trade에서 멈춰 있는 스레드가 몇 개인가요? 각각 trade의 몇 번째 줄에서 기다리고 있나요?
 #pragma endregion
 
 #pragma region 힌트 2
-// 스레드 창에서 두 거래 스레드를 하나씩 더블클릭하고, 호출 스택에서 trade 프레임을 골라 seller.owner와 buyer.owner를 보세요.
+// 스레드 목록에서 두 거래 스레드를 하나씩 더블클릭하고, 호출 스택에서 trade 프레임을 골라 seller.owner와 buyer.owner를 보세요.
 // 각 스레드가 이미 잡은 잠금은 무엇이고, 기다리는 잠금은 무엇인가요? 표로 그려 보세요.
 #pragma endregion
 
@@ -107,7 +110,7 @@ void hg05_trade()
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
-// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
 void hg05_trade_hidden()
 {

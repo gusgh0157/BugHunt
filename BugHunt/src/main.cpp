@@ -1,7 +1,7 @@
 #include "labs.h"
 #include "grader.h"
+#include "platform/platform.h"
 
-#include <windows.h>
 #include <cctype>
 #include <cstdlib>
 #include <cstring>
@@ -131,13 +131,7 @@ int partOf(int labNumber)
 
 const char* buildName()
 {
-#if defined(__SANITIZE_ADDRESS__)
-    return "ASan";
-#elif defined(_DEBUG)
-    return "Debug";
-#else
-    return "Release";
-#endif
+    return platform::buildName();
 }
 
 void printMenu()
@@ -146,27 +140,27 @@ void printMenu()
     for (int i = 0; i < kLabCount; ++i)
     {
         if (i == 0)
-            std::cout << "\n[1부] 호출 스택 입문 - VS에서 F5로 실행하세요\n";
+            std::cout << "\n[1부] 호출 스택 입문 - 디버거로 실행하세요\n";
         else if (i == kBasicLabCount)
             std::cout << "\n[2부] 심화\n";
         else if (i == kAdvancedLabEnd)
-            std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 F10/F11로 따라가세요\n";
+            std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 한 줄씩 따라가세요\n";
         else if (i == kFlowLabEnd)
             std::cout << "\n[4부] 컨테이너 - 표준 컨테이너와 알고리즘의 함정\n";
         else if (i == kContainerLabEnd)
             std::cout << "\n[5부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요\n";
         else if (i == kPointerLabEnd)
-            std::cout << "\n[6부] 멈춤 - 무한루프와 데드락. 멈추면 디버그 → 모두 중단(Ctrl+Alt+Break)\n";
+            std::cout << "\n[6부] 멈춤 - 무한루프와 데드락. 멈추면 디버거에서 모두 중단(break all)\n";
         else if (i == kHangLabEnd)
-            std::cout << "\n[7부] 성능 - 틀리지 않지만 느리다. Release + 성능 프로파일러(Alt+F2)\n";
+            std::cout << "\n[7부] 성능 - 틀리지 않지만 느리다. Release + CPU 프로파일러\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }
     std::cout << "\n[챌린지] 기본 부를 모두 끝낸 뒤에 푸세요. 힌트 없음 (README의 \"챌린지\")\n";
     for (const ChallengeEntry& c : kChallenges)
         std::cout << "  " << c.code << ". " << c.symptom << '\n';
-    std::cout << "  (명령줄 인자로 번호를 넘겨도 된다: BugHunt.exe 3, BugHunt.exe C-1)\n";
-    std::cout << "  (채점: grade.bat 또는 BugHunt.exe --grade)\n";
+    std::cout << "  (명령줄 인자로 번호를 넘겨도 된다: BugHunt 3, BugHunt C-1)\n";
+    std::cout << "  (채점: grade.bat, ./grade.sh 또는 BugHunt --grade)\n";
 }
 
 const ChallengeEntry* findChallenge(int gradeId)
@@ -265,7 +259,7 @@ int runLab(int id, bool hiddenCase)
 
 int main(int argc, char** argv)
 {
-    SetConsoleOutputCP(CP_UTF8);
+    platform::initConsole();
 
     // 채점: BugHunt.exe --grade [번호 | C-1 | labs | challenges]
     if (argc > 1 && std::strcmp(argv[1], "--grade") == 0)

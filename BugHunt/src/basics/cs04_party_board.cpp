@@ -13,7 +13,7 @@ struct Party
 
 const std::string& leaderOf(const Party& party)
 {
-    return party.members[0];
+    return party.members.at(0);
 }
 
 void printPartyBoard(const std::vector<Party>& parties)
@@ -62,7 +62,7 @@ void cs04_party_board()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)

@@ -98,18 +98,18 @@ void pt02_bounty()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
-// hunter.gold += ... 줄에 중단점을 걸고 지역 창에서 hunter.target을 펼쳐 보세요.
-// name, hp, bounty가 각각 어떻게 보이나요? bounty를 16진수로 보면(우클릭 → 16진수 표시)?
-// README의 매직 넘버 표에서 그 값을 찾아보세요.
+// hunter.gold += ... 줄에 중단점을 걸고 지역 변수에서 hunter.target을 펼쳐 보세요.
+// name, hp, bounty가 각각 어떻게 보이나요? bounty를 16진수로 보면(디버거의 16진수 표시, gdb: p/x)?
+// 0xEEEEEEEE는 BugHunt 메모리 검사기가 해제된 메모리에 덮어 두는 값입니다. (README의 "메모리 검사기")
 #pragma endregion
 
 #pragma region 힌트 2
 // target이 가리키는 몬스터는 바로 윗줄에서 어떻게 되었나요?
-// field.removeDefeated()로 F11로 들어가서 delete 줄을 지나갈 때 target 주소와 비교해 보세요.
+// field.removeDefeated() 안으로 들어가서 delete 줄을 지나갈 때 target 주소와 비교해 보세요.
 #pragma endregion
 
 #pragma region 힌트 3
@@ -118,7 +118,7 @@ void pt02_bounty()
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
-// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
 void pt02_bounty_hidden()
 {

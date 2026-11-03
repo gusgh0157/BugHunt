@@ -76,18 +76,18 @@ void ft07_achievements()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
 // checkKillAchievements, checkGoldAchievements, checkLevelAchievements 첫 줄에 각각 중단점을 거세요.
-// F5로 실행하면 어느 중단점이 걸리나요? "걸리지 않는 중단점"도 중요한 정보입니다.
+// 디버거로 실행하면 어느 중단점이 걸리나요? "걸리지 않는 중단점"도 중요한 정보입니다.
 #pragma endregion
 
 #pragma region 힌트 2
-// onBattleEnd의 const bool anyUnlocked 줄에서 F11을 여러 번 눌러 보세요.
-// 첫 번째 검사에서 돌아온 직후, 노란 화살표는 어디로 가나요?
-// (팁: 그 줄에서 우클릭 → "한 단계씩 코드 실행 - 특정"으로 들어갈 함수를 고를 수 있습니다.)
+// onBattleEnd의 const bool anyUnlocked 줄에서 함수 안으로(step into)를 여러 번 해 보세요.
+// 첫 번째 검사에서 돌아온 직후, 현재 줄은 어디로 가나요?
+// (팁: 한 줄에 함수 호출이 여럿이면 디버거에서 들어갈 함수를 고를 수 있습니다. VS: "한 단계씩 코드 실행 - 특정", gdb: step을 여러 번 / finish)
 #pragma endregion
 
 #pragma region 힌트 3
@@ -95,7 +95,7 @@ void ft07_achievements()
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
-// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
 void ft07_achievements_hidden()
 {

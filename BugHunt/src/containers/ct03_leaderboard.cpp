@@ -14,9 +14,9 @@ struct Entry
 
 void sortByScore(std::vector<Entry>& entries)
 {
-    std::sort(entries.begin(), entries.end(), [](const Entry& a, const Entry& b) {
+    std::sort(entries.begin(), entries.end(), bughunt::checkedOrder([](const Entry& a, const Entry& b) {
         return a.score >= b.score;   // 높은 점수가 앞으로
-    });
+    }));
 }
 
 int sumOfTop(const std::vector<Entry>& sorted, size_t n)
@@ -44,12 +44,13 @@ void ct03_leaderboard()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
-// Debug에서 F5로 실행하면 어설션 창이 뜹니다. 메시지를 끝까지 읽어 보세요. 무엇이 "invalid"라고 하나요?
-// 다시 시도 → 호출 스택에서 [외부 코드]를 지나 처음 나오는 내 코드는 어디인가요?
+// 디버거로 실행하면 abort()에서 멈춥니다. 콘솔의 [CRASH] 메시지를 끝까지 읽어 보세요. 무엇을 어겼다고 하나요?
+// 호출 스택에서 표준 라이브러리 줄을 지나 처음 나오는 내 코드는 어디인가요?
+// (bughunt::checkedOrder는 표준 라이브러리 디버그 모드가 하는 검사를 어느 구성에서나 하도록 감싼 것입니다)
 #pragma endregion
 
 #pragma region 힌트 2
@@ -59,11 +60,12 @@ void ct03_leaderboard()
 
 #pragma region 힌트 3
 // std::sort의 비교 함수는 "엄격하게 앞서는가"를 답해야 합니다(strict weak ordering). 같으면 false여야 합니다.
-// Release에서는 어설션이 없습니다. 같은 점수가 아주 많으면 어떤 일이 생길 수 있을까요?
+// 검사기가 없다면 이 코드는 원소가 적을 때 우연히 맞게 정렬되기도 합니다. 정의되지 않은 동작이라
+// 같은 점수가 아주 많으면 배열 밖을 읽다가 죽을 수도 있습니다.
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
-// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
 void ct03_leaderboard_hidden()
 {

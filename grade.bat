@@ -1,5 +1,5 @@
 @echo off
-rem Usage: grade.bat [Debug^|Release^|ASan] [lab number]   (default: Debug, all labs)
+rem Usage: grade.bat [Debug^|Release^|ASan] [lab number ^| C-1 ^| labs ^| challenges]   (default: Debug, everything)
 rem Builds, then runs every lab in its own process and writes grade-report.json here.
 setlocal
 set CONFIG=%1

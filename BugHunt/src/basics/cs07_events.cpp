@@ -77,11 +77,11 @@ void cs07_events()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)
-// HealthBar::setValue에서 지역 창의 this를 보세요.
+// HealthBar::setValue에서 지역 변수 this를 보세요.
 // 객체가 없는데 멤버 함수가 불렸습니다.
 #pragma endregion
 
@@ -92,7 +92,7 @@ void cs07_events()
 
 #pragma region 힌트 3
 // 호출 스택은 "지금"만 보여 줍니다. bar가 언제 nullptr로 저장됐는지는 스택에 없습니다.
-// connectHealthBar에 중단점(F9)을 걸고 다시 실행해서, 그 순간 game.healthBar를 보세요.
+// connectHealthBar에 중단점을 걸고 다시 실행해서, 그 순간 game.healthBar를 보세요.
 #pragma endregion
 
 #pragma region 힌트 4

@@ -1,4 +1,5 @@
 #include "../labs.h"
+#include <new>
 #include <string>
 
 // 파티원의 공격력 = 기본 공격력 + 장착한 무기 보너스. 무기가 없으면 맨손(보너스 0).
@@ -61,23 +62,26 @@ void pt05_equipment()
     const Weapon flameSword = { "Flame Sword", 25 };
     const Weapon oakStaff = { "Oak Staff", 10 };
 
-    const Hero party[] = {
-        Hero("Kael", 30, &flameSword),
-        Hero("Mira", 18, &oakStaff),
-        Hero("Doran", 35),               // 맨손 격투가
-    };
+    // 파티 슬롯은 던전마다 새로 할당하지 않고, 지난 던전에 쓰던 메모리 자리에 다시 만든다. (오브젝트 풀)
+    Hero* party = static_cast<Hero*>(bughunt::recycledStorage(sizeof(Hero) * 3));
+    new (&party[0]) Hero("Kael", 30, &flameSword);
+    new (&party[1]) Hero("Mira", 18, &oakStaff);
+    new (&party[2]) Hero("Doran", 35);   // 맨손 격투가
 
     expect("파티 총 공격력 (55 + 28 + 35)", 118, partyAttack(party, 3));
+
+    for (int i = 0; i < 3; ++i)
+        party[i].~Hero();
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
-// F5로 실행하면 "읽기 액세스 위반"에서 멈춥니다. 지역 창에서 this를 펼쳐 weapon_ 값을 읽어 보세요.
-// 0x0000000000000000(nullptr)이 아니라면 어떤 값인가요? README의 매직 넘버 표를 보세요.
-// (예외 메시지의 주소는 0xFFFFFFFFFFFFFFFF로 나올 수 있습니다. x64에서 "있을 수 없는 주소"를 읽으면 그렇게 표시됩니다.)
+// 디버거로 실행하면 잘못된 메모리 접근(Windows: 액세스 위반, POSIX: SIGSEGV)에서 멈춥니다. this를 펼쳐 weapon_ 값을 읽어 보세요.
+// 0x0000000000000000(nullptr)이 아니라면 어떤 값인가요? 0xA5A5A5A5A5A5A5A5는 그 자리에 앞 사용자가 남긴 값입니다.
+// (x64에서 "있을 수 없는 주소"를 읽으면 디버거가 주소를 0xFFFFFFFFFFFFFFFF나 0으로 보여 주기도 합니다.)
 #pragma endregion
 
 #pragma region 힌트 2
@@ -86,12 +90,13 @@ void pt05_equipment()
 #pragma endregion
 
 #pragma region 힌트 3
-// Release와 ASan 구성에서도 실행해 보세요. 같은 버그가 왜 매번 다르게 보일까요?
+// 진짜 프로그램에서 초기화하지 않은 멤버는 "그 자리에 있던 아무 값"입니다. 우연히 0이면 멀쩡해 보이고,
+// 구성이나 컴파일러를 바꾸면 갑자기 죽습니다. 이 랩은 결과가 흔들리지 않도록 남은 값을 일부러 채워 두었습니다.
 // "초기화하지 않은 포인터"는 nullptr 검사로 막을 수 없습니다. 검사하려면 먼저 nullptr로 만들어 둬야 합니다.
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
-// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
 void pt05_equipment_hidden()
 {

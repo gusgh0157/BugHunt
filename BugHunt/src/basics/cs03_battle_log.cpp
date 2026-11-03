@@ -1,4 +1,5 @@
 #include "../labs.h"
+#include <stdexcept>
 #include <string>
 
 // 전투 기록을 읽어 초당 피해량(DPS)을 보여 준다.
@@ -18,6 +19,8 @@ int toSeconds(int ms)
 
 int damagePerSecond(int totalDamage, int seconds)
 {
+    if (seconds <= 0)
+        throw std::invalid_argument("damagePerSecond: 전투 시간이 0초 이하");
     return totalDamage / seconds;
 }
 
@@ -48,7 +51,7 @@ void cs03_battle_log()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)

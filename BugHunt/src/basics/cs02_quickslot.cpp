@@ -15,7 +15,7 @@ public:
 
     const std::string& itemAt(int slotIndex) const
     {
-        return slots_[slotIndex];
+        return slots_.at(slotIndex);
     }
 
 private:
@@ -49,12 +49,12 @@ void cs02_quickslot()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)
-// Assertion 창에서 "다시 시도(Retry)"를 누르세요.
-// 호출 스택 맨 위의 std::vector<...>::operator[]나 [외부 코드]는 건너뛰고,
+// 디버거는 처리되지 않은 예외(std::out_of_range)에서 멈춥니다.
+// 호출 스택 맨 위의 std::vector<...>::at이나 표준 라이브러리, 런타임 줄은 건너뛰고,
 // lab2:: 로 시작하는 첫 줄을 찾으세요.
 #pragma endregion
 

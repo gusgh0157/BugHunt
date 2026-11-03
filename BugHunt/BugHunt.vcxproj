@@ -48,11 +48,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -96,11 +97,17 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClInclude Include="src\challenge\c3_hero.h" />
     <ClInclude Include="src\challenge\c3_systems.h" />
     <ClInclude Include="src\grader.h" />
+    <ClInclude Include="src\platform\platform.h" />
+    <ClInclude Include="src\platform\asan_detect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\grader.cpp" />
     <ClCompile Include="src\watchdog.cpp" />
+    <ClCompile Include="src\platform\build_name.cpp" />
+    <ClCompile Include="src\platform\platform_windows.cpp" />
+    <ClCompile Include="src\platform\platform_posix.cpp" />
+    <ClCompile Include="src\support\heap_guard.cpp" />
     <ClCompile Include="src\basics\cs01_profile.cpp" />
     <ClCompile Include="src\basics\cs02_quickslot.cpp" />
     <ClCompile Include="src\basics\cs03_battle_log.cpp" />

@@ -34,7 +34,7 @@ struct Monster
 
 LevelInfo statsFor(int level)
 {
-    return kLevelTable[level];
+    return kLevelTable.at(level);
 }
 
 Monster createMonster(const std::string& name, int level)
@@ -76,11 +76,11 @@ void cs08_waves()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)
-// Assertion 창에서 다시 시도를 누르세요.
+// 디버거는 처리되지 않은 예외(std::out_of_range)에서 멈춥니다.
 // statsFor 프레임의 level은 얼마인가요? kLevelTable의 크기는요?
 #pragma endregion
 
