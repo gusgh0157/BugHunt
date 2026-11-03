@@ -1,9 +1,12 @@
 #include "labs.h"
+#include "grader.h"
 
 #include <windows.h>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -12,6 +15,7 @@ struct LabEntry
     const char* title;
     const char* symptom;
     void (*run)();
+    void (*hidden)() = nullptr;   // 채점용 숨은 테스트 케이스 (없으면 nullptr)
 };
 
 constexpr LabEntry kLabs[] = {
@@ -38,18 +42,25 @@ constexpr LabEntry kLabs[] = {
     { "퀘스트 선행 조건",   "프로그램이 즉시 죽는다",              lab11_quests },
     { "상태 플래그",        "독에 걸렸는데 아니라고 한다",         lab12_status_flags },
     // 3부: 흐름 추적 (크래시 없음)
-    { "출석 보상",          "7일 연속 출석했는데 보너스가 없다",    ft01_attendance },
-    { "치명타 피해",        "치명타가 일반 공격과 똑같이 들어간다", ft02_critical },
-    { "보호막 탱커",        "피해 합계가 맞지 않는다",              ft03_shield },
-    { "늑대 사냥 퀘스트",   "5마리를 잡았는데 퀘스트가 안 끝난다",  ft04_quest },
-    { "상점 할인",          "VIP가 VIP 할인을 못 받는다",           ft05_discount },
-    { "장비 수리",          "골드는 빠졌는데 내구도가 그대로다",    ft06_repair },
-    { "업적 해금",          "조건을 채운 업적 하나가 안 열린다",    ft07_achievements },
-    { "난이도 설정",        "어려움으로 저장했는데 적이 약하다",    ft08_difficulty },
+    { "출석 보상",          "7일 연속 출석했는데 보너스가 없다",    ft01_attendance,   ft01_attendance_hidden },
+    { "치명타 피해",        "치명타가 일반 공격과 똑같이 들어간다", ft02_critical,     ft02_critical_hidden },
+    { "보호막 탱커",        "피해 합계가 맞지 않는다",              ft03_shield,       ft03_shield_hidden },
+    { "늑대 사냥 퀘스트",   "5마리를 잡았는데 퀘스트가 안 끝난다",  ft04_quest,        ft04_quest_hidden },
+    { "상점 할인",          "VIP가 VIP 할인을 못 받는다",           ft05_discount,     ft05_discount_hidden },
+    { "장비 수리",          "골드는 빠졌는데 내구도가 그대로다",    ft06_repair,       ft06_repair_hidden },
+    { "업적 해금",          "조건을 채운 업적 하나가 안 열린다",    ft07_achievements, ft07_achievements_hidden },
+    { "난이도 설정",        "어려움으로 저장했는데 적이 약하다",    ft08_difficulty,   ft08_difficulty_hidden },
 };
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
 constexpr int kAdvancedLabEnd = 20;
+
+int partOf(int labNumber)
+{
+    if (labNumber <= kBasicLabCount) return 1;
+    if (labNumber <= kAdvancedLabEnd) return 2;
+    return 3;
+}
 
 const char* buildName()
 {
@@ -77,12 +88,67 @@ void printMenu()
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }
     std::cout << "  (명령줄 인자로 번호를 넘겨도 된다: BugHunt.exe 3)\n";
+    std::cout << "  (채점: grade.bat 또는 BugHunt.exe --grade)\n";
+}
+
+int grade(int onlyLab)
+{
+    std::vector<GradeTarget> targets;
+    for (int i = 0; i < kLabCount; ++i)
+    {
+        const int id = i + 1;
+        if (onlyLab == 0 || onlyLab == id)
+            targets.push_back({ id, kLabs[i].title, partOf(id), kLabs[i].hidden != nullptr });
+    }
+    if (targets.empty())
+    {
+        std::cout << "1 ~ " << kLabCount << " 사이의 번호를 입력하세요.\n";
+        return 1;
+    }
+    return runGrader(targets, kLabCount, buildName());
+}
+
+int runLab(int choice, bool hiddenCase)
+{
+    if (choice < 1 || choice > kLabCount)
+    {
+        std::cout << "1 ~ " << kLabCount << " 사이의 번호를 입력하세요.\n";
+        return 1;
+    }
+
+    const LabEntry& lab = kLabs[choice - 1];
+    if (hiddenCase)
+    {
+        if (lab.hidden == nullptr)
+            return kExitPass;
+        std::cout << "\n--- Lab " << choice << ": " << lab.title << " (숨은 케이스) [" << buildName() << "] ---\n";
+        lab.hidden();
+    }
+    else
+    {
+        std::cout << "\n--- Lab " << choice << ": " << lab.title << " [" << buildName() << "] ---\n";
+        lab.run();
+    }
+    std::cout << "--- 종료 ---\n";
+    return g_failCount == 0 ? kExitPass : kExitFail;
 }
 }
 
 int main(int argc, char** argv)
 {
     SetConsoleOutputCP(CP_UTF8);
+
+    // 채점: BugHunt.exe --grade [번호]
+    if (argc > 1 && std::strcmp(argv[1], "--grade") == 0)
+        return grade(argc > 2 ? std::atoi(argv[2]) : 0);
+
+    // 채점기가 띄우는 자식 프로세스: BugHunt.exe --grade-child 번호 [--hidden]
+    if (argc > 2 && std::strcmp(argv[1], "--grade-child") == 0)
+    {
+        prepareGradeChild();
+        const bool hiddenCase = argc > 3 && std::strcmp(argv[3], "--hidden") == 0;
+        return runLab(std::atoi(argv[2]), hiddenCase);
+    }
 
     int choice = 0;
     if (argc > 1)
@@ -96,15 +162,5 @@ int main(int argc, char** argv)
         std::cin >> choice;
     }
 
-    if (choice < 1 || choice > kLabCount)
-    {
-        std::cout << "1 ~ " << kLabCount << " 사이의 번호를 입력하세요.\n";
-        return 1;
-    }
-
-    const LabEntry& lab = kLabs[choice - 1];
-    std::cout << "\n--- Lab " << choice << ": " << lab.title << " [" << buildName() << "] ---\n";
-    lab.run();
-    std::cout << "--- 종료 ---\n";
-    return 0;
+    return runLab(choice, false);
 }

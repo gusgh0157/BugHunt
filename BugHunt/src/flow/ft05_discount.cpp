@@ -71,3 +71,22 @@ void ft05_discount()
 // isVip()가 true이면서 isMember()가 false인 손님이 있을 수 있나요?
 // 그렇다면 else if (c.isVip()) 줄에 도달할 수 있는 손님은 누구일까요?
 #pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft05_discount_hidden()
+{
+    using namespace flow5;
+
+    const Customer goldMember  = { "Ivo",   Grade::Gold,     2,  9 };
+    const Customer firstTimer  = { "Nell",  Grade::Silver,   0,  0 };
+    const Customer bigSpender  = { "Oren",  Grade::Silver,  14, 30 };
+    const Customer richGuest   = { "Pia",   Grade::Platinum, 0,  5 };   // 멤버십이 없으니 VIP가 아니다
+
+    expect("Ivo (VIP, 40000원)",        34000, finalPrice(goldMember, 40000));
+    expect("Nell (첫 구매, 10000원)",    9000, finalPrice(firstTimer, 10000));
+    expect("Oren (멤버, 80000원)",      76000, finalPrice(bigSpender, 80000));
+    expect("Pia (비회원, 50000원)",     48500, finalPrice(richGuest, 50000));
+}
+#pragma endregion

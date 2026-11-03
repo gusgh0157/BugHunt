@@ -66,3 +66,17 @@ void ft01_attendance()
 #pragma region 힌트 2
 // streak가 1이 되었다가 다음 바퀴에서 다시 0이 되는 순간, 노란 화살표는 어느 줄에 있나요?
 #pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft01_attendance_hidden()
+{
+    // 1~2일 출석, 3일 결석, 4~11일 출석(8일 연속), 12일 결석, 13일 출석
+    const std::vector<bool> loginLog = { true, true, false, true, true, true, true, true, true, true, true, false, true };
+
+    const flow1::RewardResult result = flow1::calculateRewards(loginLog);
+    expect("최장 연속 출석", 8, result.bestStreak);
+    expect("받은 골드 (11일 x 100 + 보너스 1000)", 2100, result.gold);
+}
+#pragma endregion

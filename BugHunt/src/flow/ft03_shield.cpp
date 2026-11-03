@@ -84,3 +84,28 @@ void ft03_shield()
 #pragma region 힌트 3
 // 보호막이 피해보다 적게 남아 있을 때, 보호막이 막지 못한 나머지 피해는 어디로 가야 할까요?
 #pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft03_shield_hidden()
+{
+    using namespace flow3;
+
+    Unit full;                       // 보호막 30이 피해 7을 전부 막는다
+    takeDamage(full, 7);
+    expect("보호막 충분: 보호막", 23, full.shield);
+    expect("보호막 충분: HP", 200, full.hp);
+
+    Unit cracked;                    // 보호막 5가 피해 12 중 5만 막는다
+    cracked.shield = 5;
+    takeDamage(cracked, 12);
+    expect("보호막 부족: 보호막", 0, cracked.shield);
+    expect("보호막 부족: HP", 193, cracked.hp);
+
+    Unit bare;                       // 보호막이 없으면 전부 HP로
+    bare.shield = 0;
+    takeDamage(bare, 9);
+    expect("보호막 없음: HP", 191, bare.hp);
+}
+#pragma endregion

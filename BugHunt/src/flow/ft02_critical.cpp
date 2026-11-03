@@ -73,3 +73,20 @@ void ft02_critical()
 // 안에서 F10으로 끝까지 가거나 Shift+F11로 나오면, 자동 창에 "applyXXX 반환" 줄이 보입니다.
 // 함수 안에서 계산한 값과 반환한 값이 같나요?
 #pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft02_critical_hidden()
+{
+    const flow2::Attacker rogue = { 30, 20, 100 };
+    const flow2::Target dummy = { 0, false };
+    expect("도적 일반 공격", 70, flow2::computeDamage(rogue, dummy, false));
+    expect("도적 치명타", 140, flow2::computeDamage(rogue, dummy, true));
+
+    const flow2::Attacker archer = { 25, 10, 25 };
+    const flow2::Target fireSpirit = { 50, true };
+    expect("궁수 일반 공격", 45, flow2::computeDamage(archer, fireSpirit, false));
+    expect("궁수 치명타", 55, flow2::computeDamage(archer, fireSpirit, true));
+}
+#pragma endregion

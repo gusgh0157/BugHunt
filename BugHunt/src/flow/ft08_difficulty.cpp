@@ -127,3 +127,20 @@ void ft08_difficulty()
 // 고치는 방법은 여러 가지입니다: 참조로 보관하기, 설정을 다 읽은 뒤에 World를 만들기,
 // spawnWave가 그때그때 설정을 인자로 받기. 각각의 장단점은 무엇일까요?
 #pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft08_difficulty_hidden()
+{
+    flow8::kSaveFile =
+        "difficulty=easy\n"
+        "volume=60\n";
+
+    flow8::Game game;
+    game.boot();
+
+    expect("볼륨 (저장값 60)", 60, game.volume());
+    expect("첫 웨이브 적 HP (쉬움 = 70)", 70, game.firstWaveHp());
+}
+#pragma endregion

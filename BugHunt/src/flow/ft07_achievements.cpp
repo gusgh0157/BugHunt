@@ -93,3 +93,20 @@ void ft07_achievements()
 #pragma region 힌트 3
 // A || B 에서 A가 true이면, C++은 B를 계산할까요?
 #pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void ft07_achievements_hidden()
+{
+    flow7::Player player;            // 늑대는 조금, 골드와 레벨은 충분
+    player.wolfKills = 5;
+    player.gold = 12000;
+    player.level = 10;
+    flow7::onBattleEnd(player);
+
+    expect("해금된 업적 수", 2, static_cast<int>(player.achievements.size()));
+    expect("'부자' 업적", true, player.has("부자"));
+    expect("'베테랑' 업적", true, player.has("베테랑"));
+}
+#pragma endregion

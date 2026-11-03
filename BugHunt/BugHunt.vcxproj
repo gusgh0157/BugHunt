@@ -89,9 +89,11 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\labs.h" />
+    <ClInclude Include="src\grader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\grader.cpp" />
     <ClCompile Include="src\basics\cs01_profile.cpp" />
     <ClCompile Include="src\basics\cs02_quickslot.cpp" />
     <ClCompile Include="src\basics\cs03_battle_log.cpp" />
