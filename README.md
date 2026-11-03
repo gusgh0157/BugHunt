@@ -1040,9 +1040,10 @@ CPU 샘플링 프로파일러는 프로그램을 디버거 없이 돌리면서 "
 ```
 
 - `grade.sh` = `grade.sh Debug`: Debug로 빌드한 뒤 랩 98개와 챌린지 11개를 모두 채점합니다. `Release`, `ASan`도 됩니다. 챌린지는 표 아래쪽 `챌린지` 구역에 따로 나오고, 총점 아래에 기본 랩과 챌린지 점수가 나뉘어 나옵니다.
-- `grade.sh Debug 37`: 랩 70만 채점합니다. `grade.sh Debug C-1`처럼 챌린지 하나만 채점할 수도 있습니다.
+- `grade.sh Debug 70`: 랩 70만 채점합니다. `grade.sh Debug C-1`처럼 챌린지 하나만 채점할 수도 있습니다.
 - `grade.sh Debug labs`: 기본 랩 98개만, `grade.sh Debug challenges`: 챌린지 11개만 채점합니다.
-- 이미 빌드했다면 `bin/Debug/BugHunt --grade`(Windows는 `bin\Debug\BugHunt.exe --grade`)로 바로 실행해도 됩니다. `--grade 37`, `--grade C-1`, `--grade challenges`도 됩니다. IDE에서 빌드했다면 그 실행 파일에 `--grade`를 주면 됩니다.
+- 이미 빌드했다면 `bin/Debug/BugHunt --grade`(Windows는 `bin\Debug\BugHunt.exe --grade`)로 바로 실행해도 됩니다. `--grade 70`, `--grade C-1`, `--grade challenges`도 됩니다. IDE에서 빌드했다면 그 실행 파일에 `--grade`를 주면 됩니다.
+- 출력 언어: `--lang ja` 또는 `--lang ko`를 붙입니다(예: `bin/Debug/BugHunt --lang ja --grade`). 붙이지 않으면 환경 변수 `BUGHUNT_LANG`(예: `BUGHUNT_LANG=ja ./grade.sh`, Windows는 `set BUGHUNT_LANG=ja` 뒤 `grade.bat`), 그다음 운영체제의 표시 언어를 따르고, 기본은 한국어입니다. 메뉴, 랩 제목과 증상, `[PASS]`/`[FAIL]` 줄의 설명, 채점기 메시지가 바뀌고, 랩 코드가 따로 출력하는 진행 문구는 한국어 그대로입니다. `grade-report.json`은 키와 `result` 값이 언어와 상관없이 같고 `title`과 `detail`만 고른 언어로 나옵니다.
 
 ```
    #  부  결과       시간  랩

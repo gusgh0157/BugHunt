@@ -1,4 +1,4 @@
-[한국어](README.md) | プログラムの実行出力とゲーム内のデータは現在韓国語です。本書では日本語に訳して示し、デバッガーに入力する文字列とバイト単位で見る値だけは原文の韓国語のまま残し、括弧内に訳を添えています。
+[한국어](README.md) | プログラムの実行出力は `--lang ja` で日本語になります(「採点」の節を参照。ラボのコードが独自に出す進行メッセージとゲーム内のデータは韓国語のままです)。本書では日本語に訳して示し、デバッガーに入力する文字列とバイト単位で見る値だけは原文の韓国語のまま残し、括弧内に訳を添えています。
 
 # BugHunt — C++ バグ追跡の実習
 
@@ -1040,9 +1040,10 @@ CPU サンプリング プロファイラーは、プログラムをデバッガ
 ```
 
 - `grade.sh` = `grade.sh Debug`: Debug でビルドしてから、ラボ 98 個とチャレンジ 11 個をすべて採点します。`Release`、`ASan` も使えます。チャレンジは表の下のほうの `チャレンジ` 区画に別に表示され、総得点の下に基本ラボとチャレンジの得点が分けて表示されます。
-- `grade.sh Debug 37`: ラボ 70 だけを採点します。`grade.sh Debug C-1` のようにチャレンジを 1 つだけ採点することもできます。
+- `grade.sh Debug 70`: ラボ 70 だけを採点します。`grade.sh Debug C-1` のようにチャレンジを 1 つだけ採点することもできます。
 - `grade.sh Debug labs`: 基本ラボ 98 個だけ、`grade.sh Debug challenges`: チャレンジ 11 個だけを採点します。
-- すでにビルドしてあれば、`bin/Debug/BugHunt --grade`(Windows は `bin\Debug\BugHunt.exe --grade`)で直接実行してもかまいません。`--grade 37`、`--grade C-1`、`--grade challenges` も使えます。IDE でビルドした場合は、その実行ファイルに `--grade` を渡せば OK です。
+- すでにビルドしてあれば、`bin/Debug/BugHunt --grade`(Windows は `bin\Debug\BugHunt.exe --grade`)で直接実行してもかまいません。`--grade 70`、`--grade C-1`、`--grade challenges` も使えます。IDE でビルドした場合は、その実行ファイルに `--grade` を渡せば OK です。
+- 出力言語: `--lang ja` または `--lang ko` を付けます(例: `bin/Debug/BugHunt --lang ja --grade`)。付けなければ環境変数 `BUGHUNT_LANG`(例: `BUGHUNT_LANG=ja ./grade.sh`、Windows は `set BUGHUNT_LANG=ja` の後に `grade.bat`)、次に OS の表示言語に従い、既定は韓国語です。メニュー、ラボのタイトルと症状、`[PASS]`/`[FAIL]` 行の説明、採点器のメッセージが切り替わり、ラボのコードが独自に出力する進行メッセージは韓国語のままです。`grade-report.json` はキーと `result` の値が言語に関係なく同じで、`title` と `detail` だけが選んだ言語になります。
 
 ```
    #  部  結果       時間  ラボ
