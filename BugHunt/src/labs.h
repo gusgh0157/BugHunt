@@ -122,6 +122,13 @@ void sz04_nickname_cut();
 void sz05_float_position();
 void sz06_bestiary();
 void sz07_guild_list();
+// 인터페이스와 상속 (src/inherit)
+void ih01_backstab();
+void ih02_boss_loot();
+void ih03_sniper_tower();
+void ih04_priest_heal();
+void ih05_reward_mail();
+void ih06_mana_potion();
 
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();
@@ -200,3 +207,9 @@ void sz04_nickname_cut_hidden();
 void sz05_float_position_hidden();
 void sz06_bestiary_hidden();
 void sz07_guild_list_hidden();
+void ih01_backstab_hidden();
+void ih02_boss_loot_hidden();
+void ih03_sniper_tower_hidden();
+void ih04_priest_heal_hidden();
+void ih05_reward_mail_hidden();
+void ih06_mana_potion_hidden();

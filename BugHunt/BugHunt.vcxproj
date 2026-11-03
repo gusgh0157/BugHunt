@@ -150,6 +150,12 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\serialize\sz06_bestiary.cpp" />
     <ClCompile Include="src\serialize\sz07_guild_list.cpp" />
     <ClCompile Include="..\third_party\pugixml\src\pugixml.cpp" />
+    <ClCompile Include="src\inherit\ih01_backstab.cpp" />
+    <ClCompile Include="src\inherit\ih02_boss_loot.cpp" />
+    <ClCompile Include="src\inherit\ih03_sniper_tower.cpp" />
+    <ClCompile Include="src\inherit\ih04_priest_heal.cpp" />
+    <ClCompile Include="src\inherit\ih05_reward_mail.cpp" />
+    <ClCompile Include="src\inherit\ih06_mana_potion.cpp" />
     <ClCompile Include="src\containers\ct01_bag_lookup.cpp" />
     <ClCompile Include="src\containers\ct02_party_finder.cpp" />
     <ClCompile Include="src\containers\ct03_leaderboard.cpp" />

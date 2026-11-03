@@ -102,6 +102,13 @@ constexpr LabEntry kLabs[] = {
     { "캐릭터 위치",        "불러올 때마다 캐릭터가 조금씩 움직인다", sz05_float_position, sz05_float_position_hidden },
     { "몬스터 도감",        "패치 뒤 몬스터 HP가 전부 0이다",       sz06_bestiary,     sz06_bestiary_hidden },
     { "길드 목록",          "어떤 길드 이름이 있으면 목록이 통째로 안 열린다", sz07_guild_list, sz07_guild_list_hidden },
+    // 인터페이스와 상속 (최종 위치: 컨테이너 다음, 파일 입출력 앞)
+    { "백스탭",             "등 뒤에서 찔러도 일반 피해만 들어간다", ih01_backstab,     ih01_backstab_hidden },
+    { "보스 전리품",        "보스를 잡아도 희귀 아이템이 안 나온다", ih02_boss_loot,    ih02_boss_loot_hidden },
+    { "저격 탑",            "저격 탑 사거리가 기본 탑과 같다",      ih03_sniper_tower, ih03_sniper_tower_hidden },
+    { "사제의 치유",        "사제의 기본 치유량이 너무 적다",       ih04_priest_heal,  ih04_priest_heal_hidden },
+    { "보상 우편",          "골드 500을 보냈는데 500번 아이템이 왔다", ih05_reward_mail, ih05_reward_mail_hidden },
+    { "마나 물약",          "전사가 파티에 끼면 죽는다",            ih06_mana_potion,  ih06_mana_potion_hidden },
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)
