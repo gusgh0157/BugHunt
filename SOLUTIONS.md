@@ -501,3 +501,107 @@ void recordMatch(Player* p, int points)
 (C++17의 `extract`로 노드를 꺼내 고친 뒤 `insert`해도 된다.)
 **교훈:** `set`/`map`의 키는 const지만, 포인터를 키로 쓰면 가리키는 대상까지 지켜 주지 않는다.
 
+---
+
+# 7부: 성능
+
+7부는 모두 "결과는 맞는데 일을 너무 많이 한다"입니다. 기록표의 **세는 값**이 수정 전후로 어떻게 바뀌는지 함께 적었습니다.
+
+## Lab 48 — vector 앞에서 하나씩 지우기 (O(n²))
+```
+세는 값:     원소 이동 31,996,000번 (메시지 8000개) → 16000개면 약 4배
+핫 경로:     ChatQueue::drain → vector::erase → Message 이동 대입 / memmove
+진짜 원인:   queue_.erase(queue_.begin())는 뒤의 원소를 전부 한 칸씩 당긴다. n개를 이렇게 꺼내면 n²/2번 이동
+```
+**수정:** 지우지 말고 끝까지 읽은 뒤 한 번에 비운다.
+```cpp
+for (const Message& m : queue_)
+    chars += static_cast<long long>(m.text.size());
+queue_.clear();
+```
+(앞에서 꺼내는 일이 잦다면 `std::deque`의 `pop_front`도 된다. 이동 0번.)
+**수정 후:** 원소 이동 0번.
+**교훈:** "앞에서 하나씩 지우기"는 vector에서 가장 흔한 O(n²)다. 크기를 두 배로 해서 시간이나 횟수가 네 배가 되면 의심한다.
+
+## Lab 49 — 큰 객체를 값으로 넘기고 값으로 돌기
+```
+세는 값:     Item 복사 144,000번 = 120개 × 600프레임 × 2
+복사 생성자 중단점의 호출 스택:  (1) drawHud → totalWeight 호출(인자 복사)  (2) totalWeight의 for (Item item : items)
+진짜 원인:   totalWeight(std::vector<Item> items)가 벡터 전체를 복사하고, 범위 for가 원소를 또 하나씩 복사한다.
+             Item마다 200글자 설명 문자열이 있어 복사할 때마다 할당한다
+```
+**수정:**
+```cpp
+int totalWeight(const std::vector<Item>& items)
+...
+for (const Item& item : items)
+```
+**수정 후:** Item 복사 0번. 둘 중 하나만 고치면 72,000번이 남는다.
+**교훈:** 읽기만 하는 큰 인자는 `const&`, 범위 for도 `const auto&`가 기본이다.
+
+## Lab 50 — 루프 안의 s = s + ...
+```
+세는 값:     할당 약 250MB (결과 58KB). 이벤트를 2배로 하면 약 4배
+핫 경로:     exportLog → operator+ → 문자열 복사(memcpy), 할당/해제
+진짜 원인:   log = log + "[" + ... 는 매 줄마다 지금까지의 log 전체를 복사한 임시 문자열을 만들고, 이어 붙일 때마다 또 커진다.
+             4000번째 줄을 붙일 때는 6만 글자가 여러 번 복사된다
+```
+**수정:** 기존 문자열 뒤에 붙인다(`+=`는 용량이 모자랄 때만 키운다).
+```cpp
+log += "[";
+log += toText(e.tick);
+log += "] hit ";
+log += toText(e.amount);
+log += "\n";
+```
+(`log += "[" + toText(e.tick) + ... ;`처럼 한 줄짜리 임시만 만드는 것도 통과한다. 크기를 안다면 `log.reserve(...)`로 할당을 한 번으로 줄일 수 있다.)
+**수정 후:** Release 기준 할당 20번, 약 200KB. Debug는 반복자 디버깅용 보조 할당 때문에 횟수가 더 많지만 결과 길이에 비례한다.
+**교훈:** 문자열을 누적할 때 `s = s + x`는 O(n²), `s += x`는 분할 상환 O(n)이다.
+
+## Lab 51 — std::endl은 매번 flush
+```
+세는 값:     flush 5002번 (오브젝트 5000개 + 머리줄 + 마지막 flush)
+FakeLogFile::sync 중단점의 호출 스택:  writeSave의 << std::endl 두 줄
+진짜 원인:   std::endl = '\n' + flush. 줄마다 디스크 쓰기를 한다
+```
+**수정:**
+```cpp
+out << "SAVE v3 " << objects.size() << '\n';
+...
+out << o.id << ' ' << o.x << ' ' << o.y << '\n';
+```
+마지막의 `out.flush()`는 남긴다.
+**수정 후:** flush 1번. (마지막 flush까지 지우면 0번이 되어 FAIL. 다 쓴 뒤 한 번은 내보내야 한다.)
+**교훈:** 줄바꿈은 `'\n'`, flush는 필요할 때 한 번. 콘솔 출력도 같다.
+
+## Lab 52 — 열 우선으로 도는 행 우선 배열
+```
+세는 값:     건너뛴 접근 3,999,999번 (거의 모든 접근)
+조건부 중단점 (jumps_ < 5):  row가 0, 1, 2...로 바뀌고 col은 그대로 → index가 cols(2000)씩, 8000바이트씩 건너뜀
+진짜 원인:   칸은 한 행씩 이어서 놓여 있는데 countFog는 열을 바깥, 행을 안쪽 반복으로 돈다.
+             매 접근이 다른 캐시 줄이라 메모리에서 새로 읽어 온다. reveal은 행 우선이라 빠르다
+```
+**수정:** 반복 순서를 바꾼다.
+```cpp
+for (int r = 0; r < map.rows(); ++r)
+{
+    for (int c = 0; c < map.cols(); ++c)
+```
+**수정 후:** 건너뛴 접근 0번.
+**교훈:** 2차원 배열은 메모리에 놓인 순서대로 돈다. 프로파일러는 "countFog가 느리다"까지만 알려 주고, 왜 느린지는 같은 일을 하는 reveal과 비교해야 보인다.
+
+## Lab 53 — shared_ptr를 값으로 넘기고 값으로 돌기
+```
+세는 값:     한 몬스터를 동시에 붙잡은 shared_ptr 최대 3개 (목록 + 범위 for의 m + threatOf의 인자)
+조건부 중단점 (use_count() > 1)의 호출 스택:  mostDangerous의 for (MonsterPtr m : monsters), threatOf(MonsterPtr monster)
+진짜 원인:   shared_ptr 복사마다 참조 카운트를 원자적으로 올리고 내린다. 3000마리 × 300틱 × 2번
+```
+**수정:**
+```cpp
+int threatOf(const MonsterPtr& monster)
+...
+for (const MonsterPtr& m : monsters)
+```
+(`threatOf(const Monster& monster)`처럼 소유권과 상관없는 함수는 객체 참조를 받아도 된다.)
+**수정 후:** 최대 1개. 둘 중 하나만 고치면 2개가 남는다. `best = m;`은 가장 위험한 몬스터가 바뀔 때만 복사하므로 그대로 두어도 된다.
+**교훈:** 소유권을 넘기거나 나눠 가질 때만 `shared_ptr`를 값으로 넘긴다. 읽기만 하면 `const&`나 객체 참조로 충분하다.

@@ -91,6 +91,12 @@ void ct05_dungeon_doors();
 void ct06_nameplates();
 void ct07_season_ranking();
 void pt07_rage_timer();
+void pf01_chat_queue();
+void pf02_loadout();
+void pf03_combat_log();
+void pf04_save_log();
+void pf05_fog_map();
+void pf06_aggro_scan();
 
 // 채점용 숨은 테스트 케이스: 화면에 나오는 것과 다른 데이터로 같은 코드를 검사한다.
 // 각 랩 파일 맨 아래 "채점용 숨은 테스트" region에 있다. (src/grader.cpp 참고)
@@ -121,3 +127,9 @@ void ct05_dungeon_doors_hidden();
 void ct06_nameplates_hidden();
 void ct07_season_ranking_hidden();
 void pt07_rage_timer_hidden();
+void pf01_chat_queue_hidden();
+void pf02_loadout_hidden();
+void pf03_combat_log_hidden();
+void pf04_save_log_hidden();
+void pf05_fog_map_hidden();
+void pf06_aggro_scan_hidden();

@@ -73,6 +73,13 @@ constexpr LabEntry kLabs[] = {
     { "시즌 랭킹",          "우승자가 1위에 오르지 않는다",         ct07_season_ranking, ct07_season_ranking_hidden },
     // 람다 캡처 (임시 번호, 재배치 때 포인터 부로 옮긴다)
     { "분노 버프",          "분노가 끝나도 공격력이 원래대로 안 돌아온다", pt07_rage_timer, pt07_rage_timer_hidden },
+    // 성능 - 틀리지는 않지만 느리다
+    { "채팅 큐",            "메시지가 몰리면 서버가 굳는다",        pf01_chat_queue,   pf01_chat_queue_hidden },
+    { "장비 무게 HUD",      "장비가 많으면 프레임이 떨어진다",      pf02_loadout,      pf02_loadout_hidden },
+    { "전투 기록 내보내기", "긴 레이드일수록 내보내기가 오래 걸린다", pf03_combat_log, pf03_combat_log_hidden },
+    { "세이브 파일",        "큰 맵에서 저장이 몇 초씩 걸린다",      pf04_save_log,     pf04_save_log_hidden },
+    { "전장의 안개",        "큰 맵에서만 프레임이 뚝 떨어진다",     pf05_fog_map,      pf05_fog_map_hidden },
+    { "어그로 검사",        "몬스터가 많으면 서버 틱이 밀린다",     pf06_aggro_scan,   pf06_aggro_scan_hidden },
 };
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
@@ -80,6 +87,7 @@ constexpr int kAdvancedLabEnd = 20;
 constexpr int kFlowLabEnd = 28;
 constexpr int kPointerLabEnd = 34;
 constexpr int kHangLabEnd = 39;
+constexpr int kContainerLabEnd = 47;
 
 int partOf(int labNumber)
 {
@@ -88,7 +96,8 @@ int partOf(int labNumber)
     if (labNumber <= kFlowLabEnd) return 3;
     if (labNumber <= kPointerLabEnd) return 4;
     if (labNumber <= kHangLabEnd) return 5;
-    return 6;
+    if (labNumber <= kContainerLabEnd) return 6;
+    return 7;
 }
 
 const char* buildName()
@@ -119,6 +128,8 @@ void printMenu()
             std::cout << "\n[5부] 멈춤 - 무한루프와 데드락. 멈추면 디버그 → 모두 중단(Ctrl+Alt+Break)\n";
         else if (i == kHangLabEnd)
             std::cout << "\n[6부] 컨테이너 - 표준 컨테이너와 알고리즘의 함정\n";
+        else if (i == kContainerLabEnd)
+            std::cout << "\n[7부] 성능 - 틀리지 않지만 느리다. Release + 성능 프로파일러(Alt+F2)\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }

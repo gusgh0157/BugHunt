@@ -89,6 +89,7 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\labs.h" />
+    <ClInclude Include="src\perf\perf_kit.h" />
     <ClInclude Include="src\grader.h" />
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +143,12 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\containers\ct06_nameplates.cpp" />
     <ClCompile Include="src\containers\ct07_season_ranking.cpp" />
     <ClCompile Include="src\pointers\pt07_rage_timer.cpp" />
+    <ClCompile Include="src\perf\pf01_chat_queue.cpp" />
+    <ClCompile Include="src\perf\pf02_loadout.cpp" />
+    <ClCompile Include="src\perf\pf03_combat_log.cpp" />
+    <ClCompile Include="src\perf\pf04_save_log.cpp" />
+    <ClCompile Include="src\perf\pf05_fog_map.cpp" />
+    <ClCompile Include="src\perf\pf06_aggro_scan.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
