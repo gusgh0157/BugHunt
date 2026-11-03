@@ -191,7 +191,7 @@ static_assert(i18n::allTranslated(kLabs, [](const LabEntry& e) { return e.title;
 static_assert(i18n::allTranslated(kChallenges, [](const ChallengeEntry& e) { return e.title; }) && i18n::allTranslated(kChallenges, [](const ChallengeEntry& e) { return e.symptom; }),
               "kChallenges에 빈 번역이 있다");
 
-constexpr int kChallengePart = static_cast<int>(std::size(kParts)) + 1;   // grade-report.json의 part (마지막 부 다음 번호)
+constexpr int kChallengePart = 0;   // grade-report.json의 part. 챌린지는 0 (네 판 공통)
 
 int partOf(int labNumber)
 {
