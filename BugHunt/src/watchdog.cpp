@@ -40,12 +40,14 @@ void runWithWatchdog(const char* what, const std::function<void()>& work, int ti
     std::unique_lock<std::mutex> lock(state->mutex);
     if (platform::debuggerAttached())
     {
-        std::cout << "  (디버거가 붙어 있어 감시 타이머를 껐습니다. 멈춘 것 같으면 디버거에서 모두 중단(break all)하세요)\n";
+        std::cout << i18n::L("  (디버거가 붙어 있어 감시 타이머를 껐습니다. 멈춘 것 같으면 디버거에서 모두 중단(break all)하세요)\n",
+                             "  (デバッガーが接続されているので監視タイマーを止めました。止まったようならデバッガーで「すべて中断」(break all)してください)\n");
         state->finished.wait(lock, [&] { return state->done; });
     }
     else if (!state->finished.wait_for(lock, std::chrono::milliseconds(timeoutMs), [&] { return state->done; }))
     {
-        std::cout << "  [FAIL] " << what << "  응답 없음 (" << timeoutMs << " ms 초과)\n" << std::flush;
+        std::cout << "  [FAIL] " << i18n::tr(what) << i18n::L("  응답 없음 (", "  応答なし (") << timeoutMs
+                  << i18n::L(" ms 초과)\n", " ms 超過)\n") << std::flush;
         std::_Exit(kExitTimeout);   // 멈춘 작업 스레드는 프로세스와 함께 정리된다
     }
     lock.unlock();

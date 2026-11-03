@@ -3,6 +3,8 @@
 #include <functional>
 #include <iostream>
 
+#include "i18n/i18n.h"
+
 // 랩 프로세스의 종료 코드. 채점기(--grade)가 이 값으로 판정한다.
 //   0 = 모든 검사 통과, 10 = [FAIL]이 하나라도 있음, 11 = 감시 타이머 초과(응답 없음)
 //   그 밖의 값(0xC0000005 등)은 크래시로 본다.
@@ -22,8 +24,8 @@ bool expect(const char* what, const T& expected, const T& actual)
     if (!ok)
         ++g_failCount;
     std::cout << std::boolalpha
-              << (ok ? "  [PASS] " : "  [FAIL] ") << what
-              << "  (기대: " << expected << ", 실제: " << actual << ")\n";
+              << (ok ? "  [PASS] " : "  [FAIL] ") << i18n::tr(what)
+              << i18n::L("  (기대: ", "  (期待: ") << expected << i18n::L(", 실제: ", ", 実際: ") << actual << ")\n";
     return ok;
 }
 

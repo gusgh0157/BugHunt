@@ -101,12 +101,15 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClInclude Include="src\challenge\c3_hero.h" />
     <ClInclude Include="src\challenge\c3_systems.h" />
     <ClInclude Include="src\grader.h" />
+    <ClInclude Include="src\i18n\i18n.h" />
+    <None Include="src\i18n\strings_expect.inc" />
     <ClInclude Include="src\platform\platform.h" />
     <ClInclude Include="src\platform\asan_detect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\grader.cpp" />
+    <ClCompile Include="src\i18n\i18n.cpp" />
     <ClCompile Include="src\watchdog.cpp" />
     <ClCompile Include="src\async\as01_loading.cpp" />
     <ClCompile Include="src\async\as02_crafting.cpp" />

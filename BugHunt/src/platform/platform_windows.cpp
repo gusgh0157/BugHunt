@@ -1,6 +1,8 @@
 #ifdef _WIN32
 #include "platform.h"
 
+#include "../i18n/i18n.h"
+
 #include <windows.h>
 #include <chrono>
 #include <cstdio>
@@ -65,7 +67,7 @@ int __cdecl reportHook(int reportType, char* message, int* returnValue)
 void invalidParameterHandler(const wchar_t*, const wchar_t*, const wchar_t*, unsigned int, uintptr_t)
 {
     std::cout.flush();
-    std::fprintf(stderr, "\n[CRASH] CRT 함수에 잘못된 매개변수가 전달됨\n");
+    std::fputs(i18n::L("\n[CRASH] CRT 함수에 잘못된 매개변수가 전달됨\n", "\n[CRASH] CRT 関数に不正な引数が渡された\n"), stderr);
     std::fflush(stderr);
     TerminateProcess(GetCurrentProcess(), kStatusInvalidParameter);
 }
@@ -75,6 +77,23 @@ void invalidParameterHandler(const wchar_t*, const wchar_t*, const wchar_t*, uns
 void platform::initConsole()
 {
     SetConsoleOutputCP(CP_UTF8);
+}
+
+std::string platform::envVar(const char* name)
+{
+    char value[256];
+    const DWORD n = GetEnvironmentVariableA(name, value, sizeof(value));
+    return n > 0 && n < sizeof(value) ? std::string(value, n) : std::string();
+}
+
+std::string platform::osLanguage()
+{
+    switch (PRIMARYLANGID(GetUserDefaultUILanguage()))
+    {
+    case LANG_JAPANESE: return "ja";
+    case LANG_KOREAN: return "ko";
+    default: return "";
+    }
 }
 
 void platform::prepareCrashExit()
@@ -132,7 +151,7 @@ platform::ProcessResult platform::runSelf(const std::vector<std::string>& args, 
         CloseHandle(readPipe);
         CloseHandle(writePipe);
         result.exitCode = static_cast<int>(GetLastError());
-        result.output = "자식 프로세스를 시작하지 못했다";
+        result.output = i18n::L("자식 프로세스를 시작하지 못했다", "子プロセスを開始できなかった");
         return result;
     }
     CloseHandle(writePipe);   // 자식이 끝나면 파이프가 닫혀 읽기 스레드가 끝나도록
@@ -166,17 +185,17 @@ platform::ProcessResult platform::runSelf(const std::vector<std::string>& args, 
 std::string platform::describeCrash(int exitCode)
 {
     const DWORD code = static_cast<DWORD>(exitCode);
-    const char* name = "비정상 종료";
+    const char* name = i18n::L("비정상 종료", "異常終了");
     switch (code)
     {
-    case 0xC0000005: name = "액세스 위반"; break;
-    case 0xC00000FD: name = "스택 오버플로"; break;
-    case 0xC0000374: name = "힙 손상"; break;
-    case 0xC0000409: name = "빠른 실패(__fastfail) / 스택 버퍼 오버런"; break;
-    case 0xC0000094: name = "정수를 0으로 나눔"; break;
-    case kStatusAssertion: name = "Debug 어설션 실패"; break;
-    case kStatusInvalidParameter: name = "CRT 잘못된 매개변수"; break;
-    case 3: name = "abort() 호출 (처리되지 않은 예외 등)"; break;
+    case 0xC0000005: name = i18n::L("액세스 위반", "アクセス違反"); break;
+    case 0xC00000FD: name = i18n::L("스택 오버플로", "スタックオーバーフロー"); break;
+    case 0xC0000374: name = i18n::L("힙 손상", "ヒープ破損"); break;
+    case 0xC0000409: name = i18n::L("빠른 실패(__fastfail) / 스택 버퍼 오버런", "高速失敗(__fastfail) / スタックバッファーオーバーラン"); break;
+    case 0xC0000094: name = i18n::L("정수를 0으로 나눔", "整数を 0 で除算"); break;
+    case kStatusAssertion: name = i18n::L("Debug 어설션 실패", "Debug アサーション失敗"); break;
+    case kStatusInvalidParameter: name = i18n::L("CRT 잘못된 매개변수", "CRT 不正な引数"); break;
+    case 3: name = i18n::L("abort() 호출 (처리되지 않은 예외 등)", "abort() の呼び出し (処理されない例外など)"); break;
     default: break;
     }
     char hex[16];

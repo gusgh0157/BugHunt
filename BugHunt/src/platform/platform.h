@@ -20,6 +20,12 @@ bool debuggerAttached();
 // 디버거의 스레드 목록에 보일 이름을 붙인다. (지원하지 않으면 아무 일도 하지 않는다)
 void nameThisThread(const char* name);
 
+// 운영체제의 표시 언어: "ja", "ko" 등 앞 두 글자(모르면 ""). 실행 출력 언어의 기본값에 쓴다 (src/i18n)
+std::string osLanguage();
+
+// 환경 변수 값 (없으면 ""). MSVC가 std::getenv에 사용 중단 경고를 내서 여기로 모은다.
+std::string envVar(const char* name);
+
 // 빌드 구성 이름: "Debug", "Release", "ASan"
 const char* buildName();
 

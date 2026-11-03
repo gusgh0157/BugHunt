@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <string>
 
 // 채점기 구조
@@ -24,7 +25,8 @@ using ChildResult = platform::ProcessResult;
 // 자식 프로세스 실행은 운영체제마다 다르므로 src/platform에 맡긴다.
 ChildResult runChild(int labId, bool hiddenCase)
 {
-    std::vector<std::string> args = { "--grade-child", std::to_string(labId) };
+    // 자식도 같은 언어로 출력하게 한다 (title, detail이 고른 언어로 나오도록)
+    std::vector<std::string> args = { "--lang", i18n::code(), "--grade-child", std::to_string(labId) };
     if (hiddenCase)
         args.push_back("--hidden");
     return platform::runSelf(args, kChildTimeoutMs);
@@ -106,9 +108,9 @@ struct Verdict
 Verdict judge(const ChildResult& r, bool hiddenCase)
 {
     // 평소 데이터는 통과했는데 숨은 케이스에서 실패 = 증상만 가린 수정 (BugHunt 네 판 공통 문구)
-    const std::string prefix = hiddenCase ? "증상은 사라졌지만 원인이 남아 있음 (숨은 케이스) " : "";
+    const std::string prefix = hiddenCase ? i18n::L("증상은 사라졌지만 원인이 남아 있음 (숨은 케이스) ", "症状は消えたが原因が残っている (隠しケース) ") : "";
     if (r.timedOut)
-        return { "TIMEOUT", prefix + "채점기 시간 제한 " + std::to_string(kChildTimeoutMs) + " ms 초과" };
+        return { "TIMEOUT", prefix + i18n::L("채점기 시간 제한 ", "採点器の制限時間 ") + std::to_string(kChildTimeoutMs) + i18n::L(" ms 초과", " ms 超過") };
 
     switch (r.exitCode)
     {
@@ -210,23 +212,36 @@ int runGrader(const std::vector<GradeTarget>& targets, int totalCount, const cha
 {
     platform::prepareCrashExit();
 
-    std::cout << "=== BugHunt 채점 [" << buildName << "] - 랩 " << targets.size()
-              << "개 (전체 " << totalCount << "개) ===\n"
-              << "  랩마다 프로세스를 따로 띄워 실행합니다. 숨은 케이스가 있는 랩은 다른 데이터로 한 번 더 실행합니다.\n\n"
-              << "    #  부  결과       시간  랩\n";
+    std::cout << i18n::L("=== BugHunt 채점 [", "=== BugHunt 採点 [") << buildName << i18n::L("] - 랩 ", "] - ラボ ") << targets.size()
+              << i18n::L("개 (전체 ", " 個 (全 ") << totalCount << i18n::L("개) ===\n", " 個) ===\n")
+              << i18n::L("  랩마다 프로세스를 따로 띄워 실행합니다. 숨은 케이스가 있는 랩은 다른 데이터로 한 번 더 실행합니다.\n\n",
+                         "  ラボごとに別のプロセスで実行します。隠しケースがあるラボは別のデータでもう一度実行します。\n\n")
+              << i18n::L("    #  부  결과       시간  랩\n", "    #  部    結果       時間  ラボ\n");
 
     std::vector<LabRecord> records;
     int passed = 0;
     int challengeCount = 0;
     int challengePassed = 0;
+    std::set<std::string> missing;   // 일본어 번역이 없는 expect 설명 (자식 출력의 "[NO-JA] " 줄)
+    auto collectMissing = [&missing](const std::string& output) {
+        const std::string mark = i18n::kMissingMark;
+        for (size_t at = output.find(mark); at != std::string::npos; at = output.find(mark, at + 1))
+        {
+            const size_t b = at + mark.size();
+            const size_t e = output.find('\n', b);
+            missing.insert(trim(output.substr(b, e == std::string::npos ? std::string::npos : e - b)));
+        }
+    };
     for (const GradeTarget& t : targets)
     {
         ChildResult r = runChild(t.id, false);
+        collectMissing(r.output);
         Verdict v = judge(r, false);
         long long ms = r.ms;
         if (std::string(v.result) == "PASS" && t.hasHiddenCase)
         {
             const ChildResult hidden = runChild(t.id, true);
+            collectMissing(hidden.output);
             v = judge(hidden, true);
             ms += hidden.ms;
         }
@@ -238,13 +253,17 @@ int runGrader(const std::vector<GradeTarget>& targets, int totalCount, const cha
         if (challenge)
         {
             if (challengeCount == 0)
-                std::cout << "  ---- 챌린지 ----\n";
+                std::cout << i18n::L("  ---- 챌린지 ----\n", "  ---- チャレンジ ----\n");
             ++challengeCount;
             if (pass)
                 ++challengePassed;
         }
 
-        const std::string part = challenge ? " C " : std::to_string(t.part) + "부";
+        std::string part = challenge ? " C " : std::to_string(t.part) + i18n::L("부", "部");
+        if (!challenge && i18n::current() == i18n::Lang::ja)
+            part = "第" + part;
+        else if (challenge && i18n::current() == i18n::Lang::ja)
+            part = "  " + part;
         char line[96];
         std::snprintf(line, sizeof(line), "  %3s  %s  %-7s %6lld ms  ", t.label.c_str(), part.c_str(), v.result, ms);
         std::cout << line << t.title;
@@ -258,10 +277,19 @@ int runGrader(const std::vector<GradeTarget>& targets, int totalCount, const cha
     const char* reportPath = "grade-report.json";
     writeJson(reportPath, records, passed);
 
-    std::cout << "\n총점: " << passed << "/" << targets.size() << '\n';
+    std::cout << i18n::L("\n총점: ", "\n総合点: ") << passed << "/" << targets.size() << '\n';
     if (challengeCount > 0 && challengeCount < static_cast<int>(targets.size()))
-        std::cout << "  (기본 랩 " << passed - challengePassed << "/" << targets.size() - challengeCount << ", 챌린지 "
+        std::cout << i18n::L("  (기본 랩 ", "  (基本ラボ ") << passed - challengePassed << "/" << targets.size() - challengeCount
+                  << i18n::L(", 챌린지 ", ", チャレンジ ")
                   << challengePassed << "/" << challengeCount << ")\n";
-    std::cout << "결과 파일: " << reportPath << '\n';
+    std::cout << i18n::L("결과 파일: ", "結果ファイル: ") << reportPath << '\n';
+    if (!missing.empty())
+    {
+        // 빠진 번역은 판정에 영향을 주지 않지만, 채점 끝에 모아서 눈에 띄게 알린다
+        std::cout << i18n::L("\n일본어 번역이 없는 문자열 ", "\n日本語訳がない文字列 ") << missing.size()
+                  << i18n::L("개 (src/i18n/strings_expect.inc에 넣으세요):\n", " 個 (src/i18n/strings_expect.inc に追加してください):\n");
+        for (const std::string& m : missing)
+            std::cout << "  " << i18n::kMissingMark << m << '\n';
+    }
     return passed == static_cast<int>(targets.size()) ? 0 : 1;
 }

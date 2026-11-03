@@ -1,8 +1,11 @@
 #ifndef _WIN32
 #include "platform.h"
 
+#include "../i18n/i18n.h"
+
 #include <chrono>
 #include <csignal>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <string>
@@ -42,6 +45,24 @@ std::string exePath()
 void platform::initConsole()
 {
     // 대부분의 터미널은 이미 UTF-8이다.
+}
+
+std::string platform::envVar(const char* name)
+{
+    const char* value = std::getenv(name);
+    return value != nullptr ? std::string(value) : std::string();
+}
+
+std::string platform::osLanguage()
+{
+    // POSIX 로캘 변수의 우선순위: LC_ALL > LC_MESSAGES > LANG (예: "ja_JP.UTF-8")
+    for (const char* name : { "LC_ALL", "LC_MESSAGES", "LANG" })
+    {
+        const char* value = std::getenv(name);
+        if (value != nullptr && value[0] != '\0')
+            return std::string(value).substr(0, 2);
+    }
+    return "";
 }
 
 void platform::prepareCrashExit()
@@ -99,7 +120,7 @@ platform::ProcessResult platform::runSelf(const std::vector<std::string>& args, 
     if (pipe(fds) != 0)
     {
         result.exitCode = 127;
-        result.output = "파이프를 만들지 못했다";
+        result.output = i18n::L("파이프를 만들지 못했다", "パイプを作れなかった");
         return result;
     }
 
@@ -119,7 +140,7 @@ platform::ProcessResult platform::runSelf(const std::vector<std::string>& args, 
     {
         close(fds[0]);
         result.exitCode = 127;
-        result.output = "자식 프로세스를 시작하지 못했다";
+        result.output = i18n::L("자식 프로세스를 시작하지 못했다", "子プロセスを開始できなかった");
         return result;
     }
 
@@ -160,19 +181,19 @@ platform::ProcessResult platform::runSelf(const std::vector<std::string>& args, 
 std::string platform::describeCrash(int exitCode)
 {
     if (exitCode >= 0)
-        return "비정상 종료 (종료 코드 " + std::to_string(exitCode) + ")";
+        return i18n::L("비정상 종료 (종료 코드 ", "異常終了 (終了コード ") + std::to_string(exitCode) + ")";
     const int sig = -exitCode;
-    const char* name = "신호로 종료";
+    const char* name = i18n::L("신호로 종료", "シグナルで終了");
     switch (sig)
     {
-    case SIGSEGV: name = "SIGSEGV 잘못된 메모리 접근"; break;
-    case SIGBUS: name = "SIGBUS 잘못된 메모리 접근"; break;
-    case SIGFPE: name = "SIGFPE 산술 오류 (0으로 나눔 등)"; break;
-    case SIGABRT: name = "SIGABRT abort() 호출 (처리되지 않은 예외 등)"; break;
-    case SIGILL: name = "SIGILL 잘못된 명령"; break;
-    case SIGKILL: name = "SIGKILL 강제 종료"; break;
+    case SIGSEGV: name = i18n::L("SIGSEGV 잘못된 메모리 접근", "SIGSEGV 不正なメモリアクセス"); break;
+    case SIGBUS: name = i18n::L("SIGBUS 잘못된 메모리 접근", "SIGBUS 不正なメモリアクセス"); break;
+    case SIGFPE: name = i18n::L("SIGFPE 산술 오류 (0으로 나눔 등)", "SIGFPE 算術エラー (0 での除算など)"); break;
+    case SIGABRT: name = i18n::L("SIGABRT abort() 호출 (처리되지 않은 예외 등)", "SIGABRT abort() の呼び出し (処理されない例外など)"); break;
+    case SIGILL: name = i18n::L("SIGILL 잘못된 명령", "SIGILL 不正な命令"); break;
+    case SIGKILL: name = i18n::L("SIGKILL 강제 종료", "SIGKILL 強制終了"); break;
     default: break;
     }
-    return std::string(name) + " (신호 " + std::to_string(sig) + ")";
+    return std::string(name) + i18n::L(" (신호 ", " (シグナル ") + std::to_string(sig) + ")";
 }
 #endif

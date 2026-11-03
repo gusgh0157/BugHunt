@@ -26,10 +26,10 @@ constexpr unsigned char kFreedByte = 0xEE;
 constexpr unsigned char kGuardByte = 0xBD;
 constexpr std::size_t kGuardSize = 16;
 
-[[noreturn]] void fail(const char* what, const char* checker = "메모리 검사")
+[[noreturn]] void fail(const char* what, const char* checker = nullptr)
 {
     std::fflush(stdout);
-    std::fprintf(stderr, "\n[CRASH] %s: %s\n", checker, what);
+    std::fprintf(stderr, "\n[CRASH] %s: %s\n", checker != nullptr ? checker : i18n::L("메모리 검사", "メモリ検査"), what);
     std::fflush(stderr);
     std::abort();
 }
@@ -39,14 +39,16 @@ void* bughunt::recycledStorage(std::size_t bytes)
 {
     alignas(std::max_align_t) static unsigned char pool[4096];
     if (bytes > sizeof(pool))
-        fail("recycledStorage: 요청이 너무 크다");
+        fail(i18n::L("recycledStorage: 요청이 너무 크다", "recycledStorage: 要求が大きすぎる"));
     std::memset(pool, kFreshByte, bytes);   // 앞 사용자가 남긴 값
     return pool;
 }
 
 void bughunt::invalidComparator()
 {
-    fail("비교 함수가 엄격한 약순서(strict weak ordering)를 어겼다: comp(a, a)가 true이거나, comp(a, b)와 comp(b, a)가 둘 다 true", "정렬 검사");
+    fail(i18n::L("비교 함수가 엄격한 약순서(strict weak ordering)를 어겼다: comp(a, a)가 true이거나, comp(a, b)와 comp(b, a)가 둘 다 true",
+                 "比較関数が狭義の弱順序(strict weak ordering)を破った: comp(a, a) が true か、comp(a, b) と comp(b, a) が両方とも true"),
+         i18n::L("정렬 검사", "ソート検査"));
 }
 
 #if !defined(BUGHUNT_ASAN)
@@ -114,16 +116,18 @@ void release(void* p, Kind kind)
     auto* header = reinterpret_cast<Header*>(raw);
 
     if (header->magic == kFreedMagic)
-        fail("이미 해제한 메모리를 다시 해제했다 (이중 해제)");
+        fail(i18n::L("이미 해제한 메모리를 다시 해제했다 (이중 해제)", "解放済みのメモリをもう一度解放した (二重解放)"));
     if (header->magic != kAliveMagic)
-        fail("new로 받은 주소가 아닌 곳을 해제했다 (new[]로 만든 배열을 delete로 지웠거나, 잘못된 포인터)");
+        fail(i18n::L("new로 받은 주소가 아닌 곳을 해제했다 (new[]로 만든 배열을 delete로 지웠거나, 잘못된 포인터)",
+                     "new で受け取ったアドレスではない場所を解放した (new[] で作った配列を delete で消したか、不正なポインター)"));
     if (header->kind != kind)
-        fail(kind == Kind::Single ? "new[]로 만든 배열을 delete로 해제했다 (delete[]를 써야 한다)"
-                                  : "new로 만든 객체를 delete[]로 해제했다 (delete를 써야 한다)");
+        fail(kind == Kind::Single ? i18n::L("new[]로 만든 배열을 delete로 해제했다 (delete[]를 써야 한다)", "new[] で作った配列を delete で解放した (delete[] を使うべき)")
+                                  : i18n::L("new로 만든 객체를 delete[]로 해제했다 (delete를 써야 한다)", "new で作ったオブジェクトを delete[] で解放した (delete を使うべき)"));
     for (std::size_t i = 0; i < kGuardSize; ++i)
     {
         if (user[header->size + i] != kGuardByte)
-            fail("할당한 크기를 넘어서 썼다 (버퍼 오버런). 블록 바로 뒤 경계가 바뀌어 있다");
+            fail(i18n::L("할당한 크기를 넘어서 썼다 (버퍼 오버런). 블록 바로 뒤 경계가 바뀌어 있다",
+                         "確保したサイズを超えて書いた (バッファーオーバーラン)。ブロック直後の境界が変わっている"));
     }
 
     header->magic = kFreedMagic;
