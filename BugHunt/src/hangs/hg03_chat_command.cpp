@@ -1,0 +1,77 @@
+#include "../labs.h"
+#include <string>
+#include <vector>
+
+// 채팅 명령어. "/party invite Kael" 같은 입력을 공백으로 잘라 단어 목록으로 만든다.
+// 공백이 여러 개 연달아 있어도 빈 단어는 만들지 않는다.
+namespace hang3
+{
+std::vector<std::string> splitCommand(const std::string& line)
+{
+    std::vector<std::string> words;
+    std::string current;
+
+    size_t i = 0;
+    while (i < line.size())
+    {
+        const char c = line[i];
+        if (c == ' ')
+        {
+            if (!current.empty())
+            {
+                words.push_back(current);
+                current.clear();
+            }
+            continue;
+        }
+        current += c;
+        ++i;
+    }
+    if (!current.empty())
+        words.push_back(current);
+    return words;
+}
+}
+
+void hg03_chat_command()
+{
+    std::vector<std::string> words;
+
+    runWithWatchdog("채팅 명령어 분석", [&] {
+        words = hang3::splitCommand("/party invite Kael");
+    });
+
+    expect("단어 수", 3, static_cast<int>(words.size()));
+    expect("초대할 이름", std::string("Kael"), words.size() == 3 ? words[2] : std::string());
+}
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+// 멈추면 모두 중단(Ctrl+Alt+Break) → 스레드 창에서 "랩 작업 스레드". 지역 창에서 i, c, current, words를 보세요.
+// F10을 여러 번 눌러도 i가 바뀌나요?
+#pragma endregion
+
+#pragma region 힌트 2
+// 반복이 한 바퀴 돌 때 i가 커지는 줄은 어디인가요? 공백을 만났을 때 노란 화살표가 그 줄을 지나가나요?
+// 노란 화살표를 끌어서(다음 문 설정, Ctrl+Shift+F10) ++i; 줄로 옮긴 뒤 F5를 눌러 보세요. 무엇이 달라지나요?
+#pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void hg03_chat_command_hidden()
+{
+    std::vector<std::string> a, b;
+    runWithWatchdog("채팅 명령어 분석 (숨은 케이스)", [&] {
+        a = hang3::splitCommand("  /w   Mira  see you there ");
+        b = hang3::splitCommand("/logout");
+    });
+    expect("단어 수 (공백 여러 개)", 5, static_cast<int>(a.size()));
+    expect("두 번째 단어", std::string("Mira"), a.size() > 1 ? a[1] : std::string());
+    expect("마지막 단어", std::string("there"), a.empty() ? std::string() : a.back());
+    expect("한 단어 명령", 1, static_cast<int>(b.size()));
+}
+#pragma endregion

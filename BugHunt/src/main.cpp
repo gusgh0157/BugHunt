@@ -57,6 +57,12 @@ constexpr LabEntry kLabs[] = {
     { "전리품 패킷",        "받은 아이템 개수가 엉망이다",          pt04_loot_packet,  pt04_loot_packet_hidden },
     { "장비 공격력",        "맨손 파티원에서 죽는다",               pt05_equipment,    pt05_equipment_hidden },
     { "길드 해산",          "길드를 내려도 메모리가 남는다",        pt06_guild,        pt06_guild_hidden },
+    // 5부: 멈춤 - 무한루프와 데드락
+    { "스킬 쿨다운",        "파이어볼 쿨다운 계산에서 멈춘다",      hg01_cooldown,     hg01_cooldown_hidden },
+    { "부활 카운트다운",    "부활 알림을 세다가 멈춘다",            hg02_respawn,      hg02_respawn_hidden },
+    { "채팅 명령어",        "명령어를 입력하면 멈춘다",             hg03_chat_command, hg03_chat_command_hidden },
+    { "자동 이동 경로",     "숲을 경로에 넣으면 멈춘다",            hg04_route,        hg04_route_hidden },
+    { "동시 거래",          "두 사람이 서로 팔면 둘 다 멈춘다",     hg05_trade,        hg05_trade_hidden },
 };
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
@@ -69,7 +75,8 @@ int partOf(int labNumber)
     if (labNumber <= kBasicLabCount) return 1;
     if (labNumber <= kAdvancedLabEnd) return 2;
     if (labNumber <= kFlowLabEnd) return 3;
-    return 4;
+    if (labNumber <= kPointerLabEnd) return 4;
+    return 5;
 }
 
 const char* buildName()
@@ -96,6 +103,8 @@ void printMenu()
             std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 F10/F11로 따라가세요\n";
         else if (i == kFlowLabEnd)
             std::cout << "\n[4부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요\n";
+        else if (i == kPointerLabEnd)
+            std::cout << "\n[5부] 멈춤 - 무한루프와 데드락. 멈추면 디버그 → 모두 중단(Ctrl+Alt+Break)\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }

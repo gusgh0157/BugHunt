@@ -94,6 +94,7 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\grader.cpp" />
+    <ClCompile Include="src\watchdog.cpp" />
     <ClCompile Include="src\basics\cs01_profile.cpp" />
     <ClCompile Include="src\basics\cs02_quickslot.cpp" />
     <ClCompile Include="src\basics\cs03_battle_log.cpp" />
@@ -128,6 +129,11 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\pointers\pt04_loot_packet.cpp" />
     <ClCompile Include="src\pointers\pt05_equipment.cpp" />
     <ClCompile Include="src\pointers\pt06_guild.cpp" />
+    <ClCompile Include="src\hangs\hg01_cooldown.cpp" />
+    <ClCompile Include="src\hangs\hg02_respawn.cpp" />
+    <ClCompile Include="src\hangs\hg03_chat_command.cpp" />
+    <ClCompile Include="src\hangs\hg04_route.cpp" />
+    <ClCompile Include="src\hangs\hg05_trade.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

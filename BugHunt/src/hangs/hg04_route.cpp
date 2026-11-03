@@ -1,0 +1,109 @@
+#include "../labs.h"
+#include <string>
+
+// 자동 이동 경로. 웨이포인트를 연결 리스트로 잇고, 중간에 들를 곳을 끼워 넣는다.
+// minutes = 앞 지점에서 이 지점까지 걸리는 시간(분)
+namespace hang4
+{
+struct Waypoint
+{
+    std::string name;
+    int minutes;
+    Waypoint* next = nullptr;
+};
+
+// pos 바로 뒤에 wp를 끼워 넣는다.
+void insertAfter(Waypoint* pos, Waypoint* wp)
+{
+    pos->next = wp;
+    wp->next = pos->next;
+}
+
+int countStops(const Waypoint* head)
+{
+    int stops = 0;
+    for (const Waypoint* p = head; p != nullptr; p = p->next)
+        ++stops;
+    return stops;
+}
+
+int totalMinutes(const Waypoint* head)
+{
+    int total = 0;
+    for (const Waypoint* p = head; p != nullptr; p = p->next)
+        total += p->minutes;
+    return total;
+}
+}
+
+void hg04_route()
+{
+    using namespace hang4;
+
+    Waypoint town = { "Town", 0 };
+    Waypoint bridge = { "Bridge", 25 };
+    Waypoint castle = { "Castle", 40 };
+    town.next = &bridge;
+    bridge.next = &castle;
+
+    // 다리로 가는 길에 숲에 들러 약초를 캔다.
+    Waypoint forest = { "Forest", 15 };
+    insertAfter(&town, &forest);
+
+    int stops = 0;
+    int minutes = 0;
+    runWithWatchdog("경로 계산", [&] {
+        stops = countStops(&town);
+        minutes = totalMinutes(&town);
+    });
+
+    expect("들르는 곳 (Town, Forest, Bridge, Castle)", 4, stops);
+    expect("걸리는 시간 (0 + 15 + 25 + 40)", 80, minutes);
+}
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+// 멈추면 모두 중단(Ctrl+Alt+Break) → 스레드 창에서 "랩 작업 스레드". 지역 창에서 p와 stops를 보세요.
+// stops는 4보다 훨씬 큰데 p->name은 무엇인가요?
+#pragma endregion
+
+#pragma region 힌트 2
+// 조사식에 p, p->next, p->next->next를 넣어 주소를 비교해 보세요.
+// 처음부터 보려면 hg04_route의 insertAfter 줄에 중단점을 걸고 town을 펼쳐 next를 따라가 보세요. 끼워 넣기 전과 후가 어떻게 다른가요?
+#pragma endregion
+
+#pragma region 힌트 3
+// insertAfter를 F10으로 한 줄씩 지나가며 pos->next와 wp->next를 보세요. 두 줄의 순서가 중요합니다.
+#pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void hg04_route_hidden()
+{
+    using namespace hang4;
+
+    Waypoint camp = { "Camp", 0 };
+    Waypoint peak = { "Peak", 90 };
+    camp.next = &peak;
+
+    Waypoint river = { "River", 20 };
+    Waypoint cave = { "Cave", 35 };
+    Waypoint shrine = { "Shrine", 10 };
+    insertAfter(&camp, &river);       // Camp, River, Peak
+    insertAfter(&river, &cave);       // Camp, River, Cave, Peak
+    insertAfter(&peak, &shrine);      // Camp, River, Cave, Peak, Shrine (맨 끝)
+
+    int stops = 0;
+    int minutes = 0;
+    runWithWatchdog("경로 계산 (숨은 케이스)", [&] {
+        stops = countStops(&camp);
+        minutes = totalMinutes(&camp);
+    });
+    expect("들르는 곳", 5, stops);
+    expect("걸리는 시간", 155, minutes);
+}
+#pragma endregion
