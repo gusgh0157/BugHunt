@@ -131,6 +131,35 @@ void as04_auction_notice();
 void as05_limited_sale();
 void as06_matchmaking();
 void as07_cutscene();
+// 추가 랩 (임시 번호, 최종 배치는 재배치 때)
+// 연산자와 평가 순서 (src/flow)
+void ft09_member_ids();
+void ft10_best_combo();
+void ft11_cave_gate();
+void ft12_lockpicks();
+// 파일 입출력 (src/fileio)
+void io01_patch_prices();
+void io02_quest_journal();
+void io03_high_scores();
+void io04_npc_dialogue();
+void io05_reward_table();
+void io06_settings_bom();
+void io07_safe_save();
+// 직렬화 - JSON/XML (src/serialize)
+void sz01_pet_slot();
+void sz02_crit_multiplier();
+void sz03_skill_bar();
+void sz04_nickname_cut();
+void sz05_float_position();
+void sz06_bestiary();
+void sz07_guild_list();
+// 인터페이스와 상속 (src/inherit)
+void ih01_backstab();
+void ih02_boss_loot();
+void ih03_sniper_tower();
+void ih04_priest_heal();
+void ih05_reward_mail();
+void ih06_mana_potion();
 
 // 챌린지 (src/challenge). 힌트 없음
 void chC1_auction_night();
@@ -198,3 +227,27 @@ void chB5_hidden();
 void chB6_hidden();
 void chB7_hidden();
 void chB8_hidden();
+void ft09_member_ids_hidden();
+void ft10_best_combo_hidden();
+void ft11_cave_gate_hidden();
+void ft12_lockpicks_hidden();
+void io01_patch_prices_hidden();
+void io02_quest_journal_hidden();
+void io03_high_scores_hidden();
+void io04_npc_dialogue_hidden();
+void io05_reward_table_hidden();
+void io06_settings_bom_hidden();
+void io07_safe_save_hidden();
+void sz01_pet_slot_hidden();
+void sz02_crit_multiplier_hidden();
+void sz03_skill_bar_hidden();
+void sz04_nickname_cut_hidden();
+void sz05_float_position_hidden();
+void sz06_bestiary_hidden();
+void sz07_guild_list_hidden();
+void ih01_backstab_hidden();
+void ih02_boss_loot_hidden();
+void ih03_sniper_tower_hidden();
+void ih04_priest_heal_hidden();
+void ih05_reward_mail_hidden();
+void ih06_mana_potion_hidden();

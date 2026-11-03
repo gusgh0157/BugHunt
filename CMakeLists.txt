@@ -16,6 +16,18 @@ file(GLOB_RECURSE BUGHUNT_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/BugHunt/src/*.h")
 add_executable(BugHunt ${BUGHUNT_SOURCES})
 
+# 직렬화 랩이 쓰는 외부 라이브러리 (third_party, 버전 고정). 랩 코드가 아니라서 경고는 낮춘다.
+#   nlohmann/json 3.11.3: 헤더 전용,  pugixml 1.14: 소스 한 개를 정적 라이브러리로
+add_library(bughunt_pugixml STATIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party/pugixml/src/pugixml.cpp")
+target_include_directories(bughunt_pugixml SYSTEM PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/third_party/pugixml/src")
+if(MSVC)
+    target_compile_options(bughunt_pugixml PRIVATE /W0 /utf-8)
+else()
+    target_compile_options(bughunt_pugixml PRIVATE -w)
+endif()
+target_include_directories(BugHunt SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/nlohmann_json/include")
+target_link_libraries(BugHunt PRIVATE bughunt_pugixml)
+
 set_target_properties(BugHunt PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/${BUGHUNT_BIN_NAME}")
 foreach(config IN ITEMS DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
@@ -44,23 +56,27 @@ else()
 endif()
 
 if(BUGHUNT_ASAN)
+    # pugixml도 같은 설정으로 컴파일해야 MSVC STL의 ASan 주석(annotate_string 등) 불일치 링크 오류가 안 난다
     if(MSVC AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         # MSVC: ASan과 /RTC는 함께 쓸 수 없다
         string(REGEX REPLACE "/RTC[1csu]+" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
         target_compile_options(BugHunt PRIVATE /fsanitize=address)
+        target_compile_options(bughunt_pugixml PRIVATE /fsanitize=address)
     elseif(MSVC)
         # clang-cl
         string(REGEX REPLACE "/RTC[1csu]+" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
         target_compile_options(BugHunt PRIVATE -fsanitize=address)
+        target_compile_options(bughunt_pugixml PRIVATE -fsanitize=address)
         target_link_options(BugHunt PRIVATE -fsanitize=address)
     else()
         target_compile_options(BugHunt PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+        target_compile_options(bughunt_pugixml PRIVATE -fsanitize=address -fno-omit-frame-pointer)
         target_link_options(BugHunt PRIVATE -fsanitize=address)
     endif()
 
     if(WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         # Windows의 Clang ASan은 Debug CRT를 지원하지 않는다
-        set_property(TARGET BugHunt PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+        set_property(TARGET BugHunt bughunt_pugixml PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
     endif()
 
     # 명령줄에서 바로 실행할 수 있도록 Windows의 ASan 런타임 DLL을 exe 옆에 복사한다.

@@ -88,6 +88,35 @@ constexpr LabEntry kLabs[] = {
     { "한정 판매",          "3개 한정인데 5개가 팔렸다",                 as05_limited_sale, as05_limited_sale_hidden },
     { "매치메이킹",         "대기열 인원이 모자라면 서버가 죽는다",       as06_matchmaking,  as06_matchmaking_hidden },
     { "컷신 대화",          "컷신의 호감도 숫자가 이상하다",             as07_cutscene,     as07_cutscene_hidden },
+    // 추가 랩 (임시 번호 61~. 최종 번호와 부 배치는 재배치 때 정한다)
+    // 연산자와 평가 순서 (3부 흐름 추적 끝에 붙일 예정)
+    { "길드 회원 번호",     "새 회원이 기존 회원과 같은 번호를 받는다", ft09_member_ids, ft09_member_ids_hidden },
+    { "최고 콤보",          "기록을 갱신할 때마다 콤보가 2씩 오른다", ft10_best_combo, ft10_best_combo_hidden },
+    { "어둠의 동굴",        "열쇠도 횃불도 있는데 입장을 못 한다",  ft11_cave_gate,    ft11_cave_gate_hidden },
+    { "자물쇠 따개",        "열쇠가 있는데도 따개가 줄어든다",      ft12_lockpicks,    ft12_lockpicks_hidden },
+    // 파일 입출력
+    { "패치된 가격표",      "어떤 실행에서는 패치 전 가격이 나온다", io01_patch_prices, io01_patch_prices_hidden },
+    { "모험 일지",          "방금 적은 일지가 일지 창에 안 보인다", io02_quest_journal, io02_quest_journal_hidden },
+    { "점수판",             "마지막 기록이 두 번 나온다",           io03_high_scores,  io03_high_scores_hidden },
+    { "여관 주인 대사",     "첫 대사가 비고 마지막 대사가 빠진다",  io04_npc_dialogue, io04_npc_dialogue_hidden },
+    { "보상표",             "보상 목록이 통째로 비어 있다",         io05_reward_table, io05_reward_table_hidden },
+    { "설정 파일",          "메모장으로 고친 첫 줄 설정만 무시된다", io06_settings_bom, io06_settings_bom_hidden },
+    { "안전한 저장",        "저장에 실패하면 이전 세이브까지 날아간다", io07_safe_save, io07_safe_save_hidden },
+    // 직렬화 (JSON/XML)
+    { "펫 슬롯",            "펫이 없는데 소환 버튼이 켜진다",       sz01_pet_slot,     sz01_pet_slot_hidden },
+    { "치명타 배율",        "배율 1.5가 1배로 들어간다",            sz02_crit_multiplier, sz02_crit_multiplier_hidden },
+    { "스킬 바",            "스킬 바 순서가 뒤죽박죽이 된다",       sz03_skill_bar,    sz03_skill_bar_hidden },
+    { "닉네임 자르기",      "어떤 한글 닉네임은 저장이 안 된다",    sz04_nickname_cut, sz04_nickname_cut_hidden },
+    { "캐릭터 위치",        "불러올 때마다 캐릭터가 조금씩 움직인다", sz05_float_position, sz05_float_position_hidden },
+    { "몬스터 도감",        "패치 뒤 몬스터 HP가 전부 0이다",       sz06_bestiary,     sz06_bestiary_hidden },
+    { "길드 목록",          "어떤 길드 이름이 있으면 목록이 통째로 안 열린다", sz07_guild_list, sz07_guild_list_hidden },
+    // 인터페이스와 상속 (최종 위치: 컨테이너 다음, 파일 입출력 앞)
+    { "백스탭",             "등 뒤에서 찔러도 일반 피해만 들어간다", ih01_backstab,     ih01_backstab_hidden },
+    { "보스 전리품",        "보스를 잡아도 희귀 아이템이 안 나온다", ih02_boss_loot,    ih02_boss_loot_hidden },
+    { "저격 탑",            "저격 탑 사거리가 기본 탑과 같다",      ih03_sniper_tower, ih03_sniper_tower_hidden },
+    { "사제의 치유",        "사제의 기본 치유량이 너무 적다",       ih04_priest_heal,  ih04_priest_heal_hidden },
+    { "보상 우편",          "골드 500을 보냈는데 500번 아이템이 왔다", ih05_reward_mail, ih05_reward_mail_hidden },
+    { "마나 물약",          "전사가 파티에 끼면 죽는다",            ih06_mana_potion,  ih06_mana_potion_hidden },
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)
