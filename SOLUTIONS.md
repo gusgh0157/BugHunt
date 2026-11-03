@@ -282,7 +282,7 @@ c.best = std::max(c.best, c.current);
 진짜 원인:     hasKey(...) | useLockpick(...) 는 앞이 true여도 뒤를 호출한다
 ```
 **수정:** `return hasKey(t, door) || useLockpick(t);`
-**교훈:** `||`/`&&`만 단락 평가를 한다. 뒤쪽 피연산자에 부작용(소모, 저장, 로그)이 있으면 `|`/`&`는 그 부작용을 항상 일으킨다. 랩 27과 짝: 27은 단락 평가 때문에 **필요한 호출이 빠졌고**, 57은 단락 평가가 없어서 **불필요한 호출이 일어났다**. `p == nullptr | p->hp <= 0`처럼 앞의 검사가 뒤를 지켜 주는 식에서는 `|`가 null 역참조 크래시가 된다.
+**교훈:** `||`/`&&`만 단락 평가를 한다. 뒤쪽 피연산자에 부작용(소모, 저장, 로그)이 있으면 `|`/`&`는 그 부작용을 항상 일으킨다. 랩 27과 짝: 27은 단락 평가 때문에 **필요한 호출이 빠졌고**, 64는 단락 평가가 없어서 **불필요한 호출이 일어났다**. `p == nullptr | p->hp <= 0`처럼 앞의 검사가 뒤를 지켜 주는 식에서는 `|`가 null 역참조 크래시가 된다.
 
 ---
 
@@ -384,6 +384,148 @@ void recordMatch(Player* p, int points)
 ```
 (C++17의 `extract`로 노드를 꺼내 고친 뒤 `insert`해도 된다.)
 **교훈:** `set`/`map`의 키는 const지만, 포인터를 키로 쓰면 가리키는 대상까지 지켜 주지 않는다.
+
+---
+
+# C++ 언어 함정 (랩 85~93, 번호는 임시)
+
+
+## Lab 85 — `const`에 `std::move`는 복사, 옮긴 뒤 원본에 기대기
+```
+틀린 결과:     내 거래 창에 3개가 그대로 (기대 0), 복사 3번 (기대 0)
+멈춘 위치:     Item의 복사 생성자 중단점 → 호출 스택 한 칸 위 trade의 push_back(const Item&)
+진짜 원인:     from이 const Trader&라 item은 const Item&. std::move(item)은 const Item&&가 되어 복사 생성자로 간다.
+               그리고 옮겼더라도 원소를 옮긴 것이지 vector에서 지운 것이 아니다
+```
+**수정:**
+```cpp
+void trade(Trader& from, Trader& to)
+{
+    for (Item& item : from.offer)
+        to.received.push_back(std::move(item));
+    from.offer.clear();
+}
+```
+**교훈:** `std::move`는 캐스트일 뿐 아무것도 옮기지 않는다. `const` 객체에 쓰면 조용히 복사가 된다. 옮겨진 객체는 "유효하지만 정해지지 않은 상태"라서 대입하거나 비우는 것만 안전하고, 크기나 내용에 기대면 안 된다(use-after-move). 정적 분석 도구에는 두 실수를 모두 찾는 검사가 있다.
+
+## Lab 86 — 부호 있는 정수 오버플로, 넘친 뒤에 하는 검사
+```
+틀린 결과:     경험치 -2144967296 (기대 2000000000)
+멈춘 위치:     addExp의 if 줄, 조건부 중단점 total < 0. current 1950000000, baseExp * multiplier 200000000
+진짜 원인:     int 덧셈이 넘쳐 음수가 됐고, 상한 검사는 이미 망가진 값을 본다
+```
+**수정:**
+```cpp
+long long total = static_cast<long long>(current) + static_cast<long long>(baseExp) * multiplier;
+if (total > kMaxExp)
+    total = kMaxExp;
+return static_cast<int>(total);
+```
+**교훈:** 부호 있는 정수의 오버플로는 정의되지 않은 동작이다. 대개 음수로 돌아가지만 컴파일러는 "넘치지 않는다"고 가정해도 되므로, `if (a + b < a)` 같은 "넘쳤는지 보는" 검사는 Release에서 통째로 지워지기도 한다(이 저장소의 랩은 그런 검사를 쓰지 않아 구성마다 결과가 같다). 검사는 넘치기 **전에**: 더 넓은 형식으로 계산하거나 `std::numeric_limits<int>::max() - current < gain`처럼 남은 여유를 본다. 넘친 뒤 `total < 0`을 보는 땜질은 곱셈이 넘쳐 양수로 돌아오는 경우(숨은 테스트)를 놓친다.
+
+## Lab 87 — 축소 변환 두 곳 (`double`→`int`, `int`→`short`)
+```
+틀린 결과:     물약 1개 은화 114 (기대 115), 300개 묶음 -31336 (기대 34500)
+멈춘 위치:     toSilver의 return 줄, 조사식 gold * 100 = 114.99999999999999 / sellBundle에서 toSilver(unitGold) * count와 record.totalSilver
+진짜 원인:     1.15는 2진수로 정확히 나타낼 수 없어 1.1499...로 저장되고, double→int는 버림. 총액 필드가 short라 34200이 잘림
+```
+**수정:** `return static_cast<int>(std::lround(gold * 100));`, `SaleRecord::totalSilver`를 `int`로
+**교훈:** `=`와 `return`의 축소 변환은 경고만 나거나(MSVC C4244) 아무 말이 없다. 중괄호 초기화(`int silver{ gold * 100 };`)는 축소 변환을 컴파일 오류로 만들어 두 곳을 한 번에 찾아 준다. 돈은 처음부터 가장 작은 단위의 정수로 들고 다닌다. `+ 1`로 맞춘 땜질은 2.5골드(정확히 250)에서 틀린다.
+
+## Lab 88 — `std::min<std::size_t>`가 음수를 아주 큰 양수로
+```
+틀린 결과:     궁수 진(평균보다 12 높음) 보너스 20 (기대 0)
+멈춘 위치:     levelBonus, 조건부 중단점 myLevel > average. average - myLevel = -12, size_t로는 18446744073709551604
+진짜 원인:     컴파일 오류를 피하려고 std::min의 형식을 std::size_t로 정해 두어 음수가 부호 없는 수로 변환됨
+```
+**수정:** `return std::clamp(average - myLevel, 0, static_cast<int>(maxBonus));`
+**교훈:** 부호 있는 값과 없는 값이 만나면 부호 있는 쪽이 부호 없는 형식으로 바뀐다(`-1 < v.size()`가 false인 것과 같은 규칙). 형식이 안 맞아 나는 컴파일 오류를 캐스트로 누르면 그 오류가 알려 주던 문제가 숨는다. 섞어 비교해야 하면 C++20 `std::cmp_less` 등을 쓴다.
+
+## Lab 89 — 두 파일의 전역 변수가 서로를 씀 (초기화 순서)
+```
+틀린 결과:     전사 체력 0 (기대 300). 파일 순서를 바꿔 빌드하면 보스 공격력 0
+멈춘 위치:     g_warriorHp 초기화 줄 중단점, 호출 스택에 main이 없음. 그때 g_baseHp == 0
+진짜 원인:     번역 단위 사이의 전역 초기화 순서는 정해져 있지 않다(보통 링크 순서). 두 파일이 서로의 값을 쓰므로 어느 쪽이 먼저든 하나는 0을 읽는다
+```
+**수정:** 전역 변수 여덟 개를 함수 지역 static으로.
+```cpp
+int baseAttack() { static const int value = readStat("base_attack", 12); return value; }
+int bossAttack() { static const int value = baseAttack() * 4; return value; }
+// 나머지 여섯 개도 같은 모양
+```
+**교훈:** 다른 파일의 전역 객체에 기대는 전역 초기화는 순서에 맡긴 도박이다. 함수 안의 static은 처음 불릴 때 만들어지고(C++11부터 스레드 안전) 의존하는 쪽이 부르는 순간 준비된다. 컴파일할 때 정할 수 있는 값이면 `constexpr`/`constinit`이 가장 좋다. 이 랩은 두 방향으로 의존하게 만들어, 링크 순서가 바뀌어도 버그 상태가 늘 FAIL이다. 화면의 두 값만 상수로 박는 땜질은 숨은 테스트의 다른 두 값에서 걸린다.
+
+## Lab 90 — 헤더의 `static` 변수가 파일마다 따로
+```
+틀린 결과:     저장 횟수 0, 마지막 슬롯 "" (기대 3, "auto-용의 둥지")
+멈춘 위치:     lg06_autosave.cpp의 ++g_saveStats.count와 showSaveScreen에서 &g_saveStats가 서로 다름
+진짜 원인:     네임스페이스 범위의 static은 내부 링크. 헤더를 포함한 .cpp마다 별개의 g_saveStats가 생긴다
+```
+**수정:** 헤더에서 `inline SaveStats g_saveStats;` (C++17 inline 변수). 또는 헤더에 `extern` 선언, .cpp 한 곳에 정의.
+**교훈:** 헤더에 정의를 둘 때 `static`은 "하나만"이 아니라 "파일마다 하나씩"이다. 컴파일러도 링커도 경고하지 않는다. 헤더의 `const`/`constexpr` 변수도 기본으로 내부 링크라 값은 같지만 주소는 다르다.
+
+## Lab 91 — 예외 경로에서만 새는 텍스처
+```
+틀린 결과:     남은 텍스처 2개 (기대 0)
+멈춘 위치:     Texture 생성자/소멸자 중단점: 생성 6번, 소멸 4번. 남은 둘은 "저주받은 성"
+진짜 원인:     loadDungeon이 텍스처를 new한 뒤 countRooms가 던지면, 원시 포인터 floor/walls만 사라지고 Texture는 남는다
+```
+**수정:**
+```cpp
+auto floor = std::make_unique<Texture>(file.name + "/floor");
+auto walls = std::make_unique<Texture>(file.name + "/walls");
+const int rooms = countRooms(file.layout);
+return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
+// 더 좋게는 Dungeon의 멤버도 unique_ptr, loadDungeon은 std::unique_ptr<Dungeon>을 돌려준다
+```
+**교훈:** 예외가 나면 그 사이 함수들의 남은 줄은 실행되지 않고, 소멸자가 불리는 것은 스택의 객체뿐이다. 자원은 만들자마자 소유 객체(RAII)에 맡긴다. 정상 경로만 보면 new/delete 짝이 맞아 보여서 찾기 어려운 누수다.
+
+## Lab 92 — 소멸자에서 던져 `std::terminate`
+```
+틀린 결과:     CRASH, abort() (저장 실패 메시지가 나오지 않음)
+멈춘 위치:     예외가 던져진 ~SaveFile. 호출 스택 아래에 saveGame의 catch가 아니라 std::terminate
+진짜 원인:     C++11부터 소멸자는 암시적 noexcept. noexcept 함수 밖으로 나가려는 예외는 catch를 찾지 않고 terminate
+```
+**수정:** 실패할 수 있는 쓰기를 `close()`로 꺼낸다.
+```cpp
+void close()
+{
+    if (buffer_.size() > freeBytes_)
+        throw SaveError("디스크 공간이 모자란다");
+    g_disk[slot_] = buffer_;
+    closed_ = true;
+}
+~SaveFile()
+{
+    if (!closed_)
+    {
+        try { close(); } catch (...) {}
+    }
+}
+// saveGame: try 블록 마지막 줄에서 file.close();
+```
+**교훈:** 소멸자는 실패를 알릴 길이 없는 곳이다. 실패할 수 있는 정리는 명시적인 함수(`close`, `commit`)로 꺼내고, 소멸자는 삼킨다. `noexcept(false)`로 바꾸는 땜질은 다른 예외로 스택을 푸는 중에 소멸자가 또 던지면 여전히 terminate다(숨은 테스트). MSVC는 C4297, clang은 `-Wexceptions`로 이미 경고한다. 함수에 `noexcept`를 붙여 두고 안에서 던지는 경우도 같은 결과다.
+
+## Lab 93 — 범위 for는 범위를 처음 한 번만 평가한다
+```
+틀린 결과:     이번 차례 완료 1 (기대 3), 일지 3개 (기대 5)
+멈춘 위치:     endTurn의 for. 반복은 두 번, 그 사이 log.size()는 3으로 늘었다. &q는 일지 안이 아니라 entries()가 돌려준 사본 안
+진짜 원인:     범위 for는 log.entries()를 한 번 평가하고 그 begin/end를 잡아 둔다. 반복 중에 일지에 붙은 퀘스트는 사본에도, 잡아 둔 끝 안에도 없다
+```
+**수정:**
+```cpp
+for (std::size_t i = 0; i < log.size(); ++i)
+{
+    const Quest q = log.at(i);   // 복사로 받는다 (complete 안의 push_back이 재할당해도 안전)
+    if (q.done || achieved.count(q.goal) == 0)
+        continue;
+    log.complete(q.name, book);
+    ++completed;
+}
+```
+**교훈:** 범위 for는 `auto&& r = 범위식; auto b = r.begin(); auto e = r.end();`로 펼쳐진다. 반복 중에 커지는 컨테이너는 인덱스로 돌고 매번 `size()`를 다시 읽는다. `entries()`가 참조를 돌려주게 바꾸는 것은 답이 아니다. 반복 중인 vector에 push_back하면 끝 이터레이터가 무효가 되고(정의되지 않은 동작), 재할당이 일어나면 `q`도 해제된 메모리를 가리킨다(랩 10).
+
+> 설계 메모: 처음에는 `vector`를 직접 범위 for로 돌며 `reserve`해 둔 뒤 push_back하는 랩으로 만들었다. 그런데 이것은 끝 이터레이터 무효화(정의되지 않은 동작)라, 같은 MSVC STL Debug에서도 MSVC로 빌드하면 FAIL, clang++로 빌드하면 "vector iterators incompatible" 어설션으로 CRASH가 되었다. 판정이 컴파일러마다 달라 지금처럼 "사본을 도는" 정의된 형태로 바꾸고, 무효화는 힌트와 교훈에 남겼다.
 
 ---
 
@@ -758,6 +900,63 @@ timers.after(3, [&hero, bonus] {
 ```
 **구성별:** 틀린 값은 컴파일러와 구성마다 다르다(이 저장소에서 Kael: MSVC Debug -124, MSVC·Clang Release 45, Clang Debug 85, ASan 쓰레기 값). 위 조사식은 Release의 45가 나온 이유다. 기본 ASan은 stack-use-after-return을 잡지 않는다. Clang ASan은 `ASAN_OPTIONS=detect_stack_use_after_return=1`로 실행하면 이 람다 줄에서 `stack-use-after-return`으로 멈춘다(README "람다 캡처와 ASan").
 **교훈:** `[&]`는 람다가 **지금 이 자리에서** 실행될 때만 안전하다. 콜백, 타이머, 스레드, 나중에 실행할 목록에 넣는 람다는 캡처 목록을 하나씩 적고, 무엇을 참조로 들고 가는지 확인한다. `hero`를 참조로 가져가는 것도 "Hero가 타이머보다 오래 산다"는 약속에 기댄 것이다.
+
+## 넘침: 스택과 힙의 경계 (랩 94~98, 번호는 임시)
+
+
+## Lab 94 — 16 MB 지역 배열로 스택 오버플로
+```
+틀린 결과:     CRASH, 스택 오버플로 (0xC00000FD / ASan stack-overflow)
+멈춘 위치:     countReachable의 첫 줄(또는 스택을 미리 건드리는 도우미 함수). 호출 스택은 lab → countReachable 두어 줄뿐
+진짜 원인:     int dist[2048][2048] = 16 MB 지역 변수. 함수에 들어가자마자 스택(Windows 1 MB)을 넘는다. 지도 크기와 상관없다
+```
+**수정:** `std::vector<std::vector<int>> dist(map.height, std::vector<int>(map.width, -1));` (또는 1차원 `std::vector<int>`에 `y * width + x`)
+**교훈:** 스택 오버플로가 늘 재귀인 것은 아니다. 호출 스택이 짧은데 스택 오버플로라면 큰 지역 변수를 의심한다. 크기가 실행 중에 정해지거나 수십 KB를 넘는 데이터는 힙(`vector`)에. `static` 배열로 바꾸면 죽지는 않지만 16 MB를 늘 붙잡고 여러 스레드에서 쓸 수 없다.
+
+## Lab 95 — 프레임마다 96 KB 버퍼 × 재귀 160겹
+```
+틀린 결과:     CRASH, 스택 오버플로. "방 8번 생성"까지 출력되고 죽음 (방 5개 시험 던전은 통과)
+멈춘 위치:     buildRooms가 열 겹 남짓 쌓인 호출 스택. 이웃한 두 프레임의 &layout 차이 ≈ 98,000바이트
+진짜 원인:     재귀는 160겹에서 끝나지만, 한 겹이 96 KB라 160겹이면 15 MB. 버퍼가 재귀 호출 뒤에도 쓰여 줄일 수 없다
+```
+**수정:** `std::vector<char> layout(kLayoutBytes);` (프레임에는 vector 하나만 남는다). 또는 보물 상자를 재귀 전에 세고 버퍼를 일찍 끝내거나, 재귀를 반복문으로.
+**교훈:** 스택 사용량은 "프레임 크기 × 깊이"다. 깊이가 데이터(방 수, 트리 높이)에 따라 정해지는 재귀는 스택 한도를 생각해야 한다. 프레임 크기는 구성마다 다르다(Debug는 검사용 공간, ASan은 변수 사이 경계). 그래서 프레임이 작고 깊이가 경계에 걸린 재귀는 Debug에서만, 또는 ASan에서만 죽기도 한다. 직접 보려면 `kLayoutBytes`를 8 KB로 줄이고 방 수를 늘려 Debug와 Release에서 죽는 방 번호를 비교해 보라.
+
+## Lab 96 — `new Frame[n]` 뒤 `<=`로 한 칸 더 쓰기, 해제할 때 드러남
+```
+틀린 결과:     CRASH, [CRASH] 메모리 검사: 할당한 크기를 넘어서 썼다 (ASan: heap-buffer-overflow)
+멈춘 위치:     ~ReplayRecorder의 delete[]. 데이터 중단점(&frames_[ticks_])을 걸면 recordAll의 frames_[t] = ... 에서 t == 600
+진짜 원인:     for (t = 0; t <= ticks_; ++t)가 원소 600개 배열의 frames_[600]에 쓴다
+```
+**수정:** `for (int t = 0; t < ticks_; ++t)`
+**교훈:** 힙 넘침은 쓰는 순간이 아니라 그 자리를 다른 누가 볼 때(해제, 다음 할당, 옆 블록 사용) 드러난다. 크래시 위치와 원인이 멀면 **데이터 중단점**으로 "그 바이트를 누가 바꾸는지"를 묻는다. ASan은 쓰는 순간 잡는다. 랩 39(포인터 산술의 단위, 읽기)와 달리 이 랩은 반복 경계의 한 칸 쓰기다.
+
+## Lab 97 — `memcpy`에 `sizeof(포인터)`
+```
+틀린 결과:     첫 번째 이름 "Nighting" (기대 "Nightingale"), 두 번째 이름 "Moonshadingale" 같은 이어 붙음
+멈춘 위치:     writeName, 조사식 sizeof(dst) == 8, std::strlen(src) == 11. 메모리 창에서 packet.name 9바이트째부터 앞사람 이름
+진짜 원인:     매개변수 char* dst는 배열이 아니라 포인터라 sizeof가 8. 앞 8바이트만 복사되고 널 문자가 없다
+```
+**수정:**
+```cpp
+void writeName(char* dst, std::size_t cap, const char* src)
+{
+    const std::size_t n = std::min(std::strlen(src), cap - 1);
+    std::memcpy(dst, src, n);
+    dst[n] = '\0';
+}
+// 호출: writeName(packet.name, sizeof(packet.name), name);
+```
+**교훈:** 배열은 함수 매개변수가 되는 순간 포인터로 바뀐다(배열 붕괴). 크기는 같이 넘기거나 `char (&dst)[N]` 템플릿으로 받는다. C 문자열 복사는 "길이 + 널 문자 1"과 "버퍼 크기 - 1로 자르기"를 둘 다 챙겨야 한다. clang은 `-Wsizeof-pointer-memaccess`로 이미 경고한다. 패킷 밖에서는 `std::string`.
+
+## Lab 98 — 1부터 세는 스킬 번호로 `std::array` 인덱스, 옆 멤버 `gold`를 덮음
+```
+틀린 결과:     Debug: CRASH, "array subscript out of range" / Release: 2번 스킬 레벨 0, 골드 801 (기대 800)
+멈춘 위치:     Debug: learnSkill의 hero.skillLevels[skillId] 줄 (어설션) / Release: hero.gold 데이터 중단점이 같은 줄에서 멈춤
+진짜 원인:     화면 번호 1~4를 그대로 인덱스로 씀. skillLevels[4]는 배열 바로 뒤의 gold
+```
+**수정:** `hero.skillLevels[skillId - 1] += 1;`
+**교훈:** `operator[]`는 범위를 검사하지 않는다. Debug 구성의 표준 라이브러리 검사는 보험일 뿐이고(Release CRT로 빌드한 ASan에도 없음), 같은 객체 안의 넘침은 ASan도 대개 못 잡는다. 확신이 없는 인덱스에는 `at()`. "어디서 바뀌었는지 모르는 값"에는 데이터 중단점(랩 18).
 
 ---
 
