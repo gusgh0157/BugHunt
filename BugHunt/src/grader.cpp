@@ -125,9 +125,19 @@ std::string cleanDetail(std::string s)
     if (slash != std::string::npos && crash != std::string::npos && crash + 8 <= slash)
         s.erase(crash + 8, slash + 1 - (crash + 8));
 
-    const size_t asanAddress = s.find(" on address ");
-    if (s.find("AddressSanitizer") != std::string::npos && asanAddress != std::string::npos)
-        s.erase(asanAddress);
+    // "==1234==ERROR: AddressSanitizer: heap-use-after-free on address 0x... at pc ..." → "ERROR: AddressSanitizer: heap-use-after-free"
+    const size_t asanError = s.find("ERROR: AddressSanitizer");
+    if (asanError != std::string::npos)
+    {
+        const size_t pid = asanError >= 3 ? s.rfind("==", asanError - 3) : std::string::npos;
+        if (pid != std::string::npos)
+            s.erase(pid, asanError - pid);
+        size_t address = s.find(" on address 0x");
+        if (address == std::string::npos)
+            address = s.find(": 0x");
+        if (address != std::string::npos)
+            s.erase(address);
+    }
 
     std::string out;
     for (size_t i = 0; i < s.size() && out.size() < 200;)
