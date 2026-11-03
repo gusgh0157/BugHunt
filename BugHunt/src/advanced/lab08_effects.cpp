@@ -74,5 +74,5 @@ void lab08_effects()
 
 #pragma region 힌트 2
 // unique_ptr<StatusEffect>는 어떤 타입의 포인터로 delete를 할까요?
-// 빌드 경고도 다시 읽어 보세요.
+// 빌드 경고도 다시 읽어 보세요. (MSVC /W4의 C5205, GCC·Clang -Wall의 -Wdelete-non-virtual-dtor)
 #pragma endregion

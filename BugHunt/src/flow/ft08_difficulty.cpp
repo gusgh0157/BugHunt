@@ -80,9 +80,9 @@ class Game
 public:
     Game() : audio_(g_settings), world_(g_settings) {}
 
-    void boot()
+    void boot(const std::string& saveText)
     {
-        loadSettings(g_settings, kSaveFile);
+        loadSettings(g_settings, saveText);
         volume_ = audio_.applyVolume();
         firstWaveHp_ = world_.spawnWave();
     }
@@ -101,7 +101,7 @@ private:
 void ft08_difficulty()
 {
     flow8::Game game;
-    game.boot();
+    game.boot(flow8::kSaveFile);
 
     expect("볼륨 (저장값 35)", 35, game.volume());
     expect("첫 웨이브 적 HP (어려움 = 150)", 150, game.firstWaveHp());
@@ -133,12 +133,12 @@ void ft08_difficulty()
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
 void ft08_difficulty_hidden()
 {
-    flow8::kSaveFile =
+    const char* otherSave =
         "difficulty=easy\n"
         "volume=60\n";
 
     flow8::Game game;
-    game.boot();
+    game.boot(otherSave);
 
     expect("볼륨 (저장값 60)", 60, game.volume());
     expect("첫 웨이브 적 HP (쉬움 = 70)", 70, game.firstWaveHp());

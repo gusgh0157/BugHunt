@@ -105,7 +105,14 @@ void pf06_aggro_scan_hidden()
     const auto field = perf6::makeField(77);
     perf6::Monster::g_maxHolders = 0;
     expect("가장 위험한 몬스터", std::string("Mob49"), perf6::scan(field, 5));
-    expect("위협 수치", 250, perf6::threatOf(std::make_shared<perf6::Monster>("x", 30, 50)));
+    // threatOf가 MonsterPtr을 받든 const Monster&를 받든 검사할 수 있게 한다.
+    const auto threatOf = [](const auto& m) {   // 제네릭 람다: 맞지 않는 쪽 분기는 만들어지지 않는다
+        if constexpr (requires { perf6::threatOf(m); })
+            return perf6::threatOf(m);
+        else
+            return perf6::threatOf(*m);
+    };
+    expect("위협 수치", 250, threatOf(std::make_shared<perf6::Monster>("x", 30, 50)));
     perf6::Monster::g_maxHolders = 0;
     perf6::scan(field, 3);
     expect("동시에 붙잡은 shared_ptr 수", 1L, perf6::Monster::g_maxHolders);

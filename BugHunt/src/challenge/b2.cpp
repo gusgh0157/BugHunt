@@ -54,5 +54,9 @@ void chB2_hidden()
     const std::string fallback = "아무개";
     expect("이름 있는 공지", std::string("Ivo"), authorOr({ "t", "Ivo" }, fallback));
     expect("이름 없는 공지", std::string("아무개"), authorOr({ "t", "" }, fallback));
+
+    // 임시 fallback을 넘기고 결과를 붙잡아 둔다. 값을 돌려주는 authorOr라면 수명이 연장되어 안전하다.
+    const std::string& kept = authorOr({ "t", "" }, std::string("임시로 만든 기본 작성자 이름"));
+    expect("임시 fallback으로 받은 이름", std::string("임시로 만든 기본 작성자 이름"), kept);
 }
 #pragma endregion

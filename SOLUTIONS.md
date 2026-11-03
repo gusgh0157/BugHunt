@@ -116,7 +116,7 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 **수정:** `if (bag.usedSlots >= bag.maxSlots) return false;`를 먼저 검사하거나 부호 있는 타입으로 계산.
 
 ## Lab 15 — Rule of Three 위반 (이중 해제)
-`PacketBuffer`는 raw 포인터를 소유하지만 복사 생성자/대입이 기본(얕은 복사)이다. 소멸자를 직접 선언했으므로 이동 생성자는 자동 생성되지 않아 `push_back(PacketBuffer(64))`에서 **복사**가 일어남 → 임시 객체 소멸 시 `data_` 해제 → 벡터 안 객체는 해제된 버퍼를 사용 → 끝에서 또 해제(double free).
+`PacketBuffer`는 raw 포인터를 소유하지만 복사 생성자/대입이 기본(얕은 복사)이다. 소멸자를 직접 선언했으므로 이동 생성자는 자동 생성되지 않아 `push_back(PacketBuffer(64))`에서 **복사**가 일어남 → 임시 객체 소멸 시 `data_` 해제 → 벡터 안 객체는 해제된 버퍼를 가리킨다 → **두 번째 `push_back`**에서 vector가 재할당하며 옛 원소를 파괴할 때 같은 버퍼를 또 해제(double free). 그 자리에서 메모리 검사기가 `[CRASH] 메모리 검사: 이미 해제한 메모리를 다시 해제했다`로 멈추므로 `expect` 줄까지 가지 못한다.
 **수정(권장, Rule of Zero):** `std::vector<char> data_;` 또는 `std::unique_ptr<char[]>` 사용. 또는 복사 생성자/대입/이동을 직접 구현.
 
 ## Lab 16 — 가상 소멸자 누락 (메모리 누수 + UB)
@@ -288,7 +288,7 @@ Board::value_type* selected_ = nullptr;
 
 ## Lab 32 — remove_if만 하고 erase를 빼먹음
 ```
-관찰:        호출 뒤에도 size 6. 앞 3칸은 남길 장비, 뒤 3칸은 옮겨지고 남은 찌꺼기 (Silver Ring이 두 번 보이기도 함)
+관찰:        호출 뒤에도 size 6. 앞 3칸은 남길 장비, 뒤 3칸은 옮겨지고 남은 찌꺼기 (remove_if가 원소를 **이동**하므로 이름은 비고 내구도만 남음)
 경고:        반환값을 버리고 있다 (MSVC C4858, GCC·Clang -Wunused-result. remove_if는 [[nodiscard]])
 ```
 **수정:** C++20 `std::erase_if(bag, pred);` 또는 erase-remove 관용구 `bag.erase(std::remove_if(bag.begin(), bag.end(), pred), bag.end());`

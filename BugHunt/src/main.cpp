@@ -36,7 +36,7 @@ constexpr LabEntry kLabs[] = {
     { "콤보 카운터",        "최고 콤보가 틀린다 (Debug/Release 차이)", lab04_combo },
     { "죽은 적 제거",       "적 정리 중 멈춘다",                   lab05_enemies },
     { "배낭 용량",          "꽉 찬 배낭에 아이템이 들어간다",      lab06_backpack },
-    { "패킷 버퍼",          "내용이 깨지고 종료할 때 멈춘다",      lab07_packets },
+    { "패킷 버퍼",          "두 번째 패킷을 넣는 순간 죽는다",     lab07_packets },
     { "상태 이상 효과",     "메모리가 조금씩 샌다",                lab08_effects },
     { "길드 은행",          "골드 합계가 매번 다르다",             lab09_guild_bank },
     { "파티 칭호 수여",     "아무도 때리지 않았는데 HP가 바뀐다",  lab10_party },

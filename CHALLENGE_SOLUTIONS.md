@@ -11,7 +11,7 @@
 ## C-1 — 화면 패널이 경매장의 참가자 저장소를 정렬함
 
 ```
-증상:        낙찰자가 Kael, Mira의 금화가 1000으로 늘어남
+증상:        낙찰자가 Kael. Mira의 금화는 800 그대로(입찰한 450이 빠지지 않음), Kael은 150(밀려났는데 돌려받지 못함)
 1단계:       close()가 bidders_[*leader_]에게 물건을 줌 → leader_가 가리키는 사람이 Kael
 2단계:       placeBid(mira, 450)에 조건부 중단점(amount == 450) → bidders_[who].name이 "Kael"
              → 참가 번호 mira(1)가 다른 사람을 가리킨다
@@ -142,7 +142,7 @@ for (const PlayerId& p : logins)
 
 ## B-8 — `[this]` 람다를 등록한 뒤 객체가 옮겨짐
 포탑을 `emplace_back`할 때마다 vector가 재할당되면 이전 포탑들은 새 주소로 옮겨진다. 경보에 등록한 람다는 옛 주소의 `this`를 들고 있다.
-**수정:** 미리 `turrets.reserve(names.size())`로 옮겨지지 않게 하거나, 모두 세운 뒤에 연결하거나, 주소가 변하지 않는 컨테이너(`std::deque`, `std::list`, `unique_ptr`의 vector)에 둔다.
+**수정:** 미리 `turrets.reserve(names.size())`로 옮겨지지 않게 하거나, 모두 세운 뒤에 연결하거나, 뒤에만 추가할 때 주소가 변하지 않는 `std::deque`에 둔다(`push_back`만 하면 원소가 옮겨지지 않는다). `std::list`나 `unique_ptr`의 vector도 주소는 안정적이지만, 그러면 숨은 테스트의 `turrets.at(0)` 같은 접근 방식도 함께 바꿔야 한다.
 
 ---
 
