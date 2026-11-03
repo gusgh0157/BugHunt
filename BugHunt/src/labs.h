@@ -59,6 +59,14 @@ void ft06_repair();
 void ft07_achievements();
 void ft08_difficulty();
 
+// 4부: 포인터 오용 (src/pointers)
+void pt01_ranking();
+void pt02_bounty();
+void pt03_particles();
+void pt04_loot_packet();
+void pt05_equipment();
+void pt06_guild();
+
 // 채점용 숨은 테스트 케이스: 화면에 나오는 것과 다른 데이터로 같은 코드를 검사한다.
 // 각 랩 파일 맨 아래 "채점용 숨은 테스트" region에 있다. (src/grader.cpp 참고)
 void ft01_attendance_hidden();
@@ -69,3 +77,9 @@ void ft05_discount_hidden();
 void ft06_repair_hidden();
 void ft07_achievements_hidden();
 void ft08_difficulty_hidden();
+void pt01_ranking_hidden();
+void pt02_bounty_hidden();
+void pt03_particles_hidden();
+void pt04_loot_packet_hidden();
+void pt05_equipment_hidden();
+void pt06_guild_hidden();

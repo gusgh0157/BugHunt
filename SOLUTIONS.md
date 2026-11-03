@@ -233,3 +233,84 @@ if (kill || gold || level) ...
 - `spawnWave(const Settings&)`처럼 필요할 때 인자로 받는다
 
 **교훈:** 버그가 "어떤 입력에서" 나는 게 아니라 "어떤 **순서**로" 나는 경우, 시작부터 따라가며 **두 사본을 나란히** 조사식에 띄워 언제 갈라지는지 본다.
+
+---
+
+# 4부: 포인터 오용
+
+## Lab 29 — 지역 변수의 주소를 반환
+```
+조사식:      board[0], board[1], board[2] 가 모두 같은 주소
+진짜 원인:   formatEntry가 지역 배열 line의 주소를 반환. 함수가 끝나면 line은 사라지고,
+             다음 formatEntry 호출(그리고 다른 함수 호출)이 같은 스택 자리를 다시 쓴다.
+```
+**수정:** 값으로 돌려준다. `std::string formatEntry(...)`, `std::vector<std::string> buildBoard(...)`. (`static char line[64]`로 바꾸면 깨지지는 않지만 모든 줄이 마지막 값으로 똑같아진다.)
+**구성별:** Debug와 Release 모두 깨진 글자. ASan도 기본 설정으로는 잡지 못한다(`/fsanitize-address-use-after-return`과 `ASAN_OPTIONS=detect_stack_use_after_return=1`이 필요). 가장 빠른 단서는 컴파일러 경고 **C4172**였다.
+**교훈:** 포인터를 돌려줄 때는 "가리키는 대상이 함수보다 오래 사는가?"를 먼저 묻는다.
+
+## Lab 30 — 해제된 몬스터에서 현상금을 읽음 (use-after-free)
+```
+이상한 값:     hunter.target->bounty == -572662307 (0xDDDDDDDD = 해제된 힙)
+처음 어긋난 줄: field.removeDefeated()  (타깃 몬스터를 delete)
+진짜 원인:     hunt가 전장을 정리한 뒤에 hunter.target으로 현상금을 읽음
+```
+**수정:** 현상금을 먼저 받고 정리한다.
+```cpp
+hunter.gold += hunter.target->bounty;
+hunter.target = nullptr;
+field.removeDefeated();
+```
+더 튼튼하게는 raw 포인터를 들고 있지 말고 ID로 다시 찾거나, 몬스터를 `shared_ptr`로 보관하고 타깃은 `weak_ptr`로 든다.
+**구성별:** Debug는 `0xDD`로 채워져 FAIL. Release는 해제된 메모리에 옛 값이 남아 **PASS**. ASan은 heap-use-after-free와 함께 읽은 곳(`hunt`), 해제한 곳(`removeDefeated`), 할당한 곳(`spawn`)의 호출 스택을 보여 준다.
+**교훈:** Release에서 통과했다고 버그가 없는 게 아니다. 해제된 메모리를 읽는 버그는 Debug의 `0xDD`와 ASan으로 드러낸다.
+
+## Lab 31 — new[]로 만들고 delete로 지움
+```
+멈춘 곳:     어설션 _CrtIsValidHeapPointer(block) ← ~Explosion의 delete particles_
+관찰:        첫 폭발이 끝날 때 ~Particle()이 16번이 아니라 1번만 불림
+             (char*)particles_ - 8 자리에 배열 개수 16이 저장되어 있음
+진짜 원인:   new Particle[count]로 만든 배열을 delete(배열이 아닌 것)로 지움
+```
+**수정:** `delete[] particles_;` 더 좋게는 `std::vector<Particle>`이나 `std::unique_ptr<Particle[]>`로 바꿔 직접 지우지 않는다.
+**구성별:** Debug는 힙 검사 어설션. Release는 힙 손상(`0xC0000374`)으로 죽는다. ASan은 "attempting free on address which was not malloc()-ed". 소멸자가 없는 타입(`int` 등)이면 앞의 개수 칸이 없어서 Debug와 Release에서는 아무 증상 없이 지나가기도 한다. 그래도 정의되지 않은 동작이다.
+**교훈:** 소멸자를 가진 타입의 배열은 `new[]`가 앞에 개수를 몰래 적어 둔다. 만든 방법과 지우는 방법은 항상 짝을 맞춘다.
+
+## Lab 32 — 포인터 산술 단위 실수
+```
+조사식:      (const char*)entries - (const char*)header == 16  (헤더 바로 뒤라면 4)
+진짜 원인:   header는 PacketHeader*. header + sizeof(PacketHeader) 는 "4바이트 뒤"가 아니라
+             "PacketHeader 4개 뒤" = 16바이트 뒤
+```
+**수정:** `reinterpret_cast<const LootEntry*>(header + 1)` 또는 바이트 단위로 `reinterpret_cast<const LootEntry*>(packet.data() + sizeof(PacketHeader))`.
+**구성별:** Debug는 패킷 바로 뒤의 경계 바이트 `0xFDFD`(= 65021)를 개수로 읽어 합계가 6만대가 된다. Release는 쓰레기 값. ASan은 heap-buffer-overflow(READ of size 2)로 그 줄에서 멈춘다.
+**교훈:** 포인터에 더하는 수의 단위는 "가리키는 타입 하나"다. 바이트 단위로 움직이려면 `char*`/`uint8_t*`에서 계산한다.
+
+## Lab 33 — 초기화 안 된 포인터 멤버
+```
+멈춘 곳:     Hero::attackPower의 power += weapon_->bonus  (읽기 액세스 위반)
+지역 창:     this->weapon_ == 0xcccccccccccccccc
+진짜 원인:   무기를 받지 않는 생성자가 weapon_을 초기화하지 않음.
+             if (weapon_ != nullptr) 검사는 0xCCCC... 앞에서는 아무 소용이 없다.
+```
+**수정:** 멤버 선언에서 초기화한다. `const Weapon* weapon_ = nullptr;`
+**구성별:** Debug는 `/RTC1`이 스택을 `0xCC`로 채워서 매번 같은 곳에서 죽는다. Release는 그 자리에 남은 쓰레기에 따라 통과하기도 하고 엉뚱한 공격력이 나오기도 한다. ASan 구성은 `/RTC`가 꺼져 있어 역시 쓰레기 값이다. 쓰레기 주소가 어디를 가리키느냐에 따라 stack-buffer-overflow처럼 엉뚱한 이름의 리포트가 나오기도 한다. ASan은 "초기화 안 된 값" 자체를 잡는 도구가 아니다.
+**교훈:** x64에서 `0xCCCC...` 같은 주소를 읽으면 예외 메시지에는 `0xFFFFFFFFFFFFFFFF`로 나올 수 있다. 예외 메시지보다 지역 창의 포인터 값을 본다. 랩 12처럼 코드 분석 경고 C26495가 미리 알려 준다.
+
+## Lab 34 — shared_ptr 순환 참조
+```
+지역 창:     guild [strong ref=4]  (지역 변수 1 + 길드원 3명의 guild 멤버)
+진짜 원인:   Guild → members(shared_ptr) → Member → guild(shared_ptr) → Guild
+             서로 붙잡고 있어서 마지막 지역 변수가 사라져도 참조 수가 0이 되지 않는다.
+```
+**수정:** 길드원은 길드를 소유하지 않고 바라보기만 한다.
+```cpp
+std::weak_ptr<Guild> guild;
+...
+std::string guildNameOf(const Member& member)
+{
+    const auto guild = member.guild.lock();
+    return guild ? guild->name : "(없음)";
+}
+```
+**구성별:** 세 구성 모두 똑같이 FAIL이다. 크래시도, 어설션도, ASan 리포트도 없다(Windows의 ASan에는 누수 검사기가 없다). 2부 랩 16처럼 CRT 누수 측정이나 소멸자 중단점으로 확인한다.
+**교훈:** 스마트 포인터도 소유 관계에 고리가 생기면 샌다. "누가 누구를 소유하는가"를 한 방향으로 정하고, 거꾸로 가는 쪽은 `weak_ptr`로 둔다.

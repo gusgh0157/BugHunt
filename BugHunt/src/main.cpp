@@ -50,16 +50,26 @@ constexpr LabEntry kLabs[] = {
     { "장비 수리",          "골드는 빠졌는데 내구도가 그대로다",    ft06_repair,       ft06_repair_hidden },
     { "업적 해금",          "조건을 채운 업적 하나가 안 열린다",    ft07_achievements, ft07_achievements_hidden },
     { "난이도 설정",        "어려움으로 저장했는데 적이 약하다",    ft08_difficulty,   ft08_difficulty_hidden },
+    // 4부: 포인터 오용
+    { "랭킹 보드",          "랭킹 줄이 전부 깨져서 나온다",        pt01_ranking,      pt01_ranking_hidden },
+    { "현상금 사냥",        "골드가 음수 수억이 된다",              pt02_bounty,       pt02_bounty_hidden },
+    { "폭발 이펙트",        "이펙트가 끝날 때 멈춘다",              pt03_particles,    pt03_particles_hidden },
+    { "전리품 패킷",        "받은 아이템 개수가 엉망이다",          pt04_loot_packet,  pt04_loot_packet_hidden },
+    { "장비 공격력",        "맨손 파티원에서 죽는다",               pt05_equipment,    pt05_equipment_hidden },
+    { "길드 해산",          "길드를 내려도 메모리가 남는다",        pt06_guild,        pt06_guild_hidden },
 };
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
 constexpr int kAdvancedLabEnd = 20;
+constexpr int kFlowLabEnd = 28;
+constexpr int kPointerLabEnd = 34;
 
 int partOf(int labNumber)
 {
     if (labNumber <= kBasicLabCount) return 1;
     if (labNumber <= kAdvancedLabEnd) return 2;
-    return 3;
+    if (labNumber <= kFlowLabEnd) return 3;
+    return 4;
 }
 
 const char* buildName()
@@ -84,6 +94,8 @@ void printMenu()
             std::cout << "\n[2부] 심화\n";
         else if (i == kAdvancedLabEnd)
             std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 F10/F11로 따라가세요\n";
+        else if (i == kFlowLabEnd)
+            std::cout << "\n[4부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }
