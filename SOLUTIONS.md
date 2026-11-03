@@ -140,3 +140,96 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 `==`가 `&`보다 먼저 계산되어 `flags & (status == status)` = `flags & 1` → 항상 STUN 비트만 검사.
 **수정:** `return (flags & status) == status;`
 **교훈:** 경고 C4554가 이미 알려 주고 있었다. 경고를 0개로 유지하자.
+
+---
+
+# 3부: 흐름 추적 (크래시 없음)
+
+## Lab 21 — 반복문 안에서 초기화되는 누적 변수
+```
+틀린 결과:     최장 연속 1, 골드 900 (보너스 없음)
+처음 어긋난 줄: 둘째 바퀴의 int streak = 0;  (1이었던 값이 0으로 돌아감)
+진짜 원인:     streak가 for 안에 선언되어 매 바퀴 새로 만들어짐
+```
+**수정:** `int streak = 0;`을 `for` 위로 옮긴다. (결석 처리 `streak = 0;`은 그대로 둔다.)
+**교훈:** 크래시가 없으면 호출 스택은 쓸모없다. **기대값을 먼저 적고**, F10으로 처음 어긋나는 줄을 찾는다.
+
+## Lab 22 — 계산한 값이 아닌 원본을 반환
+```
+단계별 값:     기대 70 → 105 → 84 → 126 / 실제 70 → 70 → 56 → 84
+처음 어긋난 곳: applyCrit 반환 (자동 창: "applyCrit 반환 70")
+진짜 원인:     result에 원본을 복사해 두고 damage만 바꾼 뒤 result를 반환
+```
+**수정:** `return damage;` (또는 `return isCrit ? damage * (100 + critBonusPercent) / 100 : damage;`로 임시 변수 제거)
+**교훈:** 파이프라인은 단계별 기대값을 정해 두고 F10으로 넘기면 범인 함수가 바로 나온다. 함수 안은 F11, 나와서는 **자동 창의 반환값**.
+
+## Lab 23 — 보호막이 깨질 때 남은 피해가 사라짐
+```
+틀린 결과:     받은 피해 160, 흡수 70 + HP 감소 87 = 157 (3이 사라짐)
+멈춘 위치:     조건부 중단점 (before.shield - tank.shield) + (before.hp - tank.hp) != damage
+처음 어긋난 곳: 보호막이 damage보다 적게 남은 틱 (예: 보호막 6에 피해 7)
+진짜 원인:     takeDamage가 보호막을 0으로 깎고 바로 return → 넘친 피해가 HP로 안 감
+```
+**수정:**
+```cpp
+const int absorbed = std::min(unit.shield, damage);
+unit.shield -= absorbed;
+unit.hp -= damage - absorbed;
+```
+**교훈:** 수백 번 중 몇 번만 틀리면 F10으로는 못 찾는다. "틀린 순간"을 **조건식**으로 표현해서 중단점에 넣는다. 합계 검증(불변식)은 그 조건을 만드는 좋은 재료다.
+
+## Lab 24 — 이벤트 구독 순서
+```
+추적점 출력 (5번째 늑대):  퀘스트 검사: 카운터 값 4  →  카운터: Wolf, 증가 전 4
+진짜 원인:     Game::setup에서 퀘스트를 카운터보다 먼저 구독 → 퀘스트가 갱신 전 값을 읽음
+```
+**수정:** 카운터를 먼저 구독한다. 더 튼튼한 방법은 퀘스트가 다른 구독자의 상태에 기대지 않고 직접 세거나, 카운터가 "갱신 후" 이벤트를 따로 내보내는 것.
+**교훈:** "누가 먼저 실행되는가" 문제는 멈추면 오히려 헷갈린다. **추적점**으로 멈추지 않고 순서를 기록하자.
+
+## Lab 25 — else if 순서 (넓은 조건이 좁은 조건을 가림)
+```
+조사식 (Selene):  c.isFirstOrder() false / c.isMember() true / c.isVip() true
+화살표:          else if (c.isMember()) → return 5
+진짜 원인:       VIP는 항상 멤버이므로 isVip() 분기에 영원히 도달하지 못함
+```
+**수정:** 좁은 조건(VIP)을 넓은 조건(멤버)보다 먼저 검사. 규칙이 "가장 큰 할인 하나"이므로 순서에 의존하지 않게 `std::max`로 해당하는 할인 중 최댓값을 고르는 편이 더 안전하다.
+**교훈:** 분기 버그는 조사식에 **조건 하나하나를 따로 넣어 계산**해 보면 한눈에 보인다.
+
+## Lab 26 — auto가 참조를 버리고 복사본을 만듦
+```
+조사식:      &item != &backpack.get("Iron Sword")
+진짜 원인:   auto item = backpack.get(...)  → get()은 Equipment&를 주지만 auto는 값으로 받아 복사
+             복사본을 수리하고, 복사본으로 "수리 완료"를 출력함
+```
+**수정:** `auto& item = backpack.get(itemName);`
+**교훈:** "고쳤다고 출력되는데 반영이 안 된다"면 **같은 객체인지부터** 의심하라. 주소 비교나 개체 ID로 확인한다.
+
+## Lab 27 — || 단락 평가로 뒤쪽 검사가 실행되지 않음
+```
+중단점:      checkKill 걸림, checkGold·checkLevel 안 걸림
+진짜 원인:   checkKillAchievements(p)가 true → || 뒤는 계산하지 않음 → 베테랑 업적 검사 자체가 실행 안 됨
+```
+**수정:** 부수 효과가 있는 호출은 각각 실행한 뒤 합친다.
+```cpp
+const bool kill  = checkKillAchievements(p);
+const bool gold  = checkGoldAchievements(p);
+const bool level = checkLevelAchievements(p);
+if (kill || gold || level) ...
+```
+(`|`로 바꿔도 동작은 하지만 의도가 숨겨지므로 권장하지 않는다.)
+**교훈:** **걸리지 않은 중단점**도 결과다. "이 함수는 불리긴 했나?"부터 확인하자.
+
+## Lab 28 — 설정을 읽기 전에 복사해 둔 멤버
+```
+조사식 (boot 안, loadSettings 직후):
+    g_settings.difficulty         Hard
+    world_.settings_.difficulty   Normal
+진짜 원인:   World는 Settings를 값으로 보관하고, Game 생성자에서(= loadSettings 전에) 복사됨.
+             AudioSystem은 참조로 보관하므로 나중에 읽은 볼륨이 반영됨.
+```
+**수정 (택1):**
+- `World`도 `const Settings& settings_;`로 보관 (설정 변경이 즉시 반영됨, 대신 수명 관리 주의)
+- 설정을 다 읽은 뒤에 `World`를 만든다 (초기화 순서를 명확히)
+- `spawnWave(const Settings&)`처럼 필요할 때 인자로 받는다
+
+**교훈:** 버그가 "어떤 입력에서" 나는 게 아니라 "어떤 **순서**로" 나는 경우, 시작부터 따라가며 **두 사본을 나란히** 조사식에 띄워 언제 갈라지는지 본다.

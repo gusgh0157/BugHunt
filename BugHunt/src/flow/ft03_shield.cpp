@@ -1,0 +1,86 @@
+#include "../labs.h"
+#include <algorithm>
+
+// 10초(600틱) 동안 보호막을 두른 탱커가 공격을 받는다.
+// 받은 피해는 반드시 "보호막이 흡수"하거나 "HP가 깎이거나" 둘 중 하나여야 한다.
+namespace flow3
+{
+constexpr int kTicks = 600;          // 60틱 = 1초
+constexpr int kMaxShield = 30;
+
+struct Unit
+{
+    int hp = 200;
+    int shield = kMaxShield;
+};
+
+void takeDamage(Unit& unit, int damage)
+{
+    if (unit.shield > 0)
+    {
+        unit.shield -= damage;
+        if (unit.shield < 0)
+            unit.shield = 0;
+        return;
+    }
+    unit.hp -= damage;
+}
+
+void rechargeShield(Unit& unit, int amount)
+{
+    unit.shield = std::min(kMaxShield, unit.shield + amount);
+}
+}
+
+void ft03_shield()
+{
+    using namespace flow3;
+
+    Unit tank;
+    int received = 0;   // 들어온 피해 합계
+    int absorbed = 0;   // 보호막이 줄어든 양
+    int hpLost = 0;     // HP가 줄어든 양
+
+    for (int tick = 1; tick <= kTicks; ++tick)
+    {
+        int damage = 0;
+        if (tick % 37 == 0) damage += 7;    // 오크의 도끼
+        if (tick % 50 == 0) damage += 4;    // 독 장판
+
+        if (damage > 0)
+        {
+            const Unit before = tank;
+            takeDamage(tank, damage);
+            received += damage;
+            absorbed += before.shield - tank.shield;
+            hpLost += before.hp - tank.hp;
+        }
+
+        if (tick % 120 == 0)
+            rechargeShield(tank, 10);
+    }
+
+    std::cout << "  받은 피해 " << received << ", 보호막 흡수 " << absorbed
+              << ", HP 감소 " << hpLost << ", 남은 HP " << tank.hp << '\n';
+    expect("받은 피해 == 보호막 흡수 + HP 감소", received, absorbed + hpLost);
+}
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// ============================================================================
+
+#pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
+// 600틱을 F10으로 따라갈 수는 없습니다. 피해가 "사라진" 순간에만 멈추게 하세요.
+// ft03_shield의 hpLost += ... 줄에 중단점을 걸고, 중단점 빨간 원 우클릭 → 조건:
+//     (before.shield - tank.shield) + (before.hp - tank.hp) != damage
+// 이 조건이 참일 때만 멈춥니다. 멈추면 지역 창에서 tick, damage, before, tank 를 보세요.
+#pragma endregion
+
+#pragma region 힌트 2
+// 멈췄을 때 before.shield는 damage보다 작았나요, 컸나요?
+// 조건을 tick == (그때의 tick) 으로 바꿔 takeDamage 호출 줄에 걸고 다시 실행한 뒤, F11로 들어가 보세요.
+#pragma endregion
+
+#pragma region 힌트 3
+// 보호막이 피해보다 적게 남아 있을 때, 보호막이 막지 못한 나머지 피해는 어디로 가야 할까요?
+#pragma endregion

@@ -37,9 +37,19 @@ constexpr LabEntry kLabs[] = {
     { "파티 칭호 수여",     "아무도 때리지 않았는데 HP가 바뀐다",  lab10_party },
     { "퀘스트 선행 조건",   "프로그램이 즉시 죽는다",              lab11_quests },
     { "상태 플래그",        "독에 걸렸는데 아니라고 한다",         lab12_status_flags },
+    // 3부: 흐름 추적 (크래시 없음)
+    { "출석 보상",          "7일 연속 출석했는데 보너스가 없다",    ft01_attendance },
+    { "치명타 피해",        "치명타가 일반 공격과 똑같이 들어간다", ft02_critical },
+    { "보호막 탱커",        "피해 합계가 맞지 않는다",              ft03_shield },
+    { "늑대 사냥 퀘스트",   "5마리를 잡았는데 퀘스트가 안 끝난다",  ft04_quest },
+    { "상점 할인",          "VIP가 VIP 할인을 못 받는다",           ft05_discount },
+    { "장비 수리",          "골드는 빠졌는데 내구도가 그대로다",    ft06_repair },
+    { "업적 해금",          "조건을 채운 업적 하나가 안 열린다",    ft07_achievements },
+    { "난이도 설정",        "어려움으로 저장했는데 적이 약하다",    ft08_difficulty },
 };
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
+constexpr int kAdvancedLabEnd = 20;
 
 const char* buildName()
 {
@@ -61,6 +71,8 @@ void printMenu()
             std::cout << "\n[1부] 호출 스택 입문 - VS에서 F5로 실행하세요\n";
         else if (i == kBasicLabCount)
             std::cout << "\n[2부] 심화\n";
+        else if (i == kAdvancedLabEnd)
+            std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 F10/F11로 따라가세요\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }
