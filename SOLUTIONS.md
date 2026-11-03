@@ -356,7 +356,7 @@ Board::value_type* selected_ = nullptr;
 조사식:      (void*)heroes[i].name.c_str() 가 grantTitle 뒤에 바뀜 (Doran, Selene), Kael은 그대로
 Kael:        "Kael the Brave" 14글자 → 여전히 객체 안 버퍼(SSO) → 같은 주소라 우연히 맞음
 Doran:       21글자 → 객체 안 버퍼에서 힙으로 이사. 이름표는 객체 안의 옛 버퍼(지금은 힙 포인터가 들어 있음)를 읽어 깨진 글자
-Selene:      원래 힙(18글자, 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (메모리 검사기의 0xEE 글자)
+Selene:      원래 힙(18글자, MSVC STL에서 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (메모리 검사기의 0xEE 글자)
 ```
 **수정:** 이름표가 문자열 버퍼가 아니라 문자열을 가진 객체를 가리키게 한다.
 ```cpp
@@ -364,7 +364,7 @@ explicit Nameplate(const Hero& hero) : hero_(&hero) {}
 const char* text() const { return hero_->name.c_str(); }
 const Hero* hero_;
 ```
-**구성별:** 위 글자 수 경계는 MSVC STL과 libstdc++(객체 안 버퍼 15글자) 기준이다. libc++(macOS 기본)는 22글자까지 객체 안에 두므로 Doran도 우연히 맞을 수 있다. ASan은 Selene만 잡는다(heap-use-after-free). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
+**구성별:** 위 글자 수 경계는 MSVC STL과 libstdc++(객체 안 버퍼 15글자) 기준이다. 힙 용량도 구현마다 다르다(18글자일 때 MSVC STL 31, libstdc++ 18). libc++(macOS 기본)는 22글자까지 객체 안에 두므로 Doran도 우연히 맞을 수 있고, Selene도 처음에는 객체 안에 있다가 Doran처럼 힙으로 이사한다. ASan은 Selene만 잡는다(heap-use-after-free, MSVC STL·libstdc++ 기준). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
 **교훈:** `c_str()`/`data()`/`string_view`는 문자열이 바뀌면 무효가 될 수 있다. 짧은 문자열은 SSO 때문에 "되는 것처럼" 보여서 더 늦게 발견된다.
 
 ## Lab 39 — set 안에 있는 원소의 정렬 기준을 바꿈
@@ -898,7 +898,7 @@ timers.after(3, [&hero, bonus] {
     ...
 });
 ```
-**구성별:** 틀린 값은 컴파일러와 구성마다 다르다(이 저장소에서 Kael: MSVC Debug -124, MSVC·Clang Release 45, Clang Debug 85, ASan 쓰레기 값). 위 조사식은 Release의 45가 나온 이유다. 기본 ASan은 stack-use-after-return을 잡지 않는다. Clang ASan은 `ASAN_OPTIONS=detect_stack_use_after_return=1`로 실행하면 이 람다 줄에서 `stack-use-after-return`으로 멈춘다(README "람다 캡처와 ASan").
+**구성별:** 틀린 값은 컴파일러와 구성마다 다르다(이 저장소에서 Kael의 예: MSVC Debug -124(다시 빌드하면 바뀔 수 있다), MSVC·Clang Release 45, Clang Debug 85, ASan 쓰레기 값). 위 조사식은 Release의 45가 나온 이유다. 기본 ASan은 stack-use-after-return을 잡지 않는다. Clang ASan은 `ASAN_OPTIONS=detect_stack_use_after_return=1`로 실행하면 이 람다 줄에서 `stack-use-after-return`으로 멈춘다(README "람다 캡처와 ASan").
 **교훈:** `[&]`는 람다가 **지금 이 자리에서** 실행될 때만 안전하다. 콜백, 타이머, 스레드, 나중에 실행할 목록에 넣는 람다는 캡처 목록을 하나씩 적고, 무엇을 참조로 들고 가는지 확인한다. `hero`를 참조로 가져가는 것도 "Hero가 타이머보다 오래 산다"는 약속에 기댄 것이다.
 
 ## 넘침: 스택과 힙의 경계 (랩 76~80)
