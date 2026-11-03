@@ -15,7 +15,7 @@
 1단계:       close()가 bidders_[*leader_]에게 물건을 줌 → leader_가 가리키는 사람이 Kael
 2단계:       placeBid(mira, 450)에 조건부 중단점(amount == 450) → bidders_[who].name이 "Kael"
              → 참가 번호 mira(1)가 다른 사람을 가리킨다
-3단계:       세 번째 join 뒤 줄에 중단점을 걸고 처음부터 F5. 멈추면 조사식에 house.bidders_[1].name, 데이터 중단점을 &house.bidders_[1].gold에 걸고 F5
+3단계:       세 번째 join 뒤 줄에 중단점을 걸고 처음부터 실행. 멈추면 조사식에 house.bidders_[1].name, 데이터 중단점(gdb·lldb의 watchpoint)을 &house.bidders_[1].gold에 걸고 계속
              → 바로 다음 drawFrame 안에서 멈춤. 호출 스택: std::stable_sort ← AuctionHouse::forEachByTier ← BidderPanel::refresh ← drawFrame
 4단계:       forEachByTier가 "보여 주기 위해" bidders_ 자체를 등급순으로 정렬한다.
              참가 번호(BidderId = 벡터 위치)와 leader_가 모두 다른 사람을 가리키게 된다
@@ -44,7 +44,7 @@ void AuctionHouse::forEachByTier(const std::function<void(const Bidder&)>& visit
 1단계:       TitleSystem::award → tracker_.bestStreak()가 5
 2단계:       AchievementTracker 핸들러의 ++current_에 데이터 중단점(또는 추적점 "#{e.seq} {current_}")
              → #2, #3, #5, #6, #7은 지나가는데 #4(세 번째 늑대)만 빠짐
-3단계:       EventBus::publish에 조건부 중단점 e.seq == 4, F10으로 따라가며 조사식에 i, subscribers_.size(), subscribers_[i].name
+3단계:       EventBus::publish에 조건부 중단점 e.seq == 4, 한 줄씩 따라가며 조사식에 i, subscribers_.size(), subscribers_[i].name
              → i == 1 "의뢰: 늑대 무리 소탕" 핸들러를 부른 뒤 size가 5 → 4, 다음 i == 2는 "전리품"
 4단계:       의뢰 핸들러 안 bus_.unsubscribe(sub_)의 호출 스택: HuntQuest 람다 ← EventBus::publish
              → 순회 중에 vector에서 지우면 뒤 원소가 한 칸씩 당겨지고, i는 그대로 증가하므로 "업적 추적"을 건너뛴다
@@ -71,11 +71,11 @@ void publish(const Event& e)
 증상:        부활 후 한 방 48 (기대 52)
 1단계:       DamageMeter::hit → StatSystem::attackOf. 조사식에 hero.prestige(), hero.buffs()
              → 부활 전에는 prestige 2, 부활 후에는 0
-2단계:       Aria를 만든 다음 줄에서 멈춰 데이터 중단점을 &aria.prestige_에 걸고 F5 → prestigeUp에서 두 번 멈춘 뒤, respawn 안의 swap에서 멈춤
+2단계:       Aria를 만든 다음 줄에서 멈춰 데이터 중단점을 &aria.prestige_에 걸고 계속 → prestigeUp에서 두 번 멈춘 뒤, respawn 안의 swap에서 멈춤
              호출 스택: swap ← Hero::operator= ← RespawnSystem::respawn
 3단계:       swap 직전 other.prestige_가 이미 0. other는 checkpoints_.snapshotOf(...)의 복사본
              → 조사식에 checkpoints.snapshots_ → 저장된 Aria도 prestige_ 0
-4단계:       CheckpointSystem::save의 insert_or_assign에 중단점, F11로 들어가면 Hero(const Hero&)
+4단계:       CheckpointSystem::save의 insert_or_assign에 중단점, 함수 안으로 들어가면(step into) Hero(const Hero&)
              → 초기화 목록에 prestige_가 없다. 기본값 0으로 남는다 (펫을 깊은 복사하려고 직접 만든 복사 생성자, prestige_는 시즌 2에서 추가)
 ```
 **가짜 용의자:** `RespawnSystem::respawn`의 `hero.clearBuffs()`. 줄어든 피해(48 → 52, 약 10%)가 사라진 "전투 함성 +10%"와 딱 맞아 보인다. 하지만 기획서 7.1대로 죽으면 버프는 사라져야 하고, 프레스티지 2단계도 +10%라서 우연히 같다.
@@ -96,7 +96,7 @@ Hero::Hero(const Hero& other)
 # 블라인드
 
 ## B-1 — 빈 vector에서 `size() - 1`
-`shelf.size() - 1`은 `size_t`라서 빈 진열대에서 0 - 1 = 18446744073709551615. 반복이 돌고 `shelf[0]`에서 어설션.
+`shelf.size() - 1`은 `size_t`라서 빈 진열대에서 0 - 1 = 18446744073709551615. 반복이 돌고 `shelf[0]`을 읽는다. 빈 vector는 버퍼가 없어서(data()가 nullptr) 잘못된 주소 접근으로 죽는다(MSVC Debug STL은 그 전에 범위 어설션).
 **수정:** `for (size_t i = 0; i + 1 < shelf.size(); ++i)`
 
 ## B-2 — 임시 문자열을 가리키는 참조를 돌려줌
@@ -108,7 +108,7 @@ Hero::Hero(const Hero& other)
 **수정:** `for (int x = 0; x + 1 < count; ++x)`
 
 ## B-4 — 멤버 대신 매개변수에 대입
-생성자 안의 `maxHp = maxHp;`는 매개변수에 자기 자신을 대입한다(멤버는 `maxHp_`). 멤버 `maxHp_`는 초기화되지 않아 Debug에서 `0xCDCDCDCD`(힙) 같은 값이 된다. 자기 대입은 경고도 나오지 않는다. 지역 창에서 `this->maxHp_`를 보면 바로 보인다.
+생성자 안의 `maxHp = maxHp;`는 매개변수에 자기 자신을 대입한다(멤버는 `maxHp_`). 멤버 `maxHp_`는 초기화되지 않아 vector 안의 몬스터는 메모리 검사기가 채운 `0xA5A5A5A5`(-1515870811)가 된다. MSVC는 자기 대입에 경고를 내지 않는다(Clang은 `-Wself-assign`, GCC는 `-Wshadow`를 켜면 단서가 나온다). 디버거에서 `this->maxHp_`를 보면 바로 보인다.
 **수정:** `maxHp_ = maxHp;` (가능하면 초기화 목록에서 `maxHp_(maxHp)`)
 
 ## B-5 — 범위 for 안에서 같은 vector에 `push_back`
@@ -137,7 +137,7 @@ for (const PlayerId& p : logins)
 ```
 
 ## B-7 — `std::accumulate`의 초깃값이 `int`
-초깃값 `0`의 타입이 누적 타입이 된다. 더할 때마다 `int`로 잘려 2.5 + 3.75 + 1.25 + 2.5가 8이 된다. 컴파일러 경고 C4244가 `<numeric>` 안을 가리킨다.
+초깃값 `0`의 타입이 누적 타입이 된다. 더할 때마다 `int`로 잘려 2.5 + 3.75 + 1.25 + 2.5가 8이 된다. 컴파일러 경고(MSVC C4244, GCC·Clang `-Wconversion`)가 `<numeric>` 안을 가리킨다.
 **수정:** `std::accumulate(prices.begin(), prices.end(), 0.0)`
 
 ## B-8 — `[this]` 람다를 등록한 뒤 객체가 옮겨짐

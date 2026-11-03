@@ -1,0 +1,141 @@
+#include "../labs.h"
+#include <chrono>
+#include <condition_variable>
+#include <future>
+#include <mutex>
+#include <string>
+#include <vector>
+
+// 맵 로딩. 맵을 청크로 나누고, 청크마다 비동기 작업을 하나씩 띄워 한꺼번에 불러온다.
+// 순서: 로딩 시작(작업을 모두 띄움) → 로딩 화면 표시와 함께 디스크를 깨움 → 로딩 끝(작업을 모두 기다림)
+namespace async1
+{
+// 디스크를 흉내 낸다. 깨어나기(spinUp) 전에 들어온 읽기는 조금 기다려 보고,
+// 그래도 깨어나지 않으면 아주 느린 경로(콜드 읽기)로 읽는다.
+class ChunkDisk
+{
+public:
+    std::string read(int chunk)
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (!wokeUp_.wait_for(lock, std::chrono::milliseconds(300), [&] { return awake_; }))
+            ++coldReads_;
+        return "chunk" + std::to_string(chunk);
+    }
+
+    void spinUp()
+    {
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            awake_ = true;
+        }
+        wokeUp_.notify_all();
+    }
+
+    int coldReads()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return coldReads_;
+    }
+
+private:
+    std::mutex mutex_;
+    std::condition_variable wokeUp_;
+    bool awake_ = false;
+    int coldReads_ = 0;
+};
+
+class MapLoader
+{
+public:
+    MapLoader(ChunkDisk& disk, int chunkCount) : disk_(disk), chunks_(chunkCount) {}
+
+    // 청크마다 비동기 작업을 띄우고 바로 돌아온다.
+    void startLoading()
+    {
+        for (int i = 0; i < static_cast<int>(chunks_.size()); ++i)
+            std::async(std::launch::async, [this, i] { chunks_[i] = disk_.read(i); });
+    }
+
+    // 띄운 작업이 모두 끝날 때까지 기다린다.
+    void finishLoading()
+    {
+        for (std::future<void>& job : jobs_)
+            job.get();
+        jobs_.clear();
+    }
+
+    int loadedCount() const
+    {
+        int n = 0;
+        for (const std::string& c : chunks_)
+            n += c.empty() ? 0 : 1;
+        return n;
+    }
+
+private:
+    ChunkDisk& disk_;
+    std::vector<std::string> chunks_;
+    std::vector<std::future<void>> jobs_;
+};
+
+// 맵 하나를 불러온다. 불러온 청크 수를 돌려준다.
+int loadMap(ChunkDisk& disk, int chunkCount)
+{
+    MapLoader loader(disk, chunkCount);
+    loader.startLoading();
+    disk.spinUp();          // 로딩 화면을 띄우면서 디스크를 깨운다
+    loader.finishLoading();
+    return loader.loadedCount();
+}
+}
+
+void as01_loading()
+{
+    using namespace async1;
+    constexpr int kChunks = 6;
+
+    ChunkDisk disk;
+    const auto start = std::chrono::steady_clock::now();
+    const int loaded = loadMap(disk, kChunks);
+    const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+    std::cout << "  청크 " << kChunks << "개 로딩: " << ms << " ms, 콜드 읽기 " << disk.coldReads() << "번\n";
+
+    expect("불러온 청크 수", kChunks, loaded);
+    expect("디스크가 깨기 전에 기다리다 느린 경로로 읽은 청크 수", 0, disk.coldReads());
+}
+
+// ============================================================================
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
+// ============================================================================
+
+#pragma region 힌트 1 (README의 "따라 해 보기"를 먼저 하세요)
+// ChunkDisk::read에 중단점을 걸고, 멈출 때마다 스레드 목록을 보세요.
+// read를 실행 중인 작업 스레드가 동시에 몇 개 있나요? 메인 스레드는 그동안 어디에서 기다리고 있나요?
+#pragma endregion
+
+#pragma region 힌트 2
+// 메인 스레드의 호출 스택을 보세요. startLoading의 for 문 안, 그런데 std::future의 소멸자 안입니다.
+// std::async가 돌려준 값은 어디에 저장되나요? 저장하지 않은 임시 객체는 언제 파괴되나요?
+// (컴파일러 경고도 이 줄을 가리킵니다)
+#pragma endregion
+
+#pragma region 힌트 3
+// std::launch::async로 만든 작업의 future는 파괴될 때 작업이 끝나기를 기다립니다.
+// 그래서 버린 future는 "비동기"를 "하나씩 차례로"로 바꿉니다. finishLoading이 기다릴 수 있게 future를 모아 두세요.
+#pragma endregion
+
+#pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+void as01_loading_hidden()
+{
+    using namespace async1;
+    ChunkDisk disk;
+    expect("불러온 청크 수", 4, loadMap(disk, 4));
+    expect("콜드 읽기 수", 0, disk.coldReads());
+    ChunkDisk disk2;
+    expect("불러온 청크 수 (두 번째 맵)", 9, loadMap(disk2, 9));
+    expect("콜드 읽기 수 (두 번째 맵)", 0, disk2.coldReads());
+}
+#pragma endregion

@@ -66,19 +66,19 @@ void ft03_shield()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
-// 600틱을 F10으로 따라갈 수는 없습니다. 피해가 "사라진" 순간에만 멈추게 하세요.
-// ft03_shield의 hpLost += ... 줄에 중단점을 걸고, 중단점 빨간 원 우클릭 → 조건:
+// 600틱을 한 줄씩 따라갈 수는 없습니다. 피해가 "사라진" 순간에만 멈추게 하세요.
+// ft03_shield의 hpLost += ... 줄에 조건부 중단점을 거세요. 조건:
 //     (before.shield - tank.shield) + (before.hp - tank.hp) != damage
-// 이 조건이 참일 때만 멈춥니다. 멈추면 지역 창에서 tick, damage, before, tank 를 보세요.
+// 이 조건이 참일 때만 멈춥니다. 멈추면 지역 변수에서 tick, damage, before, tank 를 보세요.
 #pragma endregion
 
 #pragma region 힌트 2
 // 멈췄을 때 before.shield는 damage보다 작았나요, 컸나요?
-// 조건을 tick == (그때의 tick) 으로 바꿔 takeDamage 호출 줄에 걸고 다시 실행한 뒤, F11로 들어가 보세요.
+// 조건을 tick == (그때의 tick) 으로 바꿔 takeDamage 호출 줄에 걸고 다시 실행한 뒤, 그 함수 안으로 들어가 보세요.
 #pragma endregion
 
 #pragma region 힌트 3
@@ -86,7 +86,7 @@ void ft03_shield()
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
-// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
 void ft03_shield_hidden()
 {

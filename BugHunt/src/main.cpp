@@ -1,7 +1,7 @@
 #include "labs.h"
 #include "grader.h"
+#include "platform/platform.h"
 
-#include <windows.h>
 #include <cctype>
 #include <cstdlib>
 #include <cstring>
@@ -80,7 +80,15 @@ constexpr LabEntry kLabs[] = {
     { "세이브 파일",        "큰 맵에서 저장이 몇 초씩 걸린다",      pf04_save_log,     pf04_save_log_hidden },
     { "전장의 안개",        "큰 맵에서만 프레임이 뚝 떨어진다",     pf05_fog_map,      pf05_fog_map_hidden },
     { "어그로 검사",        "몬스터가 많으면 서버 틱이 밀린다",     pf06_aggro_scan,   pf06_aggro_scan_hidden },
-    // 추가 랩 (임시 번호 54~. 최종 번호와 부 배치는 재배치 때 정한다)
+    // 비동기와 동시성 (임시 번호 54~60)
+    { "맵 로딩",            "비동기로 불러오는데 로딩이 하나씩 진행된다", as01_loading,      as01_loading_hidden },
+    { "대장간 일괄 제작",   "주문 하나가 실패하면 대장간이 통째로 멈춘다", as02_crafting,    as02_crafting_hidden },
+    { "레이드 입장 대기",   "모두 준비했는데 공대장이 입장하지 않는다",   as03_raid_ready,   as03_raid_ready_hidden },
+    { "낙찰 공지",          "경매 창을 닫으면 낙찰가가 이상하게 공지된다", as04_auction_notice, as04_auction_notice_hidden },
+    { "한정 판매",          "3개 한정인데 5개가 팔렸다",                 as05_limited_sale, as05_limited_sale_hidden },
+    { "매치메이킹",         "대기열 인원이 모자라면 서버가 죽는다",       as06_matchmaking,  as06_matchmaking_hidden },
+    { "컷신 대화",          "컷신의 호감도 숫자가 이상하다",             as07_cutscene,     as07_cutscene_hidden },
+    // 추가 랩 (임시 번호 61~. 최종 번호와 부 배치는 재배치 때 정한다)
     // 연산자와 평가 순서 (3부 흐름 추적 끝에 붙일 예정)
     { "길드 회원 번호",     "새 회원이 기존 회원과 같은 번호를 받는다", ft09_member_ids, ft09_member_ids_hidden },
     { "최고 콤보",          "기록을 갱신할 때마다 콤보가 2씩 오른다", ft10_best_combo, ft10_best_combo_hidden },
@@ -137,7 +145,7 @@ constexpr ChallengeEntry kChallenges[] = {
     { "B-7", 207, "챌린지 B-7", "무료 배송 금액인데 배송비가 붙는다",    chB7, chB7_hidden },
     { "B-8", 208, "챌린지 B-8", "포탑이 경보에 제대로 반응하지 않는다",  chB8, chB8_hidden },
 };
-constexpr int kChallengePart = 8;   // grade-report.json의 part (마지막 부 다음 번호)
+constexpr int kChallengePart = 9;   // grade-report.json의 part (마지막 부 다음 번호)
 
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 constexpr int kBasicLabCount = 8;
@@ -146,6 +154,7 @@ constexpr int kFlowLabEnd = 28;
 constexpr int kContainerLabEnd = 35;
 constexpr int kPointerLabEnd = 42;
 constexpr int kHangLabEnd = 47;
+constexpr int kPerfLabEnd = 53;
 
 int partOf(int labNumber)
 {
@@ -155,18 +164,13 @@ int partOf(int labNumber)
     if (labNumber <= kContainerLabEnd) return 4;
     if (labNumber <= kPointerLabEnd) return 5;
     if (labNumber <= kHangLabEnd) return 6;
-    return 7;
+    if (labNumber <= kPerfLabEnd) return 7;
+    return 8;   // 비동기와 동시성 (임시)
 }
 
 const char* buildName()
 {
-#if defined(__SANITIZE_ADDRESS__)
-    return "ASan";
-#elif defined(_DEBUG)
-    return "Debug";
-#else
-    return "Release";
-#endif
+    return platform::buildName();
 }
 
 void printMenu()
@@ -175,27 +179,29 @@ void printMenu()
     for (int i = 0; i < kLabCount; ++i)
     {
         if (i == 0)
-            std::cout << "\n[1부] 호출 스택 입문 - VS에서 F5로 실행하세요\n";
+            std::cout << "\n[1부] 호출 스택 입문 - 디버거로 실행하세요\n";
         else if (i == kBasicLabCount)
             std::cout << "\n[2부] 심화\n";
         else if (i == kAdvancedLabEnd)
-            std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 F10/F11로 따라가세요\n";
+            std::cout << "\n[3부] 흐름 추적 - 크래시 없음. 중단점을 걸고 한 줄씩 따라가세요\n";
         else if (i == kFlowLabEnd)
             std::cout << "\n[4부] 컨테이너 - 표준 컨테이너와 알고리즘의 함정\n";
         else if (i == kContainerLabEnd)
             std::cout << "\n[5부] 포인터 오용 - Debug, Release, ASan에서 각각 실행해 비교해 보세요\n";
         else if (i == kPointerLabEnd)
-            std::cout << "\n[6부] 멈춤 - 무한루프와 데드락. 멈추면 디버그 → 모두 중단(Ctrl+Alt+Break)\n";
+            std::cout << "\n[6부] 멈춤 - 무한루프와 데드락. 멈추면 디버거에서 모두 중단(break all)\n";
         else if (i == kHangLabEnd)
-            std::cout << "\n[7부] 성능 - 틀리지 않지만 느리다. Release + 성능 프로파일러(Alt+F2)\n";
+            std::cout << "\n[7부] 성능 - 틀리지 않지만 느리다. Release + CPU 프로파일러\n";
+        else if (i == kPerfLabEnd)
+            std::cout << "\n[비동기와 동시성] (임시 번호) future, condition_variable, atomic, 스레드 수명, 코루틴\n";
         std::cout << "  " << (i + 1 < 10 ? " " : "") << (i + 1) << ". "
                   << kLabs[i].title << "  - " << kLabs[i].symptom << '\n';
     }
     std::cout << "\n[챌린지] 기본 부를 모두 끝낸 뒤에 푸세요. 힌트 없음 (README의 \"챌린지\")\n";
     for (const ChallengeEntry& c : kChallenges)
         std::cout << "  " << c.code << ". " << c.symptom << '\n';
-    std::cout << "  (명령줄 인자로 번호를 넘겨도 된다: BugHunt.exe 3, BugHunt.exe C-1)\n";
-    std::cout << "  (채점: grade.bat 또는 BugHunt.exe --grade)\n";
+    std::cout << "  (명령줄 인자로 번호를 넘겨도 된다: BugHunt 3, BugHunt C-1)\n";
+    std::cout << "  (채점: grade.bat, ./grade.sh 또는 BugHunt --grade)\n";
 }
 
 const ChallengeEntry* findChallenge(int gradeId)
@@ -294,7 +300,7 @@ int runLab(int id, bool hiddenCase)
 
 int main(int argc, char** argv)
 {
-    SetConsoleOutputCP(CP_UTF8);
+    platform::initConsole();
 
     // 채점: BugHunt.exe --grade [번호 | C-1 | labs | challenges]
     if (argc > 1 && std::strcmp(argv[1], "--grade") == 0)

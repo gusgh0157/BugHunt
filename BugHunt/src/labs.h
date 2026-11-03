@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <functional>
 #include <iostream>
 
@@ -29,9 +30,31 @@ bool expect(const char* what, const T& expected, const T& actual)
 // 6부(멈춤) 랩용 감시 타이머 (src/watchdog.cpp)
 // work를 작업 스레드에서 실행하고, timeoutMs 안에 끝나지 않으면
 // "[FAIL] what  응답 없음 (N ms 초과)"를 출력한 뒤 프로세스를 끝낸다 (종료 코드 kExitTimeout).
-// 디버거가 붙어 있으면 타이머를 끄고 끝날 때까지 기다린다. 멈춘 상태를 모두 중단(Ctrl+Alt+Break)으로 관찰하라는 뜻이다.
+// 디버거가 붙어 있으면 타이머를 끄고 끝날 때까지 기다린다. 멈춘 상태를 "모두 중단(break all)"으로 관찰하라는 뜻이다.
 constexpr int kHangTimeoutMs = 2000;
 void runWithWatchdog(const char* what, const std::function<void()>& work, int timeoutMs = kHangTimeoutMs);
+
+// 랩을 돕는 도구 (src/support/heap_guard.cpp). 모두 표준 C++이라 어느 컴파일러에서나 똑같이 동작한다.
+namespace bughunt
+{
+// 오브젝트 풀처럼 "전에 쓰던 메모리"를 다시 쓰는 상황을 흉내 낸다.
+// 돌려주는 메모리에는 앞 사용자가 남긴 값(0xA5 바이트)이 그대로 들어 있다.
+void* recycledStorage(std::size_t bytes);
+
+[[noreturn]] void invalidComparator();
+
+// 정렬 비교 함수를 감싸서, 표준 알고리즘이 요구하는 엄격한 약순서를 어기면 바로 멈춘다.
+// (표준 라이브러리의 디버그 모드가 하는 검사를 어느 구성에서나 똑같이 하려고 쓴다)
+template <class Compare>
+auto checkedOrder(Compare comp)
+{
+    return [comp](const auto& a, const auto& b) {
+        if (comp(a, a) || (comp(a, b) && comp(b, a)))
+            invalidComparator();
+        return comp(a, b);
+    };
+}
+}
 
 // 1부: 호출 스택 입문 (src/basics)
 void cs01_profile();
@@ -100,6 +123,14 @@ void pf04_save_log();
 void pf05_fog_map();
 void pf06_aggro_scan();
 
+// 비동기와 동시성 (src/async). 임시 번호 54~60, 마지막 번호 재배치 때 멈춤 앞으로 옮긴다
+void as01_loading();
+void as02_crafting();
+void as03_raid_ready();
+void as04_auction_notice();
+void as05_limited_sale();
+void as06_matchmaking();
+void as07_cutscene();
 // 추가 랩 (임시 번호, 최종 배치는 재배치 때)
 // 연산자와 평가 순서 (src/flow)
 void ft09_member_ids();
@@ -178,6 +209,13 @@ void pf03_combat_log_hidden();
 void pf04_save_log_hidden();
 void pf05_fog_map_hidden();
 void pf06_aggro_scan_hidden();
+void as01_loading_hidden();
+void as02_crafting_hidden();
+void as03_raid_ready_hidden();
+void as04_auction_notice_hidden();
+void as05_limited_sale_hidden();
+void as06_matchmaking_hidden();
+void as07_cutscene_hidden();
 void chC1_auction_night_hidden();
 void chC2_raid_night_hidden();
 void chC3_shrine_hidden();

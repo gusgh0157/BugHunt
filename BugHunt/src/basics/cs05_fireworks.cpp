@@ -4,21 +4,16 @@
 // 불꽃놀이 카운트다운. 2초 간격으로 숫자를 센다.
 namespace lab5
 {
-void countdown(int n, std::string& text)
+std::string countdown(int n)
 {
     if (n == 0)
-    {
-        text += "발사!";
-        return;
-    }
-    text += std::to_string(n) + " ";
-    countdown(n - 2, text);
+        return "발사!";
+    return std::to_string(n) + " " + countdown(n - 2);
 }
 
 void startFireworks(int seconds)
 {
-    std::string text;
-    countdown(seconds, text);
+    const std::string text = countdown(seconds);
     std::cout << "  " << text << '\n';
 }
 
@@ -37,7 +32,7 @@ void cs05_fireworks()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 호출 스택을 보고 펼치세요)
@@ -47,7 +42,7 @@ void cs05_fireworks()
 
 #pragma region 힌트 2
 // n이 홀수인가요, 짝수인가요? 그럼 처음에 어떤 숫자로 시작했을까요?
-// (스택이 너무 깊으면 VS가 맨 아래를 잘라서 보여 줄 수 있습니다. 그럴 땐 값으로 추리하세요.)
+// (스택이 너무 깊으면 디버거가 일부만 보여 줄 수 있습니다. 그럴 땐 값으로 추리하세요.)
 #pragma endregion
 
 #pragma region 힌트 3

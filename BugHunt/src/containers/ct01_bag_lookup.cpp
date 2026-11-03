@@ -40,16 +40,16 @@ void ct01_bag_lookup()
 }
 
 // ============================================================================
-// 힌트: 막힐 때 하나씩만 펼치세요. (Ctrl+M, Ctrl+O = 전부 접기)
+// 힌트: 막힐 때 하나씩만 펼치세요. (편집기의 접기 기능으로 모두 접어 두세요)
 // ============================================================================
 
 #pragma region 힌트 1 (먼저 직접 추적해 보고 펼치세요)
-// openShop 호출 줄에 중단점을 걸고 지역 창에서 bag을 펼쳐 두세요. F10으로 openShop을 넘긴 뒤 다시 보세요.
+// openShop 호출 줄에 중단점을 걸고 지역 변수에서 bag을 펼쳐 두세요. 한 줄씩 실행(step over)으로 openShop을 넘긴 뒤 다시 보세요.
 // 상점 창을 열었을 뿐인데 가방 안이 바뀌었나요?
 #pragma endregion
 
 #pragma region 힌트 2
-// countOf에 들어가(F11) bag[item] 줄을 지나기 전과 후의 bag.size()를 조사식으로 비교해 보세요.
+// countOf에 들어가(step into) bag[item] 줄을 지나기 전과 후의 bag.size()를 조사식으로 비교해 보세요.
 // "Mana Potion"은 원래 가방에 없었습니다. operator[]는 없는 키를 만나면 무엇을 하나요?
 #pragma endregion
 
@@ -58,7 +58,7 @@ void ct01_bag_lookup()
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 (풀이에는 필요 없습니다. 고치지 마세요)
-// 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
+// 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
 void ct01_bag_lookup_hidden()
 {

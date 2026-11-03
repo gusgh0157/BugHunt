@@ -1,6 +1,7 @@
 #include "labs.h"
 
-#include <windows.h>
+#include "platform/platform.h"
+
 #include <chrono>
 #include <condition_variable>
 #include <cstdlib>
@@ -26,8 +27,8 @@ void runWithWatchdog(const char* what, const std::function<void()>& work, int ti
     auto state = std::make_shared<WatchState>();
 
     std::thread worker([state, &work] {
-        // 스레드 창과 병렬 스택 창에 이 이름으로 보인다.
-        SetThreadDescription(GetCurrentThread(), L"랩 작업 스레드");
+        // 디버거의 스레드 목록에 이 이름으로 보인다.
+        platform::nameThisThread("lab-worker");
         work();
         {
             std::lock_guard<std::mutex> lock(state->mutex);
@@ -37,9 +38,9 @@ void runWithWatchdog(const char* what, const std::function<void()>& work, int ti
     });
 
     std::unique_lock<std::mutex> lock(state->mutex);
-    if (IsDebuggerPresent())
+    if (platform::debuggerAttached())
     {
-        std::cout << "  (디버거가 붙어 있어 감시 타이머를 껐습니다. 멈춘 것 같으면 디버그 → 모두 중단(Ctrl+Alt+Break))\n";
+        std::cout << "  (디버거가 붙어 있어 감시 타이머를 껐습니다. 멈춘 것 같으면 디버거에서 모두 중단(break all)하세요)\n";
         state->finished.wait(lock, [&] { return state->done; });
     }
     else if (!state->finished.wait_for(lock, std::chrono::milliseconds(timeoutMs), [&] { return state->done; }))

@@ -15,7 +15,7 @@
 
 ## Lab 2 — 1부터 세는 키를 0부터 세는 인덱스로 그대로 사용
 ```
-멈춘 함수:  [외부 코드] vector::operator[] → 첫 내 코드: QuickSlotBar::itemAt(slotIndex = 4)
+멈춘 함수:  [외부 코드] std::out_of_range 던지기 ← vector::at → 첫 내 코드: QuickSlotBar::itemAt(slotIndex = 4)
 값의 출처:  onNumberKey(key = 4) ← replayInput
 진짜 원인:  키 번호(1~4)를 슬롯 인덱스(0~3)로 바꾸지 않음
 ```
@@ -24,7 +24,7 @@
 
 ## Lab 3 — 정수 나눗셈으로 0초가 됨
 ```
-멈춘 함수:  damagePerSecond(seconds = 0)
+멈춘 함수:  damagePerSecond(seconds = 0)이 std::invalid_argument를 던짐 (예외가 던져질 때 멈춤을 켜면 throw 줄에서 멈춘다)
 값의 출처:  printBattleSummary: battle = {"Slime", 35, 800}, toSeconds(800) == 0
 진짜 원인:  1초 미만 전투가 정수 나눗셈으로 0초가 됨
 ```
@@ -41,16 +41,16 @@
 
 ## Lab 5 — 종료 조건을 건너뛰는 재귀
 ```
-멈춘 함수:  countdown(n = -4xxx) 이 수천 번 반복 → Stack overflow
+멈춘 함수:  countdown(n = -수만) 이 수만 번 반복 → 스택 오버플로
 값의 출처:  n이 홀수 → startFireworks(seconds = 5)
 진짜 원인:  5, 3, 1, -1, ... 로 0을 건너뛰어 끝나지 않음
 ```
-**수정:** `if (n <= 0)`.
+**수정:** `if (n <= 0) return "발사!";`
 **교훈:** 스택이 같은 함수로 가득 차면 재귀가 끝나지 않는 것. 매개변수 값의 변화를 보면 이유가 보인다.
 
 ## Lab 6 — 없는 키로 map::at
 ```
-멈춘 함수:  [외부 코드] _CxxThrowException ← std::map::at → 첫 내 코드: priceOf(itemId = "mana_poiton")
+멈춘 함수:  [외부 코드] std::out_of_range 던지기 ← std::map::at → 첫 내 코드: priceOf(itemId = "mana_poiton")
 값의 출처:  cartTotal ← checkout의 장바구니 목록
 진짜 원인:  "mana_potion" 오타
 ```
@@ -70,7 +70,7 @@
 
 ## Lab 8 — 인자 순서가 뒤바뀜
 ```
-멈춘 함수:  [외부 코드] std::array::operator[] → statsFor(level = 200)  (테이블은 0~50)
+멈춘 함수:  [외부 코드] std::out_of_range 던지기 ← std::array::at → statsFor(level = 200)  (테이블은 0~50)
 값의 출처:  createMonster(level = 200) ← spawnMonster(name = "Ogre Boss", level = 200, bonusHp = 13)
           ← spawnWave(wave = 3)
 진짜 원인:  spawnMonster("Ogre Boss", 200, 10 + wave)
@@ -84,9 +84,9 @@
 # 2부: 심화
 
 ## Lab 9 — off-by-one
-`i <= scores.size()` → 마지막 반복에서 `scores[5]` 범위 밖 접근. Debug STL이 어설션으로 잡아 준다.
+`i <= scores.size()` → 마지막 반복에서 `scores.at(5)` 범위 밖 접근 → `std::out_of_range`.
 **수정:** `i < scores.size()` 또는 범위 기반 for / `std::accumulate`.
-**교훈:** 어설션 창 → 다시 시도 → 호출 스택은 가장 기본적인 추적 루트.
+**교훈:** 예외(또는 어설션)에서 멈춤 → 호출 스택 → 첫 내 코드는 가장 기본적인 추적 루트. `[]` 대신 `at()`을 쓰면 어느 컴파일러, 어느 구성에서나 범위 밖 접근이 예외로 드러난다.
 
 ## Lab 10 — 참조 무효화 (vector 재할당)
 `add`가 `items_.back()`의 참조를 돌려주는데, 이후 `push_back`에서 capacity가 늘면 원소들이 새 메모리로 옮겨지고 `sword`는 해제된 메모리를 가리킨다(use-after-free).
@@ -98,9 +98,9 @@
 **수정:** `std::string`으로 리턴. `string_view`는 소유자가 더 오래 살아 있을 때만.
 
 ## Lab 12 — 초기화 안 된 멤버
-`int combo_;`에 초기값이 없다. Debug에선 `0xCCCCCCCC`(-858993460)라 처음 4연속 명중이 음수로 기록되어 무시됨. Release에선 우연히 0이라 맞게 나올 수도 있다.
+`int combo_;`에 초기값이 없다. 카운터는 오브젝트 풀(`bughunt::recycledStorage`)의 재사용 메모리 위에 만들어지는데, 이 자리에는 전에 쓰던 값(BugHunt에서는 `0xA5A5A5A5` = -1515870811)이 남아 있어서 처음 4연속 명중이 음수로 기록되어 무시된다. 평범한 지역 변수였다면 컴파일러와 구성에 따라 우연히 0이라 맞게 나올 수도 있다.
 **수정:** `int combo_ = 0;`
-**교훈:** Debug/Release 결과가 다르면 미초기화 변수를 1순위로 의심. (코드 분석 경고 C26495)
+**교훈:** 생성자가 모든 멤버를 초기화하는지 확인. 값이 실행마다, 구성마다 다르면 미초기화 변수를 1순위로 의심. (컴파일러의 "멤버를 초기화하지 않음" 정적 분석 경고. 예: MSVC 코드 분석 C26495, clang-tidy `cppcoreguidelines-pro-type-member-init`)
 
 ## Lab 13 — erase 후 이터레이터 무효화
 `erase(it)` 후 `it`는 무효인데 `++it`를 한다.
@@ -120,12 +120,13 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 **수정(권장, Rule of Zero):** `std::vector<char> data_;` 또는 `std::unique_ptr<char[]>` 사용. 또는 복사 생성자/대입/이동을 직접 구현.
 
 ## Lab 16 — 가상 소멸자 누락 (메모리 누수 + UB)
-`StatusEffect`의 소멸자가 virtual이 아니라 `unique_ptr<StatusEffect>`가 `delete`할 때 `Burn`의 소멸자가 불리지 않는다 → `damagePerTurn_` 벡터 메모리 누수. (엄밀히는 정의되지 않은 동작)
+`StatusEffect`의 소멸자가 virtual이 아니라 `unique_ptr<StatusEffect>`가 `delete`할 때 `Burn`의 소멸자가 불리지 않는다 → 멤버 `schedule_`(`DamageSchedule`)도 파괴되지 않아 전투 1000번 뒤 1000개가 살아 남는다(그 안의 벡터 메모리도 누수). 엄밀히는 정의되지 않은 동작이다.
+**추적:** `DamageSchedule`의 소멸자에 중단점을 걸면 한 번도 멈추지 않는다. 생성자에는 멈춘다. → 누가 지워야 했나? `unique_ptr`의 `delete`가 `StatusEffect`의 소멸자만 부른다.
 **수정:** `virtual ~StatusEffect() = default;`
-**교훈:** 다형적으로 delete될 기반 클래스는 반드시 virtual 소멸자. (경고 C5205)
+**교훈:** 다형적으로 delete될 기반 클래스는 반드시 virtual 소멸자. (경고: MSVC C5205, GCC·Clang `-Wdelete-non-virtual-dtor`)
 
 ## Lab 17 — 데이터 레이스
-`gold_` 읽기-수정-쓰기가 원자적이지 않다. 두 스레드가 같은 값을 읽고 각각 +1을 쓰면 하나가 사라진다.
+`gold_` 읽기-수정-쓰기가 원자적이지 않다. 두 스레드가 같은 값을 읽고 각각 +1을 쓰면 하나가 사라진다. 읽기와 쓰기 사이의 `std::this_thread::yield()`는 그 틈을 넓혀 어느 컴파일러에서나 증상이 드러나게 할 뿐, 원인이 아니다(지워도 레이스는 남는다).
 **수정:** `std::atomic<int> gold_{0};` + `gold_ += amount;` 또는 `std::mutex`로 보호.
 
 ## Lab 18 — 구조체 내부 버퍼 오버플로
@@ -141,7 +142,7 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 ## Lab 20 — 연산자 우선순위
 `==`가 `&`보다 먼저 계산되어 `flags & (status == status)` = `flags & 1` → 항상 STUN 비트만 검사.
 **수정:** `return (flags & status) == status;`
-**교훈:** 경고 C4554가 이미 알려 주고 있었다. 경고를 0개로 유지하자.
+**교훈:** 컴파일러 경고(MSVC C4554, GCC·Clang `-Wparentheses`)가 이미 알려 주고 있었다. 경고를 0개로 유지하자.
 
 ---
 
@@ -154,16 +155,16 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 진짜 원인:     streak가 for 안에 선언되어 매 바퀴 새로 만들어짐
 ```
 **수정:** `int streak = 0;`을 `for` 위로 옮긴다. (결석 처리 `streak = 0;`은 그대로 둔다.)
-**교훈:** 크래시가 없으면 호출 스택은 쓸모없다. **기대값을 먼저 적고**, F10으로 처음 어긋나는 줄을 찾는다.
+**교훈:** 크래시가 없으면 호출 스택은 쓸모없다. **기대값을 먼저 적고**, 한 줄씩 실행하며 처음 어긋나는 줄을 찾는다.
 
 ## Lab 22 — 계산한 값이 아닌 원본을 반환
 ```
 단계별 값:     기대 70 → 105 → 84 → 126 / 실제 70 → 70 → 56 → 84
-처음 어긋난 곳: applyCrit 반환 (자동 창: "applyCrit 반환 70")
+처음 어긋난 곳: applyCrit 반환 (함수에서 나온 직후 디버거가 보여 주는 반환값: "applyCrit 반환 70")
 진짜 원인:     result에 원본을 복사해 두고 damage만 바꾼 뒤 result를 반환
 ```
 **수정:** `return damage;` (또는 `return isCrit ? damage * (100 + critBonusPercent) / 100 : damage;`로 임시 변수 제거)
-**교훈:** 파이프라인은 단계별 기대값을 정해 두고 F10으로 넘기면 범인 함수가 바로 나온다. 함수 안은 F11, 나와서는 **자동 창의 반환값**.
+**교훈:** 파이프라인은 단계별 기대값을 정해 두고 한 줄씩 넘기면 범인 함수가 바로 나온다. 함수 안으로는 step into, 나와서는 **디버거가 보여 주는 반환값**(Visual Studio 자동 창, gdb `finish`).
 
 ## Lab 23 — 보호막이 깨질 때 남은 피해가 사라짐
 ```
@@ -178,7 +179,7 @@ const int absorbed = std::min(unit.shield, damage);
 unit.shield -= absorbed;
 unit.hp -= damage - absorbed;
 ```
-**교훈:** 수백 번 중 몇 번만 틀리면 F10으로는 못 찾는다. "틀린 순간"을 **조건식**으로 표현해서 중단점에 넣는다. 합계 검증(불변식)은 그 조건을 만드는 좋은 재료다.
+**교훈:** 수백 번 중 몇 번만 틀리면 한 줄씩 실행해서는 못 찾는다. "틀린 순간"을 **조건식**으로 표현해서 중단점에 넣는다. 합계 검증(불변식)은 그 조건을 만드는 좋은 재료다.
 
 ## Lab 24 — 이벤트 구독 순서
 ```
@@ -277,38 +278,38 @@ Board::value_type* selected_ = nullptr;
 
 ## Lab 31 — 비교자가 strict weak ordering을 어김
 ```
-어설션:      xutility : invalid comparator
+멈춘 곳:     [CRASH] 정렬 검사: 비교 함수가 엄격한 약순서를 어겼다 ← bughunt::checkedOrder ← std::sort
 조사식:      comp(Kael, Doran) == true, comp(Doran, Kael) == true  (둘 다 1500점)
 진짜 원인:   >= 는 같은 값에 대해 true를 돌려준다. "a가 b보다 앞서고 b도 a보다 앞선다"는 모순
 ```
 **수정:** `return a.score > b.score;`
-**구성별:** Debug와 ASan(Debug 라이브러리 사용)은 어설션으로 알려 준다. Release는 검사가 없어서 원소가 적으면 우연히 맞게 정렬되고, 같은 값이 아주 많으면 정렬이 배열 밖까지 읽어 나가 죽기도 한다.
+**구성별:** 랩은 비교자를 `bughunt::checkedOrder`로 감싸서 어느 컴파일러, 어느 구성에서나 같은 자리에서 멈추게 했다. 검사가 없으면 표준 라이브러리마다 다르다. MSVC의 Debug STL은 `invalid comparator` 어설션을 내고, libstdc++는 `-D_GLIBCXX_DEBUG`, libc++는 하드닝 모드에서만 검사한다. 검사 없는 Release에서는 원소가 적으면 우연히 맞게 정렬되고, 같은 값이 아주 많으면 정렬이 배열 밖까지 읽어 나가 죽기도 한다.
 **교훈:** 비교자는 "엄격하게 앞서는가"를 답한다. 같으면 false.
 
 ## Lab 32 — remove_if만 하고 erase를 빼먹음
 ```
 관찰:        호출 뒤에도 size 6. 앞 3칸은 남길 장비, 뒤 3칸은 옮겨지고 남은 찌꺼기 (Silver Ring이 두 번 보이기도 함)
-경고:        C4858 반환값을 버리고 있습니다 (remove/remove_if는 erase가 필요)
+경고:        반환값을 버리고 있다 (MSVC C4858, GCC·Clang -Wunused-result. remove_if는 [[nodiscard]])
 ```
 **수정:** C++20 `std::erase_if(bag, pred);` 또는 erase-remove 관용구 `bag.erase(std::remove_if(bag.begin(), bag.end(), pred), bag.end());`
 **교훈:** 알고리즘은 이터레이터만 받으므로 컨테이너의 크기를 바꿀 수 없다. 경고를 0개로 유지하면 이 버그는 빌드할 때 보인다.
 
 ## Lab 33 — vector<bool>의 프록시 참조
 ```
-지역 창:     wasOpen의 형식이 bool이 아니라 std::_Vb_reference<...>
+지역 변수:   wasOpen의 형식이 bool이 아니라 비트 프록시 (MSVC std::_Vb_reference, libstdc++ std::_Bit_reference, libc++ std::__bit_reference)
              토글한 다음 줄에서 wasOpen도 같이 바뀜
 진짜 원인:   vector<bool>은 비트로 압축되어 있어 operator[]가 bool&를 줄 수 없고, 비트를 가리키는 프록시 객체를 준다.
              auto는 그 프록시를 복사하므로 "이전 값"이 아니라 "지금 값"을 계속 가리킨다
 ```
 **수정:** `const bool wasOpen = doorsOpen[door];` (타입을 적어서 값으로 꺼낸다). 비트 압축이 필요 없다면 `std::vector<char>`나 `std::vector<std::uint8_t>`도 좋다.
-**교훈:** `auto x = v[i];`가 복사라는 믿음은 `vector<bool>`에서 깨진다. 지역 창의 형식 열을 보자.
+**교훈:** `auto x = v[i];`가 복사라는 믿음은 `vector<bool>`에서 깨진다. 디버거에서 변수의 형식을 보자(gdb `ptype`, lldb `frame variable -T`).
 
 ## Lab 34 — c_str() 포인터 수명과 SSO
 ```
 조사식:      (void*)heroes[i].name.c_str() 가 grantTitle 뒤에 바뀜 (Doran, Selene), Kael은 그대로
 Kael:        "Kael the Brave" 14글자 → 여전히 객체 안 버퍼(SSO) → 같은 주소라 우연히 맞음
 Doran:       21글자 → 객체 안 버퍼에서 힙으로 이사. 이름표는 객체 안의 옛 버퍼(지금은 힙 포인터가 들어 있음)를 읽어 깨진 글자
-Selene:      원래 힙(18글자, 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (Debug에서 0xDD 계열 글자)
+Selene:      원래 힙(18글자, 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (메모리 검사기의 0xEE 글자)
 ```
 **수정:** 이름표가 문자열 버퍼가 아니라 문자열을 가진 객체를 가리키게 한다.
 ```cpp
@@ -316,7 +317,7 @@ explicit Nameplate(const Hero& hero) : hero_(&hero) {}
 const char* text() const { return hero_->name.c_str(); }
 const Hero* hero_;
 ```
-**구성별:** ASan은 Selene만 잡는다(heap-use-after-free). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
+**구성별:** 위 글자 수 경계는 MSVC STL과 libstdc++(객체 안 버퍼 15글자) 기준이다. libc++(macOS 기본)는 22글자까지 객체 안에 두므로 Doran도 우연히 맞을 수 있다. ASan은 Selene만 잡는다(heap-use-after-free). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
 **교훈:** `c_str()`/`data()`/`string_view`는 문자열이 바뀌면 무효가 될 수 있다. 짧은 문자열은 SSO 때문에 "되는 것처럼" 보여서 더 늦게 발견된다.
 
 ## Lab 35 — set 안에 있는 원소의 정렬 기준을 바꿈
@@ -348,12 +349,12 @@ void recordMatch(Player* p, int points)
              다음 formatEntry 호출(그리고 다른 함수 호출)이 같은 스택 자리를 다시 쓴다.
 ```
 **수정:** 값으로 돌려준다. `std::string formatEntry(...)`, `std::vector<std::string> buildBoard(...)`. (`static char line[64]`로 바꾸면 깨지지는 않지만 모든 줄이 마지막 값으로 똑같아진다.)
-**구성별:** Debug와 Release 모두 깨진 글자. ASan도 기본 설정으로는 잡지 못한다(`/fsanitize-address-use-after-return`과 `ASAN_OPTIONS=detect_stack_use_after_return=1`이 필요). 가장 빠른 단서는 컴파일러 경고 **C4172**였다.
+**구성별:** Debug와 Release 모두 깨진 글자. MSVC ASan은 기본 설정으로는 잡지 못한다. Clang ASan은 `stack-use-after-scope`로 잡기도 한다(이 저장소에서 확인). 가장 빠른 단서는 컴파일러 경고(MSVC C4172, Clang `-Wreturn-stack-address`, GCC `-Wreturn-local-addr`)였다.
 **교훈:** 포인터를 돌려줄 때는 "가리키는 대상이 함수보다 오래 사는가?"를 먼저 묻는다.
 
 ## Lab 37 — 해제된 몬스터에서 현상금을 읽음 (use-after-free)
 ```
-이상한 값:     hunter.target->bounty == -572662307 (0xDDDDDDDD = 해제된 힙)
+이상한 값:     hunter.target->bounty == -286331154 (0xEEEEEEEE = 메모리 검사기가 채운 해제된 힙)
 처음 어긋난 줄: field.removeDefeated()  (타깃 몬스터를 delete)
 진짜 원인:     hunt가 전장을 정리한 뒤에 hunter.target으로 현상금을 읽음
 ```
@@ -364,18 +365,18 @@ hunter.target = nullptr;
 field.removeDefeated();
 ```
 더 튼튼하게는 raw 포인터를 들고 있지 말고 ID로 다시 찾거나, 몬스터를 `shared_ptr`로 보관하고 타깃은 `weak_ptr`로 든다.
-**구성별:** Debug는 `0xDD`로 채워져 FAIL. Release는 해제된 메모리에 옛 값이 남아 **PASS**. ASan은 heap-use-after-free와 함께 읽은 곳(`hunt`), 해제한 곳(`removeDefeated`), 할당한 곳(`spawn`)의 호출 스택을 보여 준다.
-**교훈:** Release에서 통과했다고 버그가 없는 게 아니다. 해제된 메모리를 읽는 버그는 Debug의 `0xDD`와 ASan으로 드러낸다.
+**구성별:** Debug와 Release는 메모리 검사기가 `0xEE`로 채워 FAIL(골드 -572662308). 검사기가 없는 진짜 프로그램이라면 해제된 메모리에 옛 값이 남아 **PASS**할 수도 있다(검사기를 넣기 전 MSVC Release가 그랬다). ASan은 heap-use-after-free와 함께 읽은 곳(`hunt`), 해제한 곳(`removeDefeated`), 할당한 곳(`spawn`)의 호출 스택을 보여 준다.
+**교훈:** Release에서 통과했다고 버그가 없는 게 아니다. 해제된 메모리를 읽는 버그는 알아볼 수 있는 채움 값(검사기의 `0xEE`, MSVC 디버그 힙의 `0xDD`)과 ASan으로 드러낸다.
 
 ## Lab 38 — new[]로 만들고 delete로 지움
 ```
-멈춘 곳:     어설션 _CrtIsValidHeapPointer(block) ← ~Explosion의 delete particles_
+멈춘 곳:     [CRASH] 메모리 검사: new로 받은 주소가 아닌 곳을 해제했다 ← operator delete ← ~Explosion의 delete particles_
 관찰:        첫 폭발이 끝날 때 ~Particle()이 16번이 아니라 1번만 불림
-             (char*)particles_ - 8 자리에 배열 개수 16이 저장되어 있음
+             (char*)particles_ - 8 자리에 배열 개수 16이 저장되어 있음 (주요 ABI 공통, 표준이 정한 것은 아님)
 진짜 원인:   new Particle[count]로 만든 배열을 delete(배열이 아닌 것)로 지움
 ```
 **수정:** `delete[] particles_;` 더 좋게는 `std::vector<Particle>`이나 `std::unique_ptr<Particle[]>`로 바꿔 직접 지우지 않는다.
-**구성별:** Debug는 힙 검사 어설션. Release는 힙 손상(`0xC0000374`)으로 죽는다. ASan은 "attempting free on address which was not malloc()-ed". 소멸자가 없는 타입(`int` 등)이면 앞의 개수 칸이 없어서 Debug와 Release에서는 아무 증상 없이 지나가기도 한다. 그래도 정의되지 않은 동작이다.
+**구성별:** Debug와 Release는 메모리 검사기가 그 자리에서 `[CRASH]`. 검사기가 없으면 MSVC Debug는 CRT 힙 어설션, Release는 힙 손상(Windows `0xC0000374`, glibc `free(): invalid pointer`)으로 죽는다. ASan은 "attempting free on address which was not malloc()-ed". 소멸자가 없는 타입(`int` 등)이면 앞의 개수 칸이 없어서 Debug와 Release에서는 아무 증상 없이 지나가기도 한다. 그래도 정의되지 않은 동작이다.
 **교훈:** 소멸자를 가진 타입의 배열은 `new[]`가 앞에 개수를 몰래 적어 둔다. 만든 방법과 지우는 방법은 항상 짝을 맞춘다.
 
 ## Lab 39 — 포인터 산술 단위 실수
@@ -385,23 +386,23 @@ field.removeDefeated();
              "PacketHeader 4개 뒤" = 16바이트 뒤
 ```
 **수정:** `reinterpret_cast<const LootEntry*>(header + 1)` 또는 바이트 단위로 `reinterpret_cast<const LootEntry*>(packet.data() + sizeof(PacketHeader))`.
-**구성별:** Debug는 패킷 바로 뒤의 경계 바이트 `0xFDFD`(= 65021)를 개수로 읽어 합계가 6만대가 된다. Release는 쓰레기 값. ASan은 heap-buffer-overflow(READ of size 2)로 그 줄에서 멈춘다.
+**구성별:** Debug와 Release는 패킷 바로 뒤에 메모리 검사기가 둔 경계 바이트 `0xBDBD`(= 48573)를 개수로 읽어 합계가 145722가 된다. 검사기가 없으면 쓰레기 값. ASan은 heap-buffer-overflow(READ of size 2)로 그 줄에서 멈춘다.
 **교훈:** 포인터에 더하는 수의 단위는 "가리키는 타입 하나"다. 바이트 단위로 움직이려면 `char*`/`uint8_t*`에서 계산한다.
 
 ## Lab 40 — 초기화 안 된 포인터 멤버
 ```
 멈춘 곳:     Hero::attackPower의 power += weapon_->bonus  (읽기 액세스 위반)
-지역 창:     this->weapon_ == 0xcccccccccccccccc
+지역 변수:   this->weapon_ == 0xa5a5a5a5a5a5a5a5
 진짜 원인:   무기를 받지 않는 생성자가 weapon_을 초기화하지 않음.
-             if (weapon_ != nullptr) 검사는 0xCCCC... 앞에서는 아무 소용이 없다.
+             if (weapon_ != nullptr) 검사는 0xA5A5... 앞에서는 아무 소용이 없다.
 ```
 **수정:** 멤버 선언에서 초기화한다. `const Weapon* weapon_ = nullptr;`
-**구성별:** Debug는 `/RTC1`이 스택을 `0xCC`로 채워서 매번 같은 곳에서 죽는다. Release는 그 자리에 남은 쓰레기에 따라 통과하기도 하고 엉뚱한 공격력이 나오기도 한다. ASan 구성은 `/RTC`가 꺼져 있어 역시 쓰레기 값이다. 쓰레기 주소가 어디를 가리키느냐에 따라 stack-buffer-overflow처럼 엉뚱한 이름의 리포트가 나오기도 한다. ASan은 "초기화 안 된 값" 자체를 잡는 도구가 아니다.
-**교훈:** x64에서 `0xCCCC...` 같은 주소를 읽으면 예외 메시지에는 `0xFFFFFFFFFFFFFFFF`로 나올 수 있다. 예외 메시지보다 지역 창의 포인터 값을 본다. 랩 12처럼 코드 분석 경고 C26495가 미리 알려 준다.
+**구성별:** 파티는 재사용 메모리(`bughunt::recycledStorage`, `0xA5`로 채워져 있음) 위에 만들어지므로 Debug와 Release 모두 매번 같은 곳에서 죽는다(Windows 액세스 위반, POSIX `SIGSEGV`). 재사용 메모리가 아니었다면 남은 쓰레기에 따라 통과하기도 하고 엉뚱한 공격력이 나오기도 한다. 쓰레기 주소가 어디를 가리키느냐에 따라 stack-buffer-overflow처럼 엉뚱한 이름의 리포트가 나오기도 한다. ASan은 "초기화 안 된 값" 자체를 잡는 도구가 아니다.
+**교훈:** x64에서 `0xA5A5...`처럼 정규 주소가 아닌 값을 읽으면 예외 메시지에는 `0xFFFFFFFFFFFFFFFF`로 나올 수 있다. 예외 메시지보다 디버거의 포인터 값을 본다. 랩 12처럼 "멤버를 초기화하지 않음" 정적 분석 경고가 미리 알려 준다.
 
 ## Lab 41 — shared_ptr 순환 참조
 ```
-지역 창:     guild [strong ref=4]  (지역 변수 1 + 길드원 3명의 guild 멤버)
+지역 변수:   guild [strong ref=4]  (지역 변수 1 + 길드원 3명의 guild 멤버)
 진짜 원인:   Guild → members(shared_ptr) → Member → guild(shared_ptr) → Guild
              서로 붙잡고 있어서 마지막 지역 변수가 사라져도 참조 수가 0이 되지 않는다.
 ```
@@ -415,13 +416,13 @@ std::string guildNameOf(const Member& member)
     return guild ? guild->name : "(없음)";
 }
 ```
-**구성별:** 세 구성 모두 똑같이 FAIL이다. 크래시도, 어설션도, ASan 리포트도 없다(Windows의 ASan에는 누수 검사기가 없다). 2부 랩 16처럼 CRT 누수 측정이나 소멸자 중단점으로 확인한다.
+**구성별:** 세 구성 모두 똑같이 FAIL이다. 크래시도, 어설션도, ASan 리포트도 없다(Windows의 ASan에는 누수 검사기가 없다. Linux·macOS의 ASan은 LeakSanitizer가 프로그램이 끝날 때 누수를 보고할 수 있다). 2부 랩 16처럼 인스턴스 수나 소멸자 중단점으로 확인한다.
 **교훈:** 스마트 포인터도 소유 관계에 고리가 생기면 샌다. "누가 누구를 소유하는가"를 한 방향으로 정하고, 거꾸로 가는 쪽은 `weak_ptr`로 둔다.
 
 ## Lab 42 — [&] 람다가 끝난 함수의 지역 변수를 참조
 ```
 중단점:      람다 안 hero.attack -= bonus; (Kael 차례)
-지역 창:     bonus = 45   ← 분노를 걸 때 출력은 (+30)
+지역 변수:   bonus = 45   ← 분노를 걸 때 출력은 (+30)
 호출 스택:   TurnTimers::advance → 람다. castRage는 이미 끝나서 스택에 없음
 조사식:      &bonus 가 castRage 안에서 본 &bonus와 같은 주소 → 끝난 함수의 스택 자리.
              그 자리를 나중에 Doran의 castRage가 다시 써서 Doran의 bonus(45)가 들어 있다
@@ -434,8 +435,115 @@ timers.after(3, [&hero, bonus] {
     ...
 });
 ```
-**구성별:** Debug는 Kael만 틀리고(45) Doran은 우연히 맞는다. Release는 둘 다 다른 값으로 틀린다. ASan은 쓰레기 값으로 틀리지만 리포트가 없다. 기본 ASan은 stack-use-after-return을 잡지 않는다(README "람다 캡처와 ASan").
+**구성별:** 틀린 값은 컴파일러와 구성마다 다르다(이 저장소에서 Kael: MSVC Debug -124, MSVC·Clang Release 45, Clang Debug 85, ASan 쓰레기 값). 위 조사식은 Release의 45가 나온 이유다. 기본 ASan은 stack-use-after-return을 잡지 않는다. Clang ASan은 `ASAN_OPTIONS=detect_stack_use_after_return=1`로 실행하면 이 람다 줄에서 `stack-use-after-return`으로 멈춘다(README "람다 캡처와 ASan").
 **교훈:** `[&]`는 람다가 **지금 이 자리에서** 실행될 때만 안전하다. 콜백, 타이머, 스레드, 나중에 실행할 목록에 넣는 람다는 캡처 목록을 하나씩 적고, 무엇을 참조로 들고 가는지 확인한다. `hero`를 참조로 가져가는 것도 "Hero가 타이머보다 오래 산다"는 약속에 기댄 것이다.
+
+---
+
+# 비동기와 동시성 (랩 54~60, 번호는 임시)
+
+## Lab 54 — 버린 future가 비동기를 순차로 만듦
+```
+메인 스레드:  startLoading의 for 문 → std::future<void>::~future → 작업이 끝나기를 기다림
+작업 스레드:  한 번에 하나만 ChunkDisk::read 안에 있음 (300 ms 기다린 뒤 콜드 읽기)
+진짜 원인:    std::async의 반환값을 저장하지 않아 임시 future가 그 줄 끝에서 파괴됨.
+              std::launch::async로 만든 future의 소멸자는 작업이 끝날 때까지 기다린다
+```
+**수정:** `jobs_.push_back(std::async(std::launch::async, [this, i] { chunks_[i] = disk_.read(i); }));` 그러면 `finishLoading`이 모아 둔 future를 기다린다.
+**구성별:** 어느 컴파일러에서나 같다(표준이 정한 동작). C++20부터 `std::async`는 `[[nodiscard]]`라서 경고(MSVC C4858, GCC·Clang `-Wunused-result`)가 이 줄을 가리킨다.
+**교훈:** "비동기로 띄웠다"와 "기다리지 않는다"는 다르다. future를 어디에 두고 언제 기다리는지가 코드의 실행 순서를 정한다.
+
+## Lab 55 — 비동기 작업의 예외는 get()에서 나옴
+```
+예외가 던져질 때 멈춤:  작업 스레드의 craft("Mithril Helm") throw
+abort 시점 호출 스택:   메인 스레드 craftAll → std::future<int>::get → 예외 다시 던지기
+진짜 원인:             try/catch가 std::async 호출만 감쌌다. 작업 안의 예외는 future에 담겼다가 get()에서 던져진다
+```
+**수정:** `get()`을 try 안으로 옮긴다.
+```cpp
+for (std::future<int>& job : jobs)
+{
+    try { report.revenue += job.get(); }
+    catch (const std::exception& e) { std::cout << "  제작 실패: " << e.what() << '\n'; ++report.failed; }
+}
+```
+(`std::async` 자체도 스레드를 만들지 못하면 `std::system_error`를 던지므로 원래 try를 남겨 두어도 된다.)
+**교훈:** 비동기 작업의 예외는 **결과를 꺼내는 곳**에서 처리한다. `get()`은 future 하나에 한 번만 부를 수 있다. 두 번째 호출 전에는 `valid()`가 false이고, 그때 `get()`을 부르는 것은 정의되지 않은 동작이다(구현 대부분은 `std::future_error`를 던진다).
+
+## Lab 56 — 조건 없는 condition_variable 대기
+```
+모두 중단:  공대원 스레드는 모두 끝남. lab-worker(공대장)는 ReadyCheck::waitForAll의 wait 안
+조사식:     readyCount_ == 4, memberCount_ == 4  → 기다릴 이유가 없다
+진짜 원인:  notify_one은 공대장이 wait하기 전에 이미 네 번 불렸다. 알림은 저장되지 않으므로 사라졌다
+```
+**수정:** `allReady_.wait(lock, [&] { return readyCount_ >= memberCount_; });`
+조건이 이미 참이면 기다리지 않고, 가짜로 깨어나도 조건이 거짓이면 다시 기다린다.
+**구성별:** 어느 구성에서나 TIMEOUT. `if (readyCount_ < memberCount_) allReady_.wait(lock);`처럼 한 번만 검사하면 화면은 통과하지만, 공대장이 먼저 기다리는 숨은 케이스에서 첫 알림에 깨어나 3명 중 1명만 준비한 채 입장한다(FAIL).
+**교훈:** `condition_variable`은 "무엇인가 바뀌었을 수 있다"는 신호일 뿐이다. 기다리는 **조건**은 mutex로 지키는 변수에 있고, `wait`는 항상 그 조건과 함께 쓴다.
+
+## Lab 57 — 떼어 낸 스레드의 [this]
+```
+중단점:     board.post(bid_)  (작업 스레드. 호출 스택에 bidAndCloseWindow 없음)
+조사식:     bid_ == -286331154 (0xEEEEEEEE = 해제된 메모리)
+진짜 원인:  람다가 this를 캡처했는데, AuctionWindow(unique_ptr)는 bidAndCloseWindow가 끝날 때 지워졌다.
+            람다는 마감 종이 울린 뒤, 창이 사라진 다음에 실행된다
+```
+**수정:** 필요한 값만 복사해 간다. `std::thread([bid = bid_, &bell, &board] { bell.waitForRing(); board.post(bid); }).detach();`
+(종과 게시판은 서버가 켜져 있는 동안 사는 객체라 참조로 둔다. 그 약속이 없다면 `shared_ptr`로 함께 소유한다.)
+더 튼튼한 설계는 스레드를 떼어 내지 않는 것이다. 창이 `std::jthread`를 소유하고 소멸자에서 멈춰 달라고 요청하고 기다리거나, 알림을 서버 쪽 객체에 등록한다.
+**구성별:** Debug와 Release는 메모리 검사기의 `0xEE`로 FAIL. ASan은 작업 스레드에서 heap-use-after-free(해제한 곳은 메인 스레드의 `bidAndCloseWindow`)로 CRASH.
+**교훈:** `detach`는 "이 스레드의 수명을 아무도 책임지지 않는다"는 뜻이다. 떼어 낸 스레드에 넘긴 람다는 캡처한 모든 것이 그 스레드보다 오래 사는지 확인한다(5부 랩 42와 같은 실수가 스레드로 옮겨 온 것).
+
+## Lab 58 — atomic 확인 후 행동 레이스
+```
+조건부 중단점:  --stock_; 에서 stock_ <= 0 일 때 멈춤
+스레드 목록:    다섯 구매 스레드가 모두 stock_.load() > 0 검사를 통과해 payment_.charge에서 기다리는 중이었다
+진짜 원인:      "남았나 확인 → 결제 → 하나 빼기"가 원자적이지 않다. atomic 하나하나는 안전하지만,
+                확인과 빼기 사이에 다른 스레드가 모두 확인을 끝낼 수 있다
+```
+**수정:** 결제하기 전에 수량을 원자적으로 확보한다.
+```cpp
+int left = stock_.load();
+do
+{
+    if (left <= 0)
+        return false;
+} while (!stock_.compare_exchange_weak(left, left - 1));
+payment_.charge(player, price_);
+++sold_;
+return true;
+```
+(`fetch_sub`로 빼고 결과가 0 이하면 되돌리는 방법도 있다. 결제가 실패할 수 있다면 실패했을 때 수량을 돌려놓는다.) `buy` 전체를 `std::mutex`로 감싸도 맞지만, 결제를 기다리는 동안 다른 구매자가 모두 줄을 선다.
+**구성별:** 어느 구성에서나 판매 5, 수량 -2. 랩 17과 달리 **데이터 레이스가 아니다.** 모든 접근이 `atomic`이라 ThreadSanitizer도 보고하지 않는다.
+**교훈:** 불변식("판매 수 + 남은 수량 = 처음 수량", "수량 ≥ 0")은 그것을 이루는 값 전체를 한 번에 바꾸는 연산으로 지킨다. 변수마다 `atomic`을 붙인다고 불변식이 지켜지지 않는다.
+
+## Lab 59 — join 없이 파괴된 std::thread
+```
+호출 스택:  std::terminate ← std::thread::~thread ← runMatchmaking의 return result; (둘째 대기열)
+진짜 원인:  인원이 모자라 취소하는 경로가 matcher.join() 없이 함수를 빠져나간다.
+            joinable한 std::thread의 소멸자는 std::terminate를 부른다
+```
+**수정:** 취소 경로에서도 기다린다. 결과는 스레드가 끝난 뒤에 고친다(아직 도는 스레드가 `result.matches`를 쓰고 있으므로).
+```cpp
+cancel = true;
+matcher.join();
+result.cancelled = true;
+result.matches = 0;
+return result;
+```
+`std::jthread`로 바꾸면 모든 빠져나가는 길에서 자동으로 멈춰 달라고 요청하고 join한다. 다만 jthread는 함수가 끝날 때 join하므로, 위처럼 "멈추고 기다린 뒤 결과를 고치기"가 필요하면 `request_stop()`과 `join()`을 직접 부른다.
+**교훈:** 스레드 객체도 리소스다. 예외와 이른 `return`을 포함한 모든 길에서 정리되도록 RAII(`std::jthread`)를 쓴다.
+
+## Lab 60 — 코루틴의 참조 매개변수
+```
+중단점:     talkTo의 첫 줄 (호출 스택: as07_cutscene → Cutscene::step → 코루틴 재개. startVillageScene은 이미 끝남)
+조사식:     npc.affinity == -286331154 (0xEEEEEEEE)
+진짜 원인:  talkTo는 initial_suspend에서 바로 멈추고, 코루틴 프레임에는 npc의 참조만 저장된다.
+            startVillageScene이 끝나면서 Npc(unique_ptr)가 지워진 뒤에 엔진이 코루틴을 처음 실행한다
+```
+**수정:** 코루틴이 쓸 값은 프레임 안으로 복사해 간다. `Cutscene talkTo(Npc npc, DialogueLog& log)` (`log`는 호출한 쪽이 컷신보다 오래 들고 있으므로 참조로 둔다.)
+**구성별:** Debug와 Release는 메모리 검사기의 `0xEE`로 FAIL. ASan은 heap-use-after-free로 CRASH. MSVC 14.51과 Clang 22에서 확인했다.
+**교훈:** 코루틴의 참조 매개변수는 "처음 멈추는 곳까지"만 안전하다. 멈췄다 이어지는 코루틴은 람다를 나중에 실행하는 것과 같은 수명 문제를 가진다.
 
 ---
 
@@ -457,15 +565,15 @@ return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));   // #inclu
 
 ## Lab 44 — unsigned의 s >= 0
 ```
-모두 중단:   s가 12보다 훨씬 큰 수 (수십억). 조건부 중단점 s == 0 에서 F10을 하면 4294967295 (0xFFFFFFFF)
+모두 중단:   s가 12보다 훨씬 큰 수 (수십억). 조건부 중단점 s == 0 에서 한 줄 실행하면 4294967295 (0xFFFFFFFF)
 진짜 원인:   unsigned에는 음수가 없어서 s >= 0 이 항상 참. 0에서 --s 하면 4294967295로 돌아간다.
 ```
 **수정:** `for (unsigned int s = waitSeconds + 1; s-- > 0;)` 또는 부호 있는 정수로 센다: `for (int s = static_cast<int>(waitSeconds); s >= 0; --s)`.
-**교훈:** 이 실수를 알려 주는 경고 C4296("식이 항상 true")은 `/W4`에서도 꺼져 있다. `/w14296`이나 `/Wall`로 켜야 보인다. 거꾸로 세는 반복에서 `unsigned`/`size_t`를 보면 의심한다.
+**교훈:** 이 실수를 알려 주는 "식이 항상 true" 경고는 기본 경고 수준에서 보이지 않는 경우가 많다. MSVC C4296은 `/W4`에서도 꺼져 있어 `/w14296`으로 켜고, GCC는 `-Wtype-limits`(`-Wextra`에 포함), Clang은 `-Wtautological-unsigned-zero-compare`로 켠다. 거꾸로 세는 반복에서 `unsigned`/`size_t`를 보면 의심한다.
 
 ## Lab 45 — continue가 ++i를 건너뜀
 ```
-모두 중단:   i == 6 (첫 공백), c == ' ', words == { "/party" }. F10을 계속 눌러도 i가 그대로
+모두 중단:   i == 6 (첫 공백), c == ' ', words == { "/party" }. 한 줄씩 계속 실행해도 i가 그대로
 진짜 원인:   공백 분기가 i를 늘리지 않고 continue → 같은 공백을 영원히 다시 읽는다
 ```
 **수정:** `continue;` 앞에 `++i;`. 또는 `for (char c : line)`처럼 인덱스를 직접 다루지 않는 반복으로 바꾼다.
