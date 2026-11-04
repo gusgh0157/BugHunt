@@ -51,6 +51,13 @@ void bughunt::invalidComparator()
          i18n::L("정렬 검사", "ソート検査"));
 }
 
+void bughunt::invalidIterator()
+{
+    fail(i18n::L("무효가 된 반복자를 썼다 (erase 뒤에 그 전의 반복자를 다시 썼거나, 끝을 넘어갔다)",
+                 "無効になったイテレーターを使った (erase の後でそれ以前のイテレーターをまた使ったか、末尾を越えた)"),
+         i18n::L("반복자 검사", "イテレーター検査"));
+}
+
 #if !defined(BUGHUNT_ASAN)
 namespace
 {

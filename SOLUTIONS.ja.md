@@ -110,7 +110,7 @@
 ```cpp
 for (auto it = enemies.begin(); it != enemies.end(); )
     it = (it->hp <= 0) ? enemies.erase(it) : it + 1;
-// または C++20: std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; });
+// 一覧が std::vector なら、C++20 の std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; }); で1行で書けます。
 ```
 
 ## Lab 14 — unsigned のアンダーフロー
@@ -125,7 +125,7 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 `StatusEffect` のデストラクターが virtual ではないので、`unique_ptr<StatusEffect>` が `delete` するときに `Burn` のデストラクターが呼ばれません → メンバー `schedule_`(`DamageSchedule`)も破棄されず、戦闘1000回の後に1000個が生き残ります(その中の vector のメモリもリーク)。厳密には未定義動作です。
 **追跡:** `DamageSchedule` のデストラクターにブレークポイントを置くと、一度も止まりません。コンストラクターでは止まります。→ 誰が消すべきだったのか? `unique_ptr` の `delete` は `StatusEffect` のデストラクターしか呼びません。
 **修正:** `virtual ~StatusEffect() = default;`
-**教訓:** ポリモーフィックに delete される基底クラスには必ず virtual デストラクターを付けます。(警告: MSVC C5205、GCC・Clang `-Wdelete-non-virtual-dtor`)
+**教訓:** ポリモーフィックに delete される基底クラスには必ず virtual デストラクターを付けます。(警告: MSVC C5205(標準ヘッダー内のテンプレートなので `/external:templates-` があるときに見えます。このリポジトリの CMake は有効にしています)、Clang `-Wall` の `-Wdelete-abstract-non-virtual-dtor`。GCC はシステムヘッダーの中なので見えないことがあります)
 
 ## Lab 17 — データ競合
 `gold_` の読み取り-変更-書き込みがアトミックではありません。2つのスレッドが同じ値を読んでそれぞれ +1 を書き込むと、1つが消えます。読み取りと書き込みの間の `std::this_thread::sleep_for(1ms)` はその隙間を広げて、どのコンパイラーでも症状が出るようにしているだけで、原因ではありません(消してもデータ競合は残ります)。

@@ -179,7 +179,7 @@ gdb / lldb:     #1  lab1::showProfile (name="Dorna") at cs01_profile.cpp:40
 <details>
 <summary>도구별 참고: Visual Studio의 어설션 창</summary>
 
-MSVC Debug 구성의 표준 라이브러리는 범위 밖 `operator[]`, 무효가 된 이터레이터 같은 잘못을 **Debug Assertion Failed!** 창으로 알립니다. **다시 시도(Retry)** → (중단점 메시지가 나오면 "중단") → 호출 스택을 보면 됩니다. GCC의 libstdc++는 `-D_GLIBCXX_ASSERTIONS`, Clang의 libc++는 하드닝 모드로 비슷한 검사를 켤 수 있습니다. BugHunt의 랩은 이런 검사가 **있든 없든 같은 결과**가 나오도록 만들었습니다(1부의 범위 밖 접근은 `at()`을 쓰므로 어느 구성에서나 예외가 납니다).
+MSVC Debug 구성의 표준 라이브러리는 범위 밖 `operator[]`, 무효가 된 이터레이터 같은 잘못을 **Debug Assertion Failed!** 창으로 알립니다. **다시 시도(Retry)** → (중단점 메시지가 나오면 "중단") → 호출 스택을 보면 됩니다. GCC의 libstdc++는 `-D_GLIBCXX_ASSERTIONS`, Clang의 libc++는 하드닝 모드로 비슷한 검사를 켤 수 있고, 이 저장소의 CMake는 Debug에서 둘 다 켭니다. BugHunt의 랩은 이런 검사가 **있든 없든 같은 결과**가 나오도록 만들었습니다(1부의 범위 밖 접근은 `at()`을 쓰므로 어느 구성에서나 예외가 나고, 랩 13은 무효가 된 반복자를 직접 잡는 `bughunt::CheckedList`를 씁니다). 예외는 Debug와 Release의 이 차이를 보여 주려고 만든 랩 80입니다.
 </details>
 
 ## 추적 4단계 (모든 랩 공통)
@@ -763,7 +763,7 @@ BugHunt는 채점이 흔들리지 않도록 Debug와 Release에 **메모리 검�
 | 79 이름 패킷 | FAIL, `Nighting` | 같음 | FAIL, `Nighting` | 같음 |
 | 80 스킬 트리 | CRASH, `array subscript out of range` 어설션 | FAIL, 2번 스킬 레벨 0, 골드 801 (4번 스킬이 골드를 1 올림) | CRASH, 어설션 (Debug CRT) | FAIL (Release CRT라 어설션 없음, 같은 객체 안이라 ASan도 못 잡음) |
 
-80은 "Debug는 잡고 Release는 조용히 덮는다"를 보여 주려고 만든 랩이라 구성마다 증상이 다릅니다. 판정은 FAIL 또는 CRASH로 어느 구성에서도 0점입니다. 나머지 넷은 구성 안에서 MSVC와 clang++의 판정이 같습니다. 검증: MSVC 14.51, clang++ 22(Windows, MSVC STL). GCC와 Linux(스택 8 MB)는 확인하지 않았지만, 76(16 MB)와 77(160 × 96 KB ≈ 15 MB)는 8 MB 스택도 넘도록 크기를 잡았습니다.
+80은 "Debug는 잡고 Release는 조용히 덮는다"를 보여 주려고 만든 랩이라 구성마다 증상이 다릅니다. 판정은 FAIL 또는 CRASH로 어느 구성에서도 0점입니다. GCC와 macOS Clang에서도 Debug는 CMake가 켜는 표준 라이브러리 범위 검사(`_GLIBCXX_ASSERTIONS`, libc++ 하드닝)가 같은 줄에서 멈추게 합니다(이 저장소에서는 확인하지 않았습니다). 나머지 넷은 구성 안에서 MSVC와 clang++의 판정이 같습니다. 검증: MSVC 14.51, clang++ 22(Windows, MSVC STL). GCC와 Linux(스택 8 MB)는 확인하지 않았지만, 76(16 MB)와 77(160 × 96 KB ≈ 15 MB)는 8 MB 스택도 넘도록 크기를 잡았습니다.
 
 스택 오버플로 랩과 채점기: 두 랩 모두 감시 타이머를 쓰지 않는 보통 랩이고, 채점기는 자식 프로세스의 종료 코드(0xC00000FD, ASan은 종료 코드 1)로 CRASH를 판정합니다. 크래시까지 100 ms 안쪽이라 시간 제한과 부딪히지 않습니다. 77은 버퍼를 96 KB로 잡아, ASan의 `detect_stack_use_after_return`이 켜져 있어도(가짜 스택은 64 KB 이하 프레임만 옮김) 진짜 스택에서 넘치게 했습니다.
 
@@ -1317,7 +1317,7 @@ gdb / lldb:     #1  lab1::showProfile (name="Dorna") at cs01_profile.cpp:40
 <details>
 <summary>道具別の参考: Visual Studio のアサーション ウィンドウ</summary>
 
-MSVC の Debug 構成の標準ライブラリは、範囲外の `operator[]` や無効になったイテレーターのような誤りを **Debug Assertion Failed!** ウィンドウで知らせます。**再試行 (Retry)** → (ブレークポイントのメッセージが出たら「中断」) → 呼び出し履歴を見ればよいです。GCC の libstdc++ は `-D_GLIBCXX_ASSERTIONS`、Clang の libc++ はハードニングモードで似たチェックをオンにできます。BugHunt のラボは、このようなチェックが **あってもなくても同じ結果** になるように作ってあります(第1部の範囲外アクセスは `at()` を使うので、どの構成でも例外になります)。
+MSVC の Debug 構成の標準ライブラリは、範囲外の `operator[]` や無効になったイテレーターのような誤りを **Debug Assertion Failed!** ウィンドウで知らせます。**再試行 (Retry)** → (ブレークポイントのメッセージが出たら「中断」) → 呼び出し履歴を見ればよいです。GCC の libstdc++ は `-D_GLIBCXX_ASSERTIONS`、Clang の libc++ はハードニングモードで似たチェックをオンにでき、このリポジトリの CMake は Debug で両方をオンにします。BugHunt のラボは、このようなチェックが **あってもなくても同じ結果** になるように作ってあります(第1部の範囲外アクセスは `at()` を使うので、どの構成でも例外になり、ラボ13は無効になったイテレーターを直接捕まえる `bughunt::CheckedList` を使います)。例外は、Debug と Release のこの違いを見せるために作ったラボ80です。
 </details>
 
 ## 追跡の4ステップ (全ラボ共通)
@@ -1901,7 +1901,7 @@ BugHunt は採点がぶれないように Debug と Release に **メモリチ�
 | 79 名前パケット | FAIL、`Nighting` | 同じ | FAIL、`Nighting` | 同じ |
 | 80 スキルツリー | CRASH、`array subscript out of range` のアサーション | FAIL、2番スキルのレベル0、ゴールド801 (4番スキルがゴールドを1上げる) | CRASH、アサーション (Debug CRT) | FAIL (Release CRT なのでアサーションなし、同じオブジェクトの中なので ASan も捕まえられない) |
 
-80は「Debug は捕まえ、Release は黙って上書きする」ことを見せるために作ったラボなので、構成ごとに症状が違います。判定は FAIL または CRASH で、どの構成でも0点です。残りの4つは、構成の中で MSVC と clang++ の判定が同じです。検証: MSVC 14.51、clang++ 22(Windows、MSVC STL)。GCC と Linux(スタック 8 MB)は確認していませんが、76(16 MB)と77(160 × 96 KB ≈ 15 MB)は 8 MB のスタックも超えるように大きさを決めました。
+80は「Debug は捕まえ、Release は黙って上書きする」ことを見せるために作ったラボなので、構成ごとに症状が違います。判定は FAIL または CRASH で、どの構成でも0点です。GCC と macOS の Clang でも、Debug では CMake がオンにする標準ライブラリの範囲チェック(`_GLIBCXX_ASSERTIONS`、libc++ のハードニング)が同じ行で止めます(このリポジトリでは確認していません)。残りの4つは、構成の中で MSVC と clang++ の判定が同じです。検証: MSVC 14.51、clang++ 22(Windows、MSVC STL)。GCC と Linux(スタック 8 MB)は確認していませんが、76(16 MB)と77(160 × 96 KB ≈ 15 MB)は 8 MB のスタックも超えるように大きさを決めました。
 
 スタックオーバーフローのラボと採点スクリプト: どちらのラボもウォッチドッグを使わない普通のラボで、採点スクリプトは子プロセスの終了コード(0xC00000FD、ASan は終了コード1)で CRASH を判定します。クラッシュまで 100 ms 以内なので、時間制限とはぶつかりません。77はバッファーを 96 KB にして、ASan の `detect_stack_use_after_return` が有効でも(偽のスタックは 64 KB 以下のフレームしか移さない)本物のスタックであふれるようにしました。
 

@@ -1,7 +1,9 @@
 #pragma once
 #include <cstddef>
 #include <functional>
+#include <initializer_list>
 #include <iostream>
+#include <vector>
 
 #include "i18n/i18n.h"
 
@@ -56,6 +58,80 @@ auto checkedOrder(Compare comp)
         return comp(a, b);
     };
 }
+
+[[noreturn]] void invalidIterator();
+
+// 무효가 된 반복자를 쓰면 바로 멈추는 작은 vector.
+// (표준 라이브러리 디버그 모드의 반복자 검사를 어느 구성에서나 똑같이 하려고 쓴다)
+// std::vector와 규칙이 같다: erase가 원소를 지우면 그 전에 받은 반복자는 모두 무효가 되고,
+// erase는 지운 원소 다음을 가리키는 새 반복자를 돌려준다.
+template <class T>
+class CheckedList
+{
+public:
+    class iterator
+    {
+    public:
+        T& operator*() const { return owner_->element(*this); }
+        T* operator->() const { return &owner_->element(*this); }
+        iterator& operator++()
+        {
+            owner_->check(*this);
+            ++index_;
+            return *this;
+        }
+        iterator operator+(std::ptrdiff_t n) const
+        {
+            owner_->check(*this);
+            return iterator(owner_, index_ + static_cast<std::size_t>(n), generation_);
+        }
+        bool operator==(const iterator& other) const
+        {
+            owner_->check(*this);
+            owner_->check(other);
+            return index_ == other.index_;
+        }
+
+    private:
+        friend class CheckedList;
+        iterator(CheckedList* owner, std::size_t index, unsigned generation) : owner_(owner), index_(index), generation_(generation) {}
+
+        CheckedList* owner_;
+        std::size_t index_;
+        unsigned generation_;
+    };
+
+    CheckedList(std::initializer_list<T> items) : items_(items) {}
+
+    iterator begin() { return iterator(this, 0, generation_); }
+    iterator end() { return iterator(this, items_.size(), generation_); }
+    std::size_t size() const { return items_.size(); }
+
+    iterator erase(iterator it)
+    {
+        element(it);   // 유효하고 끝이 아닌지 확인
+        items_.erase(items_.begin() + static_cast<std::ptrdiff_t>(it.index_));
+        ++generation_;
+        return iterator(this, it.index_, generation_);
+    }
+
+private:
+    void check(const iterator& it) const
+    {
+        if (it.owner_ != this || it.generation_ != generation_ || it.index_ > items_.size())
+            invalidIterator();
+    }
+    T& element(const iterator& it)
+    {
+        check(it);
+        if (it.index_ >= items_.size())
+            invalidIterator();
+        return items_[it.index_];
+    }
+
+    std::vector<T> items_;
+    unsigned generation_ = 0;
+};
 }
 
 // 1부: 호출 스택 입문 (src/basics)

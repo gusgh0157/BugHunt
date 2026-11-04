@@ -108,7 +108,7 @@
 ```cpp
 for (auto it = enemies.begin(); it != enemies.end(); )
     it = (it->hp <= 0) ? enemies.erase(it) : it + 1;
-// 또는 C++20: std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; });
+// 목록이 std::vector라면 C++20 std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; });로 한 줄에 된다.
 ```
 
 ## Lab 14 — unsigned 언더플로
@@ -123,7 +123,7 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 `StatusEffect`의 소멸자가 virtual이 아니라 `unique_ptr<StatusEffect>`가 `delete`할 때 `Burn`의 소멸자가 불리지 않는다 → 멤버 `schedule_`(`DamageSchedule`)도 파괴되지 않아 전투 1000번 뒤 1000개가 살아 남는다(그 안의 벡터 메모리도 누수). 엄밀히는 정의되지 않은 동작이다.
 **추적:** `DamageSchedule`의 소멸자에 중단점을 걸면 한 번도 멈추지 않는다. 생성자에는 멈춘다. → 누가 지워야 했나? `unique_ptr`의 `delete`가 `StatusEffect`의 소멸자만 부른다.
 **수정:** `virtual ~StatusEffect() = default;`
-**교훈:** 다형적으로 delete될 기반 클래스는 반드시 virtual 소멸자. (경고: MSVC C5205, GCC·Clang `-Wdelete-non-virtual-dtor`)
+**교훈:** 다형적으로 delete될 기반 클래스는 반드시 virtual 소멸자. (경고: MSVC C5205(표준 헤더 안 템플릿이라 `/external:templates-`가 있어야 보인다. 이 저장소의 CMake는 켜 둔다), Clang `-Wall`의 `-Wdelete-abstract-non-virtual-dtor`. GCC는 시스템 헤더 안이라 보이지 않을 수 있다)
 
 ## Lab 17 — 데이터 레이스
 `gold_` 읽기-수정-쓰기가 원자적이지 않다. 두 스레드가 같은 값을 읽고 각각 +1을 쓰면 하나가 사라진다. 읽기와 쓰기 사이의 `std::this_thread::sleep_for(1ms)`는 그 틈을 넓혀 어느 컴파일러에서나 증상이 드러나게 할 뿐, 원인이 아니다(지워도 레이스는 남는다).

@@ -71,10 +71,12 @@ void of05_skill_tree()
 #pragma region 힌트 2 / ヒント 2
 // 화면 번호는 1 ~ 4인데 배열 인덱스는 0 ~ 3입니다. skillLevels[4]는 배열 바로 뒤, 같은 구조체의 다음 멤버인 gold 자리입니다.
 // operator[]는 범위를 검사하지 않습니다. Debug 구성의 표준 라이브러리는 "array subscript out of range" 같은 검사를 덧붙여 그 줄에서 멈춰 주지만, Release에서는 조용히 옆 변수를 덮습니다.
+// (GCC·Clang에서는 이 저장소의 CMake가 Debug에 켜는 _GLIBCXX_ASSERTIONS, libc++ 하드닝이 그 검사를 합니다.)
 // 같은 객체 안의 넘침이라 ASan도 대개 잡지 못합니다. at()은 어느 구성에서나 std::out_of_range를 던집니다.
 
 // [JA] 画面の番号は 1 ~ 4 ですが、配列のインデックスは 0 ~ 3 です。skillLevels[4] は配列の直後、同じ構造体の次のメンバーである gold の場所です。
 // [JA] operator[] は範囲をチェックしません。Debug 構成の標準ライブラリは「array subscript out of range」のようなチェックを付け加えてその行で止めてくれますが、Release では黙って隣の変数を上書きします。
+// [JA] (GCC・Clang では、このリポジトリの CMake が Debug でオンにする _GLIBCXX_ASSERTIONS、libc++ のハードニングがそのチェックをします。)
 // [JA] 同じオブジェクトの中でのはみ出しなので、ASan もたいてい捕まえられません。at() はどの構成でも std::out_of_range を投げます。
 #pragma endregion
 
