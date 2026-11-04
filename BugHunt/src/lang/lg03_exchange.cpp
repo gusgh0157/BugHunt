@@ -71,11 +71,13 @@ void lg03_exchange()
 #pragma endregion
 
 #pragma region 힌트 3 / ヒント 3
-// 중괄호 초기화는 축소 변환을 컴파일 오류로 막아 줍니다. 예: int silver{ gold * 100 }; short total{ silver * count };  → 두 곳이 모두 오류로 드러납니다.
+// 중괄호 초기화는 축소 변환을 막아 줍니다. 예: int silver{ gold * 100 }; short total{ silver * count };  → MSVC·Clang에서는 두 곳이 모두 컴파일 오류로 드러납니다.
+// (GCC는 상수가 아닌 값의 축소 변환에 경고만 냅니다. -Werror=narrowing을 켜면 오류가 됩니다.)
 // 고치기: 은화는 반올림해서 정수로(static_cast<int>(std::lround(gold * 100))), 총액 필드는 int로 넓힙니다.
 // 돈은 처음부터 정수(가장 작은 단위)로 들고 있는 것이 가장 안전합니다.
 
-// [JA] 波かっこによる初期化は、縮小変換をコンパイルエラーで防いでくれます。例: int silver{ gold * 100 }; short total{ silver * count };  → 二か所ともエラーとして表に出ます。
+// [JA] 波かっこによる初期化は、縮小変換を防いでくれます。例: int silver{ gold * 100 }; short total{ silver * count };  → MSVC・Clang では二か所ともコンパイルエラーとして表に出ます。
+// [JA] (GCC は定数でない値の縮小変換に警告だけを出します。-Werror=narrowing を付けるとエラーになります。)
 // [JA] 直し方: 銀貨は四捨五入して整数にし(static_cast<int>(std::lround(gold * 100)))、総額のフィールドは int に広げます。
 // [JA] お金は最初から整数(最小の単位)で持っておくのがいちばん安全です。
 #pragma endregion

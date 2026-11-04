@@ -87,9 +87,13 @@ void as06_matchmaking()
 #pragma region 힌트 3 / ヒント 3
 // 모든 빠져나가는 길(return, 예외)에서 스레드를 정리해야 합니다. 사람이 빠뜨리지 않게 하려면 RAII를 쓰세요.
 // C++20의 std::jthread는 파괴될 때 멈춰 달라고 요청하고(stop_token) join합니다.
+// 다만 취소할 때는 먼저 멈추게 하고 join한 뒤에 결과(matches, cancelled)를 고치세요. jthread에 맡겨 return 뒤에 join되면,
+// 그 사이 매칭 스레드가 아직 result.matches를 올리고 있을 수 있습니다(돌려준 결과와 경쟁).
 
 // [JA] すべての抜け道(return、例外)でスレッドを後始末しなければなりません。人がうっかり漏らさないようにするには RAII を使ってください。
 // [JA] C++20 の std::jthread は、破棄されるときに停止を要求し(stop_token)、join します。
+// [JA] ただし取り消すときは、先に止めて join してから結果(matches、cancelled)を書き換えてください。jthread に任せて return の後に join されると、
+// [JA] その間にマッチングスレッドがまだ result.matches を増やしているかもしれません(返した結果と競合します)。
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)

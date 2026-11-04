@@ -465,7 +465,7 @@ MSVC의 Debug 구성은 자체적으로 메모리를 채웁니다. Visual Studio
 | 주소 비교 | 조사식에 `&변수`를 넣고 두 곳에서 비교 | 같은 이름의 다른 변수 (랩 45) |
 | 생성자/소멸자 짝 세기 | 생성자·소멸자 중단점에서 이름을 적기 | 예외 경로 누수 (랩 46) |
 | 예외가 던져질 때 멈추기 | 디버거의 예외 설정에서 C++ 예외 "던질 때 중단" | 예외가 어디서 나서 어디로 가는지 (랩 46, 47) |
-| 경고 읽기 | 빌드 출력의 경고를 랩 파일 기준으로 찾기 | 42(C4244 / 축소 변환), 47(C4297 / `-Wexceptions`) |
+| 경고 읽기 | 빌드 출력의 경고를 랩 파일 기준으로 찾기 | 42(C4244 / 축소 변환), 47(C4297 / `-Wexceptions` / `-Wterminate`) |
 
 ## 따라 해 보기: 랩 43 (레벨 보정)
 
@@ -760,7 +760,7 @@ BugHunt는 채점이 흔들리지 않도록 Debug와 Release에 **메모리 검�
 | 76 미니맵 | CRASH, 스택 오버플로 (0xC00000FD) | 같음 | CRASH, `stack-overflow` | 같음 |
 | 77 던전 생성기 | CRASH, 스택 오버플로 (0xC00000FD) | 같음 | CRASH, `stack-overflow` | 같음 |
 | 78 리플레이 녹화 | CRASH, `[CRASH] 메모리 검사: 할당한 크기를 넘어서 썼다` (해제할 때) | 같음 | CRASH, `heap-buffer-overflow` (쓸 때) | 같음 |
-| 79 이름 패킷 | FAIL, `Nighting` | 같음 | FAIL, `Nighting` | 같음 |
+| 79 이름 패킷 | FAIL, `Nightingnd_Archer` | 같음 | FAIL, `Nightingnd_Archer` | 같음 |
 | 80 스킬 트리 | CRASH, `array subscript out of range` 어설션 | FAIL, 2번 스킬 레벨 0, 골드 801 (4번 스킬이 골드를 1 올림) | CRASH, 어설션 (Debug CRT) | FAIL (Release CRT라 어설션 없음, 같은 객체 안이라 ASan도 못 잡음) |
 
 80은 "Debug는 잡고 Release는 조용히 덮는다"를 보여 주려고 만든 랩이라 구성마다 증상이 다릅니다. 판정은 FAIL 또는 CRASH로 어느 구성에서도 0점입니다. GCC와 macOS Clang에서도 Debug는 CMake가 켜는 표준 라이브러리 범위 검사(`_GLIBCXX_ASSERTIONS`, libc++ 하드닝)가 같은 줄에서 멈추게 합니다(이 저장소에서는 확인하지 않았습니다). 나머지 넷은 구성 안에서 MSVC와 clang++의 판정이 같습니다. 검증: MSVC 14.51, clang++ 22(Windows, MSVC STL). GCC와 Linux(스택 8 MB)는 확인하지 않았지만, 76(16 MB)와 77(160 × 96 KB ≈ 15 MB)는 8 MB 스택도 넘도록 크기를 잡았습니다.
@@ -1603,7 +1603,7 @@ MSVC の Debug 構成は独自にメモリを埋めます。Visual Studio で Bu
 | アドレスを比べる | ウォッチに `&変数` を入れて二か所で比べる | 同じ名前の別の変数 (ラボ45) |
 | コンストラクター/デストラクターの対応を数える | コンストラクター・デストラクターのブレークポイントで名前を書き留める | 例外の経路での漏れ (ラボ46) |
 | 例外が投げられたときに止める | デバッガーの例外設定で C++ 例外の「スロー時に中断」 | 例外がどこで起きてどこへ行くか (ラボ46, 47) |
-| 警告を読む | ビルド出力の警告をラボのファイルで探す | 42(C4244 / 縮小変換)、47(C4297 / `-Wexceptions`) |
+| 警告を読む | ビルド出力の警告をラボのファイルで探す | 42(C4244 / 縮小変換)、47(C4297 / `-Wexceptions` / `-Wterminate`) |
 
 ## やってみよう: ラボ43 (レベル補正)
 
@@ -1898,7 +1898,7 @@ BugHunt は採点がぶれないように Debug と Release に **メモリチ�
 | 76 ミニマップ | CRASH、スタックオーバーフロー (0xC00000FD) | 同じ | CRASH、`stack-overflow` | 同じ |
 | 77 ダンジョン生成器 | CRASH、スタックオーバーフロー (0xC00000FD) | 同じ | CRASH、`stack-overflow` | 同じ |
 | 78 リプレイ録画 | CRASH、`[CRASH] メモリ検査: 確保したサイズを超えて書いた` (解放時) | 同じ | CRASH、`heap-buffer-overflow` (書き込み時) | 同じ |
-| 79 名前パケット | FAIL、`Nighting` | 同じ | FAIL、`Nighting` | 同じ |
+| 79 名前パケット | FAIL、`Nightingnd_Archer` | 同じ | FAIL、`Nightingnd_Archer` | 同じ |
 | 80 スキルツリー | CRASH、`array subscript out of range` のアサーション | FAIL、2番スキルのレベル0、ゴールド801 (4番スキルがゴールドを1上げる) | CRASH、アサーション (Debug CRT) | FAIL (Release CRT なのでアサーションなし、同じオブジェクトの中なので ASan も捕まえられない) |
 
 80は「Debug は捕まえ、Release は黙って上書きする」ことを見せるために作ったラボなので、構成ごとに症状が違います。判定は FAIL または CRASH で、どの構成でも0点です。GCC と macOS の Clang でも、Debug では CMake がオンにする標準ライブラリの範囲チェック(`_GLIBCXX_ASSERTIONS`、libc++ のハードニング)が同じ行で止めます(このリポジトリでは確認していません)。残りの4つは、構成の中で MSVC と clang++ の判定が同じです。検証: MSVC 14.51、clang++ 22(Windows、MSVC STL)。GCC と Linux(スタック 8 MB)は確認していませんが、76(16 MB)と77(160 × 96 KB ≈ 15 MB)は 8 MB のスタックも超えるように大きさを決めました。

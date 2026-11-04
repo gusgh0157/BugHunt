@@ -254,7 +254,7 @@ if (kill || gold || level) ...
 
 ## Lab 30 — マクロが副作用のある引数を2回評価する
 ```
-間違った結果:   画面のコンボ 2 4 6 0 2 4(期待 1 2 3 0 1 2)、最高コンボ6
+間違った結果:   画面のコンボ 2 4 6 0 1 2(期待 1 2 3 0 1 2)、最高コンボ6
 止めた位置:     c.current のデータ ブレークポイント → 攻撃1回で2回止まる
 最初にずれた行: c.best = BUGHUNT_MAX(c.best, ++c.current);
 本当の原因:     ((a) > (b) ? (a) : (b)) に展開され、条件で1回、選ばれた側でもう1回 ++c.current
@@ -432,7 +432,7 @@ return static_cast<int>(total);
 本当の原因:     1.15 は2進数で正確に表せず 1.1499... として保存され、double→int は切り捨て。総額のフィールドが short なので 34200 が切り落とされる
 ```
 **修正:** `return static_cast<int>(std::lround(gold * 100));`、`SaleRecord::totalSilver` を `int` に
-**教訓:** `=` や `return` の縮小変換は警告だけか(MSVC C4244)、何も言われません。波かっこ初期化(`int silver{ gold * 100 };`)は縮小変換をコンパイルエラーにして、二か所を一度に見つけてくれます。お金は最初から最小単位の整数で持ち歩きます。`+ 1` で合わせるつぎはぎは 2.5 ゴールド(ちょうど250)で間違えます。
+**教訓:** `=` や `return` の縮小変換は警告だけか(MSVC C4244)、何も言われません。波かっこ初期化(`int silver{ gold * 100 };`)は縮小変換をコンパイルエラーにして(MSVC・Clang。GCC は定数でない値には警告だけなので `-Werror=narrowing`)、二か所を一度に見つけてくれます。お金は最初から最小単位の整数で持ち歩きます。`+ 1` で合わせるつぎはぎは 2.5 ゴールド(ちょうど250)で間違えます。
 
 ## Lab 43 — `std::min<std::size_t>` が負の数をとても大きな正の数に
 ```
@@ -506,7 +506,7 @@ void close()
 }
 // saveGame: try ブロックの最後の行で file.close();
 ```
-**教訓:** デストラクターは失敗を知らせる手段がない場所です。失敗しうる後始末は明示的な関数(`close`、`commit`)に出し、デストラクターでは例外を握りつぶします。`noexcept(false)` にするつぎはぎは、別の例外でスタックを巻き戻している最中にデストラクターがさらに投げると、やはり terminate です(隠しテスト)。MSVC は C4297、clang は `-Wexceptions` ですでに警告しています。関数に `noexcept` を付けておいて中で投げる場合も同じ結果です。
+**教訓:** デストラクターは失敗を知らせる手段がない場所です。失敗しうる後始末は明示的な関数(`close`、`commit`)に出し、デストラクターでは例外を握りつぶします。`noexcept(false)` にするつぎはぎは、別の例外でスタックを巻き戻している最中にデストラクターがさらに投げると、やはり terminate です(隠しテスト)。MSVC は C4297、clang は `-Wexceptions`、GCC は `-Wterminate` ですでに警告しています。関数に `noexcept` を付けておいて中で投げる場合も同じ結果です。
 
 ## Lab 48 — 範囲 for は範囲を最初に一度だけ評価する
 ```
@@ -541,7 +541,7 @@ for (std::size_t i = 0; i < log.size(); ++i)
 本当の原因:     Backstab::damage に const がなく、Skill::damage(const Target&) const とは別の関数。Skill& で呼ぶと基底版
 ```
 **修正:** `int damage(const Target& t) const override { ... }`
-**教訓:** オーバーライドするつもりの関数には必ず `override`。付けた瞬間、`const` 漏れ、引数の型の違い(`int` と `long`、`const&` と値)、基底側の名前変更をコンパイラーがエラーで教えてくれます。clang は `-Wall` で `-Woverloaded-virtual` 警告を出しますが、MSVC は既定の警告レベル(/W3)では何も言いません。
+**教訓:** オーバーライドするつもりの関数には必ず `override`。付けた瞬間、`const` 漏れ、引数の型の違い(`int` と `long`、`const&` と値)、基底側の名前変更をコンパイラーがエラーで教えてくれます。clang と GCC 13 以降は `-Wall` で `-Woverloaded-virtual` 警告を出しますが、MSVC は既定の警告レベル(/W3)では何も言いません。
 
 ## Lab 50 — `vector<Monster>` に入れて Boss が切られる(スライシング)
 ```
@@ -645,7 +645,7 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 止めた位置:     readJournal を呼ぶ行で止めて journal.txt を確認 → 0バイト
 本当の原因:     ofstream が開いている間に書いた内容はストリームのバッファーにあり、flush/close するまでディスクにはない
 ```
-**修正:** `record` で書いた後に `out_.flush();`(または読む前に flush/close)
+**修正:** `record` で書いた後に `out_.flush();`。flush は Journal の中で行います。本文の `readJournal` の前にだけ flush・close を入れると、日誌を書いてすぐ読む別の場所(隠しケース)でまた間違えます。
 **教訓:** 同じプログラムの中で書いて読み直すなら、読む前に書いた内容がディスクにあることを保証します。第12部ラボ96(`std::endl` が毎回 flush して遅い)と対になります: flush は必要な瞬間にだけ。
 
 ## Lab 57 — `while (!in.eof())` で最後の記録が2回
@@ -935,7 +935,7 @@ timers.after(3, [&hero, bonus] {
 
 ## Lab 79 — `memcpy` に `sizeof(ポインター)`
 ```
-間違った結果:   1番目の名前 "Nighting"(期待 "Nightingale")、2番目の名前は "Moonshadingale" のように前の人の名前がくっつく
+間違った結果:   1番目の名前 "Nightingnd_Archer"(期待 "Nightingale")、2番目の名前 "Moonshadnd_Archer"。先頭8文字の後ろに、直前の接続者の名前(Silverwind_Archer)の残りがくっつく
 止めた位置:     writeName、ウォッチ sizeof(dst) == 8、std::strlen(src) == 11。メモリ ウィンドウで packet.name の9バイト目から前の人の名前
 本当の原因:     引数 char* dst は配列ではなくポインターなので sizeof は8。先頭8バイトだけコピーされ、ヌル文字がない
 ```
@@ -1012,7 +1012,7 @@ for (std::future<int>& job : jobs)
 ```
 **修正:** 必要な値だけをコピーして持っていきます。`std::thread([bid = bid_, &bell, &board] { bell.waitForRing(); board.post(bid); }).detach();`
 (ベルと掲示板はサーバーが動いている間ずっと生きているオブジェクトなので参照のままにします。その保証がなければ `shared_ptr` で共同所有します。)
-より堅牢な設計はスレッドを detach しないことです。ウィンドウが `std::jthread` を所有してデストラクターで停止を要求して待つか、通知をサーバー側のオブジェクトに登録します。
+スレッドを detach しない設計もありますが、条件が付きます。ウィンドウに `std::jthread` を所有させてデストラクターで待たせると、このラボのようにベルが鳴る前にウィンドウが閉じられる流れでは、デストラクターがベルを待って止まります(TIMEOUT)。その方法はベルが鳴った後にウィンドウが閉じられるときだけ正しいです。この流れでは通知をサーバー側のオブジェクトに登録するほうが合っています。
 **構成別:** Debug と Release はメモリチェッカーの `0xEE` で FAIL。ASan はワーカースレッドで heap-use-after-free(解放した場所はメインスレッドの `bidAndCloseWindow`)として CRASH。
 **教訓:** `detach` は「このスレッドの寿命には誰も責任を持たない」という意味です。detach したスレッドに渡すラムダは、キャプチャしたものがすべてそのスレッドより長く生きるか確認します(第9部のラボ 75 と同じミスがスレッドに移ってきたもの)。
 

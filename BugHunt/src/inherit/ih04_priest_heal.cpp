@@ -77,11 +77,15 @@ void ih04_priest_heal()
 // 가상 함수에 기본 인자를 두지 마세요. 기본값도 가상 함수로 물어보게 하세요. 예:
 //     int heal() const { return heal(defaultAmount()); }   // 가상이 아닌 함수
 //     virtual int defaultAmount() const { return 10; }    // 직업마다 재정의
+// 파생 클래스에서 heal(int)을 재정의하면 같은 이름의 기반 heal()이 가려지므로(이름 숨김), Priest와 Druid에 using Healer::heal;을 넣으세요.
+// 그래야 본문의 priest.heal()이 컴파일됩니다.
 // 기반의 기본값만 25로 바꾸는 땜질은 드루이드(18)에서 틀립니다.
 
 // [JA] 仮想関数にデフォルト引数を付けないでください。既定値も仮想関数で問い合わせるようにします。例:
 // [JA]     int heal() const { return heal(defaultAmount()); }   // 非仮想関数
 // [JA]     virtual int defaultAmount() const { return 10; }    // 職業ごとにオーバーライド
+// [JA] 派生クラスで heal(int) をオーバーライドすると、同じ名前の基底の heal() が隠れる(名前の隠蔽)ので、Priest と Druid に using Healer::heal; を入れてください。
+// [JA] そうしないと本文の priest.heal() がコンパイルできません。
 // [JA] 基底の既定値だけを25に変えるその場しのぎは、ドルイド(18)で間違えます。
 #pragma endregion
 

@@ -252,7 +252,7 @@ if (kill || gold || level) ...
 
 ## Lab 30 — 매크로가 부작용 있는 인자를 두 번 평가
 ```
-틀린 결과:     화면 콤보 2 4 6 0 2 4 (기대 1 2 3 0 1 2), 최고 콤보 6
+틀린 결과:     화면 콤보 2 4 6 0 1 2 (기대 1 2 3 0 1 2), 최고 콤보 6
 멈춘 위치:     c.current 데이터 중단점 → 공격 한 번에 두 번 멈춤
 처음 어긋난 줄: c.best = BUGHUNT_MAX(c.best, ++c.current);
 진짜 원인:     ((a) > (b) ? (a) : (b))로 펼쳐져 조건에서 한 번, 고른 쪽에서 또 한 번 ++c.current
@@ -430,7 +430,7 @@ return static_cast<int>(total);
 진짜 원인:     1.15는 2진수로 정확히 나타낼 수 없어 1.1499...로 저장되고, double→int는 버림. 총액 필드가 short라 34200이 잘림
 ```
 **수정:** `return static_cast<int>(std::lround(gold * 100));`, `SaleRecord::totalSilver`를 `int`로
-**교훈:** `=`와 `return`의 축소 변환은 경고만 나거나(MSVC C4244) 아무 말이 없다. 중괄호 초기화(`int silver{ gold * 100 };`)는 축소 변환을 컴파일 오류로 만들어 두 곳을 한 번에 찾아 준다. 돈은 처음부터 가장 작은 단위의 정수로 들고 다닌다. `+ 1`로 맞춘 땜질은 2.5골드(정확히 250)에서 틀린다.
+**교훈:** `=`와 `return`의 축소 변환은 경고만 나거나(MSVC C4244) 아무 말이 없다. 중괄호 초기화(`int silver{ gold * 100 };`)는 축소 변환을 컴파일 오류로 만들어(MSVC·Clang. GCC는 상수가 아닌 값에는 경고만 내므로 `-Werror=narrowing`) 두 곳을 한 번에 찾아 준다. 돈은 처음부터 가장 작은 단위의 정수로 들고 다닌다. `+ 1`로 맞춘 땜질은 2.5골드(정확히 250)에서 틀린다.
 
 ## Lab 43 — `std::min<std::size_t>`가 음수를 아주 큰 양수로
 ```
@@ -504,7 +504,7 @@ void close()
 }
 // saveGame: try 블록 마지막 줄에서 file.close();
 ```
-**교훈:** 소멸자는 실패를 알릴 길이 없는 곳이다. 실패할 수 있는 정리는 명시적인 함수(`close`, `commit`)로 꺼내고, 소멸자는 삼킨다. `noexcept(false)`로 바꾸는 땜질은 다른 예외로 스택을 푸는 중에 소멸자가 또 던지면 여전히 terminate다(숨은 테스트). MSVC는 C4297, clang은 `-Wexceptions`로 이미 경고한다. 함수에 `noexcept`를 붙여 두고 안에서 던지는 경우도 같은 결과다.
+**교훈:** 소멸자는 실패를 알릴 길이 없는 곳이다. 실패할 수 있는 정리는 명시적인 함수(`close`, `commit`)로 꺼내고, 소멸자는 삼킨다. `noexcept(false)`로 바꾸는 땜질은 다른 예외로 스택을 푸는 중에 소멸자가 또 던지면 여전히 terminate다(숨은 테스트). MSVC는 C4297, clang은 `-Wexceptions`, GCC는 `-Wterminate`로 이미 경고한다. 함수에 `noexcept`를 붙여 두고 안에서 던지는 경우도 같은 결과다.
 
 ## Lab 48 — 범위 for는 범위를 처음 한 번만 평가한다
 ```
@@ -539,7 +539,7 @@ for (std::size_t i = 0; i < log.size(); ++i)
 진짜 원인:     Backstab::damage에 const가 없어 Skill::damage(const Target&) const와 다른 함수. Skill&로 부르면 기반 버전
 ```
 **수정:** `int damage(const Target& t) const override { ... }`
-**교훈:** 재정의하려는 함수에는 항상 `override`. 붙이는 순간 `const` 누락, 매개변수 형식 차이(`int` vs `long`, `const&` vs 값), 기반 쪽 이름 변경을 컴파일러가 오류로 알려 준다. clang은 `-Wall`에서 `-Woverloaded-virtual` 경고를 내지만, MSVC는 기본 경고 수준(/W3)에서 아무 말이 없다.
+**교훈:** 재정의하려는 함수에는 항상 `override`. 붙이는 순간 `const` 누락, 매개변수 형식 차이(`int` vs `long`, `const&` vs 값), 기반 쪽 이름 변경을 컴파일러가 오류로 알려 준다. clang과 GCC 13 이상은 `-Wall`에서 `-Woverloaded-virtual` 경고를 내지만, MSVC는 기본 경고 수준(/W3)에서 아무 말이 없다.
 
 ## Lab 50 — `vector<Monster>`에 담아 Boss가 잘림 (슬라이싱)
 ```
@@ -643,7 +643,7 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 멈춘 위치:     readJournal 호출 줄에서 멈춘 뒤 journal.txt 확인 → 0바이트
 진짜 원인:     ofstream이 열려 있는 동안 쓴 내용은 스트림 버퍼에 있고, flush/close 전에는 디스크에 없다
 ```
-**수정:** `record`에서 쓴 뒤 `out_.flush();` (또는 읽기 전에 flush/close)
+**수정:** `record`에서 쓴 뒤 `out_.flush();`. flush는 Journal 안에서 한다. 본문에서 `readJournal` 앞에만 flush·close를 넣으면, 일지를 쓰고 바로 읽는 다른 곳(숨은 케이스)에서 다시 틀린다.
 **교훈:** 같은 프로그램 안에서 쓰고 다시 읽으면, 읽기 전에 쓴 내용이 디스크에 있는지 보장한다. 12부 랩 96(`std::endl`이 매번 flush해서 느림)과 짝: flush는 필요한 순간에만.
 
 ## Lab 57 — `while (!in.eof())`로 마지막 기록이 두 번
@@ -933,7 +933,7 @@ timers.after(3, [&hero, bonus] {
 
 ## Lab 79 — `memcpy`에 `sizeof(포인터)`
 ```
-틀린 결과:     첫 번째 이름 "Nighting" (기대 "Nightingale"), 두 번째 이름 "Moonshadingale" 같은 이어 붙음
+틀린 결과:     첫 번째 이름 "Nightingnd_Archer" (기대 "Nightingale"), 두 번째 이름 "Moonshadnd_Archer". 앞 8글자 뒤에 직전 접속자 이름(Silverwind_Archer)의 나머지가 붙음
 멈춘 위치:     writeName, 조사식 sizeof(dst) == 8, std::strlen(src) == 11. 메모리 창에서 packet.name 9바이트째부터 앞사람 이름
 진짜 원인:     매개변수 char* dst는 배열이 아니라 포인터라 sizeof가 8. 앞 8바이트만 복사되고 널 문자가 없다
 ```
@@ -1010,7 +1010,7 @@ for (std::future<int>& job : jobs)
 ```
 **수정:** 필요한 값만 복사해 간다. `std::thread([bid = bid_, &bell, &board] { bell.waitForRing(); board.post(bid); }).detach();`
 (종과 게시판은 서버가 켜져 있는 동안 사는 객체라 참조로 둔다. 그 약속이 없다면 `shared_ptr`로 함께 소유한다.)
-더 튼튼한 설계는 스레드를 떼어 내지 않는 것이다. 창이 `std::jthread`를 소유하고 소멸자에서 멈춰 달라고 요청하고 기다리거나, 알림을 서버 쪽 객체에 등록한다.
+스레드를 떼어 내지 않는 설계도 있지만 조건이 붙는다. 창이 `std::jthread`를 소유하고 소멸자에서 기다리게 하면, 이 랩처럼 종이 울리기 전에 창이 닫히는 흐름에서는 소멸자가 종을 기다리며 멈춘다(TIMEOUT). 그 방법은 창이 종이 울린 뒤에 닫힐 때만 맞다. 이 흐름에서는 알림을 서버 쪽 객체에 등록하는 편이 맞다.
 **구성별:** Debug와 Release는 메모리 검사기의 `0xEE`로 FAIL. ASan은 작업 스레드에서 heap-use-after-free(해제한 곳은 메인 스레드의 `bidAndCloseWindow`)로 CRASH.
 **교훈:** `detach`는 "이 스레드의 수명을 아무도 책임지지 않는다"는 뜻이다. 떼어 낸 스레드에 넘긴 람다는 캡처한 모든 것이 그 스레드보다 오래 사는지 확인한다(9부 랩 75와 같은 실수가 스레드로 옮겨 온 것).
 
