@@ -1,4 +1,6 @@
 #include "../labs.h"
+#include <chrono>
+#include <latch>
 #include <thread>
 #include <vector>
 
@@ -10,7 +12,7 @@ public:
     void deposit(int amount)
     {
         const int current = gold_;
-        std::this_thread::yield();   // 장부를 확인하는 동안 다른 스레드에 차례가 갈 수 있다
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));   // 장부를 확인하는 동안 다른 길드원도 장부를 본다
         gold_ = current + amount;
     }
 
@@ -24,15 +26,17 @@ private:
 void lab09_guild_bank()
 {
     constexpr int kMembers = 4;
-    constexpr int kDepositsPerMember = 20000;
+    constexpr int kDepositsPerMember = 50;
 
     GuildBank bank;
 
-    // 길드원 4명이 동시에 1골드씩 2만 번 입금한다.
+    // 길드원 4명이 동시에 1골드씩 50번 입금한다.
+    std::latch start(kMembers);   // 4명이 모두 모이면 함께 시작한다
     std::vector<std::thread> members;
     for (int m = 0; m < kMembers; ++m)
     {
-        members.emplace_back([&bank] {
+        members.emplace_back([&bank, &start] {
+            start.arrive_and_wait();
             for (int i = 0; i < kDepositsPerMember; ++i)
                 bank.deposit(1);
         });
@@ -49,9 +53,9 @@ void lab09_guild_bank()
 // ============================================================================
 
 #pragma region 힌트 1 / ヒント 1 (먼저 직접 추적해 보고 펼치세요 / まず自分で追跡してから開いてください)
-// 여러 번 실행해 보세요. 결과가 매번 다르면 무엇을 의심해야 할까요?
+// 4명이 50번씩 넣었는데 금고에는 50골드 남짓뿐입니다. 사라진 입금은 어디로 갔을까요? 여러 스레드가 같은 값을 고칠 때 무엇을 의심해야 할까요?
 
-// [JA] 何回か実行してみてください。結果が毎回違うなら、何を疑うべきでしょうか?
+// [JA] 4人が50回ずつ入れたのに、金庫には50ゴールドほどしかありません。消えた入金はどこへ行ったのでしょうか? 複数のスレッドが同じ値を書き換えるとき、何を疑うべきでしょうか?
 #pragma endregion
 
 #pragma region 힌트 2 / ヒント 2
@@ -63,9 +67,9 @@ void lab09_guild_bank()
 #pragma endregion
 
 #pragma region 참고 / 参考
-// 데이터 경쟁(data race)은 정의되지 않은 동작입니다. yield가 없으면 최적화 컴파일러가 반복을 합쳐
+// 데이터 경쟁(data race)은 정의되지 않은 동작입니다. sleep_for가 없으면 최적화 컴파일러가 반복을 합쳐
 // 우연히 맞게 나올 수도 있지만, 그래도 버그입니다.
 
-// [JA] データ競合(data race)は未定義動作です。yield がないと、最適化コンパイラーがループをまとめて
+// [JA] データ競合(data race)は未定義動作です。sleep_for がないと、最適化コンパイラーがループをまとめて
 // [JA] たまたま正しい結果が出ることもありますが、それでもバグです。
 #pragma endregion
