@@ -108,7 +108,7 @@
 ```cpp
 for (auto it = enemies.begin(); it != enemies.end(); )
     it = (it->hp <= 0) ? enemies.erase(it) : it + 1;
-// 또는 C++20: std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; });
+// 목록이 std::vector라면 C++20 std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; });로 한 줄에 된다.
 ```
 
 ## Lab 14 — unsigned 언더플로
@@ -123,10 +123,10 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 `StatusEffect`의 소멸자가 virtual이 아니라 `unique_ptr<StatusEffect>`가 `delete`할 때 `Burn`의 소멸자가 불리지 않는다 → 멤버 `schedule_`(`DamageSchedule`)도 파괴되지 않아 전투 1000번 뒤 1000개가 살아 남는다(그 안의 벡터 메모리도 누수). 엄밀히는 정의되지 않은 동작이다.
 **추적:** `DamageSchedule`의 소멸자에 중단점을 걸면 한 번도 멈추지 않는다. 생성자에는 멈춘다. → 누가 지워야 했나? `unique_ptr`의 `delete`가 `StatusEffect`의 소멸자만 부른다.
 **수정:** `virtual ~StatusEffect() = default;`
-**교훈:** 다형적으로 delete될 기반 클래스는 반드시 virtual 소멸자. (경고: MSVC C5205, GCC·Clang `-Wdelete-non-virtual-dtor`)
+**교훈:** 다형적으로 delete될 기반 클래스는 반드시 virtual 소멸자. (경고: MSVC C5205(표준 헤더 안 템플릿이라 `/external:templates-`가 있어야 보인다. 이 저장소의 CMake는 켜 둔다), Clang `-Wall`의 `-Wdelete-abstract-non-virtual-dtor`. GCC는 시스템 헤더 안이라 보이지 않을 수 있다)
 
 ## Lab 17 — 데이터 레이스
-`gold_` 읽기-수정-쓰기가 원자적이지 않다. 두 스레드가 같은 값을 읽고 각각 +1을 쓰면 하나가 사라진다. 읽기와 쓰기 사이의 `std::this_thread::yield()`는 그 틈을 넓혀 어느 컴파일러에서나 증상이 드러나게 할 뿐, 원인이 아니다(지워도 레이스는 남는다).
+`gold_` 읽기-수정-쓰기가 원자적이지 않다. 두 스레드가 같은 값을 읽고 각각 +1을 쓰면 하나가 사라진다. 읽기와 쓰기 사이의 `std::this_thread::sleep_for(1ms)`는 그 틈을 넓혀 어느 컴파일러에서나 증상이 드러나게 할 뿐, 원인이 아니다(지워도 레이스는 남는다).
 **수정:** `std::atomic<int> gold_{0};` + `gold_ += amount;` 또는 `std::mutex`로 보호.
 
 ## Lab 18 — 구조체 내부 버퍼 오버플로
@@ -252,7 +252,7 @@ if (kill || gold || level) ...
 
 ## Lab 30 — 매크로가 부작용 있는 인자를 두 번 평가
 ```
-틀린 결과:     화면 콤보 2 4 6 0 2 4 (기대 1 2 3 0 1 2), 최고 콤보 6
+틀린 결과:     화면 콤보 2 4 6 0 1 2 (기대 1 2 3 0 1 2), 최고 콤보 6
 멈춘 위치:     c.current 데이터 중단점 → 공격 한 번에 두 번 멈춤
 처음 어긋난 줄: c.best = BUGHUNT_MAX(c.best, ++c.current);
 진짜 원인:     ((a) > (b) ? (a) : (b))로 펼쳐져 조건에서 한 번, 고른 쪽에서 또 한 번 ++c.current
@@ -356,7 +356,7 @@ Board::value_type* selected_ = nullptr;
 조사식:      (void*)heroes[i].name.c_str() 가 grantTitle 뒤에 바뀜 (Doran, Selene), Kael은 그대로
 Kael:        "Kael the Brave" 14글자 → 여전히 객체 안 버퍼(SSO) → 같은 주소라 우연히 맞음
 Doran:       21글자 → 객체 안 버퍼에서 힙으로 이사. 이름표는 객체 안의 옛 버퍼(지금은 힙 포인터가 들어 있음)를 읽어 깨진 글자
-Selene:      원래 힙(18글자, 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (메모리 검사기의 0xEE 글자)
+Selene:      원래 힙(18글자, MSVC STL에서 용량 31) → 37글자로 재할당. 이름표는 해제된 힙을 읽음 (메모리 검사기의 0xEE 글자)
 ```
 **수정:** 이름표가 문자열 버퍼가 아니라 문자열을 가진 객체를 가리키게 한다.
 ```cpp
@@ -364,7 +364,7 @@ explicit Nameplate(const Hero& hero) : hero_(&hero) {}
 const char* text() const { return hero_->name.c_str(); }
 const Hero* hero_;
 ```
-**구성별:** 위 글자 수 경계는 MSVC STL과 libstdc++(객체 안 버퍼 15글자) 기준이다. libc++(macOS 기본)는 22글자까지 객체 안에 두므로 Doran도 우연히 맞을 수 있다. ASan은 Selene만 잡는다(heap-use-after-free). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
+**구성별:** 위 글자 수 경계는 MSVC STL과 libstdc++(객체 안 버퍼 15글자) 기준이다. 힙 용량도 구현마다 다르다(18글자일 때 MSVC STL 31, libstdc++ 18). libc++(macOS 기본)는 22글자까지 객체 안에 두므로 Doran도 우연히 맞을 수 있고, Selene도 처음에는 객체 안에 있다가 Doran처럼 힙으로 이사한다. ASan은 Selene만 잡는다(heap-use-after-free, MSVC STL·libstdc++ 기준). Doran은 아직 살아 있는 `Hero` 객체 안의 메모리를 읽으므로 ASan이 보기에는 정상 접근이다.
 **교훈:** `c_str()`/`data()`/`string_view`는 문자열이 바뀌면 무효가 될 수 있다. 짧은 문자열은 SSO 때문에 "되는 것처럼" 보여서 더 늦게 발견된다.
 
 ## Lab 39 — set 안에 있는 원소의 정렬 기준을 바꿈
@@ -430,7 +430,7 @@ return static_cast<int>(total);
 진짜 원인:     1.15는 2진수로 정확히 나타낼 수 없어 1.1499...로 저장되고, double→int는 버림. 총액 필드가 short라 34200이 잘림
 ```
 **수정:** `return static_cast<int>(std::lround(gold * 100));`, `SaleRecord::totalSilver`를 `int`로
-**교훈:** `=`와 `return`의 축소 변환은 경고만 나거나(MSVC C4244) 아무 말이 없다. 중괄호 초기화(`int silver{ gold * 100 };`)는 축소 변환을 컴파일 오류로 만들어 두 곳을 한 번에 찾아 준다. 돈은 처음부터 가장 작은 단위의 정수로 들고 다닌다. `+ 1`로 맞춘 땜질은 2.5골드(정확히 250)에서 틀린다.
+**교훈:** `=`와 `return`의 축소 변환은 경고만 나거나(MSVC C4244) 아무 말이 없다. 중괄호 초기화(`int silver{ gold * 100 };`)는 축소 변환을 컴파일 오류로 만들어(MSVC·Clang. GCC는 상수가 아닌 값에는 경고만 내므로 `-Werror=narrowing`) 두 곳을 한 번에 찾아 준다. 돈은 처음부터 가장 작은 단위의 정수로 들고 다닌다. `+ 1`로 맞춘 땜질은 2.5골드(정확히 250)에서 틀린다.
 
 ## Lab 43 — `std::min<std::size_t>`가 음수를 아주 큰 양수로
 ```
@@ -504,7 +504,7 @@ void close()
 }
 // saveGame: try 블록 마지막 줄에서 file.close();
 ```
-**교훈:** 소멸자는 실패를 알릴 길이 없는 곳이다. 실패할 수 있는 정리는 명시적인 함수(`close`, `commit`)로 꺼내고, 소멸자는 삼킨다. `noexcept(false)`로 바꾸는 땜질은 다른 예외로 스택을 푸는 중에 소멸자가 또 던지면 여전히 terminate다(숨은 테스트). MSVC는 C4297, clang은 `-Wexceptions`로 이미 경고한다. 함수에 `noexcept`를 붙여 두고 안에서 던지는 경우도 같은 결과다.
+**교훈:** 소멸자는 실패를 알릴 길이 없는 곳이다. 실패할 수 있는 정리는 명시적인 함수(`close`, `commit`)로 꺼내고, 소멸자는 삼킨다. `noexcept(false)`로 바꾸는 땜질은 다른 예외로 스택을 푸는 중에 소멸자가 또 던지면 여전히 terminate다(숨은 테스트). MSVC는 C4297, clang은 `-Wexceptions`, GCC는 `-Wterminate`로 이미 경고한다. 함수에 `noexcept`를 붙여 두고 안에서 던지는 경우도 같은 결과다.
 
 ## Lab 48 — 범위 for는 범위를 처음 한 번만 평가한다
 ```
@@ -539,7 +539,7 @@ for (std::size_t i = 0; i < log.size(); ++i)
 진짜 원인:     Backstab::damage에 const가 없어 Skill::damage(const Target&) const와 다른 함수. Skill&로 부르면 기반 버전
 ```
 **수정:** `int damage(const Target& t) const override { ... }`
-**교훈:** 재정의하려는 함수에는 항상 `override`. 붙이는 순간 `const` 누락, 매개변수 형식 차이(`int` vs `long`, `const&` vs 값), 기반 쪽 이름 변경을 컴파일러가 오류로 알려 준다. clang은 `-Wall`에서 `-Woverloaded-virtual` 경고를 내지만, MSVC는 기본 경고 수준(/W3)에서 아무 말이 없다.
+**교훈:** 재정의하려는 함수에는 항상 `override`. 붙이는 순간 `const` 누락, 매개변수 형식 차이(`int` vs `long`, `const&` vs 값), 기반 쪽 이름 변경을 컴파일러가 오류로 알려 준다. clang과 GCC 13 이상은 `-Wall`에서 `-Woverloaded-virtual` 경고를 내지만, MSVC는 기본 경고 수준(/W3)에서 아무 말이 없다.
 
 ## Lab 50 — `vector<Monster>`에 담아 Boss가 잘림 (슬라이싱)
 ```
@@ -643,7 +643,7 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 멈춘 위치:     readJournal 호출 줄에서 멈춘 뒤 journal.txt 확인 → 0바이트
 진짜 원인:     ofstream이 열려 있는 동안 쓴 내용은 스트림 버퍼에 있고, flush/close 전에는 디스크에 없다
 ```
-**수정:** `record`에서 쓴 뒤 `out_.flush();` (또는 읽기 전에 flush/close)
+**수정:** `record`에서 쓴 뒤 `out_.flush();`. flush는 Journal 안에서 한다. 본문에서 `readJournal` 앞에만 flush·close를 넣으면, 일지를 쓰고 바로 읽는 다른 곳(숨은 케이스)에서 다시 틀린다.
 **교훈:** 같은 프로그램 안에서 쓰고 다시 읽으면, 읽기 전에 쓴 내용이 디스크에 있는지 보장한다. 12부 랩 96(`std::endl`이 매번 flush해서 느림)과 짝: flush는 필요한 순간에만.
 
 ## Lab 57 — `while (!in.eof())`로 마지막 기록이 두 번
@@ -898,7 +898,7 @@ timers.after(3, [&hero, bonus] {
     ...
 });
 ```
-**구성별:** 틀린 값은 컴파일러와 구성마다 다르다(이 저장소에서 Kael: MSVC Debug -124, MSVC·Clang Release 45, Clang Debug 85, ASan 쓰레기 값). 위 조사식은 Release의 45가 나온 이유다. 기본 ASan은 stack-use-after-return을 잡지 않는다. Clang ASan은 `ASAN_OPTIONS=detect_stack_use_after_return=1`로 실행하면 이 람다 줄에서 `stack-use-after-return`으로 멈춘다(README "람다 캡처와 ASan").
+**구성별:** 틀린 값은 컴파일러와 구성마다 다르다(이 저장소에서 Kael의 예: MSVC Debug -124(다시 빌드하면 바뀔 수 있다), MSVC·Clang Release 45, Clang Debug 85, ASan 쓰레기 값). 위 조사식은 Release의 45가 나온 이유다. 기본 ASan은 stack-use-after-return을 잡지 않는다. Clang ASan은 `ASAN_OPTIONS=detect_stack_use_after_return=1`로 실행하면 이 람다 줄에서 `stack-use-after-return`으로 멈춘다(README "람다 캡처와 ASan").
 **교훈:** `[&]`는 람다가 **지금 이 자리에서** 실행될 때만 안전하다. 콜백, 타이머, 스레드, 나중에 실행할 목록에 넣는 람다는 캡처 목록을 하나씩 적고, 무엇을 참조로 들고 가는지 확인한다. `hero`를 참조로 가져가는 것도 "Hero가 타이머보다 오래 산다"는 약속에 기댄 것이다.
 
 ## 넘침: 스택과 힙의 경계 (랩 76~80)
@@ -933,7 +933,7 @@ timers.after(3, [&hero, bonus] {
 
 ## Lab 79 — `memcpy`에 `sizeof(포인터)`
 ```
-틀린 결과:     첫 번째 이름 "Nighting" (기대 "Nightingale"), 두 번째 이름 "Moonshadingale" 같은 이어 붙음
+틀린 결과:     첫 번째 이름 "Nightingnd_Archer" (기대 "Nightingale"), 두 번째 이름 "Moonshadnd_Archer". 앞 8글자 뒤에 직전 접속자 이름(Silverwind_Archer)의 나머지가 붙음
 멈춘 위치:     writeName, 조사식 sizeof(dst) == 8, std::strlen(src) == 11. 메모리 창에서 packet.name 9바이트째부터 앞사람 이름
 진짜 원인:     매개변수 char* dst는 배열이 아니라 포인터라 sizeof가 8. 앞 8바이트만 복사되고 널 문자가 없다
 ```
@@ -1010,7 +1010,7 @@ for (std::future<int>& job : jobs)
 ```
 **수정:** 필요한 값만 복사해 간다. `std::thread([bid = bid_, &bell, &board] { bell.waitForRing(); board.post(bid); }).detach();`
 (종과 게시판은 서버가 켜져 있는 동안 사는 객체라 참조로 둔다. 그 약속이 없다면 `shared_ptr`로 함께 소유한다.)
-더 튼튼한 설계는 스레드를 떼어 내지 않는 것이다. 창이 `std::jthread`를 소유하고 소멸자에서 멈춰 달라고 요청하고 기다리거나, 알림을 서버 쪽 객체에 등록한다.
+스레드를 떼어 내지 않는 설계도 있지만 조건이 붙는다. 창이 `std::jthread`를 소유하고 소멸자에서 기다리게 하면, 이 랩처럼 종이 울리기 전에 창이 닫히는 흐름에서는 소멸자가 종을 기다리며 멈춘다(TIMEOUT). 그 방법은 창이 종이 울린 뒤에 닫힐 때만 맞다. 이 흐름에서는 알림을 서버 쪽 객체에 등록하는 편이 맞다.
 **구성별:** Debug와 Release는 메모리 검사기의 `0xEE`로 FAIL. ASan은 작업 스레드에서 heap-use-after-free(해제한 곳은 메인 스레드의 `bidAndCloseWindow`)로 CRASH.
 **교훈:** `detach`는 "이 스레드의 수명을 아무도 책임지지 않는다"는 뜻이다. 떼어 낸 스레드에 넘긴 람다는 캡처한 모든 것이 그 스레드보다 오래 사는지 확인한다(9부 랩 75와 같은 실수가 스레드로 옮겨 온 것).
 

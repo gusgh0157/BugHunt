@@ -92,10 +92,10 @@ void ih01_backstab()
 
 #pragma region 힌트 3 / ヒント 3
 // 재정의하려는 함수에는 항상 override를 붙이세요. 붙이는 순간 컴파일러가 "재정의할 함수가 없다"고 알려 줍니다.
-// (clang은 -Wall에서 "hides overloaded virtual function" 경고도 냅니다. MSVC는 기본 경고 수준에서 조용합니다.)
+// (clang과 GCC 13 이상은 -Wall에서 "hides overloaded virtual function" 경고도 냅니다. MSVC는 기본 경고 수준에서 조용합니다.)
 
 // [JA] オーバーライドするつもりの関数には必ず override を付けてください。付けた瞬間、コンパイラーが「オーバーライドする関数がない」と教えてくれます。
-// [JA] (clang は -Wall で "hides overloaded virtual function" の警告も出します。MSVC は既定の警告レベルでは何も言いません。)
+// [JA] (clang と GCC 13 以降は -Wall で "hides overloaded virtual function" の警告も出します。MSVC は既定の警告レベルでは何も言いません。)
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)

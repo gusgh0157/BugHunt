@@ -108,7 +108,7 @@ Hero::Hero(const Hero& other)
 **수정:** `for (int x = 0; x + 1 < count; ++x)`
 
 ## B-4 — 멤버 대신 매개변수에 대입
-생성자 안의 `maxHp = maxHp;`는 매개변수에 자기 자신을 대입한다(멤버는 `maxHp_`). 멤버 `maxHp_`는 초기화되지 않아 vector 안의 몬스터는 메모리 검사기가 채운 `0xA5A5A5A5`(-1515870811)가 된다. MSVC는 자기 대입에 경고를 내지 않는다(Clang은 `-Wself-assign`, GCC는 `-Wshadow`를 켜면 단서가 나온다). 디버거에서 `this->maxHp_`를 보면 바로 보인다.
+생성자 안의 `maxHp = maxHp;`는 매개변수에 자기 자신을 대입한다(멤버는 `maxHp_`). 멤버 `maxHp_`는 초기화되지 않아 vector 안의 몬스터는 메모리 검사기가 채운 `0xA5A5A5A5`(-1515870811)가 된다. MSVC는 자기 대입에 경고를 내지 않는다(Clang은 `-Wself-assign`으로 단서를 준다. GCC는 경고가 없다). 디버거에서 `this->maxHp_`를 보면 바로 보인다.
 **수정:** `maxHp_ = maxHp;` (가능하면 초기화 목록에서 `maxHp_(maxHp)`)
 
 ## B-5 — 범위 for 안에서 같은 vector에 `push_back`
@@ -137,7 +137,7 @@ for (const PlayerId& p : logins)
 ```
 
 ## B-7 — `std::accumulate`의 초깃값이 `int`
-초깃값 `0`의 타입이 누적 타입이 된다. 더할 때마다 `int`로 잘려 2.5 + 3.75 + 1.25 + 2.5가 8이 된다. 컴파일러 경고(MSVC C4244, GCC·Clang `-Wconversion`)가 `<numeric>` 안을 가리킨다.
+초깃값 `0`의 타입이 누적 타입이 된다. 더할 때마다 `int`로 잘려 2.5 + 3.75 + 1.25 + 2.5가 8이 된다. MSVC는 경고 C4244로 `<numeric>` 안을 가리킨다(이 저장소의 빌드에서 나온다). GCC·Clang은 경고가 시스템 헤더 안에서 나므로 기본 설정에서는 보이지 않을 수 있다.
 **수정:** `std::accumulate(prices.begin(), prices.end(), 0.0)`
 
 ## B-8 — `[this]` 람다를 등록한 뒤 객체가 옮겨짐

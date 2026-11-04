@@ -1,4 +1,4 @@
-[한국어](SOLUTIONS.md) | プログラムの実行出力とゲーム内のデータは現在韓国語です。本書では日本語に訳して示し、デバッガーに入力する文字列とバイト単位で見る値だけは原文の韓国語を残して(　)に訳を添えています。
+[한국어](SOLUTIONS.md) | プログラムの実行出力は `--lang ja` で日本語になります(ラボのコードが独自に出す進行メッセージとゲーム内のデータは韓国語のままです)。本書では日本語に訳して示し、デバッガーに入力する文字列、バイト単位で見る値、解答コードの文字列リテラルだけは原文の韓国語を残して(　)やコメントで訳を添えています。
 
 # 解答(ネタバレ注意!)
 
@@ -12,7 +12,7 @@
 値の出どころ: showProfile ← findPlayer が見つけられず nullptr を返した
 本当の原因:   openFriendList で "Doran" を "Dorna" と打ち間違えた
 ```
-**修正:** 打ち間違いを直します。防御も追加: `if (!player) { std::cout << "  " << name << ": 存在しないプレイヤー\n"; return; }`
+**修正:** 打ち間違いを直します。防御も追加: `if (!player) { std::cout << "  " << name << ": 없는 플레이어\n"; return; }`(存在しないプレイヤー)
 **教訓:** 落ちた場所(printPlayer)には何の罪もありません。nullptr を **受け取って検査しなかった** 場所と、**間違った名前を渡した** 場所が原因です。
 
 ## Lab 2 — 1から数えるキーを0から数えるインデックスとしてそのまま使用
@@ -47,7 +47,7 @@
 値の出どころ: n が奇数 → startFireworks(seconds = 5)
 本当の原因:   5, 3, 1, -1, ... と0を飛び越えて終わらない
 ```
-**修正:** `if (n <= 0) return "発射!";`
+**修正:** `if (n <= 0) return "발사!";`(発射!)
 **教訓:** スタックが同じ関数で埋まっていたら、再帰が終わっていないということです。引数の値の変化を見れば理由がわかります。
 
 ## Lab 6 — 存在しないキーで map::at
@@ -110,7 +110,7 @@
 ```cpp
 for (auto it = enemies.begin(); it != enemies.end(); )
     it = (it->hp <= 0) ? enemies.erase(it) : it + 1;
-// または C++20: std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; });
+// 一覧が std::vector なら、C++20 の std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; }); で1行で書けます。
 ```
 
 ## Lab 14 — unsigned のアンダーフロー
@@ -118,17 +118,17 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 **修正:** `if (bag.usedSlots >= bag.maxSlots) return false;` を先に検査するか、符号付きの型で計算します。
 
 ## Lab 15 — Rule of Three 違反(二重解放)
-`PacketBuffer` は生ポインターを所有していますが、コピーコンストラクター/代入はデフォルト(浅いコピー)です。デストラクターを自分で宣言しているのでムーブコンストラクターは自動生成されず、`push_back(PacketBuffer(64))` で **コピー** が起きる → 一時オブジェクトの破棄時に `data_` を解放 → vector の中のオブジェクトは解放されたバッファーを指す → **2回目の `push_back`** で vector が再割り当てして古い要素を破棄するとき、同じバッファーをもう一度解放(double free)。その場でメモリチェッカーが `[CRASH] メモリチェック: すでに解放したメモリをもう一度解放した` で止めるので、`expect` 行まで届きません。
+`PacketBuffer` は生ポインターを所有していますが、コピーコンストラクター/代入はデフォルト(浅いコピー)です。デストラクターを自分で宣言しているのでムーブコンストラクターは自動生成されず、`push_back(PacketBuffer(64))` で **コピー** が起きる → 一時オブジェクトの破棄時に `data_` を解放 → vector の中のオブジェクトは解放されたバッファーを指す → **2回目の `push_back`** で vector が再割り当てして古い要素を破棄するとき、同じバッファーをもう一度解放(double free)。その場でメモリチェッカーが `[CRASH] メモリ検査: 解放済みのメモリをもう一度解放した` で止めるので、`expect` 行まで届きません。
 **修正(推奨、Rule of Zero):** `std::vector<char> data_;` または `std::unique_ptr<char[]>` を使います。または、コピーコンストラクター/代入/ムーブを自分で実装します。
 
 ## Lab 16 — 仮想デストラクターの欠落(メモリリーク + UB)
 `StatusEffect` のデストラクターが virtual ではないので、`unique_ptr<StatusEffect>` が `delete` するときに `Burn` のデストラクターが呼ばれません → メンバー `schedule_`(`DamageSchedule`)も破棄されず、戦闘1000回の後に1000個が生き残ります(その中の vector のメモリもリーク)。厳密には未定義動作です。
 **追跡:** `DamageSchedule` のデストラクターにブレークポイントを置くと、一度も止まりません。コンストラクターでは止まります。→ 誰が消すべきだったのか? `unique_ptr` の `delete` は `StatusEffect` のデストラクターしか呼びません。
 **修正:** `virtual ~StatusEffect() = default;`
-**教訓:** ポリモーフィックに delete される基底クラスには必ず virtual デストラクターを付けます。(警告: MSVC C5205、GCC・Clang `-Wdelete-non-virtual-dtor`)
+**教訓:** ポリモーフィックに delete される基底クラスには必ず virtual デストラクターを付けます。(警告: MSVC C5205(標準ヘッダー内のテンプレートなので `/external:templates-` があるときに見えます。このリポジトリの CMake は有効にしています)、Clang `-Wall` の `-Wdelete-abstract-non-virtual-dtor`。GCC はシステムヘッダーの中なので見えないことがあります)
 
 ## Lab 17 — データ競合
-`gold_` の読み取り-変更-書き込みがアトミックではありません。2つのスレッドが同じ値を読んでそれぞれ +1 を書き込むと、1つが消えます。読み取りと書き込みの間の `std::this_thread::yield()` はその隙間を広げて、どのコンパイラーでも症状が出るようにしているだけで、原因ではありません(消してもデータ競合は残ります)。
+`gold_` の読み取り-変更-書き込みがアトミックではありません。2つのスレッドが同じ値を読んでそれぞれ +1 を書き込むと、1つが消えます。読み取りと書き込みの間の `std::this_thread::sleep_for(1ms)` はその隙間を広げて、どのコンパイラーでも症状が出るようにしているだけで、原因ではありません(消してもデータ競合は残ります)。
 **修正:** `std::atomic<int> gold_{0};` + `gold_ += amount;`、または `std::mutex` で保護します。
 
 ## Lab 18 — 構造体内部のバッファーオーバーフロー
@@ -254,7 +254,7 @@ if (kill || gold || level) ...
 
 ## Lab 30 — マクロが副作用のある引数を2回評価する
 ```
-間違った結果:   画面のコンボ 2 4 6 0 2 4(期待 1 2 3 0 1 2)、最高コンボ6
+間違った結果:   画面のコンボ 2 4 6 0 1 2(期待 1 2 3 0 1 2)、最高コンボ6
 止めた位置:     c.current のデータ ブレークポイント → 攻撃1回で2回止まる
 最初にずれた行: c.best = BUGHUNT_MAX(c.best, ++c.current);
 本当の原因:     ((a) > (b) ? (a) : (b)) に展開され、条件で1回、選ばれた側でもう1回 ++c.current
@@ -327,7 +327,7 @@ Board::value_type* selected_ = nullptr;
 
 ## Lab 35 — 比較関数が strict weak ordering に違反する
 ```
-止めた場所:  [CRASH] ソートチェック: 比較関数が厳密な弱順序に違反した ← bughunt::checkedOrder ← std::sort
+止めた場所:  [CRASH] ソート検査: 比較関数が狭義の弱順序(strict weak ordering)を破った ← bughunt::checkedOrder ← std::sort
 ウォッチ:    comp(Kael, Doran) == true、comp(Doran, Kael) == true (どちらも1500点)
 本当の原因:  >= は等しい値に対して true を返す。「a が b より前で、b も a より前」という矛盾
 ```
@@ -358,7 +358,7 @@ Board::value_type* selected_ = nullptr;
 ウォッチ:    (void*)heroes[i].name.c_str() が grantTitle の後で変わる(Doran、Selene)、Kael はそのまま
 Kael:        "Kael the Brave" 14文字 → まだオブジェクト内のバッファー(SSO) → 同じアドレスなので偶然合う
 Doran:       21文字 → オブジェクト内のバッファーからヒープへ引っ越し。ネームプレートはオブジェクト内の古いバッファー(今はヒープへのポインターが入っている)を読んで文字化け
-Selene:      もともとヒープ(18文字、容量31) → 37文字で再割り当て。ネームプレートは解放されたヒープを読む(メモリチェッカーの 0xEE の文字)
+Selene:      もともとヒープ(18文字、MSVC STL では容量31) → 37文字で再割り当て。ネームプレートは解放されたヒープを読む(メモリチェッカーの 0xEE の文字)
 ```
 **修正:** ネームプレートが文字列バッファーではなく、文字列を持つオブジェクトを指すようにします。
 ```cpp
@@ -366,7 +366,7 @@ explicit Nameplate(const Hero& hero) : hero_(&hero) {}
 const char* text() const { return hero_->name.c_str(); }
 const Hero* hero_;
 ```
-**構成ごと:** 上の文字数の境界は MSVC STL と libstdc++(オブジェクト内バッファー15文字)が基準です。libc++(macOS の既定)は22文字までオブジェクト内に置くので、Doran も偶然合うことがあります。ASan が捕まえるのは Selene だけです(heap-use-after-free)。Doran はまだ生きている `Hero` オブジェクト内のメモリを読むので、ASan から見れば正常なアクセスです。
+**構成ごと:** 上の文字数の境界は MSVC STL と libstdc++(オブジェクト内バッファー15文字)が基準です。ヒープの容量も実装ごとに違います(18文字のとき MSVC STL は31、libstdc++ は18)。libc++(macOS の既定)は22文字までオブジェクト内に置くので、Doran も偶然合うことがあり、Selene も最初はオブジェクト内にあって Doran と同じようにヒープへ移ります。ASan が捕まえるのは Selene だけです(heap-use-after-free、MSVC STL・libstdc++ 基準)。Doran はまだ生きている `Hero` オブジェクト内のメモリを読むので、ASan から見れば正常なアクセスです。
 **教訓:** `c_str()`/`data()`/`string_view` は文字列が変わると無効になることがあります。短い文字列は SSO のせいで「動いているように」見えるので、発見がさらに遅れます。
 
 ## Lab 39 — set の中にある要素のソート基準を変える
@@ -413,7 +413,7 @@ void trade(Trader& from, Trader& to)
 ## Lab 41 — 符号付き整数のオーバーフロー、オーバーフロー後のチェック
 ```
 間違った結果:   経験値 -2144967296(期待 2000000000)
-止めた位置:     addExp の if の行、条件付きブレークポイント total < 0。current 1950000000、baseExp * multiplier 200000000
+止めた位置:     addExp の if の行、条件付きブレークポイント total < 0。current 1950000000、baseExp * multiplier 2000000000000
 本当の原因:     int の足し算がオーバーフローして負の数になり、上限チェックはすでに壊れた値を見ている
 ```
 **修正:**
@@ -432,7 +432,7 @@ return static_cast<int>(total);
 本当の原因:     1.15 は2進数で正確に表せず 1.1499... として保存され、double→int は切り捨て。総額のフィールドが short なので 34200 が切り落とされる
 ```
 **修正:** `return static_cast<int>(std::lround(gold * 100));`、`SaleRecord::totalSilver` を `int` に
-**教訓:** `=` や `return` の縮小変換は警告だけか(MSVC C4244)、何も言われません。波かっこ初期化(`int silver{ gold * 100 };`)は縮小変換をコンパイルエラーにして、二か所を一度に見つけてくれます。お金は最初から最小単位の整数で持ち歩きます。`+ 1` で合わせるつぎはぎは 2.5 ゴールド(ちょうど250)で間違えます。
+**教訓:** `=` や `return` の縮小変換は警告だけか(MSVC C4244)、何も言われません。波かっこ初期化(`int silver{ gold * 100 };`)は縮小変換をコンパイルエラーにして(MSVC・Clang。GCC は定数でない値には警告だけなので `-Werror=narrowing`)、二か所を一度に見つけてくれます。お金は最初から最小単位の整数で持ち歩きます。`+ 1` で合わせるつぎはぎは 2.5 ゴールド(ちょうど250)で間違えます。
 
 ## Lab 43 — `std::min<std::size_t>` が負の数をとても大きな正の数に
 ```
@@ -493,7 +493,7 @@ return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
 void close()
 {
     if (buffer_.size() > freeBytes_)
-        throw SaveError("ディスク容量が足りない");
+        throw SaveError("디스크 공간이 모자란다");   // ディスク容量が足りない
     g_disk[slot_] = buffer_;
     closed_ = true;
 }
@@ -506,7 +506,7 @@ void close()
 }
 // saveGame: try ブロックの最後の行で file.close();
 ```
-**教訓:** デストラクターは失敗を知らせる手段がない場所です。失敗しうる後始末は明示的な関数(`close`、`commit`)に出し、デストラクターでは例外を握りつぶします。`noexcept(false)` にするつぎはぎは、別の例外でスタックを巻き戻している最中にデストラクターがさらに投げると、やはり terminate です(隠しテスト)。MSVC は C4297、clang は `-Wexceptions` ですでに警告しています。関数に `noexcept` を付けておいて中で投げる場合も同じ結果です。
+**教訓:** デストラクターは失敗を知らせる手段がない場所です。失敗しうる後始末は明示的な関数(`close`、`commit`)に出し、デストラクターでは例外を握りつぶします。`noexcept(false)` にするつぎはぎは、別の例外でスタックを巻き戻している最中にデストラクターがさらに投げると、やはり terminate です(隠しテスト)。MSVC は C4297、clang は `-Wexceptions`、GCC は `-Wterminate` ですでに警告しています。関数に `noexcept` を付けておいて中で投げる場合も同じ結果です。
 
 ## Lab 48 — 範囲 for は範囲を最初に一度だけ評価する
 ```
@@ -541,7 +541,7 @@ for (std::size_t i = 0; i < log.size(); ++i)
 本当の原因:     Backstab::damage に const がなく、Skill::damage(const Target&) const とは別の関数。Skill& で呼ぶと基底版
 ```
 **修正:** `int damage(const Target& t) const override { ... }`
-**教訓:** オーバーライドするつもりの関数には必ず `override`。付けた瞬間、`const` 漏れ、引数の型の違い(`int` と `long`、`const&` と値)、基底側の名前変更をコンパイラーがエラーで教えてくれます。clang は `-Wall` で `-Woverloaded-virtual` 警告を出しますが、MSVC は既定の警告レベル(/W3)では何も言いません。
+**教訓:** オーバーライドするつもりの関数には必ず `override`。付けた瞬間、`const` 漏れ、引数の型の違い(`int` と `long`、`const&` と値)、基底側の名前変更をコンパイラーがエラーで教えてくれます。clang と GCC 13 以降は `-Wall` で `-Woverloaded-virtual` 警告を出しますが、MSVC は既定の警告レベル(/W3)では何も言いません。
 
 ## Lab 50 — `vector<Monster>` に入れて Boss が切られる(スライシング)
 ```
@@ -645,7 +645,7 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 止めた位置:     readJournal を呼ぶ行で止めて journal.txt を確認 → 0バイト
 本当の原因:     ofstream が開いている間に書いた内容はストリームのバッファーにあり、flush/close するまでディスクにはない
 ```
-**修正:** `record` で書いた後に `out_.flush();`(または読む前に flush/close)
+**修正:** `record` で書いた後に `out_.flush();`。flush は Journal の中で行います。本文の `readJournal` の前にだけ flush・close を入れると、日誌を書いてすぐ読む別の場所(隠しケース)でまた間違えます。
 **教訓:** 同じプログラムの中で書いて読み直すなら、読む前に書いた内容がディスクにあることを保証します。第12部ラボ96(`std::endl` が毎回 flush して遅い)と対になります: flush は必要な瞬間にだけ。
 
 ## Lab 57 — `while (!in.eof())` で最後の記録が2回
@@ -712,14 +712,14 @@ try
             writeItem(out, item);
         out.close();
         if (!out)
-            throw std::runtime_error("書き込み失敗");
+            throw std::runtime_error("쓰기 실패");   // 書き込み失敗
     }
     fs::rename(temp, file);          // 同じフォルダーの中で置き換える
     return true;
 }
 catch (const std::exception& e)
 {
-    std::cout << "  保存失敗: " << e.what() << '\n';
+    std::cout << "  저장 실패: " << e.what() << '\n';   // 保存失敗
     std::error_code ec;
     fs::remove(temp, ec);            // 失敗した一時ファイルを片付ける
     return false;
@@ -835,7 +835,7 @@ field.removeDefeated();
 
 ## Lab 71 — new[] で作って delete で消す
 ```
-止まった場所: [CRASH] メモリチェック: new で受け取ったアドレスではない場所を解放した ← operator delete ← ~Explosion の delete particles_
+止まった場所: [CRASH] メモリ検査: new で受け取ったアドレスではない場所を解放した ← operator delete ← ~Explosion の delete particles_
 観察:        最初の爆発が終わるとき ~Particle() が16回ではなく1回しか呼ばれない
              (char*)particles_ - 8 の位置に配列の個数16が保存されている(主要な ABI で共通、規格が決めたものではない)
 本当の原因:   new Particle[count] で作った配列を delete(配列ではない形)で消した
@@ -878,7 +878,7 @@ std::weak_ptr<Guild> guild;
 std::string guildNameOf(const Member& member)
 {
     const auto guild = member.guild.lock();
-    return guild ? guild->name : "(なし)";
+    return guild ? guild->name : "(없음)";   // (なし)
 }
 ```
 **構成ごと:** 三つの構成すべてで同じように FAIL です。クラッシュも、アサーションも、ASan のレポートもありません(Windows の ASan にはリーク検出器がありません。Linux・macOS の ASan では LeakSanitizer がプログラム終了時にリークを報告することがあります)。第2部ラボ16のように、インスタンス数やデストラクターのブレークポイントで確認します。
@@ -900,7 +900,7 @@ timers.after(3, [&hero, bonus] {
     ...
 });
 ```
-**構成ごと:** 間違った値はコンパイラーと構成ごとに違います(このリポジトリでの Kael: MSVC Debug -124、MSVC・Clang Release 45、Clang Debug 85、ASan はゴミ値)。上のウォッチは Release で45が出た理由です。既定の ASan は stack-use-after-return を捕まえません。Clang の ASan は `ASAN_OPTIONS=detect_stack_use_after_return=1` で実行すると、このラムダの行で `stack-use-after-return` で止まります(README.md「ラムダキャプチャと ASan」)。
+**構成ごと:** 間違った値はコンパイラーと構成ごとに違います(このリポジトリでの Kael の例: MSVC Debug -124(ビルドし直すと変わることがある)、MSVC・Clang Release 45、Clang Debug 85、ASan はゴミ値)。上のウォッチは Release で45が出た理由です。既定の ASan は stack-use-after-return を捕まえません。Clang の ASan は `ASAN_OPTIONS=detect_stack_use_after_return=1` で実行すると、このラムダの行で `stack-use-after-return` で止まります(README.md「ラムダキャプチャと ASan」)。
 **教訓:** `[&]` はラムダが **今この場で** 実行されるときだけ安全です。コールバック、タイマー、スレッド、後で実行するリストに入れるラムダはキャプチャリストを一つずつ書き、何を参照で持っていくかを確認します。`hero` を参照で持っていくのも「Hero がタイマーより長生きする」という約束に頼っています。
 
 ## あふれ: スタックとヒープの境界 (ラボ76~80)
@@ -926,7 +926,7 @@ timers.after(3, [&hero, bonus] {
 
 ## Lab 78 — `new Frame[n]` の後で `<=` により1つ余分に書く、解放時に表に出る
 ```
-間違った結果:   CRASH、[CRASH] メモリチェック: 確保した大きさを超えて書き込んだ(ASan: heap-buffer-overflow)
+間違った結果:   CRASH、[CRASH] メモリ検査: 確保したサイズを超えて書いた(ASan: heap-buffer-overflow)
 止めた位置:     ~ReplayRecorder の delete[]。データ ブレークポイント(&frames_[ticks_])を置くと recordAll の frames_[t] = ... で t == 600
 本当の原因:     for (t = 0; t <= ticks_; ++t) が要素600個の配列の frames_[600] に書き込む
 ```
@@ -935,7 +935,7 @@ timers.after(3, [&hero, bonus] {
 
 ## Lab 79 — `memcpy` に `sizeof(ポインター)`
 ```
-間違った結果:   1番目の名前 "Nighting"(期待 "Nightingale")、2番目の名前は "Moonshadingale" のように前の人の名前がくっつく
+間違った結果:   1番目の名前 "Nightingnd_Archer"(期待 "Nightingale")、2番目の名前 "Moonshadnd_Archer"。先頭8文字の後ろに、直前の接続者の名前(Silverwind_Archer)の残りがくっつく
 止めた位置:     writeName、ウォッチ sizeof(dst) == 8、std::strlen(src) == 11。メモリ ウィンドウで packet.name の9バイト目から前の人の名前
 本当の原因:     引数 char* dst は配列ではなくポインターなので sizeof は8。先頭8バイトだけコピーされ、ヌル文字がない
 ```
@@ -986,7 +986,7 @@ abort 時点の呼び出し履歴:   メインスレッド craftAll → std::fut
 for (std::future<int>& job : jobs)
 {
     try { report.revenue += job.get(); }
-    catch (const std::exception& e) { std::cout << "  製作失敗: " << e.what() << '\n'; ++report.failed; }
+    catch (const std::exception& e) { std::cout << "  제작 실패: " << e.what() << '\n'; ++report.failed; }   // 製作失敗
 }
 ```
 (`std::async` 自体もスレッドを作れなければ `std::system_error` をスローするので、元の try を残しておいてもかまいません。)
@@ -1012,7 +1012,7 @@ for (std::future<int>& job : jobs)
 ```
 **修正:** 必要な値だけをコピーして持っていきます。`std::thread([bid = bid_, &bell, &board] { bell.waitForRing(); board.post(bid); }).detach();`
 (ベルと掲示板はサーバーが動いている間ずっと生きているオブジェクトなので参照のままにします。その保証がなければ `shared_ptr` で共同所有します。)
-より堅牢な設計はスレッドを detach しないことです。ウィンドウが `std::jthread` を所有してデストラクターで停止を要求して待つか、通知をサーバー側のオブジェクトに登録します。
+スレッドを detach しない設計もありますが、条件が付きます。ウィンドウに `std::jthread` を所有させてデストラクターで待たせると、このラボのようにベルが鳴る前にウィンドウが閉じられる流れでは、デストラクターがベルを待って止まります(TIMEOUT)。その方法はベルが鳴った後にウィンドウが閉じられるときだけ正しいです。この流れでは通知をサーバー側のオブジェクトに登録するほうが合っています。
 **構成別:** Debug と Release はメモリチェッカーの `0xEE` で FAIL。ASan はワーカースレッドで heap-use-after-free(解放した場所はメインスレッドの `bidAndCloseWindow`)として CRASH。
 **教訓:** `detach` は「このスレッドの寿命には誰も責任を持たない」という意味です。detach したスレッドに渡すラムダは、キャプチャしたものがすべてそのスレッドより長く生きるか確認します(第9部のラボ 75 と同じミスがスレッドに移ってきたもの)。
 

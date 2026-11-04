@@ -80,8 +80,12 @@ void lab08_effects()
 
 #pragma region 힌트 2 / ヒント 2
 // unique_ptr<StatusEffect>는 어떤 타입의 포인터로 delete를 할까요?
-// 빌드 경고도 다시 읽어 보세요. (MSVC /W4의 C5205, GCC·Clang -Wall의 -Wdelete-non-virtual-dtor)
+// 빌드 경고도 다시 읽어 보세요. (MSVC /W4의 C5205, Clang -Wall의 -Wdelete-abstract-non-virtual-dtor)
+// (경고는 표준 헤더 안의 std::default_delete에서 납니다. MSVC는 이 저장소의 CMake가 켜 둔 /external:templates-가 있어야 보이고,
+//  GCC는 시스템 헤더 안이라 보이지 않을 수 있습니다.)
 
 // [JA] unique_ptr<StatusEffect> はどの型のポインターとして delete するでしょうか?
-// [JA] ビルド警告ももう一度読んでみてください。(MSVC /W4 の C5205、GCC・Clang -Wall の -Wdelete-non-virtual-dtor)
+// [JA] ビルド警告ももう一度読んでみてください。(MSVC /W4 の C5205、Clang -Wall の -Wdelete-abstract-non-virtual-dtor)
+// [JA] (警告は標準ヘッダー内の std::default_delete で出ます。MSVC はこのリポジトリの CMake が有効にしている /external:templates- があるときに見え、
+// [JA]  GCC はシステムヘッダーの中なので見えないことがあります。)
 #pragma endregion

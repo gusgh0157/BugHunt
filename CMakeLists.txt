@@ -38,8 +38,18 @@ endforeach()
 if(MSVC)
     # MSVC와 clang-cl
     target_compile_options(BugHunt PRIVATE /W4 /permissive- /utf-8 /Zc:__cplusplus /EHsc)
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        # 위의 SYSTEM include 때문에 CMake가 /external:W0을 붙이면, 표준 헤더 안 템플릿에서 나는 경고도 숨는다.
+        # 랩 코드가 일으킨 템플릿 경고(랩 16의 C5205: std::default_delete 안의 delete)는 보이게 한다.
+        target_compile_options(BugHunt PRIVATE /external:templates-)
+    endif()
 else()
     target_compile_options(BugHunt PRIVATE -Wall -Wextra)
+    # Debug에서는 표준 라이브러리의 범위 검사를 켠다. MSVC Debug STL의 어설션과 같은 역할이다.
+    # 범위 밖 operator[](랩 80 등)가 조용히 틀린 값을 내는 대신 어설션으로 멈춘다.
+    #   libstdc++(GCC): _GLIBCXX_ASSERTIONS,  libc++(macOS Clang): 하드닝 모드 debug
+    target_compile_definitions(BugHunt PRIVATE
+        $<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS _LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG>)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         # GCC는 생성자가 시작될 때 객체 메모리를 "알 수 없는 값"으로 보고 그 전의 저장을 지운다(-flifetime-dse).
         # 초기화하지 않은 멤버를 다루는 랩(12, 40, B-4)의 결과가 최적화에 따라 흔들리지 않도록 끈다.

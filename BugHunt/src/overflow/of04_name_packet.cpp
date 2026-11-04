@@ -35,6 +35,8 @@ void of04_name_packet()
     using namespace ovf4;
 
     NamePacket packet{};
+    const char previous[] = "Silverwind_Archer";   // 직전 접속자의 이름이 버퍼에 남아 있다
+    std::memcpy(packet.name, previous, sizeof(previous));
     const std::string first = sendLogin(packet, "Nightingale", 31);
     const std::string second = sendLogin(packet, "Moonshadow", 47);
     std::cout << "  받은 이름: \"" << first << "\", \"" << second << "\"\n";
