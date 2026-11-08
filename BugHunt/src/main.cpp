@@ -148,7 +148,7 @@ struct ChallengeEntry
 constexpr ChallengeEntry kChallenges[] = {
     // 깊은 추적
     { "C-1", 101, { "챌린지 C-1", "チャレンジ C-1" }, { "낙찰자와 금화가 엉뚱하게 정산된다", "落札者と金貨がおかしく精算されます" }, chC1_auction_night, chC1_auction_night_hidden },
-    { "C-2", 102, { "챌린지 C-2", "チャレンジ C-2" }, { "무피격 연속 처치 칭호를 받지 못한다", "被弾なし連続討伐の称号がもらえません" }, chC2_raid_night,    chC2_raid_night_hidden },
+    { "C-2", 102, { "챌린지 C-2", "チャレンジ C-2" }, { "무피격 연속 처치 칭호를 받지 못한다", "ノーダメージ連続撃破の称号がもらえません" }, chC2_raid_night,    chC2_raid_night_hidden },
     { "C-3", 103, { "챌린지 C-3", "チャレンジ C-3" }, { "부활하고 나면 피해량이 줄어든다", "復活するとダメージが減ります" }, chC3_shrine,        chC3_shrine_hidden },
     // 블라인드
     { "B-1", 201, { "챌린지 B-1", "チャレンジ B-1" }, { "시장 진열대를 검사하다가 죽는다", "市場の陳列棚を検査している途中で落ちます" }, chB1, chB1_hidden },
