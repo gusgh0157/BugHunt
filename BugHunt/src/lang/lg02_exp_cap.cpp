@@ -33,10 +33,10 @@ void lg02_exp_cap()
     const int eventMultiplier = fromServer(2);
 
     const int after = addExp(current, dragonExp, eventMultiplier);
-    std::cout << "  고대 용 처치: " << current << " + " << dragonExp << " x " << eventMultiplier << " → " << after << '\n';
+    std::cout << i18n::L("  고대 용 처치: ", "  古代竜討伐: ") << current << " + " << dragonExp << " x " << eventMultiplier << " → " << after << '\n';
 
     const int small = addExp(fromServer(1'000), fromServer(250), fromServer(2));
-    std::cout << "  슬라임 처치: 1000 + 250 x 2 → " << small << '\n';
+    std::cout << i18n::L("  슬라임 처치: 1000 + 250 x 2 → ", "  スライム討伐: 1000 + 250 x 2 → ") << small << '\n';
 
     expect("슬라임 처치 뒤 경험치", 1'500, small);
     expect("고대 용 처치 뒤 경험치 (상한)", kMaxExp, after);

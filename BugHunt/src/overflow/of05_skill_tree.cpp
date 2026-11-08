@@ -28,10 +28,10 @@ bool learnSkill(Hero& hero, int skillId)
 
 void print(const Hero& hero)
 {
-    std::cout << "  스킬 레벨:";
+    std::cout << i18n::L("  스킬 레벨:", "  スキルレベル:");
     for (int level : hero.skillLevels)
         std::cout << ' ' << level;
-    std::cout << "  / 골드 " << hero.gold << '\n';
+    std::cout << i18n::L("  / 골드 ", "  / ゴールド ") << hero.gold << '\n';
 }
 }
 
@@ -41,10 +41,10 @@ void of05_skill_tree()
 
     Hero hero;
     hero.gold = 1'000;
-    std::cout << "  2번 스킬(방패 막기) 배우기\n";
+    std::cout << i18n::L("  2번 스킬(방패 막기) 배우기\n", "  2番スキル(シールドブロック)を覚える\n");
     learnSkill(hero, 2);
     print(hero);
-    std::cout << "  4번 스킬(번개 강타) 배우기\n" << std::flush;
+    std::cout << i18n::L("  4번 스킬(번개 강타) 배우기\n", "  4番スキル(サンダーストライク)を覚える\n") << std::flush;
     learnSkill(hero, 4);
     print(hero);
     const bool rejected = !learnSkill(hero, 5);

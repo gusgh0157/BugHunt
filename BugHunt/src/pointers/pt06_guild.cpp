@@ -53,7 +53,7 @@ void runGuildSession(const std::string& guildName, const std::vector<std::string
         join(guild, std::make_shared<Member>(name));
 
     for (const auto& m : guild->members)
-        std::cout << "  [" << guildNameOf(*m) << "] " << m->name << "님, 길드전이 곧 시작됩니다\n";
+        std::cout << "  [" << guildNameOf(*m) << "] " << m->name << i18n::L("님, 길드전이 곧 시작됩니다\n", "さん、まもなくギルド戦が始まります\n");
 }
 }
 

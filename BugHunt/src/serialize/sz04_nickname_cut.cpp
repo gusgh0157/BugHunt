@@ -32,7 +32,7 @@ bool saveProfile(const std::string& name, int level, std::string& out)
     }
     catch (const json::exception& e)
     {
-        std::cout << "  저장 실패: " << e.what() << '\n';
+        std::cout << i18n::L("  저장 실패: ", "  保存失敗: ") << e.what() << '\n';
         return false;
     }
 }

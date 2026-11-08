@@ -22,7 +22,7 @@ struct Item
 void writeItem(std::ostream& out, const Item& item)
 {
     if (item.count < 0)
-        throw std::runtime_error("개수가 음수인 아이템: " + item.name);
+        throw std::runtime_error(i18n::L("개수가 음수인 아이템: ", "個数が負のアイテム: ") + item.name);
     out << item.name << ' ' << item.count << '\n';
 }
 
@@ -37,7 +37,7 @@ bool saveInventory(const fs::path& file, const std::vector<Item>& items)
     }
     catch (const std::exception& e)
     {
-        std::cout << "  저장 실패: " << e.what() << '\n';
+        std::cout << i18n::L("  저장 실패: ", "  保存失敗: ") << e.what() << '\n';
         return false;
     }
 }
@@ -67,7 +67,7 @@ void io07_safe_save()
     expect("깨진 아이템이 있으면 저장 실패", false, saveInventory(file, bag));
 
     const std::vector<Item> loaded = loadInventory(file);
-    std::cout << "  불러온 아이템 " << loaded.size() << "종\n";
+    std::cout << i18n::L("  불러온 아이템 ", "  読み込んだアイテム") << loaded.size() << i18n::L("종\n", "種\n");
     expect("불러온 세이브의 아이템 수", static_cast<size_t>(5), loaded.size());
     expect("마지막 아이템", std::string("금화주머니"), loaded.empty() ? std::string() : loaded.back().name);
 }

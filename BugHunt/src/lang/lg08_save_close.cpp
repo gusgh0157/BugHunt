@@ -73,10 +73,10 @@ void lg08_save_close()
     g_disk.clear();
 
     const bool first = saveGame("슬롯 1", { "레벨=12", "골드=340" }, 1024);
-    std::cout << "  슬롯 1 저장 (여유 1024바이트): " << g_lastMessage << '\n';
+    std::cout << i18n::L("  슬롯 1 저장 (여유 1024바이트): ", "  スロット1のセーブ(空き1024バイト): ") << g_lastMessage << '\n';
 
     const bool second = saveGame("슬롯 2", { "레벨=30", "골드=98000", "위치=용의 둥지" }, 16);
-    std::cout << "  슬롯 2 저장 (여유 16바이트): " << g_lastMessage << '\n';
+    std::cout << i18n::L("  슬롯 2 저장 (여유 16바이트): ", "  スロット2のセーブ(空き16バイト): ") << g_lastMessage << '\n';
 
     expect("슬롯 1 저장 성공", true, first);
     expect("슬롯 1 내용", std::string("레벨=12\n골드=340\n"), g_disk["슬롯 1"]);

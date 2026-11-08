@@ -42,7 +42,7 @@ void ct06_nameplates()
     grantTitle(heroes[2], "of the Ember Order");
 
     for (int i = 0; i < 3; ++i)
-        std::cout << "  이름표: " << plates[i].text() << '\n';
+        std::cout << i18n::L("  이름표: ", "  ネームプレート: ") << plates[i].text() << '\n';
 
     expect("Kael 이름표", std::string("Kael the Brave"), std::string(plates[0].text()));
     expect("Doran 이름표", std::string("Doran the Unbreakable"), std::string(plates[1].text()));

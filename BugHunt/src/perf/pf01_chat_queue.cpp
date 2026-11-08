@@ -67,7 +67,8 @@ void pf01_chat_queue()
 
     const perf::Stopwatch sw;
     const long long chars = perf1::runBurst(kMessages);
-    std::cout << "  메시지 " << kMessages << "개 처리: " << sw.ms() << " ms, 원소 이동 " << perf1::g_moves << "번\n";
+    std::cout << i18n::L("  메시지 ", "  メッセージ ") << kMessages << i18n::L("개 처리: ", "件 処理: ") << sw.ms() << i18n::L(" ms, 원소 이동 ", " ms、要素の移動 ")
+              << perf1::g_moves << i18n::L("번\n", "回\n");
 
     expect("처리한 글자 수", 54890LL, chars);
     expect("처리 중 원소 이동이 메시지 수의 2배 이하인가?", true, perf1::g_moves <= 2LL * kMessages);

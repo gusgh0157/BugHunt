@@ -44,13 +44,13 @@ void lg04_level_bonus()
     };
     const std::size_t maxBonus = 20;
     const int average = partyAverage(party);
-    std::cout << "  파티 평균 레벨: " << average << '\n';
+    std::cout << i18n::L("  파티 평균 레벨: ", "  パーティーの平均レベル: ") << average << '\n';
 
     std::vector<int> bonus;
     for (const Member& m : party)
     {
         bonus.push_back(levelBonus(m.level, average, maxBonus));
-        std::cout << "  " << m.name << " (Lv " << m.level << "): 보너스 " << bonus.back() << "%\n";
+        std::cout << "  " << m.name << " (Lv " << m.level << i18n::L("): 보너스 ", "): ボーナス ") << bonus.back() << "%\n";
     }
 
     expect("힐러 미라 보너스 (평균보다 7 낮음)", 7, bonus[1]);

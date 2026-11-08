@@ -54,7 +54,7 @@ void io02_quest_journal()
     journal.record("대장장이에게 광석 배달");
 
     const std::vector<std::string> shown = readJournal(file);
-    std::cout << "  일지 창에 보이는 줄 " << shown.size() << "개\n";
+    std::cout << i18n::L("  일지 창에 보이는 줄 ", "  日誌ウィンドウ") << shown.size() << i18n::L("개\n", "行\n");
     for (const std::string& line : shown)
         std::cout << "    - " << line << '\n';
 

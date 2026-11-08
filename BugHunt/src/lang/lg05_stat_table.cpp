@@ -31,9 +31,9 @@ void lg05_stat_table()
 {
     using namespace lang5;
 
-    std::cout << "  기본: 체력 " << baseHp() << ", 마나 " << baseMana() << ", 공격력 " << baseAttack() << ", 방어력 " << baseArmor() << '\n';
-    std::cout << "  보스 공격력: " << bossAttack() << '\n';
-    std::cout << "  전사 체력: " << warriorHp() << '\n';
+    std::cout << i18n::L("  기본: 체력 ", "  基本: HP ") << baseHp() << i18n::L(", 마나 ", "、マナ ") << baseMana() << i18n::L(", 공격력 ", "、攻撃力 ") << baseAttack() << i18n::L(", 방어력 ", "、防御力 ") << baseArmor() << '\n';
+    std::cout << i18n::L("  보스 공격력: ", "  ボスの攻撃力: ") << bossAttack() << '\n';
+    std::cout << i18n::L("  전사 체력: ", "  戦士のHP: ") << warriorHp() << '\n';
 
     expect("보스 공격력 (기본 공격력 x 4)", baseAttack() * 4, bossAttack());
     expect("전사 체력 (기본 체력 x 3)", baseHp() * 3, warriorHp());

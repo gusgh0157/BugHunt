@@ -32,7 +32,7 @@ void chC3_shrine()
 
     for (const std::string& line : meter.log())
         std::cout << "  " << line << '\n';
-    std::cout << "  부활 후 체력 " << aria.hp() << "/" << aria.maxHp() << ", 버프 " << aria.buffs().size() << "개\n";
+    std::cout << i18n::L("  부활 후 체력 ", "  復活後のHP ") << aria.hp() << "/" << aria.maxHp() << i18n::L(", 버프 ", "、バフ ") << aria.buffs().size() << i18n::L("개\n", "個\n");
 
     expect("쓰러지기 전 한 방 (전투 함성 포함)", 57, beforeDeath);
     expect("부활 후 체력 (절반)", 50, aria.hp());

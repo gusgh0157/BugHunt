@@ -33,7 +33,8 @@ std::vector<Guild> loadGuilds(const std::string& xml)
     const pugi::xml_parse_result result = doc.load_string(xml.c_str());
     if (!result)
     {
-        std::cout << "  길드 목록 읽기 실패: " << result.description() << " (위치 " << result.offset << ")\n";
+        std::cout << i18n::L("  길드 목록 읽기 실패: ", "  ギルド一覧の読み込み失敗: ") << result.description() << i18n::L(" (위치 ", " (位置 ")
+                  << result.offset << ")\n";
         return guilds;
     }
     for (pugi::xml_node node : doc.child("Guilds").children("Guild"))
@@ -51,7 +52,7 @@ void sz07_guild_list()
     const std::vector<Guild> loaded = loadGuilds(xml);
 
     for (const Guild& g : loaded)
-        std::cout << "  " << g.name << " (" << g.members << "명)\n";
+        std::cout << "  " << g.name << " (" << g.members << i18n::L("명)\n", "人)\n");
 
     expect("불러온 길드 수", static_cast<size_t>(3), loaded.size());
     expect("둘째 길드 이름", std::string("<검과 방패>"), loaded.size() > 1 ? loaded[1].name : std::string());

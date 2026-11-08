@@ -63,7 +63,7 @@ void chB8()
     bell.ring(3);
     bell.ring(2);
     for (const Turret& t : turrets)
-        std::cout << "  " << t.name() << " 포탑 발사 " << t.shots() << "번\n";
+        std::cout << "  " << t.name() << i18n::L(" 포탑 발사 ", "の砲塔 発射 ") << t.shots() << i18n::L("번\n", "回\n");
     expect("북문 포탑", 5, turrets.at(0).shots());
     expect("서문 포탑", 5, turrets.at(2).shots());
 }

@@ -10,14 +10,14 @@ namespace lang6
 {
 void passCheckpoint(const std::string& name)
 {
-    std::cout << "  체크포인트: " << name << " → 자동 저장\n";
+    std::cout << i18n::L("  체크포인트: ", "  チェックポイント: ") << name << i18n::L(" → 자동 저장\n", " → オートセーブ\n");
     autosave("auto-" + name);
 }
 
 void showSaveScreen()
 {
-    std::cout << "  [저장 화면] 저장 횟수 " << g_saveStats.count
-              << ", 마지막 슬롯 \"" << g_saveStats.lastSlot << "\"\n";
+    std::cout << i18n::L("  [저장 화면] 저장 횟수 ", "  [セーブ画面] セーブ回数 ") << g_saveStats.count
+              << i18n::L(", 마지막 슬롯 \"", "、最後のスロット \"") << g_saveStats.lastSlot << "\"\n";
 }
 }
 

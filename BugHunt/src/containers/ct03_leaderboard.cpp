@@ -39,7 +39,7 @@ void ct03_leaderboard()
 
     ct3::sortByScore(arena);
     for (size_t i = 0; i < 3; ++i)
-        std::cout << "  " << (i + 1) << "위 " << arena[i].name << " " << arena[i].score << '\n';
+        std::cout << "  " << (i + 1) << i18n::L("위 ", "位 ") << arena[i].name << " " << arena[i].score << '\n';
 
     expect("1위 점수", 1980, arena[0].score);
     expect("상위 3명 점수 합 (1980 + 1720 + 1720)", 5420, ct3::sumOfTop(arena, 3));

@@ -49,8 +49,8 @@ void ft12_lockpicks()
     for (const std::string& door : doors)
     {
         const bool ok = openDoor(thief, door);
-        std::cout << "  " << door << ": " << (ok ? "열림" : "잠김")
-                  << "  (남은 따개 " << thief.lockpicks << ")\n";
+        std::cout << "  " << door << ": " << (ok ? i18n::L("열림", "開いた") : i18n::L("잠김", "施錠中"))
+                  << i18n::L("  (남은 따개 ", "  (残りのロックピック") << thief.lockpicks << ")\n";
         if (ok)
             ++opened;
     }

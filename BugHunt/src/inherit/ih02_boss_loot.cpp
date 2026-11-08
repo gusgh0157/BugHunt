@@ -88,7 +88,7 @@ void ih02_boss_loot()
         { "고블린 왕", 300, "황금 왕관" },
     }));
 
-    std::cout << "  전리품:";
+    std::cout << i18n::L("  전리품:", "  戦利品:");
     for (const std::string& item : bag)
         std::cout << " [" << item << "]";
     std::cout << '\n';

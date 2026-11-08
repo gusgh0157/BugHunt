@@ -39,7 +39,7 @@ void of04_name_packet()
     std::memcpy(packet.name, previous, sizeof(previous));
     const std::string first = sendLogin(packet, "Nightingale", 31);
     const std::string second = sendLogin(packet, "Moonshadow", 47);
-    std::cout << "  받은 이름: \"" << first << "\", \"" << second << "\"\n";
+    std::cout << i18n::L("  받은 이름: \"", "  受け取った名前: \"") << first << "\", \"" << second << "\"\n";
 
     expect("첫 번째 이름", std::string("Nightingale"), first);
     expect("두 번째 이름", std::string("Moonshadow"), second);

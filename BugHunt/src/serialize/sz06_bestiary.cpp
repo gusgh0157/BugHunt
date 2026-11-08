@@ -50,7 +50,7 @@ void sz06_bestiary()
 
     const std::vector<Monster> list = loadBestiary(xml);
     for (const Monster& m : list)
-        std::cout << "  " << m.name << ": HP " << m.hp << ", 공격력 " << m.attack << '\n';
+        std::cout << "  " << m.name << ": HP " << m.hp << i18n::L(", 공격력 ", "、攻撃力 ") << m.attack << '\n';
 
     expect("도감 몬스터 수", static_cast<size_t>(3), list.size());
     expect("오우거 HP", 320, list.size() > 1 ? list[1].hp : -1);

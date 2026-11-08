@@ -22,7 +22,7 @@ int toSeconds(int ms)
 int damagePerSecond(int totalDamage, int seconds)
 {
     if (seconds <= 0)
-        throw std::invalid_argument("damagePerSecond: 전투 시간이 0초 이하");
+        throw std::invalid_argument(i18n::L("damagePerSecond: 전투 시간이 0초 이하", "damagePerSecond: 戦闘時間が0秒以下"));
     return totalDamage / seconds;
 }
 
@@ -30,7 +30,7 @@ void printBattleSummary(const BattleRecord& battle)
 {
     const int seconds = toSeconds(battle.durationMs);
     const int dps = damagePerSecond(battle.totalDamage, seconds);
-    std::cout << "  " << battle.enemy << ": " << seconds << "초, DPS " << dps << '\n';
+    std::cout << "  " << battle.enemy << ": " << seconds << i18n::L("초, DPS ", "秒、DPS ") << dps << '\n';
 }
 
 void printBattleLog()

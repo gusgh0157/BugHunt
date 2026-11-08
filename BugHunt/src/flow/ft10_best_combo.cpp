@@ -43,7 +43,7 @@ void ft10_best_combo()
         shown.push_back(combo.current);
     }
 
-    std::cout << "  화면에 뜬 콤보:";
+    std::cout << i18n::L("  화면에 뜬 콤보:", "  画面のコンボ:");
     for (int n : shown)
         std::cout << ' ' << n;
     std::cout << '\n';

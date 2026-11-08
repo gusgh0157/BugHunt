@@ -80,8 +80,9 @@ void pf06_aggro_scan()
     perf6::Monster::g_maxHolders = 0;
     const perf::Stopwatch sw;
     const std::string target = perf6::scan(field, 300);
-    std::cout << "  몬스터 3000마리 x 300틱: " << sw.ms() << " ms, 한 몬스터를 동시에 붙잡은 shared_ptr 최대 "
-              << perf6::Monster::g_maxHolders << "개\n";
+    std::cout << i18n::L("  몬스터 3000마리 x 300틱: ", "  モンスター 3000体 x 300ティック: ") << sw.ms()
+              << i18n::L(" ms, 한 몬스터를 동시에 붙잡은 shared_ptr 최대 ", " ms、1 体のモンスターを同時に保持した shared_ptr 最大 ")
+              << perf6::Monster::g_maxHolders << i18n::L("개\n", " 個\n");
 
     expect("가장 위험한 몬스터", std::string("Mob589"), target);
     expect("검사 중 한 몬스터를 동시에 붙잡은 shared_ptr 수 (목록 하나뿐)", 1L, perf6::Monster::g_maxHolders);

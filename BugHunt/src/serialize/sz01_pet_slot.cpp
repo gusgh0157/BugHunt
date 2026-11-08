@@ -37,8 +37,9 @@ void sz01_pet_slot()
     const std::string label = petLabel(save);         // 상태 창을 먼저 그리고
     const bool summon = canSummonPet(save);           // 버튼을 정한다
 
-    std::cout << "  펫 칸: " << label << ", 소환 버튼: " << (summon ? "켬" : "끔") << '\n';
-    std::cout << "  다시 저장한 세이브: " << save.dump() << '\n';
+    std::cout << i18n::L("  펫 칸: ", "  ペット欄: ") << label << i18n::L(", 소환 버튼: ", "、召喚ボタン: ")
+              << (summon ? i18n::L("켬", "オン") : i18n::L("끔", "オフ")) << '\n';
+    std::cout << i18n::L("  다시 저장한 세이브: ", "  保存し直したセーブ: ") << save.dump() << '\n';
 
     expect("펫 칸", std::string("(펫 없음)"), label);
     expect("소환 버튼", false, summon);

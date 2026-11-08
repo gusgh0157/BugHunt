@@ -47,7 +47,7 @@ int countRooms(const std::string& layout)
     for (char c : layout)
     {
         if (c == '?')
-            throw std::runtime_error("지도 데이터가 깨졌다");
+            throw std::runtime_error(i18n::L("지도 데이터가 깨졌다", "マップデータが壊れている"));
         if (c == 'R')
             ++rooms;
     }
@@ -71,13 +71,13 @@ int exploreAll(const std::vector<DungeonFile>& files)
         try
         {
             Dungeon* d = loadDungeon(file);
-            std::cout << "  " << d->name << ": 방 " << d->rooms << "개 탐험\n";
+            std::cout << "  " << d->name << i18n::L(": 방 ", ": 部屋") << d->rooms << i18n::L("개 탐험\n", "個を探検\n");
             totalRooms += d->rooms;
             delete d;
         }
         catch (const std::exception& e)
         {
-            std::cout << "  " << file.name << ": 불러오기 실패 (" << e.what() << ")\n";
+            std::cout << "  " << file.name << i18n::L(": 불러오기 실패 (", ": 読み込み失敗 (") << e.what() << ")\n";
         }
     }
     return totalRooms;
@@ -94,7 +94,7 @@ void lg07_dungeon_load()
         { "저주받은 성", "RR?R" },
         { "버섯 숲", "RRRRR" },
     });
-    std::cout << "  탐험이 끝난 뒤 남은 텍스처: " << Texture::alive << "개\n";
+    std::cout << i18n::L("  탐험이 끝난 뒤 남은 텍스처: ", "  探検後に残ったテクスチャー: ") << Texture::alive << i18n::L("개\n", "個\n");
 
     expect("탐험한 방 수", 8, rooms);
     expect("남은 텍스처 수", 0, Texture::alive);

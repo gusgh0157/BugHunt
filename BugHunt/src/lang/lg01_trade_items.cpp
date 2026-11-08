@@ -52,10 +52,10 @@ void put(Trader& t, std::initializer_list<const char*> names)
 
 void print(const Trader& t)
 {
-    std::cout << "  " << t.name << " 거래 창:";
+    std::cout << "  " << t.name << i18n::L(" 거래 창:", "のトレード画面:");
     for (const Item& item : t.offer)
         std::cout << " [" << item.name << "]";
-    std::cout << "  / 받은 것:";
+    std::cout << i18n::L("  / 받은 것:", "  / 受け取ったもの:");
     for (const Item& item : t.received)
         std::cout << " [" << item.name << "]";
     std::cout << '\n';

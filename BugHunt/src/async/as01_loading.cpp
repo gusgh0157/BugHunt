@@ -102,7 +102,7 @@ void as01_loading()
     const auto start = std::chrono::steady_clock::now();
     const int loaded = loadMap(disk, kChunks);
     const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
-    std::cout << "  청크 " << kChunks << "개 로딩: " << ms << " ms, 콜드 읽기 " << disk.coldReads() << "번\n";
+    std::cout << i18n::L("  청크 ", "  チャンク ") << kChunks << i18n::L("개 로딩: ", "個の読み込み: ") << ms << i18n::L(" ms, 콜드 읽기 ", " ms、コールド読み込み ") << disk.coldReads() << i18n::L("번\n", "回\n");
 
     expect("불러온 청크 수", kChunks, loaded);
     expect("디스크가 깨기 전에 기다리다 느린 경로로 읽은 청크 수", 0, disk.coldReads());

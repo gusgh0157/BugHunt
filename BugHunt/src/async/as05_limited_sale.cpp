@@ -105,7 +105,7 @@ void as05_limited_sale()
     LimitedShop shop(3, 990, payment);   // 한정 3개
 
     const int bought = rush(shop, { "Kael", "Mira", "Doran", "Selene", "Ivo" });
-    std::cout << "  구매 성공 " << bought << "명, 남은 수량 " << shop.stock() << ", 판매 수 " << shop.sold() << '\n';
+    std::cout << i18n::L("  구매 성공 ", "  購入成功 ") << bought << i18n::L("명, 남은 수량 ", "人、残り数量 ") << shop.stock() << i18n::L(", 판매 수 ", "、販売数 ") << shop.sold() << '\n';
 
     expect("판매 수 (한정 3개)", 3, shop.sold());
     expect("남은 수량", 0, shop.stock());

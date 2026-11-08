@@ -23,9 +23,9 @@ void hg01_cooldown()
 
     runWithWatchdog("쿨다운 계산", [&] {
         dash = hang1::ticksUntilReady(0.5f, 0.1f);
-        std::cout << "  대시: " << dash << "틱\n";
+        std::cout << i18n::L("  대시: ", "  ダッシュ: ") << dash << i18n::L("틱\n", "ティック\n");
         fireball = hang1::ticksUntilReady(1.5f, 0.1f);
-        std::cout << "  파이어볼: " << fireball << "틱\n";
+        std::cout << i18n::L("  파이어볼: ", "  ファイアボール: ") << fireball << i18n::L("틱\n", "ティック\n");
     });
 
     expect("대시 (0.5초 / 0.1초)", 5, dash);

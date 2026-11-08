@@ -87,10 +87,10 @@ void of01_minimap()
         "......#...",
     });
     print(cave);
-    std::cout << "  미니맵 여는 중...\n" << std::flush;
+    std::cout << i18n::L("  미니맵 여는 중...\n", "  ミニマップを開いています...\n") << std::flush;
 
     const int reached = countReachable(cave, 0, 0);
-    std::cout << "  밝힌 칸: " << reached << '\n';
+    std::cout << i18n::L("  밝힌 칸: ", "  照らしたマス: ") << reached << '\n';
     expect("시작 칸에서 갈 수 있는 칸 수", 25, reached);
 }
 

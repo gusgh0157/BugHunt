@@ -56,9 +56,9 @@ void pt03_particles()
     ptr3::g_slotsInUse = 0;
 
     ptr3::playExplosion(16);
-    std::cout << "  첫 번째 폭발 끝\n";
+    std::cout << i18n::L("  첫 번째 폭발 끝\n", "  1回目の爆発が終了\n");
     ptr3::playExplosion(16);
-    std::cout << "  두 번째 폭발 끝\n";
+    std::cout << i18n::L("  두 번째 폭발 끝\n", "  2回目の爆発が終了\n");
 
     expect("사용 중인 GPU 슬롯", 0, ptr3::g_slotsInUse);
 }

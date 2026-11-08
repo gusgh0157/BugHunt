@@ -45,10 +45,10 @@ void sz05_float_position()
     const std::string text = savePosition(pos);
     const Vec3 back = loadPosition(text);
 
-    std::cout << "  저장한 문자열: " << text << '\n';
+    std::cout << i18n::L("  저장한 문자열: ", "  保存した文字列: ") << text << '\n';
     std::cout << std::setprecision(9)
-              << "  원래 위치    : " << pos.x << ", " << pos.y << ", " << pos.z << '\n'
-              << "  불러온 위치  : " << back.x << ", " << back.y << ", " << back.z << '\n'
+              << i18n::L("  원래 위치    : ", "  元の位置       : ") << pos.x << ", " << pos.y << ", " << pos.z << '\n'
+              << i18n::L("  불러온 위치  : ", "  読み込んだ位置 : ") << back.x << ", " << back.y << ", " << back.z << '\n'
               << std::setprecision(6);
 
     expect("저장 → 불러오기 후 같은 위치인가?", true, same(pos, back));

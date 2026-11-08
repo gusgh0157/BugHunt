@@ -61,8 +61,8 @@ void visitBlacksmith(Backpack& backpack, int& gold, const std::string& itemName)
 
     gold -= cost;
     repair(item);
-    std::cout << "  수리 완료: " << item.name << " " << item.durability << "/" << item.maxDurability
-              << " (-" << cost << " 골드)\n";
+    std::cout << i18n::L("  수리 완료: ", "  修理完了: ") << item.name << " " << item.durability << "/" << item.maxDurability
+              << " (-" << cost << i18n::L(" 골드)\n", " ゴールド)\n");
 }
 }
 
@@ -73,7 +73,7 @@ void ft06_repair()
 
     flow6::visitBlacksmith(backpack, gold, "Iron Sword");
 
-    std::cout << "  배낭:\n";
+    std::cout << i18n::L("  배낭:\n", "  バックパック:\n");
     backpack.print();
     expect("남은 골드", 374, gold);
     expect("배낭 속 Iron Sword 내구도", 100, backpack.get("Iron Sword").durability);

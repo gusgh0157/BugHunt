@@ -63,8 +63,8 @@ void ft03_shield()
             rechargeShield(tank, 10);
     }
 
-    std::cout << "  받은 피해 " << received << ", 보호막 흡수 " << absorbed
-              << ", HP 감소 " << hpLost << ", 남은 HP " << tank.hp << '\n';
+    std::cout << i18n::L("  받은 피해 ", "  受けたダメージ") << received << i18n::L(", 보호막 흡수 ", "、シールド吸収") << absorbed
+              << i18n::L(", HP 감소 ", "、HP減少") << hpLost << i18n::L(", 남은 HP ", "、残りHP ") << tank.hp << '\n';
     expect("받은 피해 == 보호막 흡수 + HP 감소", received, absorbed + hpLost);
 }
 

@@ -52,10 +52,10 @@ void as06_matchmaking()
 {
     using namespace async6;
     const MatchResult first = runMatchmaking({ "Kael", "Mira", "Doran", "Selene", "Ivo", "Nell", "Pia", "Rook" });
-    std::cout << "  첫 대기열: 매치 " << first.matches << "개\n";
+    std::cout << i18n::L("  첫 대기열: 매치 ", "  1 つ目のキュー: マッチ ") << first.matches << i18n::L("개\n", "件\n");
 
     const MatchResult second = runMatchmaking({ "Sana", "Tom", "Uma" });
-    std::cout << "  둘째 대기열: " << (second.cancelled ? "취소됨" : "매칭됨") << '\n';
+    std::cout << i18n::L("  둘째 대기열: ", "  2 つ目のキュー: ") << (second.cancelled ? i18n::L("취소됨", "キャンセル") : i18n::L("매칭됨", "マッチング成立")) << '\n';
 
     expect("첫 대기열 매치 수", 2, first.matches);
     expect("둘째 대기열은 취소되었나?", true, second.cancelled);

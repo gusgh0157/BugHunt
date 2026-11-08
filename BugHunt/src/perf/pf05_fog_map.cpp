@@ -80,7 +80,8 @@ void pf05_fog_map()
     map.resetJumps();
     const perf::Stopwatch sw;
     const perf5::FogStats s = perf5::countFog(map);
-    std::cout << "  2000x2000 맵 세기: " << sw.ms() << " ms, 건너뛴 접근 " << map.jumps() << "번\n";
+    std::cout << i18n::L("  2000x2000 맵 세기: ", "  2000x2000 マップの集計: ") << sw.ms() << i18n::L(" ms, 건너뛴 접근 ", " ms、飛び越したアクセス ")
+              << map.jumps() << i18n::L("번\n", "回\n");
 
     expect("밝혀진 칸 수", 2000044LL, s.revealed);
     expect("밝기 합", 510006272LL, s.brightness);

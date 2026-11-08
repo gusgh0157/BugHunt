@@ -54,7 +54,7 @@ public:
         {
             completed_ = true;
             completedAtKill_ = wolfKillsSeen_;
-            std::cout << "  ** 퀘스트 완료: 늑대 사냥 **\n";
+            std::cout << i18n::L("  ** 퀘스트 완료: 늑대 사냥 **\n", "  ** クエスト完了: オオカミ狩り **\n");
         }
     }
 
@@ -93,9 +93,9 @@ void ft04_quest()
     for (const char* enemy : kills)
     {
         if (std::string(enemy) == "Wolf")
-            std::cout << "  늑대 처치 (" << ++wolfCount << ")\n";
+            std::cout << i18n::L("  늑대 처치 (", "  オオカミ討伐 (") << ++wolfCount << ")\n";
         else
-            std::cout << "  " << enemy << " 처치\n";
+            std::cout << "  " << enemy << i18n::L(" 처치\n", " 討伐\n");
         game.bus.publishKill(enemy);
     }
 

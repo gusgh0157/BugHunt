@@ -56,8 +56,8 @@ void ih05_reward_mail()
     box.give(Item(1203));      // 이벤트 한정 망토
     box.give(500);             // 출석 보상 골드
 
-    std::cout << "  골드 " << box.gold() << ", 아이템 " << box.items().size() << "개, 이벤트 아이템 "
-              << box.eventItems() << "개\n";
+    std::cout << i18n::L("  골드 ", "  ゴールド") << box.gold() << i18n::L(", 아이템 ", "、アイテム") << box.items().size() << i18n::L("개, 이벤트 아이템 ", "個、イベントアイテム")
+              << box.eventItems() << i18n::L("개\n", "個\n");
 
     expect("받은 골드", 500, box.gold());
     expect("받은 아이템 수", static_cast<size_t>(1), box.items().size());

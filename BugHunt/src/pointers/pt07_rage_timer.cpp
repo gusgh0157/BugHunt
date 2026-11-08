@@ -56,11 +56,11 @@ void castRage(TurnTimers& timers, Hero& hero)
 {
     const int bonus = rageBonus(hero);
     hero.attack += bonus;
-    std::cout << "  " << hero.name << " 분노! 공격력 " << hero.attack << " (+" << bonus << ")\n";
+    std::cout << "  " << hero.name << i18n::L(" 분노! 공격력 ", " 怒り! 攻撃力 ") << hero.attack << " (+" << bonus << ")\n";
 
     timers.after(3, [&] {
         hero.attack -= bonus;
-        std::cout << "  " << hero.name << " 분노 끝. 공격력 " << hero.attack << '\n';
+        std::cout << "  " << hero.name << i18n::L(" 분노 끝. 공격력 ", " の怒りが切れた。攻撃力 ") << hero.attack << '\n';
     });
 }
 }

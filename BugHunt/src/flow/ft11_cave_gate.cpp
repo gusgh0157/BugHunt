@@ -36,8 +36,8 @@ void ft11_cave_gate()
     for (const Adventurer& a : party)
     {
         const bool ok = canEnterCave(a);
-        std::cout << "  " << a.name << " (열쇠 " << a.keys << ", 횃불 " << a.torches << ") → "
-                  << (ok ? "입장" : "입장 불가") << '\n';
+        std::cout << "  " << a.name << i18n::L(" (열쇠 ", "(鍵") << a.keys << i18n::L(", 횃불 ", "、たいまつ") << a.torches << ") → "
+                  << (ok ? i18n::L("입장", "入場") : i18n::L("입장 불가", "入場不可")) << '\n';
         if (ok)
             ++entered;
     }
