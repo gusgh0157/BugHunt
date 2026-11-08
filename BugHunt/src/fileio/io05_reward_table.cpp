@@ -8,7 +8,7 @@
 //     보상
 //     50 75 120
 
-// [JA] 報酬表ファイル: モンスター番号が並び、「보상(報酬)」という見出しの後に同じ順番でゴールドが並びます。
+// [JA] 報酬表ファイル: モンスター番号が並び、「報酬」(`--lang ko` では「보상」)という見出しの後に同じ順番でゴールドが並びます。
 namespace io5
 {
 namespace fs = std::filesystem;
@@ -54,7 +54,7 @@ void io05_reward_table()
 
     iokit::LabDir lab("io05_reward_table");
     const fs::path file = lab / "rewards.txt";
-    iokit::writeBytes(file, "101 102 103\n보상\n50 75 120\n");
+    iokit::writeBytes(file, i18n::L("101 102 103\n보상\n50 75 120\n", "101 102 103\n報酬\n50 75 120\n"));
 
     const RewardTable table = loadRewards(file);
     std::cout << i18n::L("  몬스터 ", "  モンスター") << table.monsterIds.size() << i18n::L("종, 보상 ", "種、報酬") << table.gold.size() << i18n::L("개\n", "個\n");
@@ -80,7 +80,7 @@ void io05_reward_table()
 // 첫 while은 "보상"을 숫자로 읽으려다 실패해서 끝났습니다. 그때 스트림에 실패 표시(failbit)가 켜집니다.
 // 실패 표시가 켜진 스트림에서 >> 를 하면 어떻게 되나요? 표시는 저절로 꺼지나요?
 
-// [JA] 最初の while は「보상」を数値として読もうとして失敗し、終わりました。そのときストリームに失敗フラグ(failbit)が立ちます。
+// [JA] 最初の while は「報酬」を数値として読もうとして失敗し、終わりました。そのときストリームに失敗フラグ(failbit)が立ちます。
 // [JA] 失敗フラグが立ったストリームで >> をするとどうなるでしょうか? フラグは自然に消えるでしょうか?
 #pragma endregion
 
@@ -89,7 +89,7 @@ void io05_reward_table()
 // clear는 글자를 버리지 않으므로 "보상"은 그대로 남아 header로 읽힙니다.
 
 // [JA] 失敗を「想定した」場所で止まったのなら、in.clear() で失敗フラグを消してから次を読んでください。
-// [JA] clear は文字を捨てないので、「보상」はそのまま残って header として読まれます。
+// [JA] clear は文字を捨てないので、「報酬」はそのまま残って header として読まれます。
 #pragma endregion
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)

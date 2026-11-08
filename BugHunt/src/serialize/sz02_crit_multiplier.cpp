@@ -38,11 +38,15 @@ void sz02_crit_multiplier()
 {
     using namespace sz2;
 
-    const json table = json::parse(R"([
+    const json table = json::parse(i18n::L(R"([
         {"name":"단검", "attack":30, "crit":1.5},
         {"name":"도끼", "attack":50, "crit":2},
         {"name":"지팡이", "attack":20}
-    ])");
+    ])", R"([
+        {"name":"短剣", "attack":30, "crit":1.5},
+        {"name":"斧", "attack":50, "crit":2},
+        {"name":"杖", "attack":20}
+    ])"));
 
     std::vector<Weapon> weapons;
     for (const json& j : table)
@@ -65,7 +69,7 @@ void sz02_crit_multiplier()
 // loadWeapon에 조건부 중단점을 거세요. 조건: w.name == "단검" 을 return 줄에. 이때 w.crit은 얼마인가요?
 // 조사식에 j["crit"] (또는 j.at("crit"))도 넣어 JSON에 들어 있는 값과 비교하세요.
 
-// [JA] loadWeapon の return 行に条件付きブレークポイントを設定してください。条件: w.name == "단검"(短剣)。このとき w.crit はいくつですか?
+// [JA] loadWeapon の return 行に条件付きブレークポイントを設定してください。条件: w.name == "短剣"(`--lang ko` では "단검")。このとき w.crit はいくつですか?
 // [JA] ウォッチに j["crit"](または j.at("crit"))も入れて、JSONに入っている値と比べてください。
 #pragma endregion
 
@@ -92,9 +96,9 @@ void sz02_crit_multiplier_hidden()
 {
     using namespace sz2;
 
-    expect("배율 2.25", 225, critDamage(loadWeapon(json::parse(R"({"name":"활","attack":100,"crit":2.25})"))));
-    expect("배율 1.75", 70, critDamage(loadWeapon(json::parse(R"({"name":"창","attack":40,"crit":1.75})"))));
-    expect("배율 3 (정수)", 36, critDamage(loadWeapon(json::parse(R"({"name":"망치","attack":12,"crit":3})"))));
-    expect("배율 없음", 64, critDamage(loadWeapon(json::parse(R"({"name":"방패","attack":64})"))));
+    expect("배율 2.25", 225, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"활","attack":100,"crit":2.25})", R"({"name":"弓","attack":100,"crit":2.25})")))));
+    expect("배율 1.75", 70, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"창","attack":40,"crit":1.75})", R"({"name":"槍","attack":40,"crit":1.75})")))));
+    expect("배율 3 (정수)", 36, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"망치","attack":12,"crit":3})", R"({"name":"ハンマー","attack":12,"crit":3})")))));
+    expect("배율 없음", 64, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"방패","attack":64})", R"({"name":"盾","attack":64})")))));
 }
 #pragma endregion

@@ -27,9 +27,9 @@ void ft11_cave_gate()
     using namespace flow11;
 
     const std::vector<Adventurer> party = {
-        { "아린", 1, 1 },
-        { "보람", 2, 1 },     // 열쇠 2개, 횃불 1개
-        { "도윤", 0, 3 },     // 열쇠가 없다
+        { i18n::L("아린", "アリン"), 1, 1 },
+        { i18n::L("보람", "ボラム"), 2, 1 },     // 열쇠 2개, 횃불 1개
+        { i18n::L("도윤", "ドユン"), 0, 3 },     // 열쇠가 없다
     };
 
     int entered = 0;
@@ -80,10 +80,10 @@ void ft11_cave_gate_hidden()
 {
     using namespace flow11;
 
-    expect("열쇠 4, 횃불 2", true, canEnterCave({ "가", 4, 2 }));
-    expect("열쇠 1, 횃불 6", true, canEnterCave({ "나", 1, 6 }));
-    expect("열쇠 3, 횃불 3", true, canEnterCave({ "다", 3, 3 }));
-    expect("열쇠 5, 횃불 0", false, canEnterCave({ "라", 5, 0 }));
-    expect("열쇠 0, 횃불 0", false, canEnterCave({ "마", 0, 0 }));
+    expect("열쇠 4, 횃불 2", true, canEnterCave({ i18n::L("가", "ア"), 4, 2 }));
+    expect("열쇠 1, 횃불 6", true, canEnterCave({ i18n::L("나", "イ"), 1, 6 }));
+    expect("열쇠 3, 횃불 3", true, canEnterCave({ i18n::L("다", "ウ"), 3, 3 }));
+    expect("열쇠 5, 횃불 0", false, canEnterCave({ i18n::L("라", "エ"), 5, 0 }));
+    expect("열쇠 0, 횃불 0", false, canEnterCave({ i18n::L("마", "オ"), 0, 0 }));
 }
 #pragma endregion

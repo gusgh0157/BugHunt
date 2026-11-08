@@ -17,7 +17,7 @@ public:
 
     const std::string& name() const { return name_; }
     int hp() const { return hp_; }
-    virtual std::vector<std::string> loot() const { return { "뼈 조각" }; }
+    virtual std::vector<std::string> loot() const { return { i18n::L("뼈 조각", "骨のかけら") }; }
 
 private:
     std::string name_;
@@ -30,7 +30,7 @@ public:
     Boss(std::string name, int hp, std::string rare)
         : Monster(std::move(name), hp), rare_(std::move(rare)) {}
 
-    std::vector<std::string> loot() const override { return { "뼈 조각", rare_ }; }
+    std::vector<std::string> loot() const override { return { i18n::L("뼈 조각", "骨のかけら"), rare_ }; }
 
 private:
     std::string rare_;
@@ -83,9 +83,9 @@ void ih02_boss_loot()
     using namespace inh2;
 
     const std::vector<std::string> bag = collectLoot(spawnWave({
-        { "고블린", 30, "" },
-        { "고블린", 30, "" },
-        { "고블린 왕", 300, "황금 왕관" },
+        { i18n::L("고블린", "ゴブリン"), 30, "" },
+        { i18n::L("고블린", "ゴブリン"), 30, "" },
+        { i18n::L("고블린 왕", "ゴブリンキング"), 300, i18n::L("황금 왕관", "黄金の王冠") },
     }));
 
     std::cout << i18n::L("  전리품:", "  戦利品:");
@@ -94,7 +94,7 @@ void ih02_boss_loot()
     std::cout << '\n';
 
     expect("전리품 개수", static_cast<size_t>(4), bag.size());
-    expect("황금 왕관이 나왔는가?", true, contains(bag, "황금 왕관"));
+    expect("황금 왕관이 나왔는가?", true, contains(bag, i18n::L("황금 왕관", "黄金の王冠")));
 }
 
 // ============================================================================
@@ -134,13 +134,13 @@ void ih02_boss_loot_hidden()
     using namespace inh2;
 
     const std::vector<std::string> bag = collectLoot(spawnWave({
-        { "해골 기사", 500, "저주받은 검" },
-        { "박쥐", 8, "" },
-        { "리치", 900, "영혼석" },
+        { i18n::L("해골 기사", "骸骨騎士"), 500, i18n::L("저주받은 검", "呪われた剣") },
+        { i18n::L("박쥐", "コウモリ"), 8, "" },
+        { i18n::L("리치", "リッチ"), 900, i18n::L("영혼석", "魂の石") },
     }));
     expect("숨은 웨이브: 전리품 개수", static_cast<size_t>(5), bag.size());
-    expect("숨은 웨이브: 저주받은 검", true, contains(bag, "저주받은 검"));
-    expect("숨은 웨이브: 영혼석", true, contains(bag, "영혼석"));
-    expect("숨은 웨이브: 황금 왕관은 없어야", false, contains(bag, "황금 왕관"));
+    expect("숨은 웨이브: 저주받은 검", true, contains(bag, i18n::L("저주받은 검", "呪われた剣")));
+    expect("숨은 웨이브: 영혼석", true, contains(bag, i18n::L("영혼석", "魂の石")));
+    expect("숨은 웨이브: 황금 왕관은 없어야", false, contains(bag, i18n::L("황금 왕관", "黄金の王冠")));
 }
 #pragma endregion

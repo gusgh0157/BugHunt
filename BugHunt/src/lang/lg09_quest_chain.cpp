@@ -94,23 +94,30 @@ void print(const QuestLog& log)
         std::cout << "  " << (q.done ? i18n::L("[완료] ", "[完了] ") : i18n::L("[진행] ", "[進行中] ")) << q.name << '\n';
 }
 
-const QuestBook kBook = { {
-    { "마을의 부탁", "촌장과 대화", "잃어버린 반지", false },
-    { "잃어버린 반지", "반지 획득", "반지의 주인", false },
-    { "반지의 주인", "촌장과 대화", "숲의 소문", false },
-    { "숲의 소문", "엘프와 대화", "", false },
-    { "약초 채집", "약초 10개", "", false },
-} };
+// 퀘스트 이름이 고른 언어를 따르도록 처음 쓸 때 만든다. (전역 변수로 두면 언어를 고르기 전에 만들어진다.)
+// [JA] クエスト名が選んだ言語に従うように、最初に使うときに作ります。(グローバル変数にすると言語を選ぶ前に作られてしまいます。)
+const QuestBook& questBook()
+{
+    static const QuestBook book = { {
+        { i18n::L("마을의 부탁", "村の頼みごと"), i18n::L("촌장과 대화", "村長と話す"), i18n::L("잃어버린 반지", "なくした指輪"), false },
+        { i18n::L("잃어버린 반지", "なくした指輪"), i18n::L("반지 획득", "指輪を入手"), i18n::L("반지의 주인", "指輪の持ち主"), false },
+        { i18n::L("반지의 주인", "指輪の持ち主"), i18n::L("촌장과 대화", "村長と話す"), i18n::L("숲의 소문", "森のうわさ"), false },
+        { i18n::L("숲의 소문", "森のうわさ"), i18n::L("엘프와 대화", "エルフと話す"), "", false },
+        { i18n::L("약초 채집", "薬草採集"), i18n::L("약초 10개", "薬草10個"), "", false },
+    } };
+    return book;
+}
 }
 
 void lg09_quest_chain()
 {
     using namespace lang9;
 
+    const QuestBook& kBook = questBook();
     QuestLog log;
-    log.add(kBook.find("약초 채집"));
-    log.add(kBook.find("마을의 부탁"));
-    const std::set<std::string> achieved = { "촌장과 대화", "반지 획득" };
+    log.add(kBook.find(i18n::L("약초 채집", "薬草採集")));
+    log.add(kBook.find(i18n::L("마을의 부탁", "村の頼みごと")));
+    const std::set<std::string> achieved = { i18n::L("촌장과 대화", "村長と話す"), i18n::L("반지 획득", "指輪を入手") };
 
     const int completed = endTurn(log, kBook, achieved);
     print(log);
@@ -169,15 +176,15 @@ void lg09_quest_chain_hidden()
     for (int i = 0; i < 6; ++i)
     {
         const std::string n = std::to_string(i);
-        book.all.push_back({ "현상금 " + n, "토벌", "보고 " + n, false });
-        book.all.push_back({ "보고 " + n, "토벌", "보상 " + n, false });
-        book.all.push_back({ "보상 " + n, "길드 방문", "", false });
-        log.add(book.find("현상금 " + n));
+        book.all.push_back({ i18n::L("현상금 ", "賞金首 ") + n, i18n::L("토벌", "討伐"), i18n::L("보고 ", "報告 ") + n, false });
+        book.all.push_back({ i18n::L("보고 ", "報告 ") + n, i18n::L("토벌", "討伐"), i18n::L("보상 ", "報酬 ") + n, false });
+        book.all.push_back({ i18n::L("보상 ", "報酬 ") + n, i18n::L("길드 방문", "ギルド訪問"), "", false });
+        log.add(book.find(i18n::L("현상금 ", "賞金首 ") + n));
     }
-    expect("숨은 일지: 완료 수", 12, endTurn(log, book, { "토벌" }));
+    expect("숨은 일지: 완료 수", 12, endTurn(log, book, { i18n::L("토벌", "討伐") }));
     expect("숨은 일지: 일지 크기", static_cast<size_t>(18), log.size());
     expect("숨은 일지: 남은 보상 퀘스트", 6, static_cast<int>(log.size()) - log.countDone());
-    expect("숨은 일지: 다음 차례 (길드 방문)", 6, endTurn(log, book, { "토벌", "길드 방문" }));
-    expect("숨은 일지: 할 일 없는 차례", 0, endTurn(log, book, { "토벌", "길드 방문" }));
+    expect("숨은 일지: 다음 차례 (길드 방문)", 6, endTurn(log, book, { i18n::L("토벌", "討伐"), i18n::L("길드 방문", "ギルド訪問") }));
+    expect("숨은 일지: 할 일 없는 차례", 0, endTurn(log, book, { i18n::L("토벌", "討伐"), i18n::L("길드 방문", "ギルド訪問") }));
 }
 #pragma endregion

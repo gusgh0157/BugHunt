@@ -90,9 +90,9 @@ void lg07_dungeon_load()
     Texture::alive = 0;
 
     const int rooms = exploreAll({
-        { "고블린 굴", "RRR" },
-        { "저주받은 성", "RR?R" },
-        { "버섯 숲", "RRRRR" },
+        { i18n::L("고블린 굴", "ゴブリンの巣穴"), "RRR" },
+        { i18n::L("저주받은 성", "呪われた城"), "RR?R" },
+        { i18n::L("버섯 숲", "キノコの森"), "RRRRR" },
     });
     std::cout << i18n::L("  탐험이 끝난 뒤 남은 텍스처: ", "  探検後に残ったテクスチャー: ") << Texture::alive << i18n::L("개\n", "個\n");
 
@@ -141,16 +141,16 @@ void lg07_dungeon_load_hidden()
     using namespace lang7;
     Texture::alive = 0;
     const int rooms = exploreAll({
-        { "얼음 동굴", "?RR" },
-        { "사막 신전", "RRRR" },
-        { "늪지", "R?" },
-        { "용암 지대", "RR?RRR" },
-        { "하늘 섬", "RR" },
+        { i18n::L("얼음 동굴", "氷の洞窟"), "?RR" },
+        { i18n::L("사막 신전", "砂漠の神殿"), "RRRR" },
+        { i18n::L("늪지", "沼地"), "R?" },
+        { i18n::L("용암 지대", "溶岩地帯"), "RR?RRR" },
+        { i18n::L("하늘 섬", "天空の島"), "RR" },
     });
     expect("숨은 탐험: 방 수", 6, rooms);
     expect("숨은 탐험: 남은 텍스처 수", 0, Texture::alive);
 
-    const DungeonFile broken{ "폐허", "R?R" };
+    const DungeonFile broken{ i18n::L("폐허", "廃墟"), "R?R" };
     for (int i = 0; i < 3; ++i)
     {
         try

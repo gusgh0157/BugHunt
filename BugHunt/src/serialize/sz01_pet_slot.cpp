@@ -30,7 +30,7 @@ void sz01_pet_slot()
 {
     using namespace sz1;
 
-    const std::string text = R"({"name":"아린","level":12,"gold":340})";
+    const std::string text = i18n::L(R"({"name":"아린","level":12,"gold":340})", R"({"name":"アリン","level":12,"gold":340})");
     json save = json::parse(text);
     const std::string before = save.dump();
 
@@ -82,11 +82,11 @@ void sz01_pet_slot_hidden()
 {
     using namespace sz1;
 
-    json withPet = json::parse(R"({"name":"보람","pet":{"name":"구름","kind":"여우"}})");
-    expect("펫 있음: 펫 칸", std::string("구름"), petLabel(withPet));
+    json withPet = json::parse(i18n::L(R"({"name":"보람","pet":{"name":"구름","kind":"여우"}})", R"({"name":"ボラム","pet":{"name":"クラウド","kind":"キツネ"}})"));
+    expect("펫 있음: 펫 칸", std::string(i18n::L("구름", "クラウド")), petLabel(withPet));
     expect("펫 있음: 소환 버튼", true, canSummonPet(withPet));
 
-    json noPet = json::parse(R"({"name":"도윤","class":"궁수","quests":[1,2,3]})");
+    json noPet = json::parse(i18n::L(R"({"name":"도윤","class":"궁수","quests":[1,2,3]})", R"({"name":"ドユン","class":"弓使い","quests":[1,2,3]})"));
     const size_t keys = noPet.size();
     expect("펫 없음: 펫 칸", std::string(i18n::L("(펫 없음)", "(ペットなし)")), petLabel(noPet));
     expect("펫 없음: 소환 버튼", false, canSummonPet(noPet));

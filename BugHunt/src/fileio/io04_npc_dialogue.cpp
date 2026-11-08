@@ -34,18 +34,22 @@ void io04_npc_dialogue()
 
     iokit::LabDir lab("io04_npc_dialogue");
     const fs::path file = lab / "innkeeper.txt";
-    iokit::writeBytes(file,
+    iokit::writeBytes(file, i18n::L(
         "3\n"
         "어서 오세요, 모험가님.\n"
         "북쪽 숲에 늑대가 많아요.\n"
-        "조심해서 다녀오세요!\n");
+        "조심해서 다녀오세요!\n",
+        "3\n"
+        "いらっしゃいませ、冒険者さま。\n"
+        "北の森にはオオカミが多いですよ。\n"
+        "気をつけていってらっしゃい!\n"));
 
     const std::vector<std::string> lines = loadDialogue(file);
     for (const std::string& line : lines)
         std::cout << i18n::L("  여관 주인: \"", "  宿屋の主人: \"") << line << "\"\n";
 
-    expect("첫 대사", std::string("어서 오세요, 모험가님."), lines.at(0));
-    expect("마지막 대사", std::string("조심해서 다녀오세요!"), lines.at(2));
+    expect("첫 대사", std::string(i18n::L("어서 오세요, 모험가님.", "いらっしゃいませ、冒険者さま。")), lines.at(0));
+    expect("마지막 대사", std::string(i18n::L("조심해서 다녀오세요!", "気をつけていってらっしゃい!")), lines.at(2));
 }
 
 // ============================================================================
@@ -85,16 +89,19 @@ void io04_npc_dialogue_hidden()
     using namespace io4;
 
     iokit::LabDir lab("io04_npc_dialogue_hidden");
-    iokit::writeBytes(lab / "smith.txt",
+    iokit::writeBytes(lab / "smith.txt", i18n::L(
         "2  \n"                               // 숫자 뒤에 공백이 남아 있다
         "   (망치를 내려놓으며) 뭘 고쳐 줄까?\n"   // 일부러 들여 쓴 대사
-        "칼날이 많이 상했군.\n");
+        "칼날이 많이 상했군.\n",
+        "2  \n"
+        "   (ハンマーを置きながら) 何を直してほしい?\n"
+        "刃がだいぶ傷んでいるな。\n"));
     const std::vector<std::string> lines = loadDialogue(lab / "smith.txt");
     expect("숨은 대사 수", static_cast<size_t>(2), lines.size());
     if (lines.size() == 2)
     {
-        expect("들여 쓴 첫 대사", std::string("   (망치를 내려놓으며) 뭘 고쳐 줄까?"), lines[0]);
-        expect("둘째 대사", std::string("칼날이 많이 상했군."), lines[1]);
+        expect("들여 쓴 첫 대사", std::string(i18n::L("   (망치를 내려놓으며) 뭘 고쳐 줄까?", "   (ハンマーを置きながら) 何を直してほしい?")), lines[0]);
+        expect("둘째 대사", std::string(i18n::L("칼날이 많이 상했군.", "刃がだいぶ傷んでいるな。")), lines[1]);
     }
 }
 #pragma endregion

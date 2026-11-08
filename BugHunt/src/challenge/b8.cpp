@@ -59,7 +59,7 @@ void chB8()
 {
     using namespace blind8;
     AlarmBell bell;
-    const auto turrets = buildWall(bell, { "북문", "동문", "서문" });
+    const auto turrets = buildWall(bell, { i18n::L("북문", "北門"), i18n::L("동문", "東門"), i18n::L("서문", "西門") });
     bell.ring(3);
     bell.ring(2);
     for (const Turret& t : turrets)

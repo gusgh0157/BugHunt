@@ -100,7 +100,7 @@ Hero::Hero(const Hero& other)
 **수정:** `for (size_t i = 0; i + 1 < shelf.size(); ++i)`
 
 ## B-2 — 임시 문자열을 가리키는 참조를 돌려줌
-`authorOr(n, "길드 운영 위원회 (자동 공지)")`의 두 번째 인자는 그 줄이 끝나면 사라지는 임시 `std::string`이다. 돌려받은 `const std::string&`는 해제된 메모리를 가리킨다. (SSO 15바이트보다 길어서 힙에 있다. 짧은 이름이었다면 우연히 맞게 나왔을 수 있다.)
+`authorOr(n, i18n::L("길드 운영 위원회 (자동 공지)", "ギルド運営委員会 (自動お知らせ)"))`의 두 번째 인자는 그 줄이 끝나면 사라지는 임시 `std::string`이다. 돌려받은 `const std::string&`는 해제된 메모리를 가리킨다. (SSO 15바이트보다 길어서 힙에 있다. 짧은 이름이었다면 우연히 맞게 나왔을 수 있다.)
 **수정:** `std::string authorOr(...)`로 값을 돌려준다.
 
 ## B-3 — `uint8_t` 반복 변수
@@ -120,7 +120,7 @@ for (size_t w = 0; w < original; ++w)
 {
     const Unit u = wave[w];
     for (int i = 0; i < u.summons; ++i)
-        wave.push_back({ u.name + "의 부하", 0 });
+        wave.push_back({ u.name + i18n::L("의 부하", "の手下"), 0 });
 }
 ```
 

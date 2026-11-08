@@ -15,19 +15,19 @@ void chC3_shrine()
     aria.prestigeUp();          // 시즌 1, 2 만렙 달성
     aria.prestigeUp();
     aria.adoptPet("Fox", 6);
-    aria.addBuff({ "전투 함성", 10 });
+    aria.addBuff({ i18n::L("전투 함성", "雄叫び"), 10 });
 
     CheckpointSystem checkpoints;
     RespawnSystem respawns(checkpoints);
     DamageMeter meter;
 
     checkpoints.save(aria);     // 보스방 앞 성소
-    meter.hit(aria, "문지기");
+    meter.hit(aria, i18n::L("문지기", "門番"));
     const int beforeDeath = meter.lastHit();
 
     aria.setHp(0);              // 보스의 광역기
     respawns.respawn(aria);
-    meter.hit(aria, "문지기");
+    meter.hit(aria, i18n::L("문지기", "門番"));
     const int afterRespawn = meter.lastHit();
 
     for (const std::string& line : meter.log())
@@ -56,7 +56,7 @@ void chC3_shrine_hidden()
 
     checkpoints.save(brom);
     expect("성소에 저장된 프레스티지", 3, checkpoints.snapshotOf("Brom").prestige());
-    brom.addBuff({ "광폭화", 25 });
+    brom.addBuff({ i18n::L("광폭화", "狂暴化"), 25 });
     brom.setHp(0);
     respawns.respawn(brom);
     expect("부활 후 프레스티지", 3, brom.prestige());

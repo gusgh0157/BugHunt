@@ -49,9 +49,9 @@ void io02_quest_journal()
     const fs::path file = lab / "journal.txt";
 
     Journal journal(file);
-    journal.record("늑대 다섯 마리 처치");
-    journal.record("잃어버린 반지 찾기");
-    journal.record("대장장이에게 광석 배달");
+    journal.record(i18n::L("늑대 다섯 마리 처치", "オオカミ5匹を討伐"));
+    journal.record(i18n::L("잃어버린 반지 찾기", "なくした指輪を探す"));
+    journal.record(i18n::L("대장장이에게 광석 배달", "鍛冶屋に鉱石を届ける"));
 
     const std::vector<std::string> shown = readJournal(file);
     std::cout << i18n::L("  일지 창에 보이는 줄 ", "  日誌ウィンドウ") << shown.size() << i18n::L("개\n", "行\n");
@@ -101,15 +101,15 @@ void io02_quest_journal_hidden()
 
     iokit::LabDir lab("io02_quest_journal_hidden");
     const fs::path file = lab / "journal.txt";
-    iokit::writeBytes(file, "지난 세션의 기록\n");   // 이전 실행이 남긴 줄
+    iokit::writeBytes(file, i18n::L("지난 세션의 기록\n", "前回のセッションの記録\n"));   // 이전 실행이 남긴 줄
 
     Journal journal(file);
-    journal.record("동굴 입구 발견");
+    journal.record(i18n::L("동굴 입구 발견", "洞窟の入口を発見"));
     expect("한 줄 기록 뒤", static_cast<size_t>(2), readJournal(file).size());
-    for (const char* entry : { "박쥐 소탕", "광부 구출", "보스 처치", "귀환" })
+    for (const char* entry : { i18n::L("박쥐 소탕", "コウモリ退治"), i18n::L("광부 구출", "鉱夫の救出"), i18n::L("보스 처치", "ボス討伐"), i18n::L("귀환", "帰還") })
         journal.record(entry);
     const std::vector<std::string> lines = readJournal(file);
     expect("다섯 줄 기록 뒤", static_cast<size_t>(6), lines.size());
-    expect("마지막 줄", std::string("귀환"), lines.empty() ? std::string() : lines.back());
+    expect("마지막 줄", std::string(i18n::L("귀환", "帰還")), lines.empty() ? std::string() : lines.back());
 }
 #pragma endregion

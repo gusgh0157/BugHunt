@@ -51,7 +51,7 @@ void chC1_auction_night()
 {
     using namespace chal1;
 
-    AuctionHouse house("용의 비늘 갑옷");
+    AuctionHouse house(i18n::L("용의 비늘 갑옷", "竜鱗の鎧"));
     BidderPanel bidderPanel;
     StatusPanel statusPanel;
 
@@ -93,7 +93,7 @@ void chC1_auction_night_hidden()
 {
     using namespace chal1;
 
-    AuctionHouse house("서리 지팡이");
+    AuctionHouse house(i18n::L("서리 지팡이", "霜の杖"));
     BidderPanel panel;
     const BidderId a = house.join("Ivo", 300, Tier::Normal);
     const BidderId b = house.join("Nell", 900, Tier::Silver);

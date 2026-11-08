@@ -41,10 +41,10 @@ void ft12_lockpicks()
     using namespace flow12;
 
     Thief thief;
-    thief.keys = { "감옥", "창고", "보물실" };
+    thief.keys = { i18n::L("감옥", "牢屋"), i18n::L("창고", "倉庫"), i18n::L("보물실", "宝物庫") };
     thief.lockpicks = 3;
 
-    const std::vector<std::string> doors = { "감옥", "부엌", "창고", "보물실", "서재" };
+    const std::vector<std::string> doors = { i18n::L("감옥", "牢屋"), i18n::L("부엌", "台所"), i18n::L("창고", "倉庫"), i18n::L("보물실", "宝物庫"), i18n::L("서재", "書斎") };
     int opened = 0;
     for (const std::string& door : doors)
     {
@@ -96,15 +96,15 @@ void ft12_lockpicks_hidden()
     using namespace flow12;
 
     Thief t;
-    t.keys = { "북문", "남문" };
+    t.keys = { i18n::L("북문", "北門"), i18n::L("남문", "南門") };
     t.lockpicks = 1;
-    expect("북문(열쇠) 열림", true, openDoor(t, "북문"));
+    expect("북문(열쇠) 열림", true, openDoor(t, i18n::L("북문", "北門")));
     expect("북문 뒤 따개", 1, t.lockpicks);
-    expect("남문(열쇠) 열림", true, openDoor(t, "남문"));
+    expect("남문(열쇠) 열림", true, openDoor(t, i18n::L("남문", "南門")));
     expect("남문 뒤 따개", 1, t.lockpicks);
-    expect("동문(따개) 열림", true, openDoor(t, "동문"));
+    expect("동문(따개) 열림", true, openDoor(t, i18n::L("동문", "東門")));
     expect("동문 뒤 따개", 0, t.lockpicks);
-    expect("서문(없음) 잠김", false, openDoor(t, "서문"));
-    expect("북문 다시(열쇠) 열림", true, openDoor(t, "북문"));
+    expect("서문(없음) 잠김", false, openDoor(t, i18n::L("서문", "西門")));
+    expect("북문 다시(열쇠) 열림", true, openDoor(t, i18n::L("북문", "北門")));
 }
 #pragma endregion

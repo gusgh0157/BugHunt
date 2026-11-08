@@ -67,9 +67,9 @@ void lg01_trade_items()
     using namespace lang1;
     g_itemCopies = 0;
 
-    Trader me{ "나", {}, {} };
-    Trader buyer{ "상인", {}, {} };
-    put(me, { "용의 비늘", "엘릭서", "마법 두루마리" });
+    Trader me{ i18n::L("나", "わたし"), {}, {} };
+    Trader buyer{ i18n::L("상인", "商人"), {}, {} };
+    put(me, { i18n::L("용의 비늘", "竜の鱗"), i18n::L("엘릭서", "エリクサー"), i18n::L("마법 두루마리", "魔法の巻物") });
 
     trade(me, buyer);
     print(me);
@@ -121,20 +121,20 @@ void lg01_trade_items_hidden()
     using namespace lang1;
     g_itemCopies = 0;
 
-    Trader a{ "기사", {}, {} };
-    Trader b{ "궁수", {}, {} };
-    put(a, { "강철 투구", "은화 주머니" });
+    Trader a{ i18n::L("기사", "騎士"), {}, {} };
+    Trader b{ i18n::L("궁수", "弓使い"), {}, {} };
+    put(a, { i18n::L("강철 투구", "鋼の兜"), i18n::L("은화 주머니", "銀貨袋") });
     trade(a, b);
-    put(a, { "불꽃 반지", "치유 물약", "고대 지도", "독 화살" });
+    put(a, { i18n::L("불꽃 반지", "炎の指輪"), i18n::L("치유 물약", "治癒の薬"), i18n::L("고대 지도", "古代の地図"), i18n::L("독 화살", "毒矢") });
     trade(a, b);
-    put(b, { "깃털 펜" });
+    put(b, { i18n::L("깃털 펜", "羽ペン") });
     trade(b, a);
 
     expect("숨은 거래: 궁수가 받은 아이템 수", static_cast<size_t>(6), b.received.size());
     expect("숨은 거래: 기사가 받은 아이템 수", static_cast<size_t>(1), a.received.size());
     expect("숨은 거래: 기사 거래 창", static_cast<size_t>(0), a.offer.size());
     expect("숨은 거래: 궁수 거래 창", static_cast<size_t>(0), b.offer.size());
-    expect("숨은 거래: 마지막으로 받은 아이템", std::string("독 화살"), b.received.back().name);
+    expect("숨은 거래: 마지막으로 받은 아이템", std::string(i18n::L("독 화살", "毒矢")), b.received.back().name);
     expect("숨은 거래: 복사 횟수", 0, g_itemCopies);
 }
 #pragma endregion

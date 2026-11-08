@@ -94,6 +94,6 @@ void of04_name_packet_hidden()
     expect("숨은 접속: 버퍼보다 긴 이름은 잘린다", std::string("Archmage_of_the_Eternal_Twiligh"),
            sendLogin(packet, "Archmage_of_the_Eternal_Twilight_Tower", 99));
     expect("숨은 접속: 긴 이름 뒤 레벨", 99, packet.level);
-    expect("숨은 접속: 한글 이름", std::string("그림자칼날"), sendLogin(packet, "그림자칼날", 5));
+    expect("숨은 접속: 한글 이름", std::string(i18n::L("그림자칼날", "シャドウブレード")), sendLogin(packet, i18n::L("그림자칼날", "シャドウブレード"), 5));
 }
 #pragma endregion

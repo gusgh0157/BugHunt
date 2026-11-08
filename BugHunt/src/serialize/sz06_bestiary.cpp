@@ -41,12 +41,17 @@ void sz06_bestiary()
 {
     using namespace sz6;
 
-    const char* xml = R"(
+    const char* xml = i18n::L(R"(
 <Bestiary>
   <Monster name="고블린" hp="45"><Attack>7</Attack></Monster>
   <Monster name="오우거" hp="320"><Attack>25</Attack></Monster>
   <Monster name="박쥐" hp="12"><Attack>3</Attack></Monster>
-</Bestiary>)";
+</Bestiary>)", R"(
+<Bestiary>
+  <Monster name="ゴブリン" hp="45"><Attack>7</Attack></Monster>
+  <Monster name="オーガ" hp="320"><Attack>25</Attack></Monster>
+  <Monster name="コウモリ" hp="12"><Attack>3</Attack></Monster>
+</Bestiary>)");
 
     const std::vector<Monster> list = loadBestiary(xml);
     for (const Monster& m : list)
@@ -92,11 +97,15 @@ void sz06_bestiary_hidden()
 {
     using namespace sz6;
 
-    const std::vector<Monster> list = loadBestiary(R"(
+    const std::vector<Monster> list = loadBestiary(i18n::L(R"(
 <Bestiary>
   <Monster hp="900" name="드래곤"><Attack>80</Attack></Monster>
   <Monster name="슬라임" hp="5"><Attack>1</Attack></Monster>
-</Bestiary>)");
+</Bestiary>)", R"(
+<Bestiary>
+  <Monster hp="900" name="ドラゴン"><Attack>80</Attack></Monster>
+  <Monster name="スライム" hp="5"><Attack>1</Attack></Monster>
+</Bestiary>)"));
     expect("숨은 도감: 몬스터 수", static_cast<size_t>(2), list.size());
     if (list.size() == 2)
     {

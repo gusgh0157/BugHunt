@@ -37,10 +37,10 @@ void lg04_level_bonus()
     using namespace lang4;
 
     const std::vector<Member> party = {
-        { "탱커 로안", 40 },
-        { "힐러 미라", 33 },
-        { "궁수 진", 52 },
-        { "마법사 하늘", 35 },
+        { i18n::L("탱커 로안", "タンク ロアン"), 40 },
+        { i18n::L("힐러 미라", "ヒーラー ミラ"), 33 },
+        { i18n::L("궁수 진", "弓使い ジン"), 52 },
+        { i18n::L("마법사 하늘", "魔法使い ハヌル"), 35 },
     };
     const std::size_t maxBonus = 20;
     const int average = partyAverage(party);
