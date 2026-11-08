@@ -10,7 +10,7 @@
 값의 출처:  showProfile ← findPlayer가 못 찾아서 nullptr 반환
 진짜 원인:  openFriendList에서 "Doran"을 "Dorna"로 오타
 ```
-**수정:** 오타 수정. 방어도 추가: `if (!player) { std::cout << "  " << name << ": 없는 플레이어\n"; return; }`
+**수정:** 오타 수정. 방어도 추가: `if (!player) { std::cout << "  " << name << ": " << i18n::L("없는 플레이어", "存在しないプレイヤー") << '\n'; return; }`
 **교훈:** 죽은 곳(printPlayer)은 아무 잘못이 없다. nullptr를 **돌려받고 검사하지 않은** 곳과 **잘못된 이름을 넘긴** 곳이 원인.
 
 ## Lab 2 — 1부터 세는 키를 0부터 세는 인덱스로 그대로 사용
