@@ -48,8 +48,8 @@ void sz02_crit_multiplier()
     for (const json& j : table)
         weapons.push_back(loadWeapon(j));
     for (const Weapon& w : weapons)
-        std::cout << "  " << w.name << ": 공격력 " << w.attack << ", 배율 " << w.crit
-                  << ", 치명타 피해 " << critDamage(w) << '\n';
+        std::cout << "  " << w.name << i18n::L(": 공격력 ", ": 攻撃力 ") << w.attack << i18n::L(", 배율 ", "、倍率 ") << w.crit
+                  << i18n::L(", 치명타 피해 ", "、クリティカルダメージ ") << critDamage(w) << '\n';
 
     expect("단검 치명타 피해", 45, critDamage(weapons[0]));
     expect("도끼 치명타 피해", 100, critDamage(weapons[1]));

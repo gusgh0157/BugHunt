@@ -45,8 +45,8 @@ void ih04_priest_heal()
     int total = 0;
     for (const Healer* h : party)
         total += castDefaultHeal(*h);
-    std::cout << "  견습 치유사 " << castDefaultHeal(novice) << ", 사제 " << castDefaultHeal(priest)
-              << " (직접 부르면 " << priest.heal() << ")\n";
+    std::cout << i18n::L("  견습 치유사 ", "  見習いヒーラー") << castDefaultHeal(novice) << i18n::L(", 사제 ", "、プリースト") << castDefaultHeal(priest)
+              << i18n::L(" (직접 부르면 ", "(直接呼ぶと") << priest.heal() << ")\n";
 
     expect("사제의 기본 치유", 30, castDefaultHeal(priest));
     expect("파티 총 치유량", 40, total);

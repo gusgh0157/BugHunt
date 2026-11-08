@@ -63,7 +63,7 @@ void ih01_backstab()
     const int a = useSkill(fireball, ogre);
     const int b = useSkill(backstab, ogre);
     std::cout << "  " << fireball.name() << " " << a << ", " << backstab.name() << " " << b
-              << " → 남은 HP " << ogre.hp << '\n';
+              << i18n::L(" → 남은 HP ", " → 残りHP ") << ogre.hp << '\n';
 
     expect("화염구 피해", 45, a);
     expect("등 뒤 백스탭 피해", 60, b);

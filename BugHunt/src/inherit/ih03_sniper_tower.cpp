@@ -18,7 +18,7 @@ public:
     virtual ~Tower() = default;
 
     virtual int baseRange() const { return 3; }
-    virtual std::string kind() const { return "기본 탑"; }
+    virtual std::string kind() const { return i18n::L("기본 탑", "基本タワー"); }
 
     int range() const { return range_; }
     bool canHit(int distance) const { return distance <= range_; }
@@ -31,14 +31,14 @@ class SniperTower : public Tower
 {
 public:
     int baseRange() const override { return 8; }
-    std::string kind() const override { return "저격 탑"; }
+    std::string kind() const override { return i18n::L("저격 탑", "スナイパータワー"); }
 };
 
 class MortarTower : public Tower
 {
 public:
     int baseRange() const override { return 6; }
-    std::string kind() const override { return "박격포 탑"; }
+    std::string kind() const override { return i18n::L("박격포 탑", "迫撃砲タワー"); }
 };
 }
 
@@ -48,8 +48,8 @@ void ih03_sniper_tower()
 
     const Tower basic;
     const SniperTower sniper;
-    std::cout << "  " << basic.kind() << " 사거리 " << basic.range()
-              << ", " << sniper.kind() << " 사거리 " << sniper.range() << '\n';
+    std::cout << "  " << basic.kind() << i18n::L(" 사거리 ", "の射程") << basic.range()
+              << i18n::L(", ", "、") << sniper.kind() << i18n::L(" 사거리 ", "の射程") << sniper.range() << '\n';
 
     expect("저격 탑 사거리", 8, sniper.range());
     expect("저격 탑이 거리 7을 쏘는가?", true, sniper.canHit(7));

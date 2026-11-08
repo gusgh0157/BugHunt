@@ -48,8 +48,8 @@ void pf03_combat_log()
     perf::resetAllocCounters();
     const perf::Stopwatch sw;
     const perf3::Text log = perf3::exportLog(events);
-    std::cout << "  이벤트 " << events.size() << "개 내보내기: " << sw.ms() << " ms, 할당 " << perf::g_allocCount
-              << "번, " << perf::g_allocBytes / 1024 << " KB (결과 " << log.size() / 1024 << " KB)\n";
+    std::cout << i18n::L("  이벤트 ", "  イベント ") << events.size() << i18n::L("개 내보내기: ", "件 書き出し: ") << sw.ms() << i18n::L(" ms, 할당 ", " ms、割り当て ")
+              << perf::g_allocCount << i18n::L("번, ", "回、") << perf::g_allocBytes / 1024 << i18n::L(" KB (결과 ", " KB (結果 ") << log.size() / 1024 << " KB)\n";
 
     expect("결과 길이", static_cast<size_t>(60294), log.size());
     expect("할당한 바이트가 결과 길이의 16배 이하인가? (결과 길이에 비례하는가)", true, perf::g_allocBytes <= 16LL * static_cast<long long>(log.size()));

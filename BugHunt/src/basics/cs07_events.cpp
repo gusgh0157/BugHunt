@@ -14,7 +14,7 @@ public:
     void setValue(int hp)
     {
         value_ = hp;
-        std::cout << "  [HP 바] " << value_ << '\n';
+        std::cout << i18n::L("  [HP 바] ", "  [HPバー] ") << value_ << '\n';
     }
 
 private:
@@ -47,7 +47,7 @@ struct Game
 
 void connectLogger(Game& game)
 {
-    game.events.subscribe([](int hp) { std::cout << "  [로그] HP 변경: " << hp << '\n'; });
+    game.events.subscribe([](int hp) { std::cout << i18n::L("  [로그] HP 변경: ", "  [ログ] HP変更: ") << hp << '\n'; });
 }
 
 void connectHealthBar(Game& game)

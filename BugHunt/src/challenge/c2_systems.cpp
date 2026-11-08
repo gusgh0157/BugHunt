@@ -1,4 +1,5 @@
 #include "c2_systems.h"
+#include "../i18n/i18n.h"
 
 namespace chal2
 {
@@ -9,13 +10,13 @@ CombatLog::CombatLog(EventBus& bus)
         {
         case EventType::MonsterKilled:
             ++kills_;
-            lines_.push_back("#" + std::to_string(e.seq) + " " + e.monster + " 처치");
+            lines_.push_back("#" + std::to_string(e.seq) + " " + e.monster + i18n::L(" 처치", " 撃破"));
             break;
         case EventType::PlayerHit:
-            lines_.push_back("#" + std::to_string(e.seq) + " 피격 " + std::to_string(e.damage));
+            lines_.push_back("#" + std::to_string(e.seq) + i18n::L(" 피격 ", " 被弾 ") + std::to_string(e.damage));
             break;
         case EventType::RaidEnd:
-            lines_.push_back("#" + std::to_string(e.seq) + " 레이드 종료");
+            lines_.push_back("#" + std::to_string(e.seq) + i18n::L(" 레이드 종료", " レイド終了"));
             break;
         }
     });

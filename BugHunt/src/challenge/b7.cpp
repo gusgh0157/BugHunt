@@ -36,7 +36,7 @@ void chB7()
 {
     using namespace blind7;
     const std::vector<Order> cart = { { "회복약", 2.5 }, { "화살 묶음", 3.75 }, { "횃불", 1.25 }, { "밧줄", 2.5 } };
-    std::cout << "  장바구니 " << cart.size() << "개\n";
+    std::cout << i18n::L("  장바구니 ", "  カート ") << cart.size() << i18n::L("개\n", "個\n");
     expect("결제 금액 (10금화, 무료 배송)", 10.0, withShipping(cart));
 }
 

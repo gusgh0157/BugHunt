@@ -75,7 +75,7 @@ void io01_patch_prices()
         items = loadPrices();
     }
 
-    std::cout << "  읽은 품목 " << items.size() << "개\n";
+    std::cout << i18n::L("  읽은 품목 ", "  読み込んだ品目") << items.size() << i18n::L("개\n", "個\n");
     for (const Item& item : items)
         std::cout << "    " << item.name << " " << item.price << "G\n";
 

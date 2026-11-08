@@ -33,7 +33,7 @@ std::string winnerOf(const AuctionHouse& house)
         if (house.bidder(id).itemsWon > 0)
             return house.bidder(id).name;
     }
-    return "(없음)";
+    return i18n::L("(없음)", "(なし)");
 }
 
 // 게임 루프의 한 프레임: 화면을 다시 그린다.
@@ -76,7 +76,7 @@ void chC1_auction_night()
     drawFrame(house, bidderPanel, statusPanel);
     for (const std::string& line : bidderPanel.lines())
         std::cout << "  " << line << '\n';
-    std::cout << "  낙찰: " << winnerOf(house) << ", 판매자 수령액 " << house.sellerProceeds() << '\n';
+    std::cout << i18n::L("  낙찰: ", "  落札: ") << winnerOf(house) << i18n::L(", 판매자 수령액 ", "、出品者の受取額 ") << house.sellerProceeds() << '\n';
 
     expect("낙찰자 (가장 높게 부른 사람)", std::string("Mira"), winnerOf(house));
     expect("Mira의 금화 (800 - 450)", 350, goldOf(house, "Mira"));

@@ -22,7 +22,7 @@ struct Recipe
 int craft(const Recipe& recipe, int oreInStock)
 {
     if (recipe.ore > oreInStock)
-        throw std::runtime_error(recipe.item + ": 광석이 모자람");
+        throw std::runtime_error(recipe.item + i18n::L(": 광석이 모자람", ": 鉱石が足りない"));
     return recipe.price;
 }
 
@@ -44,7 +44,7 @@ CraftReport craftAll(const std::vector<Recipe>& orders, int oreInStock)
         }
         catch (const std::exception& e)
         {
-            std::cout << "  제작 실패: " << e.what() << '\n';
+            std::cout << i18n::L("  제작 실패: ", "  製作失敗: ") << e.what() << '\n';
             ++report.failed;
         }
     }

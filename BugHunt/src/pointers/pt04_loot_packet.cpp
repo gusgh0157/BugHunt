@@ -50,7 +50,7 @@ void pt04_loot_packet()
     const std::vector<ptr4::LootEntry> loot = { { 101, 3 }, { 205, 20 }, { 900, 50 }, { 777, 1 }, { 310, 2 } };
     const std::vector<uint8_t> packet = ptr4::buildPacket(loot);
 
-    std::cout << "  패킷 크기: " << packet.size() << "바이트\n";
+    std::cout << i18n::L("  패킷 크기: ", "  パケットサイズ: ") << packet.size() << i18n::L("바이트\n", "バイト\n");
     expect("받은 아이템 개수 합계", 76, ptr4::totalItems(packet));
 }
 

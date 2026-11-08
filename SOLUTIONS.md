@@ -45,7 +45,7 @@
 값의 출처:  n이 홀수 → startFireworks(seconds = 5)
 진짜 원인:  5, 3, 1, -1, ... 로 0을 건너뛰어 끝나지 않음
 ```
-**수정:** `if (n <= 0) return "발사!";`
+**수정:** `if (n <= 0) return i18n::L("발사!", "発射!");`
 **교훈:** 스택이 같은 함수로 가득 차면 재귀가 끝나지 않는 것. 매개변수 값의 변화를 보면 이유가 보인다.
 
 ## Lab 6 — 없는 키로 map::at
@@ -491,7 +491,7 @@ return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
 void close()
 {
     if (buffer_.size() > freeBytes_)
-        throw SaveError("디스크 공간이 모자란다");
+        throw SaveError(i18n::L("디스크 공간이 모자란다", "ディスク容量が足りない"));
     g_disk[slot_] = buffer_;
     closed_ = true;
 }
@@ -717,7 +717,7 @@ try
 }
 catch (const std::exception& e)
 {
-    std::cout << "  저장 실패: " << e.what() << '\n';
+    std::cout << i18n::L("  저장 실패: ", "  保存失敗: ") << e.what() << '\n';
     std::error_code ec;
     fs::remove(temp, ec);            // 실패한 임시 파일 정리
     return false;
@@ -876,7 +876,7 @@ std::weak_ptr<Guild> guild;
 std::string guildNameOf(const Member& member)
 {
     const auto guild = member.guild.lock();
-    return guild ? guild->name : "(없음)";
+    return guild ? guild->name : i18n::L("(없음)", "(なし)");
 }
 ```
 **구성별:** 세 구성 모두 똑같이 FAIL이다. 크래시도, 어설션도, ASan 리포트도 없다(Windows의 ASan에는 누수 검사기가 없다. Linux·macOS의 ASan은 LeakSanitizer가 프로그램이 끝날 때 누수를 보고할 수 있다). 2부 랩 16처럼 인스턴스 수나 소멸자 중단점으로 확인한다.
@@ -984,7 +984,7 @@ abort 시점 호출 스택:   메인 스레드 craftAll → std::future<int>::ge
 for (std::future<int>& job : jobs)
 {
     try { report.revenue += job.get(); }
-    catch (const std::exception& e) { std::cout << "  제작 실패: " << e.what() << '\n'; ++report.failed; }
+    catch (const std::exception& e) { std::cout << i18n::L("  제작 실패: ", "  製作失敗: ") << e.what() << '\n'; ++report.failed; }
 }
 ```
 (`std::async` 자체도 스레드를 만들지 못하면 `std::system_error`를 던지므로 원래 try를 남겨 두어도 된다.)

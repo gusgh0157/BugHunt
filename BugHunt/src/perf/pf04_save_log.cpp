@@ -53,8 +53,9 @@ void pf04_save_log()
 {
     const perf::Stopwatch sw;
     const perf4::SaveStats s = perf4::save(5000);
-    std::cout << "  오브젝트 5000개 저장: " << sw.ms() << " ms, " << s.bytes << " 바이트, 디스크 쓰기(flush) " << s.flushes
-              << "번\n";
+    std::cout << i18n::L("  오브젝트 5000개 저장: ", "  オブジェクト 5000個 保存: ") << sw.ms() << i18n::L(" ms, ", " ms、") << s.bytes
+              << i18n::L(" 바이트, 디스크 쓰기(flush) ", " バイト、ディスク書き込み(flush) ") << s.flushes
+              << i18n::L("번\n", "回\n");
 
     expect("저장한 바이트 수", 62813LL, s.bytes);
     expect("디스크 쓰기(flush) 횟수", 1LL, s.flushes);

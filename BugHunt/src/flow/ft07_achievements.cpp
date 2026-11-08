@@ -31,7 +31,7 @@ bool unlock(Player& p, const std::string& id)
     if (p.has(id))
         return false;
     p.achievements.push_back(id);
-    std::cout << "  ★ 업적 달성: " << id << '\n';
+    std::cout << i18n::L("  ★ 업적 달성: ", "  ★ 実績達成: ") << id << '\n';
     return true;
 }
 
@@ -57,7 +57,7 @@ void onBattleEnd(Player& p)
                           || checkGoldAchievements(p)
                           || checkLevelAchievements(p);
     if (anyUnlocked)
-        std::cout << "  (축하 폭죽!)\n";
+        std::cout << i18n::L("  (축하 폭죽!)\n", "  (お祝いの花火!)\n");
 }
 }
 

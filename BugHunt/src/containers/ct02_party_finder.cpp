@@ -66,13 +66,13 @@ void ct02_party_finder()
         ++row;
     }
     finder.select(row);
-    std::cout << "  " << row << "번째 줄 선택: " << finder.selectedName() << '\n';
+    std::cout << "  " << row << i18n::L("번째 줄 선택: ", "行目を選択: ") << finder.selectedName() << '\n';
 
     // 확인 창이 떠 있는 동안 저녁 시간이라 플레이어가 대거 등록했다.
     ct2::registerWave(finder, "Evening", 60);
 
     const std::string invited = finder.confirmInvite();
-    std::cout << "  초대한 플레이어: " << invited << '\n';
+    std::cout << i18n::L("  초대한 플레이어: ", "  招待したプレイヤー: ") << invited << '\n';
     expect("초대한 플레이어", std::string("Mira"), invited);
     expect("Mira가 게시판에서 빠졌나?", static_cast<size_t>(0), finder.board().count("Mira"));
 }

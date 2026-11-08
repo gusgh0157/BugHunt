@@ -51,13 +51,13 @@ void sz03_skill_bar()
 
     const std::string file = R"({"화염구":"1","얼음창":"2","번개":"3","치유":"4"})";
     std::vector<Slot> bar = loadSkillBar(file);
-    std::cout << "  불러온 스킬 바: " << order(bar) << '\n';
+    std::cout << i18n::L("  불러온 스킬 바: ", "  読み込んだスキルバー: ") << order(bar) << '\n';
     expect("불러온 순서", std::string("화염구 얼음창 번개 치유"), order(bar));
 
     // 플레이어가 치유를 1번 칸으로 끌어다 놓았다
     bar = { { "치유", "1" }, { "화염구", "2" }, { "얼음창", "3" }, { "번개", "4" } };
     const std::vector<Slot> reloaded = loadSkillBar(saveSkillBar(bar));
-    std::cout << "  저장 후 다시 불러온 스킬 바: " << order(reloaded) << '\n';
+    std::cout << i18n::L("  저장 후 다시 불러온 스킬 바: ", "  保存後に読み込み直したスキルバー: ") << order(reloaded) << '\n';
     expect("저장 후 순서", std::string("치유 화염구 얼음창 번개"), order(reloaded));
 }
 

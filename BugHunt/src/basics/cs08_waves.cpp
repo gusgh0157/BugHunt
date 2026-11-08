@@ -67,7 +67,7 @@ void runWaves()
     for (int wave = 1; wave <= 6; ++wave)
     {
         spawnWave(wave, field);
-        std::cout << "  웨이브 " << wave << " 소환 완료 (필드 몬스터 " << field.size() << "마리)\n";
+        std::cout << i18n::L("  웨이브 ", "  ウェーブ ") << wave << i18n::L(" 소환 완료 (필드 몬스터 ", " 召喚完了(フィールドのモンスター ") << field.size() << i18n::L("마리)\n", "体)\n");
     }
 }
 }

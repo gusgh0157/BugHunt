@@ -42,7 +42,7 @@ void join(const std::shared_ptr<Guild>& guild, const std::shared_ptr<Member>& me
 // 길드원이 속한 길드 이름 (길드가 없으면 "(없음)")
 std::string guildNameOf(const Member& member)
 {
-    return member.guild ? member.guild->name : "(없음)";
+    return member.guild ? member.guild->name : i18n::L("(없음)", "(なし)");
 }
 
 // 길드를 하나 만들어 길드원을 모으고, 공지를 보낸 뒤 서버에서 내린다(= 모든 참조가 사라진다).
@@ -53,7 +53,7 @@ void runGuildSession(const std::string& guildName, const std::vector<std::string
         join(guild, std::make_shared<Member>(name));
 
     for (const auto& m : guild->members)
-        std::cout << "  [" << guildNameOf(*m) << "] " << m->name << "님, 길드전이 곧 시작됩니다\n";
+        std::cout << "  [" << guildNameOf(*m) << "] " << m->name << i18n::L("님, 길드전이 곧 시작됩니다\n", "さん、まもなくギルド戦が始まります\n");
 }
 }
 

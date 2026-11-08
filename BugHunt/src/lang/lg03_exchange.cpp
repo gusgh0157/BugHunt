@@ -36,10 +36,10 @@ void lg03_exchange()
 
     const double potionGold = 1.15;
     const int potionSilver = toSilver(potionGold);
-    std::cout << "  치유 물약 1개: " << potionGold << " 골드 → 은화 " << potionSilver << "개\n";
+    std::cout << i18n::L("  치유 물약 1개: ", "  ポーション1個: ") << potionGold << i18n::L(" 골드 → 은화 ", " ゴールド → 銀貨") << potionSilver << i18n::L("개\n", "枚\n");
 
     const SaleRecord bundle = sellBundle(potionGold, 300);
-    std::cout << "  치유 물약 " << bundle.count << "개 묶음 판매: 은화 " << bundle.totalSilver << "개\n";
+    std::cout << i18n::L("  치유 물약 ", "  ポーション") << bundle.count << i18n::L("개 묶음 판매: 은화 ", "個まとめ売り: 銀貨") << bundle.totalSilver << i18n::L("개\n", "枚\n");
 
     expect("치유 물약 1개 (은화)", 115, potionSilver);
     expect("물약 300개 묶음 총액 (은화)", 34'500, static_cast<int>(bundle.totalSilver));

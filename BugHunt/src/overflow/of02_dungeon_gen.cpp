@@ -30,7 +30,7 @@ int buildRooms(int index, int roomCount, std::uint32_t seed)
         layout[i] = (s >> 16) % 64 == 0 ? '$' : '.';
     }
     if (index % 8 == 0)
-        std::cout << "  방 " << index << "번 생성\n" << std::flush;
+        std::cout << i18n::L("  방 ", "  部屋") << index << i18n::L("번 생성\n", "番を生成\n") << std::flush;
 
     int chests = 0;
     if (index + 1 < roomCount)
@@ -46,10 +46,10 @@ void of02_dungeon_gen()
     using namespace ovf2;
 
     const int small = buildRooms(0, 5, 7);
-    std::cout << "  시험 던전 (방 5개): 보물 상자 " << small << "개\n";
+    std::cout << i18n::L("  시험 던전 (방 5개): 보물 상자 ", "  試験ダンジョン (部屋5個): 宝箱 ") << small << i18n::L("개\n", "個\n");
 
     const int big = buildRooms(0, 160, 2024);
-    std::cout << "  대형 던전 (방 160개): 보물 상자 " << big << "개\n";
+    std::cout << i18n::L("  대형 던전 (방 160개): 보물 상자 ", "  大型ダンジョン (部屋160個): 宝箱 ") << big << i18n::L("개\n", "個\n");
 
     expect("시험 던전 보물 상자", 251, small);
     expect("대형 던전 보물 상자", 7'586, big);

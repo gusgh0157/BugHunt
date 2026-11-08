@@ -1,4 +1,4 @@
-[한국어](SOLUTIONS.md) | プログラムの実行出力は `--lang ja` で日本語になります(ラボのコードが独自に出す進行メッセージとゲーム内のデータは韓国語のままです)。本書では日本語に訳して示し、デバッガーに入力する文字列、バイト単位で見る値、解答コードの文字列リテラルだけは原文の韓国語を残して(　)やコメントで訳を添えています。
+[한국어](SOLUTIONS.md) | プログラムの実行出力は `--lang ja` で日本語になります(ラボのコードが独自に出す進行メッセージも含みます。ゲーム内のデータと、ラボが保存して比較する文言は韓国語のままです)。本書では日本語に訳して示し、デバッガーに入力する文字列、バイト単位で見る値、解答コードの文字列リテラルだけは原文の韓国語を残して(　)やコメントで訳を添えています。
 
 # 解答(ネタバレ注意!)
 
@@ -47,7 +47,7 @@
 値の出どころ: n が奇数 → startFireworks(seconds = 5)
 本当の原因:   5, 3, 1, -1, ... と0を飛び越えて終わらない
 ```
-**修正:** `if (n <= 0) return "발사!";`(発射!)
+**修正:** `if (n <= 0) return i18n::L("발사!", "発射!");`
 **教訓:** スタックが同じ関数で埋まっていたら、再帰が終わっていないということです。引数の値の変化を見れば理由がわかります。
 
 ## Lab 6 — 存在しないキーで map::at
@@ -170,7 +170,7 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 
 ## Lab 23 — シールドが壊れるときに残りのダメージが消える
 ```
-間違った結果:   受けたダメージ160、吸収70 + HP減少87 = 157(3が消えた)
+間違った結果:   受けたダメージ160、シールド吸収70 + HP減少87 = 157(3が消えた)
 止めた位置:     条件付きブレークポイント (before.shield - tank.shield) + (before.hp - tank.hp) != damage
 最初にずれた所: シールドが damage より少なく残っていたティック(例: シールド6にダメージ7)
 本当の原因:     takeDamage がシールドを0まで削ってすぐ return → あふれたダメージが HP に行かない
@@ -493,7 +493,7 @@ return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
 void close()
 {
     if (buffer_.size() > freeBytes_)
-        throw SaveError("디스크 공간이 모자란다");   // ディスク容量が足りない
+        throw SaveError(i18n::L("디스크 공간이 모자란다", "ディスク容量が足りない"));
     g_disk[slot_] = buffer_;
     closed_ = true;
 }
@@ -719,7 +719,7 @@ try
 }
 catch (const std::exception& e)
 {
-    std::cout << "  저장 실패: " << e.what() << '\n';   // 保存失敗
+    std::cout << i18n::L("  저장 실패: ", "  保存失敗: ") << e.what() << '\n';
     std::error_code ec;
     fs::remove(temp, ec);            // 失敗した一時ファイルを片付ける
     return false;
@@ -878,7 +878,7 @@ std::weak_ptr<Guild> guild;
 std::string guildNameOf(const Member& member)
 {
     const auto guild = member.guild.lock();
-    return guild ? guild->name : "(없음)";   // (なし)
+    return guild ? guild->name : i18n::L("(없음)", "(なし)");
 }
 ```
 **構成ごと:** 三つの構成すべてで同じように FAIL です。クラッシュも、アサーションも、ASan のレポートもありません(Windows の ASan にはリーク検出器がありません。Linux・macOS の ASan では LeakSanitizer がプログラム終了時にリークを報告することがあります)。第2部ラボ16のように、インスタンス数やデストラクターのブレークポイントで確認します。
@@ -986,7 +986,7 @@ abort 時点の呼び出し履歴:   メインスレッド craftAll → std::fut
 for (std::future<int>& job : jobs)
 {
     try { report.revenue += job.get(); }
-    catch (const std::exception& e) { std::cout << "  제작 실패: " << e.what() << '\n'; ++report.failed; }   // 製作失敗
+    catch (const std::exception& e) { std::cout << i18n::L("  제작 실패: ", "  製作失敗: ") << e.what() << '\n'; ++report.failed; }
 }
 ```
 (`std::async` 自体もスレッドを作れなければ `std::system_error` をスローするので、元の try を残しておいてもかまいません。)

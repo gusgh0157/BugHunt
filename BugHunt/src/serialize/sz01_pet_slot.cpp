@@ -15,7 +15,7 @@ using nlohmann::json;
 std::string petLabel(json& save)
 {
     if (save["pet"].is_null())
-        return "(펫 없음)";
+        return i18n::L("(펫 없음)", "(ペットなし)");
     return save["pet"]["name"].get<std::string>();
 }
 
@@ -37,10 +37,11 @@ void sz01_pet_slot()
     const std::string label = petLabel(save);         // 상태 창을 먼저 그리고
     const bool summon = canSummonPet(save);           // 버튼을 정한다
 
-    std::cout << "  펫 칸: " << label << ", 소환 버튼: " << (summon ? "켬" : "끔") << '\n';
-    std::cout << "  다시 저장한 세이브: " << save.dump() << '\n';
+    std::cout << i18n::L("  펫 칸: ", "  ペット欄: ") << label << i18n::L(", 소환 버튼: ", "、召喚ボタン: ")
+              << (summon ? i18n::L("켬", "オン") : i18n::L("끔", "オフ")) << '\n';
+    std::cout << i18n::L("  다시 저장한 세이브: ", "  保存し直したセーブ: ") << save.dump() << '\n';
 
-    expect("펫 칸", std::string("(펫 없음)"), label);
+    expect("펫 칸", std::string(i18n::L("(펫 없음)", "(ペットなし)")), label);
     expect("소환 버튼", false, summon);
     expect("다시 저장해도 세이브가 그대로인가?", before, save.dump());
 }
@@ -87,7 +88,7 @@ void sz01_pet_slot_hidden()
 
     json noPet = json::parse(R"({"name":"도윤","class":"궁수","quests":[1,2,3]})");
     const size_t keys = noPet.size();
-    expect("펫 없음: 펫 칸", std::string("(펫 없음)"), petLabel(noPet));
+    expect("펫 없음: 펫 칸", std::string(i18n::L("(펫 없음)", "(ペットなし)")), petLabel(noPet));
     expect("펫 없음: 소환 버튼", false, canSummonPet(noPet));
     expect("펫 없음: 키 수가 그대로인가?", keys, noPet.size());
 }

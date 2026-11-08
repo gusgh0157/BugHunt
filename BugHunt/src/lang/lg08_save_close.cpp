@@ -30,7 +30,7 @@ public:
     void write(const std::string& line)
     {
         if (line.empty())
-            throw SaveError("빈 줄은 저장할 수 없다");
+            throw SaveError(i18n::L("빈 줄은 저장할 수 없다", "空の行はセーブできない"));
         buffer_ += line;
         buffer_ += '\n';
     }
@@ -39,7 +39,7 @@ public:
     ~SaveFile()
     {
         if (buffer_.size() > freeBytes_)
-            throw SaveError("디스크 공간이 모자란다");
+            throw SaveError(i18n::L("디스크 공간이 모자란다", "ディスク容量が足りない"));
         g_disk[slot_] = buffer_;
     }
 
@@ -59,10 +59,10 @@ bool saveGame(const std::string& slot, const std::vector<std::string>& lines, st
     }
     catch (const SaveError& e)
     {
-        g_lastMessage = std::string("저장 실패: ") + e.what();
+        g_lastMessage = std::string(i18n::L("저장 실패: ", "セーブ失敗: ")) + e.what();
         return false;
     }
-    g_lastMessage = "저장 완료";
+    g_lastMessage = i18n::L("저장 완료", "セーブ完了");
     return true;
 }
 }
@@ -73,15 +73,15 @@ void lg08_save_close()
     g_disk.clear();
 
     const bool first = saveGame("슬롯 1", { "레벨=12", "골드=340" }, 1024);
-    std::cout << "  슬롯 1 저장 (여유 1024바이트): " << g_lastMessage << '\n';
+    std::cout << i18n::L("  슬롯 1 저장 (여유 1024바이트): ", "  スロット1のセーブ(空き1024バイト): ") << g_lastMessage << '\n';
 
     const bool second = saveGame("슬롯 2", { "레벨=30", "골드=98000", "위치=용의 둥지" }, 16);
-    std::cout << "  슬롯 2 저장 (여유 16바이트): " << g_lastMessage << '\n';
+    std::cout << i18n::L("  슬롯 2 저장 (여유 16바이트): ", "  スロット2のセーブ(空き16バイト): ") << g_lastMessage << '\n';
 
     expect("슬롯 1 저장 성공", true, first);
     expect("슬롯 1 내용", std::string("레벨=12\n골드=340\n"), g_disk["슬롯 1"]);
     expect("슬롯 2 저장 실패를 알림", false, second);
-    expect("실패 메시지", std::string("저장 실패: 디스크 공간이 모자란다"), g_lastMessage);
+    expect("실패 메시지", std::string(i18n::L("저장 실패: 디스크 공간이 모자란다", "セーブ失敗: ディスク容量が足りない")), g_lastMessage);
 }
 
 // ============================================================================
@@ -129,7 +129,7 @@ void lg08_save_close_hidden()
 
     // 빈 줄 때문에 write가 던지고, 스택을 푸는 동안 세이브 파일이 닫힌다 (공간도 모자람)
     expect("숨은 저장: 빈 줄", false, saveGame("B", { "이름=카일", "", "골드=1" }, 4));
-    expect("숨은 저장: 첫 오류 메시지", std::string("저장 실패: 빈 줄은 저장할 수 없다"), g_lastMessage);
+    expect("숨은 저장: 첫 오류 메시지", std::string(i18n::L("저장 실패: 빈 줄은 저장할 수 없다", "セーブ失敗: 空の行はセーブできない")), g_lastMessage);
     expect("숨은 저장: 다시 보통 저장", true, saveGame("C", { "레벨=1" }, 64));
 }
 #pragma endregion

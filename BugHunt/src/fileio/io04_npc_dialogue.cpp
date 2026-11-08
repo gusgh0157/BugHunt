@@ -42,7 +42,7 @@ void io04_npc_dialogue()
 
     const std::vector<std::string> lines = loadDialogue(file);
     for (const std::string& line : lines)
-        std::cout << "  여관 주인: \"" << line << "\"\n";
+        std::cout << i18n::L("  여관 주인: \"", "  宿屋の主人: \"") << line << "\"\n";
 
     expect("첫 대사", std::string("어서 오세요, 모험가님."), lines.at(0));
     expect("마지막 대사", std::string("조심해서 다녀오세요!"), lines.at(2));

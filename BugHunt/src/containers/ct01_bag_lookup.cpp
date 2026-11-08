@@ -22,7 +22,7 @@ int countOf(Bag& bag, const std::string& item)
 void openShop(Bag& bag, const std::vector<std::string>& shelf)
 {
     for (const std::string& item : shelf)
-        std::cout << "  상점: " << item << " (보유 " << countOf(bag, item) << ")\n";
+        std::cout << i18n::L("  상점: ", "  ショップ: ") << item << i18n::L(" (보유 ", " (所持 ") << countOf(bag, item) << ")\n";
 }
 
 bool canLoot(const Bag& bag, const std::string& item)
@@ -37,7 +37,7 @@ void ct01_bag_lookup()
 
     ct1::openShop(bag, { "Healing Potion", "Mana Potion", "Fire Scroll", "Rope" });
 
-    std::cout << "  가방 종류 수: " << bag.size() << " / " << ct1::kMaxKinds << '\n';
+    std::cout << i18n::L("  가방 종류 수: ", "  バッグの種類数: ") << bag.size() << " / " << ct1::kMaxKinds << '\n';
     expect("가방 종류 수", static_cast<size_t>(3), bag.size());
     expect("새 아이템 'Dragon Scale'을 주울 수 있나?", true, ct1::canLoot(bag, "Dragon Scale"));
 }

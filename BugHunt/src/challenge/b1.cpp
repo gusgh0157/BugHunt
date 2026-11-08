@@ -53,7 +53,7 @@ void chB1()
         { "떠돌이 상인", {} },
         { "보석상", { { "루비", 500 } } },
     };
-    std::cout << "  진열대 " << market.size() << "곳 검사\n";
+    std::cout << i18n::L("  진열대 ", "  陳列棚 ") << market.size() << i18n::L("곳 검사\n", "か所を検査\n");
     expect("가격 순으로 정리된 진열대 수", 3, countSortedShelves(market));
 }
 

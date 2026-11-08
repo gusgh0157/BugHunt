@@ -91,7 +91,7 @@ int endTurn(QuestLog& log, const QuestBook& book, const std::set<std::string>& a
 void print(const QuestLog& log)
 {
     for (const Quest& q : log.entries())
-        std::cout << "  " << (q.done ? "[완료] " : "[진행] ") << q.name << '\n';
+        std::cout << "  " << (q.done ? i18n::L("[완료] ", "[完了] ") : i18n::L("[진행] ", "[進行中] ")) << q.name << '\n';
 }
 
 const QuestBook kBook = { {

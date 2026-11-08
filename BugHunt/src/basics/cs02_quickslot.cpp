@@ -26,7 +26,7 @@ private:
 
 void useItem(const std::string& item)
 {
-    std::cout << "  사용: " << item << '\n';
+    std::cout << i18n::L("  사용: ", "  使用: ") << item << '\n';
 }
 
 void onNumberKey(const QuickSlotBar& bar, int key)
@@ -46,7 +46,7 @@ void replayInput()
 
 void cs02_quickslot()
 {
-    std::cout << "  (기대 출력: Healing Potion, Fire Scroll, Mana Potion, Return Scroll)\n";
+    std::cout << i18n::L("  (기대 출력: Healing Potion, Fire Scroll, Mana Potion, Return Scroll)\n", "  (期待される出力: Healing Potion, Fire Scroll, Mana Potion, Return Scroll)\n");
     lab2::replayInput();
 }
 

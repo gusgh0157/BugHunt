@@ -1046,7 +1046,7 @@ CPU 샘플링 프로파일러는 프로그램을 디버거 없이 돌리면서 "
 - `grade.sh Debug 70`: 랩 70만 채점합니다. `grade.sh Debug C-1`처럼 챌린지 하나만 채점할 수도 있습니다.
 - `grade.sh Debug labs`: 기본 랩 98개만, `grade.sh Debug challenges`: 챌린지 11개만 채점합니다.
 - 이미 빌드했다면 `bin/Debug/BugHunt --grade`(Windows는 `bin\Debug\BugHunt.exe --grade`)로 바로 실행해도 됩니다. `--grade 70`, `--grade C-1`, `--grade challenges`도 됩니다. IDE에서 빌드했다면 그 실행 파일에 `--grade`를 주면 됩니다.
-- 출력 언어: `--lang ja` 또는 `--lang ko`를 붙입니다(예: `bin/Debug/BugHunt --lang ja --grade`). 붙이지 않으면 환경 변수 `BUGHUNT_LANG`(예: `BUGHUNT_LANG=ja ./grade.sh`, Windows는 `set BUGHUNT_LANG=ja` 뒤 `grade.bat`), 그다음 운영체제의 표시 언어를 따르고, 기본은 한국어입니다. 메뉴, 랩 제목과 증상, `[PASS]`/`[FAIL]` 줄의 설명, 채점기 메시지가 바뀌고, 랩 코드가 따로 출력하는 진행 문구는 한국어 그대로입니다. `grade-report.json`은 키와 `result` 값이 언어와 상관없이 같고 `title`과 `detail`만 고른 언어로 나옵니다.
+- 출력 언어: `--lang ja` 또는 `--lang ko`를 붙입니다(예: `bin/Debug/BugHunt --lang ja --grade`). 붙이지 않으면 환경 변수 `BUGHUNT_LANG`(예: `BUGHUNT_LANG=ja ./grade.sh`, Windows는 `set BUGHUNT_LANG=ja` 뒤 `grade.bat`), 그다음 운영체제의 표시 언어를 따르고, 기본은 한국어입니다. 메뉴, 랩 제목과 증상, `[PASS]`/`[FAIL]` 줄의 설명, 채점기 메시지, 랩 코드가 따로 출력하는 진행 문구와 예외 메시지가 바뀝니다. 게임 안의 데이터(캐릭터·아이템 이름, 파일 내용 등)와 랩이 저장해 두고 비교하는 문구는 한국어 그대로입니다. `grade-report.json`은 키와 `result` 값이 언어와 상관없이 같고 `title`과 `detail`만 고른 언어로 나옵니다.
 
 ```
    #  부  결과       시간  랩
@@ -1141,7 +1141,7 @@ CPU 샘플링 프로파일러는 프로그램을 디버거 없이 돌리면서 "
 <details>
 <summary><b>日本語</b></summary>
 
-プログラムの実行出力は `--lang ja` で日本語になります(「採点」の節を参照。ラボのコードが独自に出す進行メッセージとゲーム内のデータは韓国語のままです)。本書では日本語に訳して示し、デバッガーに入力する文字列とバイト単位で見る値だけは原文の韓国語のまま残し、括弧内に訳を添えています。
+プログラムの実行出力は `--lang ja` で日本語になります(「採点」の節を参照。ラボのコードが独自に出す進行メッセージも含みます。ゲーム内のデータと、ラボが保存して比較する文言は韓国語のままです)。本書では日本語に訳して示し、デバッガーに入力する文字列とバイト単位で見る値だけは原文の韓国語のまま残し、括弧内に訳を添えています。
 
 バグが **わざと仕込まれた** 小さなゲームコードの集まりです。
 
@@ -1712,7 +1712,7 @@ MSVC の Debug 構成は独自にメモリを埋めます。Visual Studio で Bu
 
 ## やってみよう: ラボ57 (スコアボード)
 
-1. ラボ57を実行します。ランキングに `4位 ドユン 7100` がもう一度出て、`[FAIL] ランキングの行数 (期待: 3, 実際: 4)`。
+1. ラボ57を実行します。ランキングに `4位 도윤 7100` がもう一度出て、`[FAIL] ランキングの行数 (期待: 3, 実際: 4)`。
 2. **期待を書きます。** ファイルは3行。ループは3周して、4回目の条件チェックで終わるはずです。
 3. `loadScores` の `scores.push_back` の行にブレークポイントを置き、**条件付きブレークポイント** にします。条件: `scores.size() == 3`。
 4. 実行すると、4件目を入れようとした瞬間に止まります。ウォッチに `in.eof()`、`in.fail()`、`name`、`points` を入れます。
@@ -2150,7 +2150,7 @@ CPU サンプリング プロファイラーは、プログラムをデバッガ
 | # | 症状 | ファイル |
 |---|---|---|
 | C-1 | 落札者と金貨がおかしな形で精算される | `src/challenge/c1_*` |
-| C-2 | 無被弾連続撃破の称号がもらえない | `src/challenge/c2_*` |
+| C-2 | ノーダメージ連続撃破の称号がもらえない | `src/challenge/c2_*` |
 | C-3 | 復活すると与えるダメージが減る | `src/challenge/c3_*` |
 
 ## ブラインド (B-1 ~ B-8)
@@ -2184,7 +2184,7 @@ CPU サンプリング プロファイラーは、プログラムをデバッガ
 - `grade.sh Debug 70`: ラボ 70 だけを採点します。`grade.sh Debug C-1` のようにチャレンジを 1 つだけ採点することもできます。
 - `grade.sh Debug labs`: 基本ラボ 98 個だけ、`grade.sh Debug challenges`: チャレンジ 11 個だけを採点します。
 - すでにビルドしてあれば、`bin/Debug/BugHunt --grade`(Windows は `bin\Debug\BugHunt.exe --grade`)で直接実行してもかまいません。`--grade 70`、`--grade C-1`、`--grade challenges` も使えます。IDE でビルドした場合は、その実行ファイルに `--grade` を渡せば OK です。
-- 出力言語: `--lang ja` または `--lang ko` を付けます(例: `bin/Debug/BugHunt --lang ja --grade`)。付けなければ環境変数 `BUGHUNT_LANG`(例: `BUGHUNT_LANG=ja ./grade.sh`、Windows は `set BUGHUNT_LANG=ja` の後に `grade.bat`)、次に OS の表示言語に従い、既定は韓国語です。メニュー、ラボのタイトルと症状、`[PASS]`/`[FAIL]` 行の説明、採点器のメッセージが切り替わり、ラボのコードが独自に出力する進行メッセージは韓国語のままです。`grade-report.json` はキーと `result` の値が言語に関係なく同じで、`title` と `detail` だけが選んだ言語になります。
+- 出力言語: `--lang ja` または `--lang ko` を付けます(例: `bin/Debug/BugHunt --lang ja --grade`)。付けなければ環境変数 `BUGHUNT_LANG`(例: `BUGHUNT_LANG=ja ./grade.sh`、Windows は `set BUGHUNT_LANG=ja` の後に `grade.bat`)、次に OS の表示言語に従い、既定は韓国語です。メニュー、ラボのタイトルと症状、`[PASS]`/`[FAIL]` 行の説明、採点器のメッセージ、ラボのコードが独自に出力する進行メッセージと例外メッセージが切り替わります。ゲーム内のデータ(キャラクター・アイテムの名前、ファイルの内容など)と、ラボが保存して比較する文言は韓国語のままです。`grade-report.json` はキーと `result` の値が言語に関係なく同じで、`title` と `detail` だけが選んだ言語になります。
 
 ```
    #  部  結果       時間  ラボ

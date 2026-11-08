@@ -57,7 +57,7 @@ void io05_reward_table()
     iokit::writeBytes(file, "101 102 103\n보상\n50 75 120\n");
 
     const RewardTable table = loadRewards(file);
-    std::cout << "  몬스터 " << table.monsterIds.size() << "종, 보상 " << table.gold.size() << "개\n";
+    std::cout << i18n::L("  몬스터 ", "  モンスター") << table.monsterIds.size() << i18n::L("종, 보상 ", "種、報酬") << table.gold.size() << i18n::L("개\n", "個\n");
 
     expect("보상 개수", static_cast<size_t>(3), table.gold.size());
     expect("102번 몬스터 보상", 75, goldFor(table, 102));

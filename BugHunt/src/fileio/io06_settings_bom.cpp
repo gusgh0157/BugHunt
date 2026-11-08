@@ -44,7 +44,7 @@ void io06_settings_bom()
     iokit::writeBytes(file, "\xEF\xBB\xBF" "volume=30\nfullscreen=1\nlanguage=ko\n");
 
     const auto settings = loadSettings(file);
-    std::cout << "  읽은 설정 " << settings.size() << "개\n";
+    std::cout << i18n::L("  읽은 설정 ", "  読み込んだ設定") << settings.size() << i18n::L("개\n", "個\n");
 
     expect("음량", 30, getInt(settings, "volume", 80));
     expect("전체 화면", 1, getInt(settings, "fullscreen", 0));

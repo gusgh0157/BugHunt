@@ -50,7 +50,7 @@ int partyAttack(const Hero* heroes, int count)
     for (int i = 0; i < count; ++i)
     {
         const int power = heroes[i].attackPower();
-        std::cout << "  " << heroes[i].name() << ": 공격력 " << power << '\n';
+        std::cout << "  " << heroes[i].name() << i18n::L(": 공격력 ", ": 攻撃力 ") << power << '\n';
         total += power;
     }
     return total;

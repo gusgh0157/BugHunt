@@ -56,7 +56,7 @@ void ct07_season_ranking()
     season.recordMatch(&doran, 800);    // 도란이 대회에서 우승했다 → 1700
     season.recordMatch(&mira, -50);
 
-    std::cout << "  1위: " << season.top()->name << " " << season.top()->score << '\n';
+    std::cout << i18n::L("  1위: ", "  1位: ") << season.top()->name << " " << season.top()->score << '\n';
     expect("1위", std::string("Doran"), season.top()->name);
 
     const bool left = season.leave(&selene);

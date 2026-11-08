@@ -79,9 +79,9 @@ void chC2_raid_night()
 
     for (const std::string& line : log.lines())
         std::cout << "  " << line << '\n';
-    std::cout << "  의뢰 \"" << quest.title() << "\": " << (quest.done() ? "완료" : "진행 중") << '\n';
-    std::cout << "  전리품 상자 " << loot.chests() << "개, 최고 무피격 연속 처치 " << tracker.bestStreak() << '\n';
-    std::cout << "  칭호:";
+    std::cout << i18n::L("  의뢰 \"", "  依頼 \"") << quest.title() << "\": " << (quest.done() ? i18n::L("완료", "完了") : i18n::L("진행 중", "進行中")) << '\n';
+    std::cout << i18n::L("  전리품 상자 ", "  戦利品の箱 ") << loot.chests() << i18n::L("개, 최고 무피격 연속 처치 ", "個、最高ノーダメージ連続撃破 ") << tracker.bestStreak() << '\n';
+    std::cout << i18n::L("  칭호:", "  称号:");
     for (const std::string& t : titles.titles())
         std::cout << ' ' << t;
     std::cout << '\n';

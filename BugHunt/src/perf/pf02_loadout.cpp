@@ -86,7 +86,8 @@ void pf02_loadout()
     perf2::g_itemCopies = 0;
     const perf::Stopwatch sw;
     const perf2::HudResult hud = perf2::drawHud(inventory, 600);
-    std::cout << "  HUD 600프레임: " << sw.ms() << " ms, Item 복사 " << perf2::g_itemCopies << "번\n";
+    std::cout << i18n::L("  HUD 600프레임: ", "  HUD 600フレーム: ") << sw.ms() << i18n::L(" ms, Item 복사 ", " ms、Item のコピー ") << perf2::g_itemCopies
+              << i18n::L("번\n", "回\n");
 
     expect("무게 합", 1432, hud.weight);
     expect("가장 무거운 장비", std::string("Item13"), hud.heaviest);

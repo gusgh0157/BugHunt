@@ -34,7 +34,7 @@ void ct04_repair_shop()
 
     ct4::discardBroken(bag);
 
-    std::cout << "  가방:";
+    std::cout << i18n::L("  가방:", "  バッグ:");
     for (const ct4::Gear& g : bag)
         std::cout << ' ' << g.name << '(' << g.durability << ')';
     std::cout << '\n';

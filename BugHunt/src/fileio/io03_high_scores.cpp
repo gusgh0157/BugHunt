@@ -49,7 +49,7 @@ void io03_high_scores()
 
     const std::vector<Score> scores = loadScores(file);
     for (size_t i = 0; i < scores.size(); ++i)
-        std::cout << "  " << (i + 1) << "위 " << scores[i].name << " " << scores[i].points << '\n';
+        std::cout << "  " << (i + 1) << i18n::L("위 ", "位 ") << scores[i].name << " " << scores[i].points << '\n';
 
     expect("순위표 줄 수", static_cast<size_t>(3), scores.size());
     expect("총점", 25000, total(scores));

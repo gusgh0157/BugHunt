@@ -58,8 +58,8 @@ void chB6()
     const auto logins = blind6::makeLogins(20000, 6000);
     g_compares = 0;
     const auto unique = uniquePlayers(logins);
-    std::cout << "  접속 기록 " << logins.size() << "건, 서로 다른 플레이어 " << unique.size() << "명, 비교 " << g_compares
-              << "번\n";
+    std::cout << i18n::L("  접속 기록 ", "  ログイン記録 ") << logins.size() << i18n::L("건, 서로 다른 플레이어 ", "件、異なるプレイヤー ")
+              << unique.size() << i18n::L("명, 비교 ", "人、比較 ") << g_compares << i18n::L("번\n", "回\n");
     expect("서로 다른 플레이어 수", static_cast<size_t>(6000), unique.size());
     expect("PlayerId 비교가 기록 수의 4배 이하인가?", true, g_compares <= 4LL * static_cast<long long>(logins.size()));
 }

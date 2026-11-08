@@ -93,9 +93,9 @@ void pt02_bounty()
 
     ptr2::Hunter hunter;
     ptr2::hunt(field, hunter, "Goblin", 25);
-    std::cout << "  고블린 처치 후 골드: " << hunter.gold << '\n';
+    std::cout << i18n::L("  고블린 처치 후 골드: ", "  ゴブリン討伐後のゴールド: ") << hunter.gold << '\n';
     ptr2::hunt(field, hunter, "Wolf", 25);
-    std::cout << "  늑대 처치 후 골드: " << hunter.gold << '\n';
+    std::cout << i18n::L("  늑대 처치 후 골드: ", "  オオカミ討伐後のゴールド: ") << hunter.gold << '\n';
 
     expect("현상금 합계 (150 + 80)", 230, hunter.gold);
 }

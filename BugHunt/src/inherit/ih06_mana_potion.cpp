@@ -76,8 +76,8 @@ void ih06_mana_potion()
     party.push_back(std::make_unique<Mage>("보람", 85));
 
     const int used = drinkManaPotions(party, 30);
-    std::cout << "  물약 " << used << "개 사용, 아린 마나 " << manaOf(party, "아린")
-              << ", 보람 마나 " << manaOf(party, "보람") << '\n';
+    std::cout << i18n::L("  물약 ", "  ポーション") << used << i18n::L("개 사용, 아린 마나 ", "個使用、아린のマナ") << manaOf(party, "아린")
+              << i18n::L(", 보람 마나 ", "、보람のマナ") << manaOf(party, "보람") << '\n';
 
     expect("사용한 물약", 2, used);
     expect("아린 마나", 70, manaOf(party, "아린"));

@@ -9,7 +9,7 @@ namespace lab5
 std::string countdown(int n)
 {
     if (n == 0)
-        return "발사!";
+        return i18n::L("발사!", "発射!");
     return std::to_string(n) + " " + countdown(n - 2);
 }
 

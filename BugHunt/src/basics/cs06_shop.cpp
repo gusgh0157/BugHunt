@@ -37,7 +37,7 @@ void checkout()
         "mana_poiton",
         "oak_shield",
     };
-    std::cout << "  합계: " << cartTotal(cart) << " 골드\n";
+    std::cout << i18n::L("  합계: ", "  合計: ") << cartTotal(cart) << i18n::L(" 골드\n", " ゴールド\n");
 }
 }
 

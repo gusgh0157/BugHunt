@@ -20,28 +20,28 @@ const std::string& leaderOf(const Party& party)
 
 void printPartyBoard(const std::vector<Party>& parties)
 {
-    std::cout << "  [파티 게시판]\n";
+    std::cout << i18n::L("  [파티 게시판]\n", "  [パーティー掲示板]\n");
     for (const Party& party : parties)
     {
         if (party.members.empty())
         {
-            std::cout << "    " << party.name << " (빈 파티)\n";
+            std::cout << "    " << party.name << i18n::L(" (빈 파티)\n", " (空のパーティー)\n");
             continue;
         }
-        std::cout << "    " << party.name << " - 파티장 " << leaderOf(party) << '\n';
+        std::cout << "    " << party.name << i18n::L(" - 파티장 ", " - リーダー ") << leaderOf(party) << '\n';
     }
 }
 
 void sendRaidReminders(const std::vector<Party>& parties)
 {
-    std::cout << "  [레이드 알림]\n";
+    std::cout << i18n::L("  [레이드 알림]\n", "  [レイド通知]\n");
     for (const Party& party : parties)
-        std::cout << "    " << leaderOf(party) << "님, 20시 레이드를 잊지 마세요!\n";
+        std::cout << "    " << leaderOf(party) << i18n::L("님, 20시 레이드를 잊지 마세요!\n", "さん、20時のレイドを忘れないでください!\n");
 }
 
 void showWelcome(const Party& myParty)
 {
-    std::cout << "  환영합니다! 우리 파티장: " << leaderOf(myParty) << '\n';
+    std::cout << i18n::L("  환영합니다! 우리 파티장: ", "  ようこそ! うちのパーティーのリーダー: ") << leaderOf(myParty) << '\n';
 }
 
 void runPartyScreen()
