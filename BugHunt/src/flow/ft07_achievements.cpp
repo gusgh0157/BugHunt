@@ -37,17 +37,17 @@ bool unlock(Player& p, const std::string& id)
 
 bool checkKillAchievements(Player& p)
 {
-    return p.wolfKills >= 100 && unlock(p, "늑대 사냥꾼");
+    return p.wolfKills >= 100 && unlock(p, i18n::L("늑대 사냥꾼", "オオカミハンター"));
 }
 
 bool checkGoldAchievements(Player& p)
 {
-    return p.gold >= 10000 && unlock(p, "부자");
+    return p.gold >= 10000 && unlock(p, i18n::L("부자", "金持ち"));
 }
 
 bool checkLevelAchievements(Player& p)
 {
-    return p.level >= 10 && unlock(p, "베테랑");
+    return p.level >= 10 && unlock(p, i18n::L("베테랑", "ベテラン"));
 }
 
 // 업적을 모두 검사하고, 하나라도 새로 열렸으면 축하 효과를 보여 준다.
@@ -74,7 +74,7 @@ void ft07_achievements()
     flow7::onBattleEnd(player);
 
     expect("해금된 업적 수", 2, static_cast<int>(player.achievements.size()));
-    expect("'베테랑' 업적", true, player.has("베테랑"));
+    expect("'베테랑' 업적", true, player.has(i18n::L("베테랑", "ベテラン")));
 }
 
 // ============================================================================
@@ -118,7 +118,7 @@ void ft07_achievements_hidden()
     flow7::onBattleEnd(player);
 
     expect("해금된 업적 수", 2, static_cast<int>(player.achievements.size()));
-    expect("'부자' 업적", true, player.has("부자"));
-    expect("'베테랑' 업적", true, player.has("베테랑"));
+    expect("'부자' 업적", true, player.has(i18n::L("부자", "金持ち")));
+    expect("'베테랑' 업적", true, player.has(i18n::L("베테랑", "ベテラン")));
 }
 #pragma endregion

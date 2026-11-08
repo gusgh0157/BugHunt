@@ -63,10 +63,10 @@ void io01_patch_prices()
 
     // 설치된 게임: 패치된 가격표
     g_gameDir = lab / "game";
-    iokit::writeBytes(g_gameDir / "data/prices.txt", "포션 120\n해독제 80\n귀환서 300\n");
+    iokit::writeBytes(g_gameDir / "data/prices.txt", i18n::L("포션 120\n해독제 80\n귀환서 300\n", "ポーション 120\n解毒剤 80\n帰還の書 300\n"));
     // 개발자가 IDE에서 실행할 때의 작업 디렉터리: 예전에 복사해 둔 가격표가 남아 있다
     const fs::path workspace = lab / "workspace";
-    iokit::writeBytes(workspace / "data/prices.txt", "포션 100\n해독제 80\n");
+    iokit::writeBytes(workspace / "data/prices.txt", i18n::L("포션 100\n해독제 80\n", "ポーション 100\n解毒剤 80\n"));
 
     // IDE, 바로 가기, 다른 프로그램이 게임을 띄우면 작업 디렉터리는 실행 파일 폴더와 다를 수 있다.
     std::vector<Item> items;
@@ -79,8 +79,8 @@ void io01_patch_prices()
     for (const Item& item : items)
         std::cout << "    " << item.name << " " << item.price << "G\n";
 
-    expect("포션 가격", 120, priceOf(items, "포션"));
-    expect("귀환서 가격", 300, priceOf(items, "귀환서"));
+    expect("포션 가격", 120, priceOf(items, i18n::L("포션", "ポーション")));
+    expect("귀환서 가격", 300, priceOf(items, i18n::L("귀환서", "帰還の書")));
 }
 
 // ============================================================================
@@ -123,7 +123,7 @@ void io01_patch_prices_hidden()
 
     iokit::LabDir lab("io01_patch_prices_hidden");
     g_gameDir = lab / "Program Files" / "Dragon Inn";
-    iokit::writeBytes(g_gameDir / "data/prices.txt", "횃불 15\n밧줄 40\n포션 135\n");
+    iokit::writeBytes(g_gameDir / "data/prices.txt", i18n::L("횃불 15\n밧줄 40\n포션 135\n", "たいまつ 15\nロープ 40\nポーション 135\n"));
     const fs::path desktop = lab / "desktop";       // 데이터 폴더가 아예 없는 곳에서 실행
     fs::create_directories(desktop);
 
@@ -133,7 +133,7 @@ void io01_patch_prices_hidden()
         items = loadPrices();
     }
     expect("숨은 가격표: 품목 수", static_cast<size_t>(3), items.size());
-    expect("숨은 가격표: 밧줄", 40, priceOf(items, "밧줄"));
-    expect("숨은 가격표: 포션", 135, priceOf(items, "포션"));
+    expect("숨은 가격표: 밧줄", 40, priceOf(items, i18n::L("밧줄", "ロープ")));
+    expect("숨은 가격표: 포션", 135, priceOf(items, i18n::L("포션", "ポーション")));
 }
 #pragma endregion

@@ -52,11 +52,11 @@ void ft09_member_ids()
     // 세이브에서 불러온 길드: 지금까지 1007번까지 발급했다.
     Guild guild;
     guild.lastId = 1007;
-    guild.members = { { 1001, "아린" }, { 1004, "보람" }, { 1007, "도윤" } };
+    guild.members = { { 1001, i18n::L("아린", "アリン") }, { 1004, i18n::L("보람", "ボラム") }, { 1007, i18n::L("도윤", "ドユン") } };
 
-    join(guild, "새봄");
-    join(guild, "가온");
-    join(guild, "하람");
+    join(guild, i18n::L("새봄", "セボム"));
+    join(guild, i18n::L("가온", "ガオン"));
+    join(guild, i18n::L("하람", "ハラム"));
 
     for (const Member& m : guild.members)
         std::cout << "  " << m.id << "  " << m.name << '\n';
@@ -106,8 +106,8 @@ void ft09_member_ids_hidden()
 
     Guild guild;
     guild.lastId = 52;
-    guild.members = { { 52, "창립자" } };
-    for (const char* name : { "가", "나", "다", "라" })
+    guild.members = { { 52, i18n::L("창립자", "創設者") } };
+    for (const char* name : { i18n::L("가", "ア"), i18n::L("나", "イ"), i18n::L("다", "ウ"), i18n::L("라", "エ") })
     {
         join(guild, name);
         expect("발급한 번호 == lastId", guild.lastId, guild.members.back().id);
@@ -116,7 +116,7 @@ void ft09_member_ids_hidden()
     expect("숨은 길드: 첫 신입 번호", 53, guild.members[1].id);
 
     Guild fresh;                      // 아무도 없는 새 길드: 첫 번호는 1
-    join(fresh, "첫 회원");
+    join(fresh, i18n::L("첫 회원", "最初の会員"));
     expect("새 길드: 첫 번호", 1, fresh.members[0].id);
 }
 #pragma endregion

@@ -35,7 +35,7 @@ double withShipping(const std::vector<Order>& cart)
 void chB7()
 {
     using namespace blind7;
-    const std::vector<Order> cart = { { "회복약", 2.5 }, { "화살 묶음", 3.75 }, { "횃불", 1.25 }, { "밧줄", 2.5 } };
+    const std::vector<Order> cart = { { i18n::L("회복약", "回復薬"), 2.5 }, { i18n::L("화살 묶음", "矢の束"), 3.75 }, { i18n::L("횃불", "たいまつ"), 1.25 }, { i18n::L("밧줄", "ロープ"), 2.5 } };
     std::cout << i18n::L("  장바구니 ", "  カート ") << cart.size() << i18n::L("개\n", "個\n");
     expect("결제 금액 (10금화, 무료 배송)", 10.0, withShipping(cart));
 }

@@ -21,7 +21,7 @@ std::vector<Unit> spawnWave(std::vector<Unit> wave)
     for (const Unit& u : wave)
     {
         for (int i = 0; i < u.summons; ++i)
-            wave.push_back({ u.name + "의 부하", 0 });
+            wave.push_back({ u.name + i18n::L("의 부하", "の手下"), 0 });
     }
     return wave;
 }
@@ -30,11 +30,11 @@ std::vector<Unit> spawnWave(std::vector<Unit> wave)
 void chB5()
 {
     using namespace blind5;
-    const auto wave = spawnWave({ { "해골 병사", 0 }, { "강령술사", 2 }, { "해골 궁수", 0 } });
+    const auto wave = spawnWave({ { i18n::L("해골 병사", "骸骨兵"), 0 }, { i18n::L("강령술사", "ネクロマンサー"), 2 }, { i18n::L("해골 궁수", "骸骨弓兵"), 0 } });
     for (const Unit& u : wave)
         std::cout << "  " << u.name << '\n';
     expect("전체 유닛 수", static_cast<size_t>(5), wave.size());
-    expect("마지막 유닛", std::string("강령술사의 부하"), wave.back().name);
+    expect("마지막 유닛", std::string(i18n::L("강령술사의 부하", "ネクロマンサーの手下")), wave.back().name);
 }
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
@@ -43,8 +43,8 @@ void chB5_hidden()
     using namespace blind5;
     const auto wave = spawnWave({ { "A", 1 }, { "B", 0 }, { "C", 3 } });
     expect("전체 유닛 수", static_cast<size_t>(7), wave.size());
-    expect("넷째", std::string("A의 부하"), wave.at(3).name);
-    expect("마지막", std::string("C의 부하"), wave.back().name);
+    expect("넷째", std::string(i18n::L("A의 부하", "Aの手下")), wave.at(3).name);
+    expect("마지막", std::string(i18n::L("C의 부하", "Cの手下")), wave.back().name);
     expect("빈 웨이브", static_cast<size_t>(0), spawnWave({}).size());
 }
 #pragma endregion

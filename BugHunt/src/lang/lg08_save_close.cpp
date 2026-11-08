@@ -72,14 +72,14 @@ void lg08_save_close()
     using namespace lang8;
     g_disk.clear();
 
-    const bool first = saveGame("슬롯 1", { "레벨=12", "골드=340" }, 1024);
+    const bool first = saveGame(i18n::L("슬롯 1", "スロット1"), { i18n::L("레벨=12", "レベル=12"), i18n::L("골드=340", "ゴールド=340") }, 1024);
     std::cout << i18n::L("  슬롯 1 저장 (여유 1024바이트): ", "  スロット1のセーブ(空き1024バイト): ") << g_lastMessage << '\n';
 
-    const bool second = saveGame("슬롯 2", { "레벨=30", "골드=98000", "위치=용의 둥지" }, 16);
+    const bool second = saveGame(i18n::L("슬롯 2", "スロット2"), { i18n::L("레벨=30", "レベル=30"), i18n::L("골드=98000", "ゴールド=98000"), i18n::L("위치=용의 둥지", "位置=竜の巣") }, 16);
     std::cout << i18n::L("  슬롯 2 저장 (여유 16바이트): ", "  スロット2のセーブ(空き16バイト): ") << g_lastMessage << '\n';
 
     expect("슬롯 1 저장 성공", true, first);
-    expect("슬롯 1 내용", std::string("레벨=12\n골드=340\n"), g_disk["슬롯 1"]);
+    expect("슬롯 1 내용", std::string(i18n::L("레벨=12\n골드=340\n", "レベル=12\nゴールド=340\n")), g_disk[i18n::L("슬롯 1", "スロット1")]);
     expect("슬롯 2 저장 실패를 알림", false, second);
     expect("실패 메시지", std::string(i18n::L("저장 실패: 디스크 공간이 모자란다", "セーブ失敗: ディスク容量が足りない")), g_lastMessage);
 }
@@ -123,13 +123,13 @@ void lg08_save_close_hidden()
     using namespace lang8;
     g_disk.clear();
 
-    expect("숨은 저장: 보통 저장", true, saveGame("A", { "직업=도적" }, 64));
-    expect("숨은 저장: 공간 부족", false, saveGame("A", { "직업=성기사", "칭호=빛의 수호자" }, 20));
-    expect("숨은 저장: 실패한 저장은 이전 내용을 지키는가?", std::string("직업=도적\n"), g_disk["A"]);
+    expect("숨은 저장: 보통 저장", true, saveGame("A", { i18n::L("직업=도적", "職業=盗賊") }, 64));
+    expect("숨은 저장: 공간 부족", false, saveGame("A", { i18n::L("직업=성기사", "職業=聖騎士"), i18n::L("칭호=빛의 수호자", "称号=光の守護者") }, 20));
+    expect("숨은 저장: 실패한 저장은 이전 내용을 지키는가?", std::string(i18n::L("직업=도적\n", "職業=盗賊\n")), g_disk["A"]);
 
     // 빈 줄 때문에 write가 던지고, 스택을 푸는 동안 세이브 파일이 닫힌다 (공간도 모자람)
-    expect("숨은 저장: 빈 줄", false, saveGame("B", { "이름=카일", "", "골드=1" }, 4));
+    expect("숨은 저장: 빈 줄", false, saveGame("B", { i18n::L("이름=카일", "名前=カイル"), "", i18n::L("골드=1", "ゴールド=1") }, 4));
     expect("숨은 저장: 첫 오류 메시지", std::string(i18n::L("저장 실패: 빈 줄은 저장할 수 없다", "セーブ失敗: 空の行はセーブできない")), g_lastMessage);
-    expect("숨은 저장: 다시 보통 저장", true, saveGame("C", { "레벨=1" }, 64));
+    expect("숨은 저장: 다시 보통 저장", true, saveGame("C", { i18n::L("레벨=1", "レベル=1") }, 64));
 }
 #pragma endregion

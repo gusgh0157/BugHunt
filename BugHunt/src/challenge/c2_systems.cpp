@@ -5,7 +5,7 @@ namespace chal2
 {
 CombatLog::CombatLog(EventBus& bus)
 {
-    bus.subscribe("전투 기록", [this](const Event& e) {
+    bus.subscribe(i18n::L("전투 기록", "戦闘記録"), [this](const Event& e) {
         switch (e.type)
         {
         case EventType::MonsterKilled:
@@ -25,7 +25,7 @@ CombatLog::CombatLog(EventBus& bus)
 HuntQuest::HuntQuest(EventBus& bus, std::string title, std::string target, int count)
     : bus_(bus), title_(std::move(title)), target_(std::move(target)), count_(count)
 {
-    sub_ = bus_.subscribe("의뢰: " + title_, [this](const Event& e) {
+    sub_ = bus_.subscribe(i18n::L("의뢰: ", "依頼: ") + title_, [this](const Event& e) {
         if (e.type != EventType::MonsterKilled || e.monster != target_ || done_)
             return;
         ++progress_;
@@ -39,7 +39,7 @@ HuntQuest::HuntQuest(EventBus& bus, std::string title, std::string target, int c
 
 AchievementTracker::AchievementTracker(EventBus& bus)
 {
-    bus.subscribe("업적 추적", [this](const Event& e) {
+    bus.subscribe(i18n::L("업적 추적", "実績トラッカー"), [this](const Event& e) {
         if (e.type == EventType::MonsterKilled)
         {
             ++kills_[e.monster];
@@ -71,7 +71,7 @@ int AchievementTracker::totalKills() const
 
 LootSystem::LootSystem(EventBus& bus)
 {
-    bus.subscribe("전리품", [this](const Event& e) {
+    bus.subscribe(i18n::L("전리품", "戦利品"), [this](const Event& e) {
         if (e.type == EventType::MonsterKilled)
             ++chests_;
     });
@@ -79,7 +79,7 @@ LootSystem::LootSystem(EventBus& bus)
 
 TitleSystem::TitleSystem(EventBus& bus, const AchievementTracker& tracker) : tracker_(tracker)
 {
-    bus.subscribe("칭호", [this](const Event& e) {
+    bus.subscribe(i18n::L("칭호", "称号"), [this](const Event& e) {
         if (e.type == EventType::RaidEnd)
             award();
     });
@@ -88,8 +88,8 @@ TitleSystem::TitleSystem(EventBus& bus, const AchievementTracker& tracker) : tra
 void TitleSystem::award()
 {
     if (tracker_.bestStreak() >= kShadowStreak)
-        titles_.push_back("그림자");
-    if (tracker_.killsOf("늑대") >= kWolfSlayer)
-        titles_.push_back("늑대 사냥꾼");
+        titles_.push_back(i18n::L("그림자", "影"));
+    if (tracker_.killsOf(i18n::L("늑대", "オオカミ")) >= kWolfSlayer)
+        titles_.push_back(i18n::L("늑대 사냥꾼", "オオカミハンター"));
 }
 }

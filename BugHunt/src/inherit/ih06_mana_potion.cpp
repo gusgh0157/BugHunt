@@ -71,17 +71,17 @@ void ih06_mana_potion()
     using namespace inh6;
 
     Party party;
-    party.push_back(std::make_unique<Mage>("아린", 40));
-    party.push_back(std::make_unique<Warrior>("도윤"));
-    party.push_back(std::make_unique<Mage>("보람", 85));
+    party.push_back(std::make_unique<Mage>(i18n::L("아린", "アリン"), 40));
+    party.push_back(std::make_unique<Warrior>(i18n::L("도윤", "ドユン")));
+    party.push_back(std::make_unique<Mage>(i18n::L("보람", "ボラム"), 85));
 
     const int used = drinkManaPotions(party, 30);
-    std::cout << i18n::L("  물약 ", "  ポーション") << used << i18n::L("개 사용, 아린 마나 ", "個使用、아린のマナ") << manaOf(party, "아린")
-              << i18n::L(", 보람 마나 ", "、보람のマナ") << manaOf(party, "보람") << '\n';
+    std::cout << i18n::L("  물약 ", "  ポーション") << used << i18n::L("개 사용, 아린 마나 ", "個使用、アリンのマナ") << manaOf(party, i18n::L("아린", "アリン"))
+              << i18n::L(", 보람 마나 ", "、ボラムのマナ") << manaOf(party, i18n::L("보람", "ボラム")) << '\n';
 
     expect("사용한 물약", 2, used);
-    expect("아린 마나", 70, manaOf(party, "아린"));
-    expect("보람 마나 (최대 100)", 100, manaOf(party, "보람"));
+    expect("아린 마나", 70, manaOf(party, i18n::L("아린", "アリン")));
+    expect("보람 마나 (최대 100)", 100, manaOf(party, i18n::L("보람", "ボラム")));
 }
 
 // ============================================================================
@@ -121,14 +121,14 @@ void ih06_mana_potion_hidden()
     using namespace inh6;
 
     Party warriors;
-    warriors.push_back(std::make_unique<Warrior>("가"));
-    warriors.push_back(std::make_unique<Warrior>("나"));
+    warriors.push_back(std::make_unique<Warrior>(i18n::L("가", "ア")));
+    warriors.push_back(std::make_unique<Warrior>(i18n::L("나", "イ")));
     expect("전사만: 사용한 물약", 0, drinkManaPotions(warriors, 50));
 
     Party mixed;
-    mixed.push_back(std::make_unique<Warrior>("다"));
-    mixed.push_back(std::make_unique<Mage>("라", 10));
+    mixed.push_back(std::make_unique<Warrior>(i18n::L("다", "ウ")));
+    mixed.push_back(std::make_unique<Mage>(i18n::L("라", "エ"), 10));
     expect("섞인 파티: 사용한 물약", 1, drinkManaPotions(mixed, 45));
-    expect("섞인 파티: 라 마나", 55, manaOf(mixed, "라"));
+    expect("섞인 파티: 라 마나", 55, manaOf(mixed, i18n::L("라", "エ")));
 }
 #pragma endregion

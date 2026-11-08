@@ -43,8 +43,8 @@ void chB4()
 {
     using namespace blind4;
     std::vector<Monster> wave;
-    wave.emplace_back("고블린", 60, 2);
-    wave.emplace_back("오우거", 400, 10);
+    wave.emplace_back(i18n::L("고블린", "ゴブリン"), 60, 2);
+    wave.emplace_back(i18n::L("오우거", "オーガ"), 400, 10);
     for (Monster& m : wave)
         m.takeDamage(32);
     for (const Monster& m : wave)
@@ -57,11 +57,11 @@ void chB4()
 void chB4_hidden()
 {
     using namespace blind4;
-    Monster slime("슬라임", 25, 0);
+    Monster slime(i18n::L("슬라임", "スライム"), 25, 0);
     expect("최대 체력", 25, slime.maxHp());
     slime.takeDamage(5);
     expect("체력 바 (20/25)", 8, slime.barCells());
-    Monster golem("골렘", 1000, 50);
+    Monster golem(i18n::L("골렘", "ゴーレム"), 1000, 50);
     golem.takeDamage(40);
     expect("골렘 체력 (방어가 높아도 최소 1)", 999, golem.hp());
     expect("골렘 체력 바", 9, golem.barCells());

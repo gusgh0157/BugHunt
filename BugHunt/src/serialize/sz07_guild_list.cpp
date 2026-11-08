@@ -47,7 +47,7 @@ void sz07_guild_list()
 {
     using namespace sz7;
 
-    const std::vector<Guild> guilds = { { "새벽의 검", 24 }, { "<검과 방패>", 9 }, { "달빛", 41 } };
+    const std::vector<Guild> guilds = { { i18n::L("새벽의 검", "暁の剣"), 24 }, { i18n::L("<검과 방패>", "<剣と盾 騎士団>"), 9 }, { i18n::L("달빛", "月光"), 41 } };
     const std::string xml = saveGuilds(guilds);
     const std::vector<Guild> loaded = loadGuilds(xml);
 
@@ -55,7 +55,7 @@ void sz07_guild_list()
         std::cout << "  " << g.name << " (" << g.members << i18n::L("명)\n", "人)\n");
 
     expect("불러온 길드 수", static_cast<size_t>(3), loaded.size());
-    expect("둘째 길드 이름", std::string("<검과 방패>"), loaded.size() > 1 ? loaded[1].name : std::string());
+    expect("둘째 길드 이름", std::string(i18n::L("<검과 방패>", "<剣と盾 騎士団>")), loaded.size() > 1 ? loaded[1].name : std::string());
 }
 
 // ============================================================================
@@ -98,7 +98,7 @@ void sz07_guild_list_hidden()
         { "I &lt;3 PvP", 3 },          // 글자 그대로 &lt; 가 들어간 이름
         { "Tom & Jerry", 2 },
         { "a<b>c", 5 },
-        { "\"따옴표\" 'Q'", 7 },
+        { i18n::L("\"따옴표\" 'Q'", "\"引用符\" 'Q'"), 7 },
     };
     const std::vector<Guild> loaded = loadGuilds(saveGuilds(guilds));
     expect("숨은 목록: 길드 수", guilds.size(), loaded.size());

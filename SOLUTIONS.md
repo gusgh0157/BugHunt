@@ -710,7 +710,7 @@ try
             writeItem(out, item);
         out.close();
         if (!out)
-            throw std::runtime_error("쓰기 실패");
+            throw std::runtime_error(i18n::L("쓰기 실패", "書き込み失敗"));
     }
     fs::rename(temp, file);          // 같은 폴더 안에서 바꿔치기
     return true;

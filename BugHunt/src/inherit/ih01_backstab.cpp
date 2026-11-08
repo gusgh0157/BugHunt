@@ -31,14 +31,14 @@ protected:
 class Fireball : public Skill
 {
 public:
-    Fireball() : Skill("화염구", 35) {}
+    Fireball() : Skill(i18n::L("화염구", "ファイアボール"), 35) {}
     int damage(const Target& t) const override { return power_ + t.hp / 20; }
 };
 
 class Backstab : public Skill
 {
 public:
-    Backstab() : Skill("백스탭", 20) {}
+    Backstab() : Skill(i18n::L("백스탭", "バックスタブ"), 20) {}
     // 등 뒤에서 찌르면 세 배
     virtual int damage(const Target& t) { return t.facingAway ? power_ * 3 : power_; }
 };
@@ -78,7 +78,7 @@ void ih01_backstab()
 // useSkill의 skill.damage(target) 줄에 조건부 중단점을 거세요. 조건: skill.name() == "백스탭" (계산이 안 되면 적중 횟수 2)
 // 함수 안으로 한 단계씩 들어가면 어느 클래스의 damage로 들어가나요?
 
-// [JA] useSkill の skill.damage(target) の行に条件付きブレークポイントを設定してください。条件: skill.name() == "백스탭"(評価できなければヒットカウント2)
+// [JA] useSkill の skill.damage(target) の行に条件付きブレークポイントを設定してください。条件: skill.name() == "バックスタブ"(`--lang ko` では "백스탭"。評価できなければヒットカウント2)
 // [JA] ステップインすると、どのクラスの damage に入りますか?
 #pragma endregion
 

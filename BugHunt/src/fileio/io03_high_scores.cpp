@@ -45,7 +45,7 @@ void io03_high_scores()
 
     iokit::LabDir lab("io03_high_scores");
     const fs::path file = lab / "scores.txt";
-    iokit::writeBytes(file, "아린 9200\n보람 8700\n도윤 7100\n");
+    iokit::writeBytes(file, i18n::L("아린 9200\n보람 8700\n도윤 7100\n", "アリン 9200\nボラム 8700\nドユン 7100\n"));
 
     const std::vector<Score> scores = loadScores(file);
     for (size_t i = 0; i < scores.size(); ++i)
@@ -93,12 +93,12 @@ void io03_high_scores_hidden()
 
     iokit::LabDir lab("io03_high_scores_hidden");
 
-    iokit::writeBytes(lab / "no_newline.txt", "가 500\n나 400");          // 마지막 줄바꿈 없음
+    iokit::writeBytes(lab / "no_newline.txt", i18n::L("가 500\n나 400", "ア 500\nイ 400"));          // 마지막 줄바꿈 없음
     const std::vector<Score> a = loadScores(lab / "no_newline.txt");
     expect("줄바꿈 없이 끝남: 줄 수", static_cast<size_t>(2), a.size());
     expect("줄바꿈 없이 끝남: 총점", 900, total(a));
 
-    iokit::writeBytes(lab / "blank_tail.txt", "다 30\n라 20\n마 10\n\n\n");   // 빈 줄이 여러 개
+    iokit::writeBytes(lab / "blank_tail.txt", i18n::L("다 30\n라 20\n마 10\n\n\n", "ウ 30\nエ 20\nオ 10\n\n\n"));   // 빈 줄이 여러 개
     const std::vector<Score> b = loadScores(lab / "blank_tail.txt");
     expect("빈 줄로 끝남: 줄 수", static_cast<size_t>(3), b.size());
     expect("빈 줄로 끝남: 총점", 60, total(b));

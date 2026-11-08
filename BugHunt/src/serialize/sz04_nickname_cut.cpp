@@ -46,11 +46,11 @@ void sz04_nickname_cut()
     expect("영어 닉네임 저장", true, saveProfile("DragonSlayer99", 30, saved));
     std::cout << "  " << saved << '\n';
 
-    const bool ok = saveProfile("Lv99용감한전사", 99, saved);
+    const bool ok = saveProfile(i18n::L("Lv99용감한전사", "Lv99勇敢な戦士"), 99, saved);
     if (ok)
         std::cout << "  " << saved << '\n';
     expect("한글 닉네임 저장", true, ok);
-    expect("잘린 닉네임", std::string("Lv99용감"), clampName("Lv99용감한전사"));
+    expect("잘린 닉네임", std::string(i18n::L("Lv99용감", "Lv99勇敢")), clampName(i18n::L("Lv99용감한전사", "Lv99勇敢な戦士")));
 }
 
 // ============================================================================
@@ -89,12 +89,12 @@ void sz04_nickname_cut_hidden()
 {
     using namespace sz4;
 
-    expect("한글만 15바이트", std::string("가나다라"), clampName("가나다라마"));
-    expect("영어 2 + 한글", std::string("ab가나다"), clampName("ab가나다라"));
+    expect("한글만 15바이트", std::string(i18n::L("가나다라", "あいうえ")), clampName(i18n::L("가나다라마", "あいうえお")));
+    expect("영어 2 + 한글", std::string(i18n::L("ab가나다", "abあいう")), clampName(i18n::L("ab가나다라", "abあいうえ")));
     expect("4바이트 글자", std::string("a\xF0\x9F\x90\x89\xF0\x9F\x90\x89"),
            clampName("a\xF0\x9F\x90\x89\xF0\x9F\x90\x89\xF0\x9F\x90\x89"));   // a + 용 이모지 3개
     expect("짧은 이름", std::string("Kim"), clampName("Kim"));
     std::string saved;
-    expect("숨은 닉네임 저장", true, saveProfile("마법사ab다람쥐", 7, saved));
+    expect("숨은 닉네임 저장", true, saveProfile(i18n::L("마법사ab다람쥐", "魔術師abコリス"), 7, saved));
 }
 #pragma endregion
