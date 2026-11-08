@@ -30,7 +30,7 @@ public:
     void write(const std::string& line)
     {
         if (line.empty())
-            throw SaveError(i18n::L("빈 줄은 저장할 수 없다", "空の行は保存できない"));
+            throw SaveError(i18n::L("빈 줄은 저장할 수 없다", "空の行はセーブできない"));
         buffer_ += line;
         buffer_ += '\n';
     }
@@ -129,7 +129,7 @@ void lg08_save_close_hidden()
 
     // 빈 줄 때문에 write가 던지고, 스택을 푸는 동안 세이브 파일이 닫힌다 (공간도 모자람)
     expect("숨은 저장: 빈 줄", false, saveGame("B", { "이름=카일", "", "골드=1" }, 4));
-    expect("숨은 저장: 첫 오류 메시지", std::string(i18n::L("저장 실패: 빈 줄은 저장할 수 없다", "セーブ失敗: 空の行は保存できない")), g_lastMessage);
+    expect("숨은 저장: 첫 오류 메시지", std::string(i18n::L("저장 실패: 빈 줄은 저장할 수 없다", "セーブ失敗: 空の行はセーブできない")), g_lastMessage);
     expect("숨은 저장: 다시 보통 저장", true, saveGame("C", { "레벨=1" }, 64));
 }
 #pragma endregion
