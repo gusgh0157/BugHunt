@@ -491,7 +491,7 @@ return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
 void close()
 {
     if (buffer_.size() > freeBytes_)
-        throw SaveError("디스크 공간이 모자란다");
+        throw SaveError(i18n::L("디스크 공간이 모자란다", "ディスク容量が足りない"));
     g_disk[slot_] = buffer_;
     closed_ = true;
 }
@@ -876,7 +876,7 @@ std::weak_ptr<Guild> guild;
 std::string guildNameOf(const Member& member)
 {
     const auto guild = member.guild.lock();
-    return guild ? guild->name : "(없음)";
+    return guild ? guild->name : i18n::L("(없음)", "(なし)");
 }
 ```
 **구성별:** 세 구성 모두 똑같이 FAIL이다. 크래시도, 어설션도, ASan 리포트도 없다(Windows의 ASan에는 누수 검사기가 없다. Linux·macOS의 ASan은 LeakSanitizer가 프로그램이 끝날 때 누수를 보고할 수 있다). 2부 랩 16처럼 인스턴스 수나 소멸자 중단점으로 확인한다.

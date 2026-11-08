@@ -5,7 +5,7 @@
 
 // 시즌 랭킹 보드. 상위 플레이어를 "1위 Kael (3200점)" 같은 줄로 만들어 모아 둔다.
 
-// [JA] シーズンのランキングボードです。上位プレイヤーを「1위 Kael (3200점)」のような行にして集めておきます。
+// [JA] シーズンのランキングボードです。上位プレイヤーを「1位 Kael (3200点)」のような行にして集めておきます。
 namespace ptr1
 {
 struct Player
@@ -17,7 +17,7 @@ struct Player
 const char* formatEntry(int rank, const Player& player)
 {
     char line[64];
-    std::snprintf(line, sizeof(line), "%d위 %s (%d점)", rank, player.name.c_str(), player.score);
+    std::snprintf(line, sizeof(line), i18n::L("%d위 %s (%d점)", "%d位 %s (%d点)"), rank, player.name.c_str(), player.score);
     return line;
 }
 
@@ -42,8 +42,8 @@ void pt01_ranking()
     for (const auto& line : board)
         std::cout << "  " << line << '\n';
 
-    expect("1위 줄", std::string("1위 Kael (3200점)"), std::string(board[0]));
-    expect("3위 줄", std::string("3위 Doran (2400점)"), std::string(board[2]));
+    expect("1위 줄", std::string(i18n::L("1위 Kael (3200점)", "1位 Kael (3200点)")), std::string(board[0]));
+    expect("3위 줄", std::string(i18n::L("3위 Doran (2400점)", "3位 Doran (2400点)")), std::string(board[2]));
 }
 
 // ============================================================================
@@ -88,8 +88,8 @@ void pt01_ranking_hidden()
     };
 
     const auto board = ptr1::buildBoard(ranking);
-    expect("1위 줄", std::string("1위 Selene (5100점)"), std::string(board[0]));
-    expect("2위 줄", std::string("2위 Ivo (4870점)"), std::string(board[1]));
-    expect("4위 줄", std::string("4위 Bram (990점)"), std::string(board[3]));
+    expect("1위 줄", std::string(i18n::L("1위 Selene (5100점)", "1位 Selene (5100点)")), std::string(board[0]));
+    expect("2위 줄", std::string(i18n::L("2위 Ivo (4870점)", "2位 Ivo (4870点)")), std::string(board[1]));
+    expect("4위 줄", std::string(i18n::L("4위 Bram (990점)", "4位 Bram (990点)")), std::string(board[3]));
 }
 #pragma endregion

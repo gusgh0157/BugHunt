@@ -33,7 +33,7 @@ std::string winnerOf(const AuctionHouse& house)
         if (house.bidder(id).itemsWon > 0)
             return house.bidder(id).name;
     }
-    return "(없음)";
+    return i18n::L("(없음)", "(なし)");
 }
 
 // 게임 루프의 한 프레임: 화면을 다시 그린다.

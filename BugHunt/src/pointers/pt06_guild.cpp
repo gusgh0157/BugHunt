@@ -42,7 +42,7 @@ void join(const std::shared_ptr<Guild>& guild, const std::shared_ptr<Member>& me
 // 길드원이 속한 길드 이름 (길드가 없으면 "(없음)")
 std::string guildNameOf(const Member& member)
 {
-    return member.guild ? member.guild->name : "(없음)";
+    return member.guild ? member.guild->name : i18n::L("(없음)", "(なし)");
 }
 
 // 길드를 하나 만들어 길드원을 모으고, 공지를 보낸 뒤 서버에서 내린다(= 모든 참조가 사라진다).

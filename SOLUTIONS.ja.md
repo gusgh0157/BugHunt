@@ -493,7 +493,7 @@ return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
 void close()
 {
     if (buffer_.size() > freeBytes_)
-        throw SaveError("디스크 공간이 모자란다");   // ディスク容量が足りない
+        throw SaveError(i18n::L("디스크 공간이 모자란다", "ディスク容量が足りない"));
     g_disk[slot_] = buffer_;
     closed_ = true;
 }
@@ -878,7 +878,7 @@ std::weak_ptr<Guild> guild;
 std::string guildNameOf(const Member& member)
 {
     const auto guild = member.guild.lock();
-    return guild ? guild->name : "(없음)";   // (なし)
+    return guild ? guild->name : i18n::L("(없음)", "(なし)");
 }
 ```
 **構成ごと:** 三つの構成すべてで同じように FAIL です。クラッシュも、アサーションも、ASan のレポートもありません(Windows の ASan にはリーク検出器がありません。Linux・macOS の ASan では LeakSanitizer がプログラム終了時にリークを報告することがあります)。第2部ラボ16のように、インスタンス数やデストラクターのブレークポイントで確認します。
