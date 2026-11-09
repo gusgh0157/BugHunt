@@ -55,9 +55,9 @@ void sz02_crit_multiplier()
         std::cout << "  " << w.name << i18n::L(": 공격력 ", ": 攻撃力 ") << w.attack << i18n::L(", 배율 ", "、倍率 ") << w.crit
                   << i18n::L(", 치명타 피해 ", "、クリティカルダメージ ") << critDamage(w) << '\n';
 
-    expect("단검 치명타 피해", 45, critDamage(weapons[0]));
-    expect("도끼 치명타 피해", 100, critDamage(weapons[1]));
-    expect("지팡이 치명타 피해", 20, critDamage(weapons[2]));
+    expect(i18n::L("단검 치명타 피해", "短剣のクリティカルダメージ"), 45, critDamage(weapons[0]));
+    expect(i18n::L("도끼 치명타 피해", "斧のクリティカルダメージ"), 100, critDamage(weapons[1]));
+    expect(i18n::L("지팡이 치명타 피해", "杖のクリティカルダメージ"), 20, critDamage(weapons[2]));
 }
 
 // ============================================================================
@@ -96,9 +96,9 @@ void sz02_crit_multiplier_hidden()
 {
     using namespace sz2;
 
-    expect("배율 2.25", 225, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"활","attack":100,"crit":2.25})", R"({"name":"弓","attack":100,"crit":2.25})")))));
-    expect("배율 1.75", 70, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"창","attack":40,"crit":1.75})", R"({"name":"槍","attack":40,"crit":1.75})")))));
-    expect("배율 3 (정수)", 36, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"망치","attack":12,"crit":3})", R"({"name":"ハンマー","attack":12,"crit":3})")))));
-    expect("배율 없음", 64, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"방패","attack":64})", R"({"name":"盾","attack":64})")))));
+    expect(i18n::L("배율 2.25", "倍率2.25"), 225, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"활","attack":100,"crit":2.25})", R"({"name":"弓","attack":100,"crit":2.25})")))));
+    expect(i18n::L("배율 1.75", "倍率1.75"), 70, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"창","attack":40,"crit":1.75})", R"({"name":"槍","attack":40,"crit":1.75})")))));
+    expect(i18n::L("배율 3 (정수)", "倍率3(整数)"), 36, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"망치","attack":12,"crit":3})", R"({"name":"ハンマー","attack":12,"crit":3})")))));
+    expect(i18n::L("배율 없음", "倍率なし"), 64, critDamage(loadWeapon(json::parse(i18n::L(R"({"name":"방패","attack":64})", R"({"name":"盾","attack":64})")))));
 }
 #pragma endregion

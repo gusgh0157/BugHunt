@@ -104,8 +104,8 @@ void as01_loading()
     const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
     std::cout << i18n::L("  청크 ", "  チャンク ") << kChunks << i18n::L("개 로딩: ", "個の読み込み: ") << ms << i18n::L(" ms, 콜드 읽기 ", " ms、コールド読み込み ") << disk.coldReads() << i18n::L("번\n", "回\n");
 
-    expect("불러온 청크 수", kChunks, loaded);
-    expect("디스크가 깨기 전에 기다리다 느린 경로로 읽은 청크 수", 0, disk.coldReads());
+    expect(i18n::L("불러온 청크 수", "読み込んだチャンク数"), kChunks, loaded);
+    expect(i18n::L("디스크가 깨기 전에 기다리다 느린 경로로 읽은 청크 수", "ディスクが目覚める前に待たされ、遅い経路で読んだチャンク数"), 0, disk.coldReads());
 }
 
 // ============================================================================
@@ -146,10 +146,10 @@ void as01_loading_hidden()
 {
     using namespace async1;
     ChunkDisk disk;
-    expect("불러온 청크 수", 4, loadMap(disk, 4));
-    expect("콜드 읽기 수", 0, disk.coldReads());
+    expect(i18n::L("불러온 청크 수", "読み込んだチャンク数"), 4, loadMap(disk, 4));
+    expect(i18n::L("콜드 읽기 수", "コールド読み込み数"), 0, disk.coldReads());
     ChunkDisk disk2;
-    expect("불러온 청크 수 (두 번째 맵)", 9, loadMap(disk2, 9));
-    expect("콜드 읽기 수 (두 번째 맵)", 0, disk2.coldReads());
+    expect(i18n::L("불러온 청크 수 (두 번째 맵)", "読み込んだチャンク数(2番目のマップ)"), 9, loadMap(disk2, 9));
+    expect(i18n::L("콜드 읽기 수 (두 번째 맵)", "コールド読み込み数(2番目のマップ)"), 0, disk2.coldReads());
 }
 #pragma endregion

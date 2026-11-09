@@ -39,8 +39,8 @@ void ct04_repair_shop()
         std::cout << ' ' << g.name << '(' << g.durability << ')';
     std::cout << '\n';
 
-    expect("남은 장비 수", static_cast<size_t>(3), bag.size());
-    expect("Silver Ring 개수", 1, ct4::countNamed(bag, "Silver Ring"));
+    expect(i18n::L("남은 장비 수", "残りの装備数"), static_cast<size_t>(3), bag.size());
+    expect(i18n::L("Silver Ring 개수", "Silver Ring の数"), 1, ct4::countNamed(bag, "Silver Ring"));
 }
 
 // ============================================================================
@@ -73,12 +73,12 @@ void ct04_repair_shop_hidden()
         { "Rope", 5 }, { "Lantern", 0 }, { "Lantern", 0 }, { "Map", 1 }, { "Lantern", 7 }, { "Pick", 0 }, { "Rope", 0 },
     };
     ct4::discardBroken(bag);
-    expect("남은 장비 수", static_cast<size_t>(3), bag.size());
-    expect("Lantern 개수", 1, ct4::countNamed(bag, "Lantern"));
-    expect("Rope 개수", 1, ct4::countNamed(bag, "Rope"));
+    expect(i18n::L("남은 장비 수", "残りの装備数"), static_cast<size_t>(3), bag.size());
+    expect(i18n::L("Lantern 개수", "Lantern の数"), 1, ct4::countNamed(bag, "Lantern"));
+    expect(i18n::L("Rope 개수", "Rope の数"), 1, ct4::countNamed(bag, "Rope"));
 
     std::vector<ct4::Gear> fine = { { "Helm", 9 } };
     ct4::discardBroken(fine);
-    expect("버릴 게 없을 때", static_cast<size_t>(1), fine.size());
+    expect(i18n::L("버릴 게 없을 때", "捨てるものがないとき"), static_cast<size_t>(1), fine.size());
 }
 #pragma endregion

@@ -106,8 +106,8 @@ void ft08_difficulty()
     flow8::Game game;
     game.boot(flow8::kSaveFile);
 
-    expect("볼륨 (저장값 35)", 35, game.volume());
-    expect("첫 웨이브 적 HP (어려움 = 150)", 150, game.firstWaveHp());
+    expect(i18n::L("볼륨 (저장값 35)", "音量(保存値 35)"), 35, game.volume());
+    expect(i18n::L("첫 웨이브 적 HP (어려움 = 150)", "最初のウェーブの敵HP(むずかしい = 150)"), 150, game.firstWaveHp());
 }
 
 // ============================================================================
@@ -155,7 +155,7 @@ void ft08_difficulty_hidden()
     flow8::Game game;
     game.boot(otherSave);
 
-    expect("볼륨 (저장값 60)", 60, game.volume());
-    expect("첫 웨이브 적 HP (쉬움 = 70)", 70, game.firstWaveHp());
+    expect(i18n::L("볼륨 (저장값 60)", "音量(保存値 60)"), 60, game.volume());
+    expect(i18n::L("첫 웨이브 적 HP (쉬움 = 70)", "最初のウェーブの敵HP(やさしい = 70)"), 70, game.firstWaveHp());
 }
 #pragma endregion

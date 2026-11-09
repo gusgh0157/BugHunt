@@ -57,8 +57,8 @@ void sz06_bestiary()
     for (const Monster& m : list)
         std::cout << "  " << m.name << ": HP " << m.hp << i18n::L(", 공격력 ", "、攻撃力 ") << m.attack << '\n';
 
-    expect("도감 몬스터 수", static_cast<size_t>(3), list.size());
-    expect("오우거 HP", 320, list.size() > 1 ? list[1].hp : -1);
+    expect(i18n::L("도감 몬스터 수", "図鑑のモンスター数"), static_cast<size_t>(3), list.size());
+    expect(i18n::L("오우거 HP", "オーガのHP"), 320, list.size() > 1 ? list[1].hp : -1);
 }
 
 // ============================================================================
@@ -106,12 +106,12 @@ void sz06_bestiary_hidden()
   <Monster hp="900" name="ドラゴン"><Attack>80</Attack></Monster>
   <Monster name="スライム" hp="5"><Attack>1</Attack></Monster>
 </Bestiary>)"));
-    expect("숨은 도감: 몬스터 수", static_cast<size_t>(2), list.size());
+    expect(i18n::L("숨은 도감: 몬스터 수", "隠し図鑑: モンスター数"), static_cast<size_t>(2), list.size());
     if (list.size() == 2)
     {
-        expect("숨은 도감: 드래곤 HP", 900, list[0].hp);
-        expect("숨은 도감: 슬라임 HP", 5, list[1].hp);
-        expect("숨은 도감: 드래곤 공격력", 80, list[0].attack);
+        expect(i18n::L("숨은 도감: 드래곤 HP", "隠し図鑑: ドラゴンのHP"), 900, list[0].hp);
+        expect(i18n::L("숨은 도감: 슬라임 HP", "隠し図鑑: スライムのHP"), 5, list[1].hp);
+        expect(i18n::L("숨은 도감: 드래곤 공격력", "隠し図鑑: ドラゴンの攻撃力"), 80, list[0].attack);
     }
 }
 #pragma endregion

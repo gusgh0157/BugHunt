@@ -48,9 +48,9 @@ void ft10_best_combo()
         std::cout << ' ' << n;
     std::cout << '\n';
 
-    expect("세 번째 공격 뒤 콤보", 3, shown[2]);
-    expect("최고 콤보", 3, combo.best);
-    expect("마지막 콤보", 2, combo.current);
+    expect(i18n::L("세 번째 공격 뒤 콤보", "3回目の攻撃後のコンボ"), 3, shown[2]);
+    expect(i18n::L("최고 콤보", "最高コンボ"), 3, combo.best);
+    expect(i18n::L("마지막 콤보", "最後のコンボ"), 2, combo.current);
 }
 
 // ============================================================================
@@ -96,8 +96,8 @@ void ft10_best_combo_hidden()
     for (int i = 0; i < 9; ++i)
     {
         onAttack(c, pattern[i]);
-        expect("공격 뒤 콤보", expected[i], c.current);
+        expect(i18n::L("공격 뒤 콤보", "攻撃後のコンボ"), expected[i], c.current);
     }
-    expect("숨은 전투: 최고 콤보", 6, c.best);
+    expect(i18n::L("숨은 전투: 최고 콤보", "隠し戦闘: 最高コンボ"), 6, c.best);
 }
 #pragma endregion

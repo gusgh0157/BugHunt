@@ -61,9 +61,9 @@ void ft09_member_ids()
     for (const Member& m : guild.members)
         std::cout << "  " << m.id << "  " << m.name << '\n';
 
-    expect("회원 번호가 모두 다른가?", true, allIdsUnique(guild));
-    expect("새봄의 번호", 1008, guild.members[3].id);
-    expect("마지막으로 발급한 번호", 1010, guild.lastId);
+    expect(i18n::L("회원 번호가 모두 다른가?", "メンバー番号はすべて異なるか?"), true, allIdsUnique(guild));
+    expect(i18n::L("새봄의 번호", "セボムの番号"), 1008, guild.members[3].id);
+    expect(i18n::L("마지막으로 발급한 번호", "最後に発行した番号"), 1010, guild.lastId);
 }
 
 // ============================================================================
@@ -110,13 +110,13 @@ void ft09_member_ids_hidden()
     for (const char* name : { i18n::L("가", "ア"), i18n::L("나", "イ"), i18n::L("다", "ウ"), i18n::L("라", "エ") })
     {
         join(guild, name);
-        expect("발급한 번호 == lastId", guild.lastId, guild.members.back().id);
+        expect(i18n::L("발급한 번호 == lastId", "発行した番号 == lastId"), guild.lastId, guild.members.back().id);
     }
-    expect("숨은 길드: 번호가 모두 다른가?", true, allIdsUnique(guild));
-    expect("숨은 길드: 첫 신입 번호", 53, guild.members[1].id);
+    expect(i18n::L("숨은 길드: 번호가 모두 다른가?", "隠しギルド: 番号はすべて異なるか?"), true, allIdsUnique(guild));
+    expect(i18n::L("숨은 길드: 첫 신입 번호", "隠しギルド: 最初の新入りの番号"), 53, guild.members[1].id);
 
     Guild fresh;                      // 아무도 없는 새 길드: 첫 번호는 1
     join(fresh, i18n::L("첫 회원", "最初の会員"));
-    expect("새 길드: 첫 번호", 1, fresh.members[0].id);
+    expect(i18n::L("새 길드: 첫 번호", "新しいギルド: 最初の番号"), 1, fresh.members[0].id);
 }
 #pragma endregion

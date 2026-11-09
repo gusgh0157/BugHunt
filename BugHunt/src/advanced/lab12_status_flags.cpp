@@ -20,9 +20,9 @@ void lab12_status_flags()
 {
     const unsigned flags = STATUS_SLOW | STATUS_POISON;
 
-    expect("중독 상태인가?", true, hasStatus(flags, STATUS_POISON));
-    expect("기절 상태인가?", false, hasStatus(flags, STATUS_STUN));
-    expect("화상 상태인가?", false, hasStatus(flags, STATUS_BURN));
+    expect(i18n::L("중독 상태인가?", "毒状態か?"), true, hasStatus(flags, STATUS_POISON));
+    expect(i18n::L("기절 상태인가?", "気絶状態か?"), false, hasStatus(flags, STATUS_STUN));
+    expect(i18n::L("화상 상태인가?", "やけど状態か?"), false, hasStatus(flags, STATUS_BURN));
 }
 
 // ============================================================================

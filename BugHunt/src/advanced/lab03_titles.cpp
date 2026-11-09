@@ -37,8 +37,8 @@ void lab03_titles()
     for (const Player& p : players)
         titles.push_back(titleOf(p));
 
-    expect("첫 번째 칭호", std::string("[Northwind Rangers] Kael the Wanderer"), std::string(titles[0]));
-    expect("세 번째 칭호", std::string("[Deepforge Clan] Doran Ironhand"), std::string(titles[2]));
+    expect(i18n::L("첫 번째 칭호", "1番目の称号"), std::string("[Northwind Rangers] Kael the Wanderer"), std::string(titles[0]));
+    expect(i18n::L("세 번째 칭호", "3番目の称号"), std::string("[Deepforge Clan] Doran Ironhand"), std::string(titles[2]));
 }
 
 // ============================================================================

@@ -75,8 +75,8 @@ void ft06_repair()
 
     std::cout << i18n::L("  배낭:\n", "  バックパック:\n");
     backpack.print();
-    expect("남은 골드", 374, gold);
-    expect("배낭 속 Iron Sword 내구도", 100, backpack.get("Iron Sword").durability);
+    expect(i18n::L("남은 골드", "残りのゴールド"), 374, gold);
+    expect(i18n::L("배낭 속 Iron Sword 내구도", "バックパック内の Iron Sword の耐久度"), 100, backpack.get("Iron Sword").durability);
 }
 
 // ============================================================================
@@ -113,12 +113,12 @@ void ft06_repair_hidden()
 
     int gold = 100;
     flow6::visitBlacksmith(backpack, gold, "Leather Armor");
-    expect("갑옷 수리 후 골드", 60, gold);
-    expect("배낭 속 Leather Armor 내구도", 80, backpack.get("Leather Armor").durability);
+    expect(i18n::L("갑옷 수리 후 골드", "鎧の修理後のゴールド"), 60, gold);
+    expect(i18n::L("배낭 속 Leather Armor 내구도", "バックパック内の Leather Armor の耐久度"), 80, backpack.get("Leather Armor").durability);
 
     int poorGold = 10;               // 골드가 모자라면 아무것도 바뀌지 않는다
     flow6::visitBlacksmith(backpack, poorGold, "Iron Sword");
-    expect("골드 부족: 골드", 10, poorGold);
-    expect("골드 부족: Iron Sword 내구도", 37, backpack.get("Iron Sword").durability);
+    expect(i18n::L("골드 부족: 골드", "ゴールド不足: ゴールド"), 10, poorGold);
+    expect(i18n::L("골드 부족: Iron Sword 내구도", "ゴールド不足: Iron Sword の耐久度"), 37, backpack.get("Iron Sword").durability);
 }
 #pragma endregion

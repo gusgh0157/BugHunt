@@ -38,8 +38,8 @@ void ct01_bag_lookup()
     ct1::openShop(bag, { "Healing Potion", "Mana Potion", "Fire Scroll", "Rope" });
 
     std::cout << i18n::L("  가방 종류 수: ", "  バッグの種類数: ") << bag.size() << " / " << ct1::kMaxKinds << '\n';
-    expect("가방 종류 수", static_cast<size_t>(3), bag.size());
-    expect("새 아이템 'Dragon Scale'을 주울 수 있나?", true, ct1::canLoot(bag, "Dragon Scale"));
+    expect(i18n::L("가방 종류 수", "バッグの種類数"), static_cast<size_t>(3), bag.size());
+    expect(i18n::L("새 아이템 'Dragon Scale'을 주울 수 있나?", "新しいアイテム 'Dragon Scale' を拾えるか?"), true, ct1::canLoot(bag, "Dragon Scale"));
 }
 
 // ============================================================================
@@ -77,9 +77,9 @@ void ct01_bag_lookup_hidden()
     ct1::Bag bag = { { "Rope", 1 } };
     for (const char* item : { "Rope", "Torch", "Map", "Torch", "Compass", "Lantern" })
         ct1::countOf(bag, item);
-    expect("조회 후 가방 종류 수", static_cast<size_t>(1), bag.size());
-    expect("Rope 개수", 1, ct1::countOf(bag, "Rope"));
-    expect("없는 아이템 개수", 0, ct1::countOf(bag, "Torch"));
-    expect("조회 뒤에도 가방 종류 수 그대로", static_cast<size_t>(1), bag.size());
+    expect(i18n::L("조회 후 가방 종류 수", "照会後のバッグの種類数"), static_cast<size_t>(1), bag.size());
+    expect(i18n::L("Rope 개수", "Rope の数"), 1, ct1::countOf(bag, "Rope"));
+    expect(i18n::L("없는 아이템 개수", "存在しないアイテムの数"), 0, ct1::countOf(bag, "Torch"));
+    expect(i18n::L("조회 뒤에도 가방 종류 수 그대로", "照会後もバッグの種類数はそのまま"), static_cast<size_t>(1), bag.size());
 }
 #pragma endregion

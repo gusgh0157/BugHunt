@@ -70,8 +70,8 @@ void pf01_chat_queue()
     std::cout << i18n::L("  메시지 ", "  メッセージ ") << kMessages << i18n::L("개 처리: ", "件 処理: ") << sw.ms() << i18n::L(" ms, 원소 이동 ", " ms、要素の移動 ")
               << perf1::g_moves << i18n::L("번\n", "回\n");
 
-    expect("처리한 글자 수", 54890LL, chars);
-    expect("처리 중 원소 이동이 메시지 수의 2배 이하인가?", true, perf1::g_moves <= 2LL * kMessages);
+    expect(i18n::L("처리한 글자 수", "処理した文字数"), 54890LL, chars);
+    expect(i18n::L("처리 중 원소 이동이 메시지 수의 2배 이하인가?", "処理中の要素移動がメッセージ数の2倍以下か?"), true, perf1::g_moves <= 2LL * kMessages);
 }
 
 // ============================================================================
@@ -107,13 +107,13 @@ void pf01_chat_queue()
 void pf01_chat_queue_hidden()
 {
     const long long chars = perf1::runBurst(3000);
-    expect("처리한 글자 수", 19890LL, chars);
-    expect("원소 이동이 메시지 수의 2배 이하인가?", true, perf1::g_moves <= 2LL * 3000);
+    expect(i18n::L("처리한 글자 수", "処理した文字数"), 19890LL, chars);
+    expect(i18n::L("원소 이동이 메시지 수의 2배 이하인가?", "要素移動がメッセージ数の2倍以下か?"), true, perf1::g_moves <= 2LL * 3000);
 
     perf1::ChatQueue q;
     q.push({ 1, "hello" });
     q.push({ 2, "world!" });
-    expect("짧은 큐", 11LL, q.drain());
-    expect("두 번째 drain은 0", 0LL, q.drain());
+    expect(i18n::L("짧은 큐", "短いキュー"), 11LL, q.drain());
+    expect(i18n::L("두 번째 drain은 0", "2回目の drain は0"), 0LL, q.drain());
 }
 #pragma endregion

@@ -29,8 +29,8 @@ void ct05_dungeon_doors()
     // 문 0 열기, 문 1 닫기, 문 2 열기, 문 0 닫기, 문 3 열기
     const int score = ct5::pressSwitches(doors, { 0, 1, 2, 0, 3 });
 
-    expect("퍼즐 점수 (닫힌 문을 연 횟수)", 3, score);
-    expect("문 2가 열려 있나?", true, static_cast<bool>(doors[2]));
+    expect(i18n::L("퍼즐 점수 (닫힌 문을 연 횟수)", "パズルのスコア(閉じた扉を開けた回数)"), 3, score);
+    expect(i18n::L("문 2가 열려 있나?", "扉2は開いているか?"), true, static_cast<bool>(doors[2]));
 }
 
 // ============================================================================
@@ -61,8 +61,8 @@ void ct05_dungeon_doors_hidden()
 {
     std::vector<bool> doors(6, true);
     const int score = ct5::pressSwitches(doors, { 5, 5, 5, 2, 0, 2, 4 });   // 5: 닫기, 열기, 닫기 / 2: 닫기, 열기
-    expect("퍼즐 점수", 2, score);
-    expect("문 5가 닫혀 있나?", false, static_cast<bool>(doors[5]));
-    expect("문 2가 열려 있나?", true, static_cast<bool>(doors[2]));
+    expect(i18n::L("퍼즐 점수", "パズルのスコア"), 2, score);
+    expect(i18n::L("문 5가 닫혀 있나?", "扉5は閉じているか?"), false, static_cast<bool>(doors[5]));
+    expect(i18n::L("문 2가 열려 있나?", "扉2は開いているか?"), true, static_cast<bool>(doors[2]));
 }
 #pragma endregion

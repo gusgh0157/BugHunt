@@ -105,3 +105,26 @@ if(BUGHUNT_ASAN)
         endforeach()
     endif()
 endif()
+
+# 빌드할 때마다 소스 검사: 한글 문자열이 일본어와 짝(i18n::L("ko", "ja") 또는 { "ko", "ja" }) 없이 있으면 빌드 실패.
+# (src/i18n/source_check.cpp) 검사가 통과해야 표시 파일이 생기므로, 실패하면 다음 빌드에서 다시 검사한다.
+# 만든 exe를 이 컴퓨터에서 실행할 수 없는 경우(교차 컴파일, 다른 아키텍처)에는 기본으로 끈다.
+set(BUGHUNT_CHECK_I18N_DEFAULT ON)
+if(CMAKE_CROSSCOMPILING)
+    set(BUGHUNT_CHECK_I18N_DEFAULT OFF)
+elseif(CMAKE_GENERATOR_PLATFORM MATCHES "^(ARM|arm)" AND NOT CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "^(ARM|arm|aarch)")
+    set(BUGHUNT_CHECK_I18N_DEFAULT OFF)
+elseif(APPLE AND CMAKE_OSX_ARCHITECTURES AND NOT CMAKE_OSX_ARCHITECTURES STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR)
+    set(BUGHUNT_CHECK_I18N_DEFAULT OFF)
+endif()
+option(BUGHUNT_CHECK_I18N "빌드 뒤 한글 문자열 짝 검사 (BugHunt --check-i18n)" ${BUGHUNT_CHECK_I18N_DEFAULT})
+if(BUGHUNT_CHECK_I18N)
+    set(BUGHUNT_I18N_STAMP "${CMAKE_CURRENT_BINARY_DIR}/check_i18n.stamp")
+    add_custom_command(OUTPUT "${BUGHUNT_I18N_STAMP}"
+        COMMAND "$<TARGET_FILE:BugHunt>" --check-i18n "${CMAKE_CURRENT_SOURCE_DIR}/BugHunt/src"
+        COMMAND ${CMAKE_COMMAND} -E touch "${BUGHUNT_I18N_STAMP}"
+        DEPENDS BugHunt ${BUGHUNT_SOURCES}
+        COMMENT "check-i18n"
+        VERBATIM)
+    add_custom_target(bughunt_check_i18n ALL DEPENDS "${BUGHUNT_I18N_STAMP}")
+endif()

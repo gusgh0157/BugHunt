@@ -51,8 +51,8 @@ void io03_high_scores()
     for (size_t i = 0; i < scores.size(); ++i)
         std::cout << "  " << (i + 1) << i18n::L("위 ", "位 ") << scores[i].name << " " << scores[i].points << '\n';
 
-    expect("순위표 줄 수", static_cast<size_t>(3), scores.size());
-    expect("총점", 25000, total(scores));
+    expect(i18n::L("순위표 줄 수", "ランキングの行数"), static_cast<size_t>(3), scores.size());
+    expect(i18n::L("총점", "合計点"), 25000, total(scores));
 }
 
 // ============================================================================
@@ -95,15 +95,15 @@ void io03_high_scores_hidden()
 
     iokit::writeBytes(lab / "no_newline.txt", i18n::L("가 500\n나 400", "ア 500\nイ 400"));          // 마지막 줄바꿈 없음
     const std::vector<Score> a = loadScores(lab / "no_newline.txt");
-    expect("줄바꿈 없이 끝남: 줄 수", static_cast<size_t>(2), a.size());
-    expect("줄바꿈 없이 끝남: 총점", 900, total(a));
+    expect(i18n::L("줄바꿈 없이 끝남: 줄 수", "改行なしで終わる: 行数"), static_cast<size_t>(2), a.size());
+    expect(i18n::L("줄바꿈 없이 끝남: 총점", "改行なしで終わる: 合計点"), 900, total(a));
 
     iokit::writeBytes(lab / "blank_tail.txt", i18n::L("다 30\n라 20\n마 10\n\n\n", "ウ 30\nエ 20\nオ 10\n\n\n"));   // 빈 줄이 여러 개
     const std::vector<Score> b = loadScores(lab / "blank_tail.txt");
-    expect("빈 줄로 끝남: 줄 수", static_cast<size_t>(3), b.size());
-    expect("빈 줄로 끝남: 총점", 60, total(b));
+    expect(i18n::L("빈 줄로 끝남: 줄 수", "空行で終わる: 行数"), static_cast<size_t>(3), b.size());
+    expect(i18n::L("빈 줄로 끝남: 총점", "空行で終わる: 合計点"), 60, total(b));
 
     iokit::writeBytes(lab / "empty.txt", "");
-    expect("빈 파일: 줄 수", static_cast<size_t>(0), loadScores(lab / "empty.txt").size());
+    expect(i18n::L("빈 파일: 줄 수", "空ファイル: 行数"), static_cast<size_t>(0), loadScores(lab / "empty.txt").size());
 }
 #pragma endregion

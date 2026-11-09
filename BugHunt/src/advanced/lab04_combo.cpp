@@ -38,7 +38,7 @@ void lab04_combo()
             counter->miss();
     }
 
-    expect("최고 콤보", 4, counter->best());
+    expect(i18n::L("최고 콤보", "最高コンボ"), 4, counter->best());
     counter->~ComboCounter();
 }
 

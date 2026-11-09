@@ -44,9 +44,9 @@ void ct06_nameplates()
     for (int i = 0; i < 3; ++i)
         std::cout << i18n::L("  이름표: ", "  ネームプレート: ") << plates[i].text() << '\n';
 
-    expect("Kael 이름표", std::string("Kael the Brave"), std::string(plates[0].text()));
-    expect("Doran 이름표", std::string("Doran the Unbreakable"), std::string(plates[1].text()));
-    expect("Selene 이름표", std::string("Selene Stormcaller of the Ember Order"), std::string(plates[2].text()));
+    expect(i18n::L("Kael 이름표", "Kael のネームプレート"), std::string("Kael the Brave"), std::string(plates[0].text()));
+    expect(i18n::L("Doran 이름표", "Doran のネームプレート"), std::string("Doran the Unbreakable"), std::string(plates[1].text()));
+    expect(i18n::L("Selene 이름표", "Selene のネームプレート"), std::string("Selene Stormcaller of the Ember Order"), std::string(plates[2].text()));
 }
 
 // ============================================================================
@@ -94,7 +94,7 @@ void ct06_nameplates_hidden()
     grantTitle(rin, "Archmage of the Northern Tower");
     grantTitle(bram, "the Elder Smith and Keeper of Flames");
 
-    expect("Rin 이름표", std::string("Rin Archmage of the Northern Tower"), std::string(a.text()));
-    expect("Bram 이름표", std::string("Bram Longshadow of Deepforge the Elder Smith and Keeper of Flames"), std::string(b.text()));
+    expect(i18n::L("Rin 이름표", "Rin のネームプレート"), std::string("Rin Archmage of the Northern Tower"), std::string(a.text()));
+    expect(i18n::L("Bram 이름표", "Bram のネームプレート"), std::string("Bram Longshadow of Deepforge the Elder Smith and Keeper of Flames"), std::string(b.text()));
 }
 #pragma endregion

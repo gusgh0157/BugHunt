@@ -19,6 +19,8 @@ inline int g_failCount = 0;
 
 // 각 랩은 "기대값 vs 실제값"을 출력한다.
 // [FAIL]이 나오거나 프로그램이 멈추면, 그때부터 버그 추적 시작.
+// what은 두 언어를 함께 적은 설명이다: expect(i18n::L("골드 상한", "ゴールドの上限"), 기대값, 실제값)
+// [JA] what は 2 つの言語を並べて書いた説明です: expect(i18n::L("골드 상한", "ゴールドの上限"), 期待値, 実際の値)
 template <class T>
 bool expect(const char* what, const T& expected, const T& actual)
 {
@@ -26,7 +28,7 @@ bool expect(const char* what, const T& expected, const T& actual)
     if (!ok)
         ++g_failCount;
     std::cout << std::boolalpha
-              << (ok ? "  [PASS] " : "  [FAIL] ") << i18n::tr(what)
+              << (ok ? "  [PASS] " : "  [FAIL] ") << what
               << i18n::L("  (기대: ", "  (期待: ") << expected << i18n::L(", 실제: ", ", 実際: ") << actual << ")\n";
     return ok;
 }

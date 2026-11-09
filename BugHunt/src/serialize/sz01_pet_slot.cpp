@@ -41,9 +41,9 @@ void sz01_pet_slot()
               << (summon ? i18n::L("켬", "オン") : i18n::L("끔", "オフ")) << '\n';
     std::cout << i18n::L("  다시 저장한 세이브: ", "  保存し直したセーブ: ") << save.dump() << '\n';
 
-    expect("펫 칸", std::string(i18n::L("(펫 없음)", "(ペットなし)")), label);
-    expect("소환 버튼", false, summon);
-    expect("다시 저장해도 세이브가 그대로인가?", before, save.dump());
+    expect(i18n::L("펫 칸", "ペット欄"), std::string(i18n::L("(펫 없음)", "(ペットなし)")), label);
+    expect(i18n::L("소환 버튼", "召喚ボタン"), false, summon);
+    expect(i18n::L("다시 저장해도 세이브가 그대로인가?", "保存し直してもセーブはそのままか?"), before, save.dump());
 }
 
 // ============================================================================
@@ -83,13 +83,13 @@ void sz01_pet_slot_hidden()
     using namespace sz1;
 
     json withPet = json::parse(i18n::L(R"({"name":"보람","pet":{"name":"구름","kind":"여우"}})", R"({"name":"ボラム","pet":{"name":"クラウド","kind":"キツネ"}})"));
-    expect("펫 있음: 펫 칸", std::string(i18n::L("구름", "クラウド")), petLabel(withPet));
-    expect("펫 있음: 소환 버튼", true, canSummonPet(withPet));
+    expect(i18n::L("펫 있음: 펫 칸", "ペットあり: ペット欄"), std::string(i18n::L("구름", "クラウド")), petLabel(withPet));
+    expect(i18n::L("펫 있음: 소환 버튼", "ペットあり: 召喚ボタン"), true, canSummonPet(withPet));
 
     json noPet = json::parse(i18n::L(R"({"name":"도윤","class":"궁수","quests":[1,2,3]})", R"({"name":"ドユン","class":"弓使い","quests":[1,2,3]})"));
     const size_t keys = noPet.size();
-    expect("펫 없음: 펫 칸", std::string(i18n::L("(펫 없음)", "(ペットなし)")), petLabel(noPet));
-    expect("펫 없음: 소환 버튼", false, canSummonPet(noPet));
-    expect("펫 없음: 키 수가 그대로인가?", keys, noPet.size());
+    expect(i18n::L("펫 없음: 펫 칸", "ペットなし: ペット欄"), std::string(i18n::L("(펫 없음)", "(ペットなし)")), petLabel(noPet));
+    expect(i18n::L("펫 없음: 소환 버튼", "ペットなし: 召喚ボタン"), false, canSummonPet(noPet));
+    expect(i18n::L("펫 없음: 키 수가 그대로인가?", "ペットなし: キーの数はそのままか?"), keys, noPet.size());
 }
 #pragma endregion

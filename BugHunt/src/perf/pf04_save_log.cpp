@@ -57,8 +57,8 @@ void pf04_save_log()
               << i18n::L(" 바이트, 디스크 쓰기(flush) ", " バイト、ディスク書き込み(flush) ") << s.flushes
               << i18n::L("번\n", "回\n");
 
-    expect("저장한 바이트 수", 62813LL, s.bytes);
-    expect("디스크 쓰기(flush) 횟수", 1LL, s.flushes);
+    expect(i18n::L("저장한 바이트 수", "保存したバイト数"), 62813LL, s.bytes);
+    expect(i18n::L("디스크 쓰기(flush) 횟수", "ディスク書き込み(flush)回数"), 1LL, s.flushes);
 }
 
 // ============================================================================
@@ -88,11 +88,11 @@ void pf04_save_log()
 void pf04_save_log_hidden()
 {
     const perf4::SaveStats s = perf4::save(321);
-    expect("저장한 바이트 수", 4034LL, s.bytes);
-    expect("flush 횟수", 1LL, s.flushes);
+    expect(i18n::L("저장한 바이트 수", "保存したバイト数"), 4034LL, s.bytes);
+    expect(i18n::L("flush 횟수", "flush 回数"), 1LL, s.flushes);
 
     const perf4::SaveStats empty = perf4::save(0);
-    expect("빈 월드 바이트 수", 10LL, empty.bytes);
-    expect("빈 월드 flush 횟수", 1LL, empty.flushes);
+    expect(i18n::L("빈 월드 바이트 수", "空のワールドのバイト数"), 10LL, empty.bytes);
+    expect(i18n::L("빈 월드 flush 횟수", "空のワールドの flush 回数"), 1LL, empty.flushes);
 }
 #pragma endregion

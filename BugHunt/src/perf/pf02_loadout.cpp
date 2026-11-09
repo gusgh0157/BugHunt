@@ -89,9 +89,9 @@ void pf02_loadout()
     std::cout << i18n::L("  HUD 600프레임: ", "  HUD 600フレーム: ") << sw.ms() << i18n::L(" ms, Item 복사 ", " ms、Item のコピー ") << perf2::g_itemCopies
               << i18n::L("번\n", "回\n");
 
-    expect("무게 합", 1432, hud.weight);
-    expect("가장 무거운 장비", std::string("Item13"), hud.heaviest);
-    expect("HUD를 그리는 동안 Item 복사 횟수", 0LL, perf2::g_itemCopies);
+    expect(i18n::L("무게 합", "重さの合計"), 1432, hud.weight);
+    expect(i18n::L("가장 무거운 장비", "いちばん重い装備"), std::string("Item13"), hud.heaviest);
+    expect(i18n::L("HUD를 그리는 동안 Item 복사 횟수", "HUD を描く間の Item のコピー回数"), 0LL, perf2::g_itemCopies);
 }
 
 // ============================================================================
@@ -120,8 +120,8 @@ void pf02_loadout_hidden()
 {
     const std::vector<perf2::Item> inventory = perf2::makeInventory(37);
     perf2::g_itemCopies = 0;
-    expect("무게 합", 444, perf2::totalWeight(inventory));
-    expect("HUD 무게", 444, perf2::drawHud(inventory, 50).weight);
-    expect("Item 복사 횟수", 0LL, perf2::g_itemCopies);
+    expect(i18n::L("무게 합", "重さの合計"), 444, perf2::totalWeight(inventory));
+    expect(i18n::L("HUD 무게", "HUD の重さ"), 444, perf2::drawHud(inventory, 50).weight);
+    expect(i18n::L("Item 복사 횟수", "Item のコピー回数"), 0LL, perf2::g_itemCopies);
 }
 #pragma endregion

@@ -91,7 +91,7 @@ void of01_minimap()
 
     const int reached = countReachable(cave, 0, 0);
     std::cout << i18n::L("  밝힌 칸: ", "  照らしたマス: ") << reached << '\n';
-    expect("시작 칸에서 갈 수 있는 칸 수", 25, reached);
+    expect(i18n::L("시작 칸에서 갈 수 있는 칸 수", "開始マスから行けるマスの数"), 25, reached);
 }
 
 // ============================================================================
@@ -140,11 +140,11 @@ void of01_minimap_hidden()
         "~.....~",
         "~~~~~~~",
     });
-    expect("숨은 지도: 섬 둘레", 16, countReachable(island, 1, 1));
-    expect("숨은 지도: 갇힌 칸", 1, countReachable(island, 3, 3));
+    expect(i18n::L("숨은 지도: 섬 둘레", "隠しマップ: 島の周り"), 16, countReachable(island, 1, 1));
+    expect(i18n::L("숨은 지도: 갇힌 칸", "隠しマップ: 閉じ込められたマス"), 1, countReachable(island, 3, 3));
 
     std::vector<std::string> plain(300, std::string(400, '.'));
     plain[150] = std::string(399, '#') + ".";
-    expect("숨은 지도: 넓은 들판", 300 * 400 - 399, countReachable(makeMap(plain), 0, 0));
+    expect(i18n::L("숨은 지도: 넓은 들판", "隠しマップ: 広い野原"), 300 * 400 - 399, countReachable(makeMap(plain), 0, 0));
 }
 #pragma endregion

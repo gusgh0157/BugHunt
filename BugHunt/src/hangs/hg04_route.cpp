@@ -55,13 +55,13 @@ void hg04_route()
 
     int stops = 0;
     int minutes = 0;
-    runWithWatchdog("경로 계산", [&] {
+    runWithWatchdog(i18n::L("경로 계산", "経路計算"), [&] {
         stops = countStops(&town);
         minutes = totalMinutes(&town);
     });
 
-    expect("들르는 곳 (Town, Forest, Bridge, Castle)", 4, stops);
-    expect("걸리는 시간 (0 + 15 + 25 + 40)", 80, minutes);
+    expect(i18n::L("들르는 곳 (Town, Forest, Bridge, Castle)", "立ち寄る場所(Town, Forest, Bridge, Castle)"), 4, stops);
+    expect(i18n::L("걸리는 시간 (0 + 15 + 25 + 40)", "かかる時間(0 + 15 + 25 + 40)"), 80, minutes);
 }
 
 // ============================================================================
@@ -111,11 +111,11 @@ void hg04_route_hidden()
 
     int stops = 0;
     int minutes = 0;
-    runWithWatchdog("경로 계산 (숨은 케이스)", [&] {
+    runWithWatchdog(i18n::L("경로 계산 (숨은 케이스)", "経路計算(隠しケース)"), [&] {
         stops = countStops(&camp);
         minutes = totalMinutes(&camp);
     });
-    expect("들르는 곳", 5, stops);
-    expect("걸리는 시간", 155, minutes);
+    expect(i18n::L("들르는 곳", "立ち寄る場所"), 5, stops);
+    expect(i18n::L("걸리는 시간", "かかる時間"), 155, minutes);
 }
 #pragma endregion

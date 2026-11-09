@@ -81,16 +81,16 @@ void hg05_trade()
     Inventory kael{ "Kael", 100, { "Flame Sword" } };
     Inventory mira{ "Mira", 800, { "Healing Potion", "Healing Potion" } };
 
-    runWithWatchdog("동시 거래 처리", [&] {
+    runWithWatchdog(i18n::L("동시 거래 처리", "同時トレードの処理"), [&] {
         runTradeServer({
             { &kael, &mira, "Flame Sword", 500 },     // Kael → Mira: 검
             { &mira, &kael, "Healing Potion", 30 },   // Mira → Kael: 포션
         });
     });
 
-    expect("Kael 골드 (100 + 500 - 30)", 570, kael.gold);
-    expect("Mira 골드 (800 - 500 + 30)", 330, mira.gold);
-    expect("Mira 아이템 수", 2, static_cast<int>(mira.items.size()));
+    expect(i18n::L("Kael 골드 (100 + 500 - 30)", "Kael のゴールド(100 + 500 - 30)"), 570, kael.gold);
+    expect(i18n::L("Mira 골드 (800 - 500 + 30)", "Mira のゴールド(800 - 500 + 30)"), 330, mira.gold);
+    expect(i18n::L("Mira 아이템 수", "Mira のアイテム数"), 2, static_cast<int>(mira.items.size()));
 }
 
 // ============================================================================
@@ -134,7 +134,7 @@ void hg05_trade_hidden()
     Inventory nell{ "Nell", 300, { "Shield" } };
     Inventory pia{ "Pia", 300, { "Ring" } };
 
-    runWithWatchdog("동시 거래 처리 (숨은 케이스)", [&] {
+    runWithWatchdog(i18n::L("동시 거래 처리 (숨은 케이스)", "同時トレードの処理(隠しケース)"), [&] {
         runTradeServer({
             { &ivo, &nell, "Bow", 120 },
             { &nell, &pia, "Shield", 90 },
@@ -142,8 +142,8 @@ void hg05_trade_hidden()
         });
     });
 
-    expect("Ivo 골드 (300 + 120 - 200)", 220, ivo.gold);
-    expect("Nell 골드 (300 - 120 + 90)", 270, nell.gold);
-    expect("Pia 골드 (300 - 90 + 200)", 410, pia.gold);
+    expect(i18n::L("Ivo 골드 (300 + 120 - 200)", "Ivo のゴールド(300 + 120 - 200)"), 220, ivo.gold);
+    expect(i18n::L("Nell 골드 (300 - 120 + 90)", "Nell のゴールド(300 - 120 + 90)"), 270, nell.gold);
+    expect(i18n::L("Pia 골드 (300 - 90 + 200)", "Pia のゴールド(300 - 90 + 200)"), 410, pia.gold);
 }
 #pragma endregion

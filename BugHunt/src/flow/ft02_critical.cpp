@@ -58,8 +58,8 @@ void ft02_critical()
     const flow2::Attacker mage = { 40, 15, 50 };
     const flow2::Target iceGolem = { 25, true };
 
-    expect("일반 공격 피해", 84, flow2::computeDamage(mage, iceGolem, false));
-    expect("치명타 피해", 126, flow2::computeDamage(mage, iceGolem, true));
+    expect(i18n::L("일반 공격 피해", "通常攻撃のダメージ"), 84, flow2::computeDamage(mage, iceGolem, false));
+    expect(i18n::L("치명타 피해", "クリティカルダメージ"), 126, flow2::computeDamage(mage, iceGolem, true));
 }
 
 // ============================================================================
@@ -92,12 +92,12 @@ void ft02_critical_hidden()
 {
     const flow2::Attacker rogue = { 30, 20, 100 };
     const flow2::Target dummy = { 0, false };
-    expect("도적 일반 공격", 70, flow2::computeDamage(rogue, dummy, false));
-    expect("도적 치명타", 140, flow2::computeDamage(rogue, dummy, true));
+    expect(i18n::L("도적 일반 공격", "盗賊の通常攻撃"), 70, flow2::computeDamage(rogue, dummy, false));
+    expect(i18n::L("도적 치명타", "盗賊のクリティカル"), 140, flow2::computeDamage(rogue, dummy, true));
 
     const flow2::Attacker archer = { 25, 10, 25 };
     const flow2::Target fireSpirit = { 50, true };
-    expect("궁수 일반 공격", 45, flow2::computeDamage(archer, fireSpirit, false));
-    expect("궁수 치명타", 55, flow2::computeDamage(archer, fireSpirit, true));
+    expect(i18n::L("궁수 일반 공격", "弓使いの通常攻撃"), 45, flow2::computeDamage(archer, fireSpirit, false));
+    expect(i18n::L("궁수 치명타", "弓使いのクリティカル"), 55, flow2::computeDamage(archer, fireSpirit, true));
 }
 #pragma endregion

@@ -51,8 +51,8 @@ void of02_dungeon_gen()
     const int big = buildRooms(0, 160, 2024);
     std::cout << i18n::L("  대형 던전 (방 160개): 보물 상자 ", "  大型ダンジョン (部屋160個): 宝箱 ") << big << i18n::L("개\n", "個\n");
 
-    expect("시험 던전 보물 상자", 251, small);
-    expect("대형 던전 보물 상자", 7'586, big);
+    expect(i18n::L("시험 던전 보물 상자", "試験ダンジョンの宝箱"), 251, small);
+    expect(i18n::L("대형 던전 보물 상자", "大型ダンジョンの宝箱"), 7'586, big);
 }
 
 // ============================================================================
@@ -94,8 +94,8 @@ void of02_dungeon_gen()
 void of02_dungeon_gen_hidden()
 {
     using namespace ovf2;
-    expect("숨은 던전: 방 1개", 29, buildRooms(0, 1, 11));
-    expect("숨은 던전: 방 40개", 1'904, buildRooms(0, 40, 31337));
-    expect("숨은 던전: 방 300개", 14'399, buildRooms(0, 300, 99));
+    expect(i18n::L("숨은 던전: 방 1개", "隠しダンジョン: 部屋1個"), 29, buildRooms(0, 1, 11));
+    expect(i18n::L("숨은 던전: 방 40개", "隠しダンジョン: 部屋40個"), 1'904, buildRooms(0, 40, 31337));
+    expect(i18n::L("숨은 던전: 방 300개", "隠しダンジョン: 部屋300個"), 14'399, buildRooms(0, 300, 99));
 }
 #pragma endregion

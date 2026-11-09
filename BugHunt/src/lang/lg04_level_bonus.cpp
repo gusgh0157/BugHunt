@@ -53,9 +53,9 @@ void lg04_level_bonus()
         std::cout << "  " << m.name << " (Lv " << m.level << i18n::L("): 보너스 ", "): ボーナス ") << bonus.back() << "%\n";
     }
 
-    expect("힐러 미라 보너스 (평균보다 7 낮음)", 7, bonus[1]);
-    expect("궁수 진 보너스 (평균보다 12 높음)", 0, bonus[2]);
-    expect("탱커 로안 보너스 (평균보다 0 높음)", 0, bonus[0]);
+    expect(i18n::L("힐러 미라 보너스 (평균보다 7 낮음)", "ヒーラー ミラのボーナス(平均より7低い)"), 7, bonus[1]);
+    expect(i18n::L("궁수 진 보너스 (평균보다 12 높음)", "弓使い ジンのボーナス(平均より12高い)"), 0, bonus[2]);
+    expect(i18n::L("탱커 로안 보너스 (평균보다 0 높음)", "タンク ロアンのボーナス(平均より0高い)"), 0, bonus[0]);
 }
 
 // ============================================================================
@@ -97,10 +97,10 @@ void lg04_level_bonus()
 void lg04_level_bonus_hidden()
 {
     using namespace lang4;
-    expect("숨은 파티: 1 높음", 0, levelBonus(61, 60, 15));
-    expect("숨은 파티: 30 낮음 (상한 15)", 15, levelBonus(30, 60, 15));
-    expect("숨은 파티: 4 낮음", 4, levelBonus(56, 60, 15));
-    expect("숨은 파티: 상한 0", 0, levelBonus(10, 60, 0));
-    expect("숨은 파티: 99 높음", 0, levelBonus(99, 1, 30));
+    expect(i18n::L("숨은 파티: 1 높음", "隠しパーティー: 1高い"), 0, levelBonus(61, 60, 15));
+    expect(i18n::L("숨은 파티: 30 낮음 (상한 15)", "隠しパーティー: 30低い(上限15)"), 15, levelBonus(30, 60, 15));
+    expect(i18n::L("숨은 파티: 4 낮음", "隠しパーティー: 4低い"), 4, levelBonus(56, 60, 15));
+    expect(i18n::L("숨은 파티: 상한 0", "隠しパーティー: 上限0"), 0, levelBonus(10, 60, 0));
+    expect(i18n::L("숨은 파티: 99 높음", "隠しパーティー: 99高い"), 0, levelBonus(99, 1, 30));
 }
 #pragma endregion

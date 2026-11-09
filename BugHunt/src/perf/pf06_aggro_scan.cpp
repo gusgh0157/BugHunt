@@ -84,8 +84,8 @@ void pf06_aggro_scan()
               << i18n::L(" ms, 한 몬스터를 동시에 붙잡은 shared_ptr 최대 ", " ms、1 体のモンスターを同時に保持した shared_ptr 最大 ")
               << perf6::Monster::g_maxHolders << i18n::L("개\n", " 個\n");
 
-    expect("가장 위험한 몬스터", std::string("Mob589"), target);
-    expect("검사 중 한 몬스터를 동시에 붙잡은 shared_ptr 수 (목록 하나뿐)", 1L, perf6::Monster::g_maxHolders);
+    expect(i18n::L("가장 위험한 몬스터", "いちばん危険なモンスター"), std::string("Mob589"), target);
+    expect(i18n::L("검사 중 한 몬스터를 동시에 붙잡은 shared_ptr 수 (목록 하나뿐)", "検査中に1体のモンスターを同時に保持した shared_ptr の数(リストの1つだけ)"), 1L, perf6::Monster::g_maxHolders);
 }
 
 // ============================================================================
@@ -116,7 +116,7 @@ void pf06_aggro_scan_hidden()
 {
     const auto field = perf6::makeField(77);
     perf6::Monster::g_maxHolders = 0;
-    expect("가장 위험한 몬스터", std::string("Mob49"), perf6::scan(field, 5));
+    expect(i18n::L("가장 위험한 몬스터", "いちばん危険なモンスター"), std::string("Mob49"), perf6::scan(field, 5));
     // threatOf가 MonsterPtr을 받든 const Monster&를 받든 검사할 수 있게 한다.
     const auto threatOf = [](const auto& m) {   // 제네릭 람다: 맞지 않는 쪽 분기는 만들어지지 않는다
         if constexpr (requires { perf6::threatOf(m); })
@@ -124,9 +124,9 @@ void pf06_aggro_scan_hidden()
         else
             return perf6::threatOf(*m);
     };
-    expect("위협 수치", 250, threatOf(std::make_shared<perf6::Monster>("x", 30, 50)));
+    expect(i18n::L("위협 수치", "脅威値"), 250, threatOf(std::make_shared<perf6::Monster>("x", 30, 50)));
     perf6::Monster::g_maxHolders = 0;
     perf6::scan(field, 3);
-    expect("동시에 붙잡은 shared_ptr 수", 1L, perf6::Monster::g_maxHolders);
+    expect(i18n::L("동시에 붙잡은 shared_ptr 수", "同時に保持した shared_ptr の数"), 1L, perf6::Monster::g_maxHolders);
 }
 #pragma endregion

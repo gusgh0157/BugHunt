@@ -34,7 +34,7 @@ void lab06_backpack()
     loadSaveData(bag);
     applyCursedItem(bag);
 
-    expect("크기 3짜리 아이템을 주울 수 있나?", false, canPickUp(bag, 3));
+    expect(i18n::L("크기 3짜리 아이템을 주울 수 있나?", "サイズ3のアイテムを拾えるか?"), false, canPickUp(bag, 3));
 }
 
 // ============================================================================

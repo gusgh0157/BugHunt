@@ -52,10 +52,10 @@ void ft05_discount()
     const Customer vip     = { "Selene", Grade::Platinum, 30, 140 };
     const Customer guest   = { "Bram",   Grade::Bronze,    0,   3 };
 
-    expect("Rin (첫 구매, 20000원)",  18000, finalPrice(newbie, 20000));
-    expect("Tomas (멤버, 20000원)",   19000, finalPrice(regular, 20000));
-    expect("Selene (VIP, 20000원)",   17000, finalPrice(vip, 20000));
-    expect("Bram (비회원, 60000원)",  58200, finalPrice(guest, 60000));
+    expect(i18n::L("Rin (첫 구매, 20000원)", "Rin (初回購入、20000ウォン)"),  18000, finalPrice(newbie, 20000));
+    expect(i18n::L("Tomas (멤버, 20000원)", "Tomas (メンバー、20000ウォン)"),   19000, finalPrice(regular, 20000));
+    expect(i18n::L("Selene (VIP, 20000원)", "Selene (VIP、20000ウォン)"),   17000, finalPrice(vip, 20000));
+    expect(i18n::L("Bram (비회원, 60000원)", "Bram (非会員、60000ウォン)"),  58200, finalPrice(guest, 60000));
 }
 
 // ============================================================================
@@ -99,9 +99,9 @@ void ft05_discount_hidden()
     const Customer bigSpender  = { "Oren",  Grade::Silver,  14, 30 };
     const Customer richGuest   = { "Pia",   Grade::Platinum, 0,  5 };   // 멤버십이 없으니 VIP가 아니다
 
-    expect("Ivo (VIP, 40000원)",        34000, finalPrice(goldMember, 40000));
-    expect("Nell (첫 구매, 10000원)",    9000, finalPrice(firstTimer, 10000));
-    expect("Oren (멤버, 80000원)",      76000, finalPrice(bigSpender, 80000));
-    expect("Pia (비회원, 50000원)",     48500, finalPrice(richGuest, 50000));
+    expect(i18n::L("Ivo (VIP, 40000원)", "Ivo (VIP、40000ウォン)"),        34000, finalPrice(goldMember, 40000));
+    expect(i18n::L("Nell (첫 구매, 10000원)", "Nell (初回購入、10000ウォン)"),    9000, finalPrice(firstTimer, 10000));
+    expect(i18n::L("Oren (멤버, 80000원)", "Oren (メンバー、80000ウォン)"),      76000, finalPrice(bigSpender, 80000));
+    expect(i18n::L("Pia (비회원, 50000원)", "Pia (非会員、50000ウォン)"),     48500, finalPrice(richGuest, 50000));
 }
 #pragma endregion

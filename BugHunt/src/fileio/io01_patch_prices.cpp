@@ -79,8 +79,8 @@ void io01_patch_prices()
     for (const Item& item : items)
         std::cout << "    " << item.name << " " << item.price << "G\n";
 
-    expect("포션 가격", 120, priceOf(items, i18n::L("포션", "ポーション")));
-    expect("귀환서 가격", 300, priceOf(items, i18n::L("귀환서", "帰還の書")));
+    expect(i18n::L("포션 가격", "ポーションの価格"), 120, priceOf(items, i18n::L("포션", "ポーション")));
+    expect(i18n::L("귀환서 가격", "帰還の書の価格"), 300, priceOf(items, i18n::L("귀환서", "帰還の書")));
 }
 
 // ============================================================================
@@ -132,8 +132,8 @@ void io01_patch_prices_hidden()
         CurrentDirGuard launchedFrom(desktop);
         items = loadPrices();
     }
-    expect("숨은 가격표: 품목 수", static_cast<size_t>(3), items.size());
-    expect("숨은 가격표: 밧줄", 40, priceOf(items, i18n::L("밧줄", "ロープ")));
-    expect("숨은 가격표: 포션", 135, priceOf(items, i18n::L("포션", "ポーション")));
+    expect(i18n::L("숨은 가격표: 품목 수", "隠し価格表: 品目数"), static_cast<size_t>(3), items.size());
+    expect(i18n::L("숨은 가격표: 밧줄", "隠し価格表: ロープ"), 40, priceOf(items, i18n::L("밧줄", "ロープ")));
+    expect(i18n::L("숨은 가격표: 포션", "隠し価格表: ポーション"), 135, priceOf(items, i18n::L("포션", "ポーション")));
 }
 #pragma endregion

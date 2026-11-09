@@ -51,8 +51,8 @@ void pf03_combat_log()
     std::cout << i18n::L("  이벤트 ", "  イベント ") << events.size() << i18n::L("개 내보내기: ", "件 書き出し: ") << sw.ms() << i18n::L(" ms, 할당 ", " ms、割り当て ")
               << perf::g_allocCount << i18n::L("번, ", "回、") << perf::g_allocBytes / 1024 << i18n::L(" KB (결과 ", " KB (結果 ") << log.size() / 1024 << " KB)\n";
 
-    expect("결과 길이", static_cast<size_t>(60294), log.size());
-    expect("할당한 바이트가 결과 길이의 16배 이하인가? (결과 길이에 비례하는가)", true, perf::g_allocBytes <= 16LL * static_cast<long long>(log.size()));
+    expect(i18n::L("결과 길이", "結果の長さ"), static_cast<size_t>(60294), log.size());
+    expect(i18n::L("할당한 바이트가 결과 길이의 16배 이하인가? (결과 길이에 비례하는가)", "割り当てたバイト数が結果の長さの16倍以下か?(結果の長さに比例するか)"), true, perf::g_allocBytes <= 16LL * static_cast<long long>(log.size()));
 }
 
 // ============================================================================
@@ -84,8 +84,8 @@ void pf03_combat_log_hidden()
     const auto events = perf3::makeRaid(1500);
     perf::resetAllocCounters();
     const perf3::Text log = perf3::exportLog(events);
-    expect("결과 길이", static_cast<size_t>(22128), log.size());
-    expect("첫 줄", std::string("[0] hit 100\n"), std::string(log.substr(0, 12)));
-    expect("할당 바이트가 결과의 16배 이하인가?", true, perf::g_allocBytes <= 16LL * static_cast<long long>(log.size()));
+    expect(i18n::L("결과 길이", "結果の長さ"), static_cast<size_t>(22128), log.size());
+    expect(i18n::L("첫 줄", "1行目"), std::string("[0] hit 100\n"), std::string(log.substr(0, 12)));
+    expect(i18n::L("할당 바이트가 결과의 16배 이하인가?", "割り当てバイト数が結果の16倍以下か?"), true, perf::g_allocBytes <= 16LL * static_cast<long long>(log.size()));
 }
 #pragma endregion

@@ -107,8 +107,8 @@ void as04_auction_notice()
     bell.ring();
 
     std::vector<int> prices;
-    runWithWatchdog("낙찰 공지 기다리기", [&] { prices = board.waitFor(1); });
-    expect("공지된 낙찰가", 1500, prices.at(0));
+    runWithWatchdog(i18n::L("낙찰 공지 기다리기", "落札告知を待つ"), [&] { prices = board.waitFor(1); });
+    expect(i18n::L("공지된 낙찰가", "告知された落札価格"), 1500, prices.at(0));
 }
 
 // ============================================================================
@@ -158,8 +158,8 @@ void as04_auction_notice_hidden()
     bell.ring();
 
     std::vector<int> prices;
-    runWithWatchdog("낙찰 공지 기다리기 (숨은 케이스)", [&] { prices = board.waitFor(2); });
+    runWithWatchdog(i18n::L("낙찰 공지 기다리기 (숨은 케이스)", "落札告知を待つ(隠しケース)"), [&] { prices = board.waitFor(2); });
     const int sum = prices.at(0) + prices.at(1);
-    expect("공지된 낙찰가 합 (450 + 7000)", 7450, sum);
+    expect(i18n::L("공지된 낙찰가 합 (450 + 7000)", "告知された落札価格の合計(450 + 7000)"), 7450, sum);
 }
 #pragma endregion

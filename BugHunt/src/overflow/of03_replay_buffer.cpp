@@ -75,12 +75,12 @@ void of03_replay_buffer()
     int lastTick = -1;
     const std::uint32_t sum = recordMatch(600, 77, lastTick);
     std::cout << i18n::L("  600틱 녹화: 마지막 프레임 ", "  600ティック録画: 最後のフレーム ") << lastTick << i18n::L("틱, 체크섬 ", "ティック、チェックサム ") << sum << '\n';
-    expect("마지막 프레임의 틱", 599, lastTick);
-    expect("체크섬", expectedChecksum(77, 600), sum);
+    expect(i18n::L("마지막 프레임의 틱", "最後のフレームのティック"), 599, lastTick);
+    expect(i18n::L("체크섬", "チェックサム"), expectedChecksum(77, 600), sum);
 
     std::cout << i18n::L("  다음 판 녹화...\n", "  次の試合を録画...\n") << std::flush;
     const std::uint32_t sum2 = recordMatch(120, 5, lastTick);
-    expect("두 번째 판 체크섬", expectedChecksum(5, 120), sum2);
+    expect(i18n::L("두 번째 판 체크섬", "2試合目のチェックサム"), expectedChecksum(5, 120), sum2);
 }
 
 // ============================================================================
@@ -125,8 +125,8 @@ void of03_replay_buffer_hidden()
         int lastTick = -1;
         const std::uint32_t seed = static_cast<std::uint32_t>(ticks) * 13u + 1u;
         const std::uint32_t sum = recordMatch(ticks, seed, lastTick);
-        expect("숨은 녹화: 마지막 프레임의 틱", ticks - 1, lastTick);
-        expect("숨은 녹화: 체크섬", expectedChecksum(seed, ticks), sum);
+        expect(i18n::L("숨은 녹화: 마지막 프레임의 틱", "隠し録画: 最後のフレームのティック"), ticks - 1, lastTick);
+        expect(i18n::L("숨은 녹화: 체크섬", "隠し録画: チェックサム"), expectedChecksum(seed, ticks), sum);
     }
 }
 #pragma endregion

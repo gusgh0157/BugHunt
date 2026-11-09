@@ -85,9 +85,9 @@ void as07_cutscene()
     {
     }
 
-    expect("대사 창의 호감도 개수", 2, static_cast<int>(log.affinityShown.size()));
-    expect("처음 보여 준 호감도", 40, log.affinityShown.at(0));
-    expect("선물 뒤 호감도", 50, log.affinityShown.at(1));
+    expect(i18n::L("대사 창의 호감도 개수", "会話ウィンドウの好感度の個数"), 2, static_cast<int>(log.affinityShown.size()));
+    expect(i18n::L("처음 보여 준 호감도", "最初に表示した好感度"), 40, log.affinityShown.at(0));
+    expect(i18n::L("선물 뒤 호감도", "プレゼント後の好感度"), 50, log.affinityShown.at(1));
 }
 
 // ============================================================================
@@ -138,7 +138,7 @@ void as07_cutscene_hidden()
     int sum = 0;
     for (int v : log.affinityShown)
         sum += v;
-    expect("대사 창의 호감도 개수", 4, static_cast<int>(log.affinityShown.size()));
-    expect("보여 준 호감도 합 (5 + 77 + 15 + 87)", 184, sum);
+    expect(i18n::L("대사 창의 호감도 개수", "会話ウィンドウの好感度の個数"), 4, static_cast<int>(log.affinityShown.size()));
+    expect(i18n::L("보여 준 호감도 합 (5 + 77 + 15 + 87)", "表示した好感度の合計(5 + 77 + 15 + 87)"), 184, sum);
 }
 #pragma endregion

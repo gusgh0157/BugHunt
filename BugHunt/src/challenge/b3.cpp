@@ -40,9 +40,9 @@ std::vector<Tile> makeRow(int width)
 void chB3()
 {
     using namespace blind3;
-    runWithWatchdog("지형 계산", [] {
-        expect("짧은 길 (폭 40)", 105, climbOf(makeRow(40)));
-        expect("긴 길 (폭 300)", 763, climbOf(makeRow(300)));
+    runWithWatchdog(i18n::L("지형 계산", "地形計算"), [] {
+        expect(i18n::L("짧은 길 (폭 40)", "短い道(幅40)"), 105, climbOf(makeRow(40)));
+        expect(i18n::L("긴 길 (폭 300)", "長い道(幅300)"), 763, climbOf(makeRow(300)));
     });
 }
 
@@ -50,10 +50,10 @@ void chB3()
 void chB3_hidden()
 {
     using namespace blind3;
-    runWithWatchdog("지형 계산 (숨은 케이스)", [] {
-        expect("폭 0", 0, climbOf({}));
-        expect("폭 256", 651, climbOf(makeRow(256)));
-        expect("폭 1000", 2548, climbOf(makeRow(1000)));
+    runWithWatchdog(i18n::L("지형 계산 (숨은 케이스)", "地形計算(隠しケース)"), [] {
+        expect(i18n::L("폭 0", "幅0"), 0, climbOf({}));
+        expect(i18n::L("폭 256", "幅256"), 651, climbOf(makeRow(256)));
+        expect(i18n::L("폭 1000", "幅1000"), 2548, climbOf(makeRow(1000)));
     });
 }
 #pragma endregion

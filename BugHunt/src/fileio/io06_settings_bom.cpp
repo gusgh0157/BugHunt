@@ -46,8 +46,8 @@ void io06_settings_bom()
     const auto settings = loadSettings(file);
     std::cout << i18n::L("  읽은 설정 ", "  読み込んだ設定") << settings.size() << i18n::L("개\n", "個\n");
 
-    expect("음량", 30, getInt(settings, "volume", 80));
-    expect("전체 화면", 1, getInt(settings, "fullscreen", 0));
+    expect(i18n::L("음량", "音量"), 30, getInt(settings, "volume", 80));
+    expect(i18n::L("전체 화면", "全画面"), 1, getInt(settings, "fullscreen", 0));
 }
 
 // ============================================================================
@@ -90,12 +90,12 @@ void io06_settings_bom_hidden()
 
     iokit::writeBytes(lab / "bom.ini", "\xEF\xBB\xBF" "fov=95\nvolume=12\n");
     const auto withBom = loadSettings(lab / "bom.ini");
-    expect("BOM 있음: 시야각", 95, getInt(withBom, "fov", 60));
-    expect("BOM 있음: 음량", 12, getInt(withBom, "volume", 80));
+    expect(i18n::L("BOM 있음: 시야각", "BOMあり: 視野角"), 95, getInt(withBom, "fov", 60));
+    expect(i18n::L("BOM 있음: 음량", "BOMあり: 音量"), 12, getInt(withBom, "volume", 80));
 
     iokit::writeBytes(lab / "plain.ini", "brightness=7\nvolume=55\n");   // BOM 없음
     const auto plain = loadSettings(lab / "plain.ini");
-    expect("BOM 없음: 밝기", 7, getInt(plain, "brightness", 5));
-    expect("BOM 없음: 음량", 55, getInt(plain, "volume", 80));
+    expect(i18n::L("BOM 없음: 밝기", "BOMなし: 明るさ"), 7, getInt(plain, "brightness", 5));
+    expect(i18n::L("BOM 없음: 음량", "BOMなし: 音量"), 55, getInt(plain, "volume", 80));
 }
 #pragma endregion

@@ -78,8 +78,8 @@ void pt07_rage_timer()
     castRage(timers, doran);
     timers.advance(5);
 
-    expect("분노가 끝난 Kael 공격력", 60, kael.attack);
-    expect("분노가 끝난 Doran 공격력", 90, doran.attack);
+    expect(i18n::L("분노가 끝난 Kael 공격력", "怒りが切れた Kael の攻撃力"), 60, kael.attack);
+    expect(i18n::L("분노가 끝난 Doran 공격력", "怒りが切れた Doran の攻撃力"), 90, doran.attack);
 }
 
 // ============================================================================
@@ -125,10 +125,10 @@ void pt07_rage_timer_hidden()
         castRage(timers, h);
         timers.advance(2);
     }
-    expect("분노 중인 Pia 공격력 (7 + 3)", 10, heroes[2].attack);
+    expect(i18n::L("분노 중인 Pia 공격력 (7 + 3)", "怒り中の Pia の攻撃力(7 + 3)"), 10, heroes[2].attack);
     timers.advance(10);
-    expect("Nell 공격력", 41, heroes[0].attack);
-    expect("Ivo 공격력", 120, heroes[1].attack);
-    expect("Pia 공격력", 7, heroes[2].attack);
+    expect(i18n::L("Nell 공격력", "Nell の攻撃力"), 41, heroes[0].attack);
+    expect(i18n::L("Ivo 공격력", "Ivo の攻撃力"), 120, heroes[1].attack);
+    expect(i18n::L("Pia 공격력", "Pia の攻撃力"), 7, heroes[2].attack);
 }
 #pragma endregion

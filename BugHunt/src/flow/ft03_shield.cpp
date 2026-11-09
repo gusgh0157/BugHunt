@@ -65,7 +65,7 @@ void ft03_shield()
 
     std::cout << i18n::L("  받은 피해 ", "  受けたダメージ") << received << i18n::L(", 보호막 흡수 ", "、シールド吸収") << absorbed
               << i18n::L(", HP 감소 ", "、HP減少") << hpLost << i18n::L(", 남은 HP ", "、残りHP ") << tank.hp << '\n';
-    expect("받은 피해 == 보호막 흡수 + HP 감소", received, absorbed + hpLost);
+    expect(i18n::L("받은 피해 == 보호막 흡수 + HP 감소", "受けたダメージ == シールド吸収 + HP減少"), received, absorbed + hpLost);
 }
 
 // ============================================================================
@@ -108,18 +108,18 @@ void ft03_shield_hidden()
 
     Unit full;                       // 보호막 30이 피해 7을 전부 막는다
     takeDamage(full, 7);
-    expect("보호막 충분: 보호막", 23, full.shield);
-    expect("보호막 충분: HP", 200, full.hp);
+    expect(i18n::L("보호막 충분: 보호막", "シールド十分: シールド"), 23, full.shield);
+    expect(i18n::L("보호막 충분: HP", "シールド十分: HP"), 200, full.hp);
 
     Unit cracked;                    // 보호막 5가 피해 12 중 5만 막는다
     cracked.shield = 5;
     takeDamage(cracked, 12);
-    expect("보호막 부족: 보호막", 0, cracked.shield);
-    expect("보호막 부족: HP", 193, cracked.hp);
+    expect(i18n::L("보호막 부족: 보호막", "シールド不足: シールド"), 0, cracked.shield);
+    expect(i18n::L("보호막 부족: HP", "シールド不足: HP"), 193, cracked.hp);
 
     Unit bare;                       // 보호막이 없으면 전부 HP로
     bare.shield = 0;
     takeDamage(bare, 9);
-    expect("보호막 없음: HP", 191, bare.hp);
+    expect(i18n::L("보호막 없음: HP", "シールドなし: HP"), 191, bare.hp);
 }
 #pragma endregion

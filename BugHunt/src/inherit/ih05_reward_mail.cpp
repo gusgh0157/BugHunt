@@ -59,8 +59,8 @@ void ih05_reward_mail()
     std::cout << i18n::L("  골드 ", "  ゴールド") << box.gold() << i18n::L(", 아이템 ", "、アイテム") << box.items().size() << i18n::L("개, 이벤트 아이템 ", "個、イベントアイテム")
               << box.eventItems() << i18n::L("개\n", "個\n");
 
-    expect("받은 골드", 500, box.gold());
-    expect("받은 아이템 수", static_cast<size_t>(1), box.items().size());
+    expect(i18n::L("받은 골드", "受け取ったゴールド"), 500, box.gold());
+    expect(i18n::L("받은 아이템 수", "受け取ったアイテム数"), static_cast<size_t>(1), box.items().size());
 }
 
 // ============================================================================
@@ -104,8 +104,8 @@ void ih05_reward_mail_hidden()
     box.give(Item(42));
     box.give(1000);
     box.give(Item(7));
-    expect("숨은 우편함: 골드", 1075, box.gold());
-    expect("숨은 우편함: 아이템 수", static_cast<size_t>(2), box.items().size());
-    expect("숨은 우편함: 이벤트 아이템 수", 2, box.eventItems());
+    expect(i18n::L("숨은 우편함: 골드", "隠しメールボックス: ゴールド"), 1075, box.gold());
+    expect(i18n::L("숨은 우편함: 아이템 수", "隠しメールボックス: アイテム数"), static_cast<size_t>(2), box.items().size());
+    expect(i18n::L("숨은 우편함: 이벤트 아이템 수", "隠しメールボックス: イベントアイテム数"), 2, box.eventItems());
 }
 #pragma endregion

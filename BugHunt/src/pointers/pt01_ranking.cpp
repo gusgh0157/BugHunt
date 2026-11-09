@@ -42,8 +42,8 @@ void pt01_ranking()
     for (const auto& line : board)
         std::cout << "  " << line << '\n';
 
-    expect("1위 줄", std::string(i18n::L("1위 Kael (3200점)", "1位 Kael (3200点)")), std::string(board[0]));
-    expect("3위 줄", std::string(i18n::L("3위 Doran (2400점)", "3位 Doran (2400点)")), std::string(board[2]));
+    expect(i18n::L("1위 줄", "1位の行"), std::string(i18n::L("1위 Kael (3200점)", "1位 Kael (3200点)")), std::string(board[0]));
+    expect(i18n::L("3위 줄", "3位の行"), std::string(i18n::L("3위 Doran (2400점)", "3位 Doran (2400点)")), std::string(board[2]));
 }
 
 // ============================================================================
@@ -88,8 +88,8 @@ void pt01_ranking_hidden()
     };
 
     const auto board = ptr1::buildBoard(ranking);
-    expect("1위 줄", std::string(i18n::L("1위 Selene (5100점)", "1位 Selene (5100点)")), std::string(board[0]));
-    expect("2위 줄", std::string(i18n::L("2위 Ivo (4870점)", "2位 Ivo (4870点)")), std::string(board[1]));
-    expect("4위 줄", std::string(i18n::L("4위 Bram (990점)", "4位 Bram (990点)")), std::string(board[3]));
+    expect(i18n::L("1위 줄", "1位の行"), std::string(i18n::L("1위 Selene (5100점)", "1位 Selene (5100点)")), std::string(board[0]));
+    expect(i18n::L("2위 줄", "2位の行"), std::string(i18n::L("2위 Ivo (4870점)", "2位 Ivo (4870点)")), std::string(board[1]));
+    expect(i18n::L("4위 줄", "4位の行"), std::string(i18n::L("4위 Bram (990점)", "4位 Bram (990点)")), std::string(board[3]));
 }
 #pragma endregion

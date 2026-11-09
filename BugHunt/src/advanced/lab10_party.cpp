@@ -62,9 +62,9 @@ void lab10_party()
     levelUpAll(party);
 
     // 전투는 한 번도 없었으므로 HP는 처음 그대로여야 한다.
-    expect("Kael HP",  100, party[0].hp);
-    expect("Mira HP",   80, party[1].hp);
-    expect("Doran HP", 120, party[2].hp);
+    expect(i18n::L("Kael HP", "Kael HP"),  100, party[0].hp);
+    expect(i18n::L("Mira HP", "Mira HP"),   80, party[1].hp);
+    expect(i18n::L("Doran HP", "Doran HP"), 120, party[2].hp);
 }
 
 // ============================================================================

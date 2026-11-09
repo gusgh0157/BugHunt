@@ -46,7 +46,7 @@ void runWithWatchdog(const char* what, const std::function<void()>& work, int ti
     }
     else if (!state->finished.wait_for(lock, std::chrono::milliseconds(timeoutMs), [&] { return state->done; }))
     {
-        std::cout << "  [FAIL] " << i18n::tr(what) << i18n::L("  응답 없음 (", "  応答なし (") << timeoutMs
+        std::cout << "  [FAIL] " << what << i18n::L("  응답 없음 (", "  応答なし (") << timeoutMs
                   << i18n::L(" ms 초과)\n", " ms 超過)\n") << std::flush;
         std::_Exit(kExitTimeout);   // 멈춘 작업 스레드는 프로세스와 함께 정리된다
     }
