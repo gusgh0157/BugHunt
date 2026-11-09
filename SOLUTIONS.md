@@ -28,7 +28,23 @@
 값의 출처:  printBattleSummary: battle = {"Slime", 35, 800}, toSeconds(800) == 0
 진짜 원인:  1초 미만 전투가 정수 나눗셈으로 0초가 됨
 ```
-**수정:** 밀리초로 계산: `totalDamage * 1000 / durationMs` (그리고 `durationMs == 0` 검사), 또는 `double`로 계산.
+**수정:** 초가 아니라 밀리초로 계산한다. 바뀌는 시그니처는 `damagePerSecond`의 둘째 매개변수(`seconds` → `durationMs`)이고, 호출하는 `printBattleSummary`도 `battle.durationMs`를 넘기도록 고친다. `toSeconds`는 화면에 초를 보여 주는 데만 남긴다.
+```cpp
+int damagePerSecond(int totalDamage, int durationMs)
+{
+    if (durationMs <= 0)
+        throw std::invalid_argument(i18n::L("damagePerSecond: 전투 시간이 0ms 이하", "damagePerSecond: 戦闘時間が0ms以下"));
+    return totalDamage * 1000 / durationMs;
+}
+
+void printBattleSummary(const BattleRecord& battle)
+{
+    const int seconds = toSeconds(battle.durationMs);                          // 화면 표시용
+    const int dps = damagePerSecond(battle.totalDamage, battle.durationMs);   // 계산은 밀리초로
+    std::cout << "  " << battle.enemy << ": " << seconds << i18n::L("초, DPS ", "秒、DPS ") << dps << '\n';
+}
+```
+(또는 `static_cast<double>(totalDamage) / (durationMs / 1000.0)`처럼 `double`로 계산한다.)
 **교훈:** 값의 출처를 여러 프레임 거슬러 올라가야 한다. 0으로 나눈 함수는 받은 값을 썼을 뿐이다.
 
 ## Lab 4 — 검사가 한 경로에만 있음
@@ -90,12 +106,47 @@
 
 ## Lab 10 — 참조 무효화 (vector 재할당)
 `add`가 `items_.back()`의 참조를 돌려주는데, 이후 `push_back`에서 capacity가 늘면 원소들이 새 메모리로 옮겨지고 `sword`는 해제된 메모리를 가리킨다(use-after-free).
-**수정:** 참조를 오래 들고 있지 말고 이름/인덱스로 다시 찾기, 또는 `reserve`, 또는 `std::deque`/`std::list`처럼 주소가 안정적인 컨테이너.
+**수정:** `add`가 참조 대신 인덱스를 돌려주고, 쓰는 쪽은 그 인덱스로 매번 다시 찾는다. 호출하는 `lab02_inventory`도 함께 바뀐다.
+```cpp
+#include <cstddef>   // std::size_t
+// Inventory
+    // 아이템을 추가하고, 나중에 다시 찾을 수 있도록 인덱스를 돌려준다. (참조는 push_back 뒤에 무효가 될 수 있다)
+    std::size_t add(const std::string& name, int count)
+    {
+        items_.push_back({ name, count });
+        return items_.size() - 1;
+    }
+
+    Item& at(std::size_t index) { return items_[index]; }
+
+// lab02_inventory
+    Inventory inv;
+    const std::size_t sword = inv.add("Sword of the Northern Watch", 1);
+    inv.add("Oak Shield", 1);
+    inv.add("Healing Potion", 5);
+    inv.add("Iron Arrow", 30);
+
+    // 퀘스트 보상: 검을 하나 더 준다.
+    inv.at(sword).count += 1;
+```
+다른 길: `lab02_inventory` 첫 줄에서 `inv.reserve(4)`를 불러 재할당을 막거나(`Inventory`에 `void reserve(std::size_t n) { items_.reserve(n); }` 추가), `items_`를 `std::deque<Item>`처럼 `push_back`해도 원소 주소가 안 바뀌는 컨테이너로 바꾼다.
 **교훈:** "참조/포인터/이터레이터를 들고 있는 동안 컨테이너를 바꾸지 말 것."
 
 ## Lab 11 — 임시 객체를 가리키는 string_view
 `makeTitle`이 만든 `std::string`은 `titleOf`의 return 문이 끝나면 파괴되고, `string_view`는 그 해제된 버퍼를 가리킨다.
-**수정:** `std::string`으로 리턴. `string_view`는 소유자가 더 오래 살아 있을 때만.
+**수정:** `titleOf`가 `std::string`을 돌려주고, 호출하는 `lab03_titles`의 `titles`도 `std::vector<std::string>`으로 바꾼다. `string_view`는 소유자가 더 오래 살아 있을 때만 쓴다. (`#include <string_view>`와 `titleOf` 위의 "string_view로 돌려준다 (최적화)" 주석은 더 이상 맞지 않으므로 지운다.)
+```cpp
+std::string titleOf(const Player& p)
+{
+    return makeTitle(p);
+}
+
+// lab03_titles
+    std::vector<std::string> titles;
+    for (const Player& p : players)
+        titles.push_back(titleOf(p));
+```
+`expect` 두 줄의 `std::string(titles[0])`은 `std::string`을 복사할 뿐이라 그대로 두어도 컴파일된다.
 
 ## Lab 12 — 초기화 안 된 멤버
 `int combo_;`에 초기값이 없다. 카운터는 오브젝트 풀(`bughunt::recycledStorage`)의 재사용 메모리 위에 만들어지는데, 이 자리에는 전에 쓰던 값(BugHunt에서는 `0xA5A5A5A5` = -1515870811)이 남아 있어서 처음 4연속 명중이 음수로 기록되어 무시된다. 평범한 지역 변수였다면 컴파일러와 구성에 따라 우연히 0이라 맞게 나올 수도 있다.
@@ -127,7 +178,21 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 
 ## Lab 17 — 데이터 레이스
 `gold_` 읽기-수정-쓰기가 원자적이지 않다. 두 스레드가 같은 값을 읽고 각각 +1을 쓰면 하나가 사라진다. 읽기와 쓰기 사이의 `std::this_thread::sleep_for(1ms)`는 그 틈을 넓혀 어느 컴파일러에서나 증상이 드러나게 할 뿐, 원인이 아니다(지워도 레이스는 남는다).
-**수정:** `std::atomic<int> gold_{0};` + `gold_ += amount;` 또는 `std::mutex`로 보호.
+**수정:** `gold_`를 `std::atomic<int>`로 바꾸고 더하기를 원자 연산 하나로 한다. 읽기와 쓰기를 벌려 놓던 `current`와 `sleep_for` 줄은 지운다(틈을 벌리는 것이 역할이었으므로 남길 이유가 없다).
+```cpp
+#include <atomic>
+// GuildBank
+    void deposit(int amount)
+    {
+        gold_ += amount;   // 읽기-수정-쓰기가 원자 연산 하나로 끝난다
+    }
+
+    int gold() const { return gold_; }
+
+private:
+    std::atomic<int> gold_{ 0 };
+```
+`std::mutex`로 보호해도 된다: `std::lock_guard<std::mutex> lock(mutex_);`를 `deposit` 첫 줄에 두고 `gold_ += amount;`만 남긴다(`std::mutex mutex_;` 멤버, `#include <mutex>`). 이때도 `sleep_for`는 지운다. 잠금 안에서 자면 입금 200번이 잠금을 하나씩 기다려 랩이 눈에 띄게 느려진다. (`#include <chrono>`는 쓰이지 않게 되지만 남겨 두어도 된다.)
 
 ## Lab 18 — 구조체 내부 버퍼 오버플로
 `char name[8]`에 `"Sir Kael"`(8글자 + NUL = 9바이트)을 `memcpy` → 바로 뒤의 `hp` 첫 바이트를 0으로 덮음 → 100(0x64)이 0이 됨. `"Sir Doran"`은 10바이트라 `hp` 하위 2바이트를 `'n'`, `0`으로 덮어 120 → 110.
@@ -163,7 +228,16 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 처음 어긋난 곳: applyCrit 반환 (함수에서 나온 직후 디버거가 보여 주는 반환값: "applyCrit 반환 70")
 진짜 원인:     result에 원본을 복사해 두고 damage만 바꾼 뒤 result를 반환
 ```
-**수정:** `return damage;` (또는 `return isCrit ? damage * (100 + critBonusPercent) / 100 : damage;`로 임시 변수 제거)
+**수정:** `applyCrit`가 계산한 `damage`를 돌려준다. `result` 변수는 쓸모가 없어지므로 지운다(남기면 "초기화됐지만 쓰이지 않는 변수" 경고가 난다).
+```cpp
+int applyCrit(int damage, bool isCrit, int critBonusPercent)
+{
+    if (isCrit)
+        damage = damage * (100 + critBonusPercent) / 100;
+    return damage;
+}
+```
+(또는 `return isCrit ? damage * (100 + critBonusPercent) / 100 : damage;` 한 줄.)
 **교훈:** 파이프라인은 단계별 기대값을 정해 두고 한 줄씩 넘기면 범인 함수가 바로 나온다. 함수 안으로는 step into, 나와서는 **디버거가 보여 주는 반환값**(Visual Studio 자동 창, gdb `finish`).
 
 ## Lab 23 — 보호막이 깨질 때 남은 피해가 사라짐
@@ -186,7 +260,16 @@ unit.hp -= damage - absorbed;
 추적점 출력 (5번째 늑대):  퀘스트 검사: 카운터 값 4  →  카운터: Wolf, 증가 전 4
 진짜 원인:     Game::setup에서 퀘스트를 카운터보다 먼저 구독 → 퀘스트가 갱신 전 값을 읽음
 ```
-**수정:** 카운터를 먼저 구독한다. 더 튼튼한 방법은 퀘스트가 다른 구독자의 상태에 기대지 않고 직접 세거나, 카운터가 "갱신 후" 이벤트를 따로 내보내는 것.
+**수정:** `Game::setup`에서 카운터를 먼저 구독한다. 구독 순서를 설명하던 주석도 새 순서에 맞게 고친다.
+```cpp
+    void setup()
+    {
+        // 통계(카운터)를 먼저 붙여야 퀘스트가 갱신된 값을 본다.
+        bus.subscribe([this](const std::string& e) { counter.onKill(e); });
+        bus.subscribe([this](const std::string& e) { quest.onKill(e); });
+    }
+```
+더 튼튼한 방법은 퀘스트가 다른 구독자의 상태에 기대지 않고 직접 세거나(`WolfQuest::onKill`에서 `wolfKillsSeen_ >= kRequired`로 판정), 카운터가 "갱신 후" 이벤트를 따로 내보내는 것.
 **교훈:** "누가 먼저 실행되는가" 문제는 멈추면 오히려 헷갈린다. **추적점**으로 멈추지 않고 순서를 기록하자.
 
 ## Lab 25 — else if 순서 (넓은 조건이 좁은 조건을 가림)
@@ -257,10 +340,20 @@ if (kill || gold || level) ...
 처음 어긋난 줄: c.best = BUGHUNT_MAX(c.best, ++c.current);
 진짜 원인:     ((a) > (b) ? (a) : (b))로 펼쳐져 조건에서 한 번, 고른 쪽에서 또 한 번 ++c.current
 ```
-**수정:**
+**수정:** 값을 먼저 올리고 비교는 따로 한다. `std::max`를 쓰려면 `#include <algorithm>`이 필요하다. 매크로 `BUGHUNT_MAX`는 쓰이지 않게 되므로 지운다.
 ```cpp
-++c.current;
-c.best = std::max(c.best, c.current);
+#include <algorithm>   // std::max
+
+void onAttack(Combo& c, bool hit)
+{
+    if (!hit)
+    {
+        c.current = 0;
+        return;
+    }
+    ++c.current;
+    c.best = std::max(c.best, c.current);
+}
 ```
 **교훈:** 매크로는 함수가 아니라 글자 치환이다. 인자에 `++`, `--`, 함수 호출을 넣지 않는다. 가능하면 `std::max`나 `inline`/`constexpr` 함수를 쓴다. (`?:`는 조건을 먼저 계산하고 고른 쪽만 계산하도록 순서가 정해져 있어서, 이 결과는 어느 컴파일러에서나 같다.)
 
@@ -309,18 +402,34 @@ int countOf(const Bag& bag, const std::string& item)
 조사식:      registerWave(..., 60) 전후로 bucket_count가 크게 늘고, selectedName()이 Mira → 다른 사람으로 바뀜
 진짜 원인:   선택을 순회 순서의 위치(줄 번호)로 기억함. rehash가 원소를 새 버킷에 다시 나눠 담으면서 순서가 바뀐다
 ```
-**수정:** rehash에도 변하지 않는 것으로 기억한다. 표준은 rehash가 이터레이터를 무효화해도 **원소에 대한 참조와 포인터는 유지**된다고 보장한다.
+**수정:** rehash에도 변하지 않는 것으로 기억한다. 표준은 rehash가 이터레이터를 무효화해도 **원소에 대한 참조와 포인터는 유지**된다고 보장한다. 멤버 `selectedRow_`를 원소 포인터 `selected_`로 바꾸고, 그것을 쓰던 세 함수를 모두 고친다.
 ```cpp
-void select(size_t row) { selected_ = &*std::next(board_.begin(), row); }
-const std::string& selectedName() const { return selected_->first; }
-std::string confirmInvite()
+class PartyFinder
 {
-    auto it = board_.find(selected_->first);
-    ...
-}
-Board::value_type* selected_ = nullptr;
+public:
+    void registerPlayer(const std::string& name, const std::string& role, int level) { board_[name] = { role, level }; }
+
+    // 줄 번호가 아니라 원소 자체를 기억한다. rehash가 일어나도 원소의 주소는 그대로다.
+    void select(size_t row) { selected_ = &*std::next(board_.begin(), row); }
+
+    const std::string& selectedName() const { return selected_->first; }
+
+    std::string confirmInvite()
+    {
+        std::string name = selected_->first;
+        board_.erase(name);      // 키로 지운다
+        selected_ = nullptr;     // 지운 원소를 더 가리키지 않는다
+        return name;
+    }
+
+    Board& board() { return board_; }
+
+private:
+    Board board_;
+    Board::value_type* selected_ = nullptr;
+};
 ```
-키(이름)를 복사해 두고 `find`해도 된다.
+키(이름)를 복사해 두어도 된다: `std::string selectedName_;`에 `select`가 `std::next(board_.begin(), row)->first`를 복사하고, `confirmInvite`는 `board_.erase(selectedName_)`.
 **교훈:** `unordered_map`의 순회 순서는 약속이 아니다. 오래 들고 있을 것은 키나 원소 포인터로.
 
 ## Lab 35 — 비교자가 strict weak ordering을 어김
@@ -447,11 +556,19 @@ return static_cast<int>(total);
 멈춘 위치:     g_warriorHp 초기화 줄 중단점, 호출 스택에 main이 없음. 그때 g_baseHp == 0
 진짜 원인:     번역 단위 사이의 전역 초기화 순서는 정해져 있지 않다(보통 링크 순서). 두 파일이 서로의 값을 쓰므로 어느 쪽이 먼저든 하나는 0을 읽는다
 ```
-**수정:** 전역 변수 여덟 개를 함수 지역 static으로.
+**수정:** 전역 변수 여덟 개(`g_baseHp`, `g_baseMana`, `g_bossAttack`, `g_eliteArmor`, `g_baseAttack`, `g_baseArmor`, `g_warriorHp`, `g_mageMana`)를 모두 지우고, 같은 값을 돌려주던 함수 여덟 개 안에 함수 지역 static으로 넣는다. `readStat`와 헤더 `lg05_stats.h`는 그대로다. 두 파일 맨 위의 "전역 변수에 담아 둔다" 주석도 새 구조에 맞게 고친다.
 ```cpp
+// lg05_stat_table.cpp (namespace lang5 안, readStat 아래)
+int baseHp()     { static const int value = readStat("base_hp", 100); return value; }
+int baseMana()   { static const int value = readStat("base_mana", 40); return value; }
+int bossAttack() { static const int value = baseAttack() * 4; return value; }   // 보스는 기본 공격력의 4배
+int eliteArmor() { static const int value = baseArmor() * 2; return value; }    // 정예 몬스터는 기본 방어력의 2배
+
+// lg05_class_stats.cpp (namespace lang5 안)
 int baseAttack() { static const int value = readStat("base_attack", 12); return value; }
-int bossAttack() { static const int value = baseAttack() * 4; return value; }
-// 나머지 여섯 개도 같은 모양
+int baseArmor()  { static const int value = readStat("base_armor", 7); return value; }
+int warriorHp()  { static const int value = baseHp() * 3; return value; }       // 전사는 기본 체력의 3배
+int mageMana()   { static const int value = baseMana() * 5; return value; }     // 마법사는 기본 마나의 5배
 ```
 **교훈:** 다른 파일의 전역 객체에 기대는 전역 초기화는 순서에 맡긴 도박이다. 함수 안의 static은 처음 불릴 때 만들어지고(C++11부터 스레드 안전) 의존하는 쪽이 부르는 순간 준비된다. 컴파일할 때 정할 수 있는 값이면 `constexpr`/`constinit`이 가장 좋다. 이 랩은 두 방향으로 의존하게 만들어, 링크 순서가 바뀌어도 버그 상태가 늘 FAIL이다. 화면의 두 값만 상수로 박는 땜질은 숨은 테스트의 다른 두 값에서 걸린다.
 
@@ -470,13 +587,19 @@ int bossAttack() { static const int value = baseAttack() * 4; return value; }
 멈춘 위치:     Texture 생성자/소멸자 중단점: 생성 6번, 소멸 4번. 남은 둘은 "저주받은 성"
 진짜 원인:     loadDungeon이 텍스처를 new한 뒤 countRooms가 던지면, 원시 포인터 floor/walls만 사라지고 Texture는 남는다
 ```
-**수정:**
+**수정:** 텍스처를 만들자마자 `std::unique_ptr`에 맡긴다(`#include <memory>`). `countRooms`가 던지면 스택 풀기가 두 소멸자를 불러 준다.
 ```cpp
-auto floor = std::make_unique<Texture>(file.name + "/floor");
-auto walls = std::make_unique<Texture>(file.name + "/walls");
-const int rooms = countRooms(file.layout);
-return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
-// 더 좋게는 Dungeon의 멤버도 unique_ptr, loadDungeon은 std::unique_ptr<Dungeon>을 돌려준다
+#include <memory>
+
+Dungeon* loadDungeon(const DungeonFile& file)
+{
+    auto floor = std::make_unique<Texture>(file.name + "/floor");
+    auto walls = std::make_unique<Texture>(file.name + "/walls");
+    const int rooms = countRooms(file.layout);   // 여기서 던져도 floor, walls가 Texture를 지운다
+    return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
+}
+// 더 좋게는 Dungeon의 멤버도 unique_ptr<Texture>로 바꾸고(소멸자의 delete 두 줄 삭제),
+// loadDungeon은 std::unique_ptr<Dungeon>을 돌려주며, exploreAll의 delete d;도 사라진다
 ```
 **교훈:** 예외가 나면 그 사이 함수들의 남은 줄은 실행되지 않고, 소멸자가 불리는 것은 스택의 객체뿐이다. 자원은 만들자마자 소유 객체(RAII)에 맡긴다. 정상 경로만 보면 new/delete 짝이 맞아 보여서 찾기 어려운 누수다.
 
@@ -486,23 +609,54 @@ return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
 멈춘 위치:     예외가 던져진 ~SaveFile. 호출 스택 아래에 saveGame의 catch가 아니라 std::terminate
 진짜 원인:     C++11부터 소멸자는 암시적 noexcept. noexcept 함수 밖으로 나가려는 예외는 catch를 찾지 않고 terminate
 ```
-**수정:** 실패할 수 있는 쓰기를 `close()`로 꺼낸다.
+**수정:** 실패할 수 있는 쓰기를 `close()`로 꺼내고, 닫혔는지 기억하는 멤버 `closed_`를 추가한다. 소멸자는 아직 안 닫힌 경우에만 시도하고 실패는 삼킨다. `saveGame`의 try 블록 마지막 줄에서 `file.close()`를 부른다.
 ```cpp
-void close()
+class SaveFile
 {
-    if (buffer_.size() > freeBytes_)
-        throw SaveError(i18n::L("디스크 공간이 모자란다", "ディスク容量が足りない"));
-    g_disk[slot_] = buffer_;
-    closed_ = true;
-}
-~SaveFile()
-{
-    if (!closed_)
+public:
+    SaveFile(std::string slot, std::size_t freeBytes) : slot_(std::move(slot)), freeBytes_(freeBytes) {}
+
+    void write(const std::string& line)
     {
-        try { close(); } catch (...) {}
+        if (line.empty())
+            throw SaveError(i18n::L("빈 줄은 저장할 수 없다", "空の行はセーブできない"));
+        buffer_ += line;
+        buffer_ += '\n';
     }
-}
-// saveGame: try 블록 마지막 줄에서 file.close();
+
+    // 버퍼를 디스크에 쓴다. 실패할 수 있는 일은 소멸자가 아니라 여기서 한다.
+    void close()
+    {
+        if (buffer_.size() > freeBytes_)
+            throw SaveError(i18n::L("디스크 공간이 모자란다", "ディスク容量が足りない"));
+        g_disk[slot_] = buffer_;
+        closed_ = true;
+    }
+
+    // close() 없이 닫히면(예외로 스택을 푸는 중 등) 마지막으로 시도만 하고, 실패는 삼킨다.
+    ~SaveFile()
+    {
+        if (!closed_)
+        {
+            try { close(); } catch (...) {}
+        }
+    }
+
+private:
+    std::string slot_;
+    std::size_t freeBytes_;
+    std::string buffer_;
+    bool closed_ = false;
+};
+
+// saveGame의 try 블록
+    try
+    {
+        SaveFile file(slot, freeBytes);
+        for (const std::string& line : lines)
+            file.write(line);
+        file.close();   // 여기서 던진 SaveError는 아래 catch가 잡는다
+    }
 ```
 **교훈:** 소멸자는 실패를 알릴 길이 없는 곳이다. 실패할 수 있는 정리는 명시적인 함수(`close`, `commit`)로 꺼내고, 소멸자는 삼킨다. `noexcept(false)`로 바꾸는 땜질은 다른 예외로 스택을 푸는 중에 소멸자가 또 던지면 여전히 terminate다(숨은 테스트). MSVC는 C4297, clang은 `-Wexceptions`, GCC는 `-Wterminate`로 이미 경고한다. 함수에 `noexcept`를 붙여 두고 안에서 던지는 경우도 같은 결과다.
 
@@ -662,7 +816,20 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 멈춘 위치:     push_back, 첫 바퀴 line.size() == 0
 진짜 원인:     in >> count는 "3"까지만 읽고 줄바꿈을 남긴다. getline은 그 줄바꿈까지를 빈 줄로 읽는다
 ```
-**수정:** `in >> count;` 다음에 `in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');` (`<limits>`)
+**수정:** `in >> count;` 다음에 숫자 줄의 나머지(줄바꿈까지)를 버린다. `std::numeric_limits`에는 `#include <limits>`가 필요하다(`io_kit.h`는 포함하지 않는다).
+```cpp
+#include <limits>
+// loadDialogue
+    int count = 0;
+    in >> count;
+    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');   // "3" 뒤의 공백과 줄바꿈을 버린다
+    for (int i = 0; i < count; ++i)
+    {
+        std::string line;
+        std::getline(in, line);
+        lines.push_back(line);
+    }
+```
 **교훈:** `>>`(토큰 단위)와 `getline`(줄 단위)을 섞으면 경계의 줄바꿈을 직접 처리해야 한다. `in >> std::ws`도 통과처럼 보이지만 다음 줄 앞의 공백까지 먹어서 들여 쓴 대사를 망친다(숨은 테스트).
 
 ## Lab 59 — failbit가 남아 이후 읽기가 모두 무시됨
@@ -797,7 +964,51 @@ return name.substr(0, cut);
 멈춘 위치:     loadGuilds 실패 쪽, xml.c_str() + result.offset → "방패>..." 부분
 진짜 원인:     이름 "<검과 방패>"의 <가 새 태그 시작으로 해석됨
 ```
-**수정:** 이름을 넣기 전에 `&` → `&amp;`(가장 먼저), `<` → `&lt;`, `>` → `&gt;`, `"` → `&quot;`, `'` → `&apos;` (또는 pugixml로 문서를 만들어 `doc.save()`)
+**수정:** 이름을 XML에 넣기 전에 특수 문자를 이스케이프하는 함수를 `saveGuilds` 위에 추가하고, `saveGuilds`는 `g.name` 대신 그 결과를 이어 붙인다. 글자 하나씩 바꾸므로 `&`가 다른 치환 결과를 다시 건드리는 일은 없다.
+```cpp
+// namespace sz7 안, saveGuilds 위
+std::string escapeXml(const std::string& text)
+{
+    std::string out;
+    out.reserve(text.size());
+    for (char c : text)
+    {
+        switch (c)
+        {
+        case '&':  out += "&amp;"; break;
+        case '<':  out += "&lt;"; break;
+        case '>':  out += "&gt;"; break;
+        case '"':  out += "&quot;"; break;
+        case '\'': out += "&apos;"; break;
+        default:   out += c; break;
+        }
+    }
+    return out;
+}
+
+// saveGuilds의 반복문 본문
+        xml += "  <Guild members=\"" + std::to_string(g.members) + "\">"
+             + "<Name>" + escapeXml(g.name) + "</Name></Guild>\n";
+```
+또는 문자열 이어 붙이기를 버리고 pugixml로 문서를 만든다(이스케이프는 pugixml이 한다). `saveGuilds`를 통째로 바꾸고 `#include <sstream>`을 추가한다(파일 맨 위의 "문자열을 이어 붙여" 주석도 고친다).
+```cpp
+#include <sstream>
+
+std::string saveGuilds(const std::vector<Guild>& guilds)
+{
+    pugi::xml_document doc;
+    pugi::xml_node root = doc.append_child("Guilds");
+    for (const Guild& g : guilds)
+    {
+        pugi::xml_node node = root.append_child("Guild");
+        node.append_attribute("members") = g.members;
+        node.append_child("Name").text().set(g.name.c_str());
+    }
+    std::ostringstream out;
+    doc.save(out);
+    return out.str();
+}
+```
 **교훈:** 문자열 이어 붙이기로 구조화된 형식(XML, JSON, SQL, HTML)을 만들면 이스케이프를 빠뜨린다. 더 무서운 경우는 오류가 없는 쪽이다: 이름 "I &lt;3 PvP"는 "I <3 PvP"로 조용히 바뀐다(숨은 테스트). pugixml은 짝 없는 `&`를 너그럽게 넘겨서 "Tom & Jerry"는 읽히지만, 다른 파서에서는 오류다.
 **참고(보안):** 외부에서 받은 XML을 읽을 때는 외부 엔티티(XXE)와 엔티티 확장 폭탄을 조심한다. pugixml은 DTD 안의 엔티티를 처리하지 않아 이 두 공격에 해당하지 않지만, 다른 파서(libxml2, MSXML, .NET의 예전 기본값)는 설정에 따라 파일을 읽거나 메모리를 다 쓸 수 있다.
 
@@ -910,7 +1121,17 @@ timers.after(3, [&hero, bonus] {
 멈춘 위치:     countReachable의 첫 줄(또는 스택을 미리 건드리는 도우미 함수). 호출 스택은 lab → countReachable 두어 줄뿐
 진짜 원인:     int dist[2048][2048] = 16 MB 지역 변수. 함수에 들어가자마자 스택(Windows 1 MB)을 넘는다. 지도 크기와 상관없다
 ```
-**수정:** `std::vector<std::vector<int>> dist(map.height, std::vector<int>(map.width, -1));` (또는 1차원 `std::vector<int>`에 `y * width + x`)
+**수정:** 거리표를 지도 크기만큼만 힙에 잡는다. `dist`를 선언하는 줄과 그 아래 `-1`로 채우던 이중 for 문을 아래 한 줄로 바꾼다(생성자가 `-1`로 채운다). 나머지 `dist[y][x]` 코드는 그대로 동작한다. `kMaxSize` 상수와 파일 맨 위의 "최대 크기로 한 번에 잡아 둔다" 주석은 맞지 않게 되므로 지운다.
+```cpp
+int countReachable(const Map& map, int startX, int startY)
+{
+    // 시작 칸에서 몇 걸음인지 (-1 = 아직 안 감). 지도 크기만큼만 힙에 잡는다
+    std::vector<std::vector<int>> dist(static_cast<size_t>(map.height), std::vector<int>(static_cast<size_t>(map.width), -1));
+
+    std::vector<std::pair<int, int>> queue;
+    // ... 이하 그대로
+```
+(1차원 `std::vector<int> dist(static_cast<size_t>(map.width) * map.height, -1);`로 잡고 `dist[y * map.width + x]`로 써도 된다. 이때는 `dist[...]` 네 곳을 모두 고친다.)
 **교훈:** 스택 오버플로가 늘 재귀인 것은 아니다. 호출 스택이 짧은데 스택 오버플로라면 큰 지역 변수를 의심한다. 크기가 실행 중에 정해지거나 수십 KB를 넘는 데이터는 힙(`vector`)에. `static` 배열로 바꾸면 죽지는 않지만 16 MB를 늘 붙잡고 여러 스레드에서 쓸 수 없다.
 
 ## Lab 77 — 프레임마다 96 KB 버퍼 × 재귀 160겹
@@ -919,7 +1140,13 @@ timers.after(3, [&hero, bonus] {
 멈춘 위치:     buildRooms가 열 겹 남짓 쌓인 호출 스택. 이웃한 두 프레임의 &layout 차이 ≈ 98,000바이트
 진짜 원인:     재귀는 160겹에서 끝나지만, 한 겹이 96 KB라 160겹이면 15 MB. 버퍼가 재귀 호출 뒤에도 쓰여 줄일 수 없다
 ```
-**수정:** `std::vector<char> layout(kLayoutBytes);` (프레임에는 vector 하나만 남는다). 또는 보물 상자를 재귀 전에 세고 버퍼를 일찍 끝내거나, 재귀를 반복문으로.
+**수정:** 버퍼를 힙으로 옮긴다. `char layout[kLayoutBytes];` 한 줄을 `std::vector<char>`로 바꾸고 `#include <vector>`를 추가한다. 프레임에는 vector 하나(포인터 세 개)만 남는다.
+```cpp
+#include <vector>
+// buildRooms 첫 줄
+    std::vector<char> layout(kLayoutBytes);           // 이 방의 배치도 (힙)
+```
+또는 보물 상자를 재귀 호출 전에 세고 버퍼를 일찍 끝내거나, 재귀를 반복문으로 바꾼다.
 **교훈:** 스택 사용량은 "프레임 크기 × 깊이"다. 깊이가 데이터(방 수, 트리 높이)에 따라 정해지는 재귀는 스택 한도를 생각해야 한다. 프레임 크기는 구성마다 다르다(Debug는 검사용 공간, ASan은 변수 사이 경계). 그래서 프레임이 작고 깊이가 경계에 걸린 재귀는 Debug에서만, 또는 ASan에서만 죽기도 한다. 직접 보려면 `kLayoutBytes`를 8 KB로 줄이고 방 수를 늘려 Debug와 Release에서 죽는 방 번호를 비교해 보라.
 
 ## Lab 78 — `new Frame[n]` 뒤 `<=`로 한 칸 더 쓰기, 해제할 때 드러남
@@ -937,15 +1164,23 @@ timers.after(3, [&hero, bonus] {
 멈춘 위치:     writeName, 조사식 sizeof(dst) == 8, std::strlen(src) == 11. 메모리 창에서 packet.name 9바이트째부터 앞사람 이름
 진짜 원인:     매개변수 char* dst는 배열이 아니라 포인터라 sizeof가 8. 앞 8바이트만 복사되고 널 문자가 없다
 ```
-**수정:**
+**수정:** 버퍼 크기를 함께 넘기고, 넘치지 않게 자른 뒤 널 문자를 직접 넣는다. `std::min`에는 `#include <algorithm>`이 필요하다. 호출하는 `sendLogin`도 크기를 넘기도록 고친다.
 ```cpp
+#include <algorithm>   // std::min
+
 void writeName(char* dst, std::size_t cap, const char* src)
 {
     const std::size_t n = std::min(std::strlen(src), cap - 1);
     std::memcpy(dst, src, n);
     dst[n] = '\0';
 }
-// 호출: writeName(packet.name, sizeof(packet.name), name);
+
+std::string sendLogin(NamePacket& packet, const char* name, int level)
+{
+    writeName(packet.name, sizeof(packet.name), name);   // 여기서 sizeof는 진짜 배열이라 32
+    packet.level = level;
+    return std::string(packet.name);
+}
 ```
 **교훈:** 배열은 함수 매개변수가 되는 순간 포인터로 바뀐다(배열 붕괴). 크기는 같이 넘기거나 `char (&dst)[N]` 템플릿으로 받는다. C 문자열 복사는 "길이 + 널 문자 1"과 "버퍼 크기 - 1로 자르기"를 둘 다 챙겨야 한다. clang은 `-Wsizeof-pointer-memaccess`로 이미 경고한다. 패킷 밖에서는 `std::string`.
 
@@ -979,15 +1214,31 @@ void writeName(char* dst, std::size_t cap, const char* src)
 abort 시점 호출 스택:   메인 스레드 craftAll → std::future<int>::get → 예외 다시 던지기
 진짜 원인:             try/catch가 std::async 호출만 감쌌다. 작업 안의 예외는 future에 담겼다가 get()에서 던져진다
 ```
-**수정:** `get()`을 try 안으로 옮긴다.
+**수정:** `get()`을 try 안으로 옮긴다. `craftAll`의 첫 반복문은 try 없이 작업만 띄우고, 둘째 반복문이 결과를 꺼내면서 예외를 잡는다.
 ```cpp
-for (std::future<int>& job : jobs)
+CraftReport craftAll(const std::vector<Recipe>& orders, int oreInStock)
 {
-    try { report.revenue += job.get(); }
-    catch (const std::exception& e) { std::cout << i18n::L("  제작 실패: ", "  製作失敗: ") << e.what() << '\n'; ++report.failed; }
+    CraftReport report;
+    std::vector<std::future<int>> jobs;
+    for (const Recipe& recipe : orders)
+        jobs.push_back(std::async(std::launch::async, craft, recipe, oreInStock));
+
+    for (std::future<int>& job : jobs)
+    {
+        try
+        {
+            report.revenue += job.get();   // 작업 안에서 던진 예외는 여기서 다시 던져진다
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << i18n::L("  제작 실패: ", "  製作失敗: ") << e.what() << '\n';
+            ++report.failed;
+        }
+    }
+    return report;
 }
 ```
-(`std::async` 자체도 스레드를 만들지 못하면 `std::system_error`를 던지므로 원래 try를 남겨 두어도 된다.)
+(`std::async` 자체도 스레드를 만들지 못하면 `std::system_error`를 던지므로 첫 반복문의 원래 try/catch를 남겨 두어도 된다.)
 **교훈:** 비동기 작업의 예외는 **결과를 꺼내는 곳**에서 처리한다. `get()`은 future 하나에 한 번만 부를 수 있다. 두 번째 호출 전에는 `valid()`가 false이고, 그때 `get()`을 부르는 것은 정의되지 않은 동작이다(구현 대부분은 `std::future_error`를 던진다).
 
 ## Lab 83 — 조건 없는 condition_variable 대기
@@ -1076,9 +1327,14 @@ return result;
 진짜 원인:     0.1은 2진수로 정확히 나타낼 수 없어서 0.1f를 15번 더해도 정확히 1.5f가 되지 않는다.
                t != cooldownSeconds 는 영원히 참. (대시의 0.5초는 우연히 딱 맞아서 끝났다)
 ```
-**수정:** 반복 횟수를 정수로 계산한다.
+**수정:** 반복 횟수를 정수로 계산한다. 함수 본문을 통째로 바꾸고(`ticks` 변수와 반복문은 사라진다) `#include <cmath>`를 추가한다.
 ```cpp
-return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));   // #include <cmath>
+#include <cmath>   // std::lround
+
+int ticksUntilReady(float cooldownSeconds, float tickSeconds)
+{
+    return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));
+}
 ```
 `t < cooldownSeconds`로만 바꾸면 멈추지는 않지만 오차 때문에 한 틱을 더 센다. 예를 들어 1.2초 / 0.05초는 24가 아니라 25가 나온다(채점기의 숨은 케이스가 이것을 잡는다).
 **교훈:** 실수는 `==`, `!=`로 비교하지 않는다. "몇 번 반복하는가"는 정수로 센다.
