@@ -36,8 +36,8 @@ void lab07_packets()
     sendQueue.push_back(PacketBuffer(64));
     sendQueue.back().write("MOVE x=10 y=20");
 
-    expect("첫 번째 패킷", std::string("LOGIN user=kael"), std::string(sendQueue[0].text()));
-    expect("두 번째 패킷", std::string("MOVE x=10 y=20"), std::string(sendQueue[1].text()));
+    expect(i18n::L("첫 번째 패킷", "1番目のパケット"), std::string("LOGIN user=kael"), std::string(sendQueue[0].text()));
+    expect(i18n::L("두 번째 패킷", "2番目のパケット"), std::string("MOVE x=10 y=20"), std::string(sendQueue[1].text()));
 }
 
 // ============================================================================

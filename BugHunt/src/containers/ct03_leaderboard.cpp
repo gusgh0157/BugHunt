@@ -41,8 +41,8 @@ void ct03_leaderboard()
     for (size_t i = 0; i < 3; ++i)
         std::cout << "  " << (i + 1) << i18n::L("위 ", "位 ") << arena[i].name << " " << arena[i].score << '\n';
 
-    expect("1위 점수", 1980, arena[0].score);
-    expect("상위 3명 점수 합 (1980 + 1720 + 1720)", 5420, ct3::sumOfTop(arena, 3));
+    expect(i18n::L("1위 점수", "1位のスコア"), 1980, arena[0].score);
+    expect(i18n::L("상위 3명 점수 합 (1980 + 1720 + 1720)", "上位3人のスコア合計(1980 + 1720 + 1720)"), 5420, ct3::sumOfTop(arena, 3));
 }
 
 // ============================================================================
@@ -88,9 +88,9 @@ void ct03_leaderboard_hidden()
         league.push_back({ "Guild" + std::to_string(i), (i % 3 == 0) ? 900 : 400 + i });
 
     ct3::sortByScore(league);
-    expect("1위 점수", 900, league[0].score);
-    expect("정렬되어 있나?", true, std::is_sorted(league.begin(), league.end(),
+    expect(i18n::L("1위 점수", "1位のスコア"), 900, league[0].score);
+    expect(i18n::L("정렬되어 있나?", "ソートされているか?"), true, std::is_sorted(league.begin(), league.end(),
         [](const ct3::Entry& a, const ct3::Entry& b) { return a.score > b.score; }));
-    expect("상위 5명 점수 합", 4500, ct3::sumOfTop(league, 5));
+    expect(i18n::L("상위 5명 점수 합", "上位5人のスコア合計"), 4500, ct3::sumOfTop(league, 5));
 }
 #pragma endregion

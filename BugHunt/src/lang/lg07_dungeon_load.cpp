@@ -96,8 +96,8 @@ void lg07_dungeon_load()
     });
     std::cout << i18n::L("  탐험이 끝난 뒤 남은 텍스처: ", "  探検後に残ったテクスチャー: ") << Texture::alive << i18n::L("개\n", "個\n");
 
-    expect("탐험한 방 수", 8, rooms);
-    expect("남은 텍스처 수", 0, Texture::alive);
+    expect(i18n::L("탐험한 방 수", "探索した部屋の数"), 8, rooms);
+    expect(i18n::L("남은 텍스처 수", "残ったテクスチャーの数"), 0, Texture::alive);
 }
 
 // ============================================================================
@@ -147,8 +147,8 @@ void lg07_dungeon_load_hidden()
         { i18n::L("용암 지대", "溶岩地帯"), "RR?RRR" },
         { i18n::L("하늘 섬", "天空の島"), "RR" },
     });
-    expect("숨은 탐험: 방 수", 6, rooms);
-    expect("숨은 탐험: 남은 텍스처 수", 0, Texture::alive);
+    expect(i18n::L("숨은 탐험: 방 수", "隠し探索: 部屋の数"), 6, rooms);
+    expect(i18n::L("숨은 탐험: 남은 텍스처 수", "隠し探索: 残ったテクスチャーの数"), 0, Texture::alive);
 
     const DungeonFile broken{ i18n::L("폐허", "廃墟"), "R?R" };
     for (int i = 0; i < 3; ++i)
@@ -161,6 +161,6 @@ void lg07_dungeon_load_hidden()
         {
         }
     }
-    expect("숨은 탐험: 직접 불러오기 실패 뒤 남은 텍스처", 0, Texture::alive);
+    expect(i18n::L("숨은 탐험: 직접 불러오기 실패 뒤 남은 텍스처", "隠し探索: 直接の読み込み失敗後に残ったテクスチャー"), 0, Texture::alive);
 }
 #pragma endregion

@@ -46,13 +46,11 @@ inline const char* pick(const Text& t)
     return L(t.ko, t.ja);
 }
 
-// expect 설명처럼 랩 코드에 한국어로 적힌 문구 → 고른 언어 (src/i18n/strings_expect.inc의 표).
-// 표에 없으면 한국어 그대로 돌려주고 "[NO-JA] 문구" 줄을 출력한다. 채점기(--grade)가 이 줄을 모아 마지막에 보여 준다.
-// 메모리를 할당하지 않는다(할당 횟수를 세는 랩의 결과를 바꾸지 않으려고).
-const char* tr(const char* ko);
-
-// 번역이 빠졌다는 표시 (채점기가 자식 출력에서 찾는다)
-inline constexpr const char* kMissingMark = "[NO-JA] ";
+// 소스 검사 (BugHunt.exe --check-i18n <src 폴더>, src/i18n/source_check.cpp). 빌드할 때마다 실행된다.
+// 한글 문자열 리터럴이 L("ko", "ja") 또는 { "ko", "ja" } 짝 밖에 있으면, 또는 일본어 쪽이 비었거나 한글이면 1을 돌려준다.
+// [JA] ソース検査 (BugHunt.exe --check-i18n <src フォルダー>、src/i18n/source_check.cpp)。ビルドのたびに実行されます。
+// [JA] ハングルの文字列リテラルが L("ko", "ja") または { "ko", "ja" } の対の外にあるとき、または日本語側が空かハングルのときに 1 を返します。
+int checkSources(const std::string& dir);
 
 // 표에 빈 문구가 없는가 (static_assert용)
 template <class T, std::size_t N, class Get>

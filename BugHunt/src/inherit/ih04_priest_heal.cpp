@@ -48,8 +48,8 @@ void ih04_priest_heal()
     std::cout << i18n::L("  견습 치유사 ", "  見習いヒーラー") << castDefaultHeal(novice) << i18n::L(", 사제 ", "、プリースト") << castDefaultHeal(priest)
               << i18n::L(" (직접 부르면 ", "(直接呼ぶと") << priest.heal() << ")\n";
 
-    expect("사제의 기본 치유", 30, castDefaultHeal(priest));
-    expect("파티 총 치유량", 40, total);
+    expect(i18n::L("사제의 기본 치유", "プリーストの基本回復"), 30, castDefaultHeal(priest));
+    expect(i18n::L("파티 총 치유량", "パーティーの合計回復量"), 40, total);
 }
 
 // ============================================================================
@@ -96,9 +96,9 @@ void ih04_priest_heal_hidden()
 {
     using namespace inh4;
 
-    expect("드루이드의 기본 치유", 20, castDefaultHeal(Druid()));
-    expect("견습 치유사의 기본 치유", 10, castDefaultHeal(Healer()));
-    expect("사제의 기본 치유 (숨은)", 30, castDefaultHeal(Priest()));
-    expect("드루이드 40 치유", 42, Druid().heal(40));
+    expect(i18n::L("드루이드의 기본 치유", "ドルイドの基本回復"), 20, castDefaultHeal(Druid()));
+    expect(i18n::L("견습 치유사의 기본 치유", "見習いヒーラーの基本回復"), 10, castDefaultHeal(Healer()));
+    expect(i18n::L("사제의 기본 치유 (숨은)", "プリーストの基本回復(隠し)"), 30, castDefaultHeal(Priest()));
+    expect(i18n::L("드루이드 40 치유", "ドルイドの40回復"), 42, Druid().heal(40));
 }
 #pragma endregion

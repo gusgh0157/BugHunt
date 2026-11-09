@@ -65,8 +65,8 @@ void ih01_backstab()
     std::cout << "  " << fireball.name() << " " << a << ", " << backstab.name() << " " << b
               << i18n::L(" → 남은 HP ", " → 残りHP ") << ogre.hp << '\n';
 
-    expect("화염구 피해", 45, a);
-    expect("등 뒤 백스탭 피해", 60, b);
+    expect(i18n::L("화염구 피해", "ファイアボールのダメージ"), 45, a);
+    expect(i18n::L("등 뒤 백스탭 피해", "背後からのバックスタブのダメージ"), 60, b);
 }
 
 // ============================================================================
@@ -107,12 +107,12 @@ void ih01_backstab_hidden()
 
     const Backstab backstab;
     Target guard{ 90, false };
-    expect("정면 백스탭", 20, useSkill(backstab, guard));
+    expect(i18n::L("정면 백스탭", "正面からのバックスタブ"), 20, useSkill(backstab, guard));
     guard.facingAway = true;
-    expect("등 뒤 백스탭", 60, useSkill(backstab, guard));
-    expect("남은 HP", 10, guard.hp);
+    expect(i18n::L("등 뒤 백스탭", "背後からのバックスタブ"), 60, useSkill(backstab, guard));
+    expect(i18n::L("남은 HP", "残りHP"), 10, guard.hp);
 
     Target boss{ 400, true };
-    expect("화염구 (HP 400)", 55, useSkill(Fireball(), boss));
+    expect(i18n::L("화염구 (HP 400)", "ファイアボール(HP 400)"), 55, useSkill(Fireball(), boss));
 }
 #pragma endregion

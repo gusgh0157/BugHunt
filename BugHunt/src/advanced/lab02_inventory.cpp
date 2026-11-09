@@ -44,8 +44,8 @@ void lab02_inventory()
     // 퀘스트 보상: 검을 하나 더 준다.
     sword.count += 1;
 
-    expect("검 개수", 2, inv.countOf("Sword of the Northern Watch"));
-    expect("포션 개수", 5, inv.countOf("Healing Potion"));
+    expect(i18n::L("검 개수", "剣の数"), 2, inv.countOf("Sword of the Northern Watch"));
+    expect(i18n::L("포션 개수", "ポーションの数"), 5, inv.countOf("Healing Potion"));
 }
 
 // ============================================================================

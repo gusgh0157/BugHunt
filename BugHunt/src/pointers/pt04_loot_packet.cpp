@@ -51,7 +51,7 @@ void pt04_loot_packet()
     const std::vector<uint8_t> packet = ptr4::buildPacket(loot);
 
     std::cout << i18n::L("  패킷 크기: ", "  パケットサイズ: ") << packet.size() << i18n::L("바이트\n", "バイト\n");
-    expect("받은 아이템 개수 합계", 76, ptr4::totalItems(packet));
+    expect(i18n::L("받은 아이템 개수 합계", "受け取ったアイテム数の合計"), 76, ptr4::totalItems(packet));
 }
 
 // ============================================================================
@@ -89,9 +89,9 @@ void pt04_loot_packet()
 void pt04_loot_packet_hidden()
 {
     const std::vector<ptr4::LootEntry> loot = { { 12, 7 }, { 13, 11 }, { 14, 100 }, { 15, 4 }, { 16, 9 }, { 17, 30 }, { 18, 2 } };
-    expect("항목 7개 합계", 163, ptr4::totalItems(ptr4::buildPacket(loot)));
+    expect(i18n::L("항목 7개 합계", "項目7個の合計"), 163, ptr4::totalItems(ptr4::buildPacket(loot)));
 
     const std::vector<ptr4::LootEntry> single = { { 500, 42 } };
-    expect("항목 1개 합계", 42, ptr4::totalItems(ptr4::buildPacket(single)));
+    expect(i18n::L("항목 1개 합계", "項目1個の合計"), 42, ptr4::totalItems(ptr4::buildPacket(single)));
 }
 #pragma endregion

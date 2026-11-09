@@ -35,8 +35,8 @@ void lg05_stat_table()
     std::cout << i18n::L("  보스 공격력: ", "  ボスの攻撃力: ") << bossAttack() << '\n';
     std::cout << i18n::L("  전사 체력: ", "  戦士のHP: ") << warriorHp() << '\n';
 
-    expect("보스 공격력 (기본 공격력 x 4)", baseAttack() * 4, bossAttack());
-    expect("전사 체력 (기본 체력 x 3)", baseHp() * 3, warriorHp());
+    expect(i18n::L("보스 공격력 (기본 공격력 x 4)", "ボスの攻撃力(基本攻撃力 x 4)"), baseAttack() * 4, bossAttack());
+    expect(i18n::L("전사 체력 (기본 체력 x 3)", "戦士のHP(基本HP x 3)"), baseHp() * 3, warriorHp());
 }
 
 // ============================================================================
@@ -80,9 +80,9 @@ void lg05_stat_table()
 void lg05_stat_table_hidden()
 {
     using namespace lang5;
-    expect("숨은 스탯: 기본 공격력", 12, baseAttack());
-    expect("숨은 스탯: 기본 체력", 100, baseHp());
-    expect("숨은 스탯: 정예 방어력 (기본 방어력 x 2)", 14, eliteArmor());
-    expect("숨은 스탯: 마법사 마나 (기본 마나 x 5)", 200, mageMana());
+    expect(i18n::L("숨은 스탯: 기본 공격력", "隠しステータス: 基本攻撃力"), 12, baseAttack());
+    expect(i18n::L("숨은 스탯: 기본 체력", "隠しステータス: 基本HP"), 100, baseHp());
+    expect(i18n::L("숨은 스탯: 정예 방어력 (기본 방어력 x 2)", "隠しステータス: 精鋭の防御力(基本防御力 x 2)"), 14, eliteArmor());
+    expect(i18n::L("숨은 스탯: 마법사 마나 (기본 마나 x 5)", "隠しステータス: 魔法使いのマナ(基本マナ x 5)"), 200, mageMana());
 }
 #pragma endregion

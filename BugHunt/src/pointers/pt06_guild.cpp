@@ -64,8 +64,8 @@ void pt06_guild()
 
     ptr6::runGuildSession("Northwind Rangers", { "Kael", "Mira", "Doran" });
 
-    expect("세션이 끝난 뒤 메모리에 남은 길드", 0, ptr6::g_aliveGuilds);
-    expect("세션이 끝난 뒤 메모리에 남은 길드원", 0, ptr6::g_aliveMembers);
+    expect(i18n::L("세션이 끝난 뒤 메모리에 남은 길드", "セッション終了後にメモリに残ったギルド"), 0, ptr6::g_aliveGuilds);
+    expect(i18n::L("세션이 끝난 뒤 메모리에 남은 길드원", "セッション終了後にメモリに残ったギルドメンバー"), 0, ptr6::g_aliveMembers);
 }
 
 // ============================================================================
@@ -109,7 +109,7 @@ void ptr6_hidden_check()
     auto lead = std::make_shared<Member>("Bram");
     join(guild, lead);
     join(guild, std::make_shared<Member>("Ivo"));
-    expect("길드원이 보는 길드 이름", std::string("Deepforge Clan"), guildNameOf(*lead));
+    expect(i18n::L("길드원이 보는 길드 이름", "ギルドメンバーが見るギルド名"), std::string("Deepforge Clan"), guildNameOf(*lead));
 
     lead.reset();
     guild.reset();
@@ -123,7 +123,7 @@ void pt06_guild_hidden()
     ptr6_hidden_check();
     ptr6::runGuildSession("Order of the Ember", { "Selene", "Nell", "Pia", "Oren", "Rin" });
 
-    expect("남은 길드", 0, ptr6::g_aliveGuilds);
-    expect("남은 길드원", 0, ptr6::g_aliveMembers);
+    expect(i18n::L("남은 길드", "残ったギルド"), 0, ptr6::g_aliveGuilds);
+    expect(i18n::L("남은 길드원", "残ったギルドメンバー"), 0, ptr6::g_aliveMembers);
 }
 #pragma endregion

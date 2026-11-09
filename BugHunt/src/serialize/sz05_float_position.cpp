@@ -51,7 +51,7 @@ void sz05_float_position()
               << i18n::L("  불러온 위치  : ", "  読み込んだ位置 : ") << back.x << ", " << back.y << ", " << back.z << '\n'
               << std::setprecision(6);
 
-    expect("저장 → 불러오기 후 같은 위치인가?", true, same(pos, back));
+    expect(i18n::L("저장 → 불러오기 후 같은 위치인가?", "保存 → 読み込み後も同じ位置か?"), true, same(pos, back));
 }
 
 // ============================================================================
@@ -98,6 +98,6 @@ void sz05_float_position_hidden()
         { 98765.43f, 0.1f, 9.9999999e-5f },
     };
     for (const Vec3& p : cases)
-        expect("숨은 위치 왕복", true, same(p, loadPosition(savePosition(p))));
+        expect(i18n::L("숨은 위치 왕복", "隠し位置の往復"), true, same(p, loadPosition(savePosition(p))));
 }
 #pragma endregion

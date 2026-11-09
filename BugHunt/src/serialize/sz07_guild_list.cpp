@@ -54,8 +54,8 @@ void sz07_guild_list()
     for (const Guild& g : loaded)
         std::cout << "  " << g.name << " (" << g.members << i18n::L("명)\n", "人)\n");
 
-    expect("불러온 길드 수", static_cast<size_t>(3), loaded.size());
-    expect("둘째 길드 이름", std::string(i18n::L("<검과 방패>", "<剣と盾 騎士団>")), loaded.size() > 1 ? loaded[1].name : std::string());
+    expect(i18n::L("불러온 길드 수", "読み込んだギルド数"), static_cast<size_t>(3), loaded.size());
+    expect(i18n::L("둘째 길드 이름", "2番目のギルド名"), std::string(i18n::L("<검과 방패>", "<剣と盾 騎士団>")), loaded.size() > 1 ? loaded[1].name : std::string());
 }
 
 // ============================================================================
@@ -101,8 +101,8 @@ void sz07_guild_list_hidden()
         { i18n::L("\"따옴표\" 'Q'", "\"引用符\" 'Q'"), 7 },
     };
     const std::vector<Guild> loaded = loadGuilds(saveGuilds(guilds));
-    expect("숨은 목록: 길드 수", guilds.size(), loaded.size());
+    expect(i18n::L("숨은 목록: 길드 수", "隠し一覧: ギルド数"), guilds.size(), loaded.size());
     for (size_t i = 0; i < guilds.size() && i < loaded.size(); ++i)
-        expect("숨은 목록: 이름 왕복", guilds[i].name, loaded[i].name);
+        expect(i18n::L("숨은 목록: 이름 왕복", "隠し一覧: 名前の往復"), guilds[i].name, loaded[i].name);
 }
 #pragma endregion

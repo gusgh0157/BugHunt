@@ -80,10 +80,10 @@ void as03_raid_ready()
 {
     using namespace async3;
     int entered = 0;
-    runWithWatchdog("레이드 입장", [&] {
+    runWithWatchdog(i18n::L("레이드 입장", "レイド入場"), [&] {
         entered = enterRaid({ "Kael", "Mira", "Doran", "Selene" });
     });
-    expect("입장한 공대원 수", 4, entered);
+    expect(i18n::L("입장한 공대원 수", "入場したレイドメンバー数"), 4, entered);
 }
 
 // ============================================================================
@@ -126,15 +126,15 @@ void as03_raid_ready_hidden()
 
     // 1) 공대원 여섯 명
     int entered = 0;
-    runWithWatchdog("레이드 입장 (숨은 케이스)", [&] {
+    runWithWatchdog(i18n::L("레이드 입장 (숨은 케이스)", "レイド入場(隠しケース)"), [&] {
         entered = enterRaid({ "Ivo", "Nell", "Pia", "Rook", "Sana", "Tom" });
     });
-    expect("입장한 공대원 수", 6, entered);
+    expect(i18n::L("입장한 공대원 수", "入場したレイドメンバー数"), 6, entered);
 
     // 2) 공대장이 먼저 기다리고, 공대원이 한 명씩 늦게 준비하는 경우
     ReadyCheck check(3);
     int seen = 0;
-    runWithWatchdog("늦게 준비하는 공대원 (숨은 케이스)", [&] {
+    runWithWatchdog(i18n::L("늦게 준비하는 공대원 (숨은 케이스)", "準備が遅いレイドメンバー(隠しケース)"), [&] {
         std::thread leader([&] {
             check.waitForAll();
             seen = check.readyCount();
@@ -146,6 +146,6 @@ void as03_raid_ready_hidden()
         }
         leader.join();
     });
-    expect("공대장이 입장할 때 준비한 공대원 수", 3, seen);
+    expect(i18n::L("공대장이 입장할 때 준비한 공대원 수", "レイドリーダーが入場したときに準備済みのレイドメンバー数"), 3, seen);
 }
 #pragma endregion

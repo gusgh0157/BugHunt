@@ -107,8 +107,8 @@ void as05_limited_sale()
     const int bought = rush(shop, { "Kael", "Mira", "Doran", "Selene", "Ivo" });
     std::cout << i18n::L("  구매 성공 ", "  購入成功 ") << bought << i18n::L("명, 남은 수량 ", "人、残り数量 ") << shop.stock() << i18n::L(", 판매 수 ", "、販売数 ") << shop.sold() << '\n';
 
-    expect("판매 수 (한정 3개)", 3, shop.sold());
-    expect("남은 수량", 0, shop.stock());
+    expect(i18n::L("판매 수 (한정 3개)", "販売数(限定3個)"), 3, shop.sold());
+    expect(i18n::L("남은 수량", "残りの数量"), 0, shop.stock());
 }
 
 // ============================================================================
@@ -149,11 +149,11 @@ void as05_limited_sale_hidden()
     PaymentServer payment(16);
     LimitedShop shop(5, 50, payment);
     int bought = 0;
-    runWithWatchdog("한정 판매 (숨은 케이스)", [&] {
+    runWithWatchdog(i18n::L("한정 판매 (숨은 케이스)", "限定販売(隠しケース)"), [&] {
         bought = rush(shop, { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" });
     });
-    expect("구매 성공한 사람 수", 5, bought);
-    expect("판매 수", 5, shop.sold());
-    expect("남은 수량", 0, shop.stock());
+    expect(i18n::L("구매 성공한 사람 수", "購入に成功した人数"), 5, bought);
+    expect(i18n::L("판매 수", "販売数"), 5, shop.sold());
+    expect(i18n::L("남은 수량", "残りの数量"), 0, shop.stock());
 }
 #pragma endregion

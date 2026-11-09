@@ -54,17 +54,17 @@ void chB1()
         { i18n::L("보석상", "宝石商"), { { i18n::L("루비", "ルビー"), 500 } } },
     };
     std::cout << i18n::L("  진열대 ", "  陳列棚 ") << market.size() << i18n::L("곳 검사\n", "か所を検査\n");
-    expect("가격 순으로 정리된 진열대 수", 3, countSortedShelves(market));
+    expect(i18n::L("가격 순으로 정리된 진열대 수", "価格順に並んだ陳列棚の数"), 3, countSortedShelves(market));
 }
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 void chB1_hidden()
 {
     using namespace blind1;
-    expect("빈 진열대", true, isSortedByPrice({}));
-    expect("하나", true, isSortedByPrice({ { "a", 9 } }));
-    expect("같은 가격", true, isSortedByPrice({ { "a", 5 }, { "b", 5 } }));
-    expect("마지막만 어긋남", false, isSortedByPrice({ { "a", 1 }, { "b", 2 }, { "c", 3 }, { "d", 2 } }));
-    expect("진열대 수", 2, countSortedShelves({ { "x", {} }, { "y", { { "a", 3 }, { "b", 1 } } }, { "z", { { "a", 1 } } } }));
+    expect(i18n::L("빈 진열대", "空の陳列棚"), true, isSortedByPrice({}));
+    expect(i18n::L("하나", "1つだけ"), true, isSortedByPrice({ { "a", 9 } }));
+    expect(i18n::L("같은 가격", "同じ価格"), true, isSortedByPrice({ { "a", 5 }, { "b", 5 } }));
+    expect(i18n::L("마지막만 어긋남", "最後だけずれている"), false, isSortedByPrice({ { "a", 1 }, { "b", 2 }, { "c", 3 }, { "d", 2 } }));
+    expect(i18n::L("진열대 수", "陳列棚の数"), 2, countSortedShelves({ { "x", {} }, { "y", { { "a", 3 }, { "b", 1 } } }, { "z", { { "a", 1 } } } }));
 }
 #pragma endregion

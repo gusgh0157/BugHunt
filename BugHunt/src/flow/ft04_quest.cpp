@@ -99,7 +99,7 @@ void ft04_quest()
         game.bus.publishKill(enemy);
     }
 
-    expect("퀘스트가 완료된 늑대 처치 번호", 5, game.quest.completedAtKill());
+    expect(i18n::L("퀘스트가 완료된 늑대 처치 번호", "クエストが完了したオオカミ討伐の番号"), 5, game.quest.completedAtKill());
 }
 
 // ============================================================================
@@ -137,15 +137,15 @@ void ft04_quest_hidden()
         game.setup();
         for (const char* enemy : { "Wolf", "Boar", "Wolf", "Wolf", "Boar", "Wolf" })
             game.bus.publishKill(enemy);
-        expect("늑대 4마리 후 완료 번호 (미완료 = 0)", 0, game.quest.completedAtKill());
+        expect(i18n::L("늑대 4마리 후 완료 번호 (미완료 = 0)", "オオカミ4匹後の完了番号(未完了 = 0)"), 0, game.quest.completedAtKill());
     }
     {
         flow4::Game game;            // 늑대 7마리 사이사이에 멧돼지
         game.setup();
         for (const char* enemy : { "Boar", "Wolf", "Wolf", "Boar", "Wolf", "Boar", "Wolf", "Wolf", "Wolf", "Wolf" })
             game.bus.publishKill(enemy);
-        expect("늑대 7마리 중 완료된 처치 번호", 5, game.quest.completedAtKill());
-        expect("통계의 늑대 수", 7, game.counter.wolves());
+        expect(i18n::L("늑대 7마리 중 완료된 처치 번호", "オオカミ7匹のうちクエストが完了した討伐の番号"), 5, game.quest.completedAtKill());
+        expect(i18n::L("통계의 늑대 수", "統計のオオカミ数"), 7, game.counter.wolves());
     }
 }
 #pragma endregion

@@ -97,7 +97,7 @@ void pt02_bounty()
     ptr2::hunt(field, hunter, "Wolf", 25);
     std::cout << i18n::L("  늑대 처치 후 골드: ", "  オオカミ討伐後のゴールド: ") << hunter.gold << '\n';
 
-    expect("현상금 합계 (150 + 80)", 230, hunter.gold);
+    expect(i18n::L("현상금 합계 (150 + 80)", "賞金の合計(150 + 80)"), 230, hunter.gold);
 }
 
 // ============================================================================
@@ -144,7 +144,7 @@ void pt02_bounty_hidden()
     ptr2::Hunter hunter;
     ptr2::hunt(field, hunter, "Ogre", 70);
     ptr2::hunt(field, hunter, "Bat", 70);
-    expect("현상금 합계 (1200 + 15)", 1215, hunter.gold);
-    expect("남은 Bandit HP", 90, field.find("Bandit") ? field.find("Bandit")->hp : -1);
+    expect(i18n::L("현상금 합계 (1200 + 15)", "賞金の合計(1200 + 15)"), 1215, hunter.gold);
+    expect(i18n::L("남은 Bandit HP", "残りの Bandit HP"), 90, field.find("Bandit") ? field.find("Bandit")->hp : -1);
 }
 #pragma endregion

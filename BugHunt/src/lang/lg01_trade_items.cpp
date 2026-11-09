@@ -75,9 +75,9 @@ void lg01_trade_items()
     print(me);
     print(buyer);
 
-    expect("상인이 받은 아이템 수", static_cast<size_t>(3), buyer.received.size());
-    expect("내 거래 창에 남은 아이템 수", static_cast<size_t>(0), me.offer.size());
-    expect("거래 중 아이템 복사 횟수", 0, g_itemCopies);
+    expect(i18n::L("상인이 받은 아이템 수", "商人が受け取ったアイテム数"), static_cast<size_t>(3), buyer.received.size());
+    expect(i18n::L("내 거래 창에 남은 아이템 수", "自分のトレード画面に残ったアイテム数"), static_cast<size_t>(0), me.offer.size());
+    expect(i18n::L("거래 중 아이템 복사 횟수", "トレード中のアイテムのコピー回数"), 0, g_itemCopies);
 }
 
 // ============================================================================
@@ -130,11 +130,11 @@ void lg01_trade_items_hidden()
     put(b, { i18n::L("깃털 펜", "羽ペン") });
     trade(b, a);
 
-    expect("숨은 거래: 궁수가 받은 아이템 수", static_cast<size_t>(6), b.received.size());
-    expect("숨은 거래: 기사가 받은 아이템 수", static_cast<size_t>(1), a.received.size());
-    expect("숨은 거래: 기사 거래 창", static_cast<size_t>(0), a.offer.size());
-    expect("숨은 거래: 궁수 거래 창", static_cast<size_t>(0), b.offer.size());
-    expect("숨은 거래: 마지막으로 받은 아이템", std::string(i18n::L("독 화살", "毒矢")), b.received.back().name);
-    expect("숨은 거래: 복사 횟수", 0, g_itemCopies);
+    expect(i18n::L("숨은 거래: 궁수가 받은 아이템 수", "隠しトレード: 弓使いが受け取ったアイテム数"), static_cast<size_t>(6), b.received.size());
+    expect(i18n::L("숨은 거래: 기사가 받은 아이템 수", "隠しトレード: 騎士が受け取ったアイテム数"), static_cast<size_t>(1), a.received.size());
+    expect(i18n::L("숨은 거래: 기사 거래 창", "隠しトレード: 騎士のトレード画面"), static_cast<size_t>(0), a.offer.size());
+    expect(i18n::L("숨은 거래: 궁수 거래 창", "隠しトレード: 弓使いのトレード画面"), static_cast<size_t>(0), b.offer.size());
+    expect(i18n::L("숨은 거래: 마지막으로 받은 아이템", "隠しトレード: 最後に受け取ったアイテム"), std::string(i18n::L("독 화살", "毒矢")), b.received.back().name);
+    expect(i18n::L("숨은 거래: 복사 횟수", "隠しトレード: コピー回数"), 0, g_itemCopies);
 }
 #pragma endregion

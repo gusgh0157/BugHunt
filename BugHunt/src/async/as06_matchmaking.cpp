@@ -57,8 +57,8 @@ void as06_matchmaking()
     const MatchResult second = runMatchmaking({ "Sana", "Tom", "Uma" });
     std::cout << i18n::L("  둘째 대기열: ", "  2 つ目のキュー: ") << (second.cancelled ? i18n::L("취소됨", "キャンセル") : i18n::L("매칭됨", "マッチング成立")) << '\n';
 
-    expect("첫 대기열 매치 수", 2, first.matches);
-    expect("둘째 대기열은 취소되었나?", true, second.cancelled);
+    expect(i18n::L("첫 대기열 매치 수", "最初のキューのマッチ数"), 2, first.matches);
+    expect(i18n::L("둘째 대기열은 취소되었나?", "2番目のキューはキャンセルされたか?"), true, second.cancelled);
 }
 
 // ============================================================================
@@ -105,9 +105,9 @@ void as06_matchmaking_hidden()
     const MatchResult empty = runMatchmaking({});
     const MatchResult big = runMatchmaking({ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l" });
     const MatchResult odd = runMatchmaking({ "a", "b", "c", "d", "e" });
-    expect("빈 대기열은 취소되었나?", true, empty.cancelled);
-    expect("12명 대기열 매치 수", 3, big.matches);
-    expect("5명 대기열은 취소되었나?", true, odd.cancelled);
-    expect("5명 대기열 매치 수", 0, odd.matches);
+    expect(i18n::L("빈 대기열은 취소되었나?", "空のキューはキャンセルされたか?"), true, empty.cancelled);
+    expect(i18n::L("12명 대기열 매치 수", "12人のキューのマッチ数"), 3, big.matches);
+    expect(i18n::L("5명 대기열은 취소되었나?", "5人のキューはキャンセルされたか?"), true, odd.cancelled);
+    expect(i18n::L("5명 대기열 매치 수", "5人のキューのマッチ数"), 0, odd.matches);
 }
 #pragma endregion

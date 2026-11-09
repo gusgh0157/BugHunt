@@ -41,9 +41,9 @@ void of04_name_packet()
     const std::string second = sendLogin(packet, "Moonshadow", 47);
     std::cout << i18n::L("  받은 이름: \"", "  受け取った名前: \"") << first << "\", \"" << second << "\"\n";
 
-    expect("첫 번째 이름", std::string("Nightingale"), first);
-    expect("두 번째 이름", std::string("Moonshadow"), second);
-    expect("두 번째 레벨", 47, packet.level);
+    expect(i18n::L("첫 번째 이름", "1番目の名前"), std::string("Nightingale"), first);
+    expect(i18n::L("두 번째 이름", "2番目の名前"), std::string("Moonshadow"), second);
+    expect(i18n::L("두 번째 레벨", "2番目のレベル"), 47, packet.level);
 }
 
 // ============================================================================
@@ -89,11 +89,11 @@ void of04_name_packet_hidden()
     using namespace ovf4;
     NamePacket packet{};
     std::memset(packet.name, 'x', sizeof(packet.name));
-    expect("숨은 접속: 긴 이름 다음 짧은 이름 (1)", std::string("Thunderclap_Berserker"), sendLogin(packet, "Thunderclap_Berserker", 12));
-    expect("숨은 접속: 긴 이름 다음 짧은 이름 (2)", std::string("Rosemary"), sendLogin(packet, "Rosemary", 9));
-    expect("숨은 접속: 버퍼보다 긴 이름은 잘린다", std::string("Archmage_of_the_Eternal_Twiligh"),
+    expect(i18n::L("숨은 접속: 긴 이름 다음 짧은 이름 (1)", "隠し接続: 長い名前の次に短い名前 (1)"), std::string("Thunderclap_Berserker"), sendLogin(packet, "Thunderclap_Berserker", 12));
+    expect(i18n::L("숨은 접속: 긴 이름 다음 짧은 이름 (2)", "隠し接続: 長い名前の次に短い名前 (2)"), std::string("Rosemary"), sendLogin(packet, "Rosemary", 9));
+    expect(i18n::L("숨은 접속: 버퍼보다 긴 이름은 잘린다", "隠し接続: バッファーより長い名前は切り詰められる"), std::string("Archmage_of_the_Eternal_Twiligh"),
            sendLogin(packet, "Archmage_of_the_Eternal_Twilight_Tower", 99));
-    expect("숨은 접속: 긴 이름 뒤 레벨", 99, packet.level);
-    expect("숨은 접속: 한글 이름", std::string(i18n::L("그림자칼날", "シャドウブレード")), sendLogin(packet, i18n::L("그림자칼날", "シャドウブレード"), 5));
+    expect(i18n::L("숨은 접속: 긴 이름 뒤 레벨", "隠し接続: 長い名前の後のレベル"), 99, packet.level);
+    expect(i18n::L("숨은 접속: 한글 이름", "隠し接続: 日本語の名前"), std::string(i18n::L("그림자칼날", "シャドウブレード")), sendLogin(packet, i18n::L("그림자칼날", "シャドウブレード"), 5));
 }
 #pragma endregion

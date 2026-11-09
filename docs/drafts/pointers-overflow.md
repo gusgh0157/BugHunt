@@ -230,6 +230,9 @@ void writeName(char* dst, std::size_t cap, const char* src)
 
 ## 문자열 표 (expect 설명 → 일본어)
 
+> 지금은 이 표를 쓰지 않습니다. expect 설명은 랩 코드에 `expect(i18n::L("한국어", "日本語"), ...)`로 직접 적습니다(`strings_expect.inc`는 삭제됨). 아래는 초안 당시의 기록입니다.
+> [JA] 現在この表は使っていません。expect の説明はラボのコードに `expect(i18n::L("한국어", "日本語"), ...)` と直接書きます(`strings_expect.inc` は削除済み)。以下は草案当時の記録です。
+
 | 파일 | 한국어 | 日本語 |
 |---|---|---|
 | of01 | 시작 칸에서 갈 수 있는 칸 수 | 開始マスから行けるマスの数 |

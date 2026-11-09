@@ -70,7 +70,7 @@ void pt05_equipment()
     new (&party[1]) Hero("Mira", 18, &oakStaff);
     new (&party[2]) Hero("Doran", 35);   // 맨손 격투가
 
-    expect("파티 총 공격력 (55 + 28 + 35)", 118, partyAttack(party, 3));
+    expect(i18n::L("파티 총 공격력 (55 + 28 + 35)", "パーティーの合計攻撃力(55 + 28 + 35)"), 118, partyAttack(party, 3));
 
     for (int i = 0; i < 3; ++i)
         party[i].~Hero();
@@ -119,11 +119,11 @@ void pt05_equipment_hidden()
     const Weapon bow = { "Long Bow", 14 };
 
     Hero rookie("Nell", 12);             // 맨손으로 시작했다가
-    expect("Nell 맨손 공격력", 12, rookie.attackPower());
+    expect(i18n::L("Nell 맨손 공격력", "Nell の素手の攻撃力"), 12, rookie.attackPower());
     rookie.equip(&bow);                  // 활을 든다
-    expect("Nell 활 장착 공격력", 26, rookie.attackPower());
+    expect(i18n::L("Nell 활 장착 공격력", "Nell の弓装備時の攻撃力"), 26, rookie.attackPower());
 
     const Hero duo[] = { Hero("Ivo", 40), Hero("Pia", 22, &bow) };
-    expect("두 명 총 공격력", 76, partyAttack(duo, 2));
+    expect(i18n::L("두 명 총 공격력", "2人の合計攻撃力"), 76, partyAttack(duo, 2));
 }
 #pragma endregion

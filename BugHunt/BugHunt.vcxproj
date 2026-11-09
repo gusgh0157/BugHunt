@@ -60,6 +60,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <!-- 한글 문자열이 일본어와 짝 없이 있으면 빌드 실패 (src/i18n/source_check.cpp) -->
+      <Command>"$(TargetPath)" --check-i18n "$(ProjectDir)src"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='ASan'">
     <ClCompile>
@@ -84,9 +88,10 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <PostBuildEvent>
-      <!-- 명령줄에서 직접 실행할 수 있도록 ASan 런타임 DLL을 exe 옆에 복사 -->
+      <!-- 명령줄에서 직접 실행할 수 있도록 ASan 런타임 DLL을 exe 옆에 복사한 뒤, 위와 같은 한글 문자열 검사 -->
       <Command>copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dbg_dynamic-x86_64.dll" "$(OutDir)" &gt;nul
-copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "$(OutDir)" &gt;nul</Command>
+copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "$(OutDir)" &gt;nul
+"$(TargetPath)" --check-i18n "$(ProjectDir)src"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -102,7 +107,6 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClInclude Include="src\challenge\c3_systems.h" />
     <ClInclude Include="src\grader.h" />
     <ClInclude Include="src\i18n\i18n.h" />
-    <None Include="src\i18n\strings_expect.inc" />
     <ClInclude Include="src\platform\platform.h" />
     <ClInclude Include="src\platform\asan_detect.h" />
   </ItemGroup>
@@ -110,6 +114,7 @@ copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\grader.cpp" />
     <ClCompile Include="src\i18n\i18n.cpp" />
+    <ClCompile Include="src\i18n\source_check.cpp" />
     <ClCompile Include="src\watchdog.cpp" />
     <ClCompile Include="src\async\as01_loading.cpp" />
     <ClCompile Include="src\async\as02_crafting.cpp" />

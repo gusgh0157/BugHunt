@@ -18,7 +18,7 @@ double average(const std::vector<int>& scores)
 void lab01_average()
 {
     const std::vector<int> scores = { 80, 92, 75, 60, 93 };
-    expect("평균 점수", 80.0, average(scores));
+    expect(i18n::L("평균 점수", "平均スコア"), 80.0, average(scores));
 }
 
 // ============================================================================

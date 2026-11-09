@@ -59,8 +59,8 @@ void io05_reward_table()
     const RewardTable table = loadRewards(file);
     std::cout << i18n::L("  몬스터 ", "  モンスター") << table.monsterIds.size() << i18n::L("종, 보상 ", "種、報酬") << table.gold.size() << i18n::L("개\n", "個\n");
 
-    expect("보상 개수", static_cast<size_t>(3), table.gold.size());
-    expect("102번 몬스터 보상", 75, goldFor(table, 102));
+    expect(i18n::L("보상 개수", "報酬の数"), static_cast<size_t>(3), table.gold.size());
+    expect(i18n::L("102번 몬스터 보상", "102番モンスターの報酬"), 75, goldFor(table, 102));
 }
 
 // ============================================================================
@@ -102,8 +102,8 @@ void io05_reward_table_hidden()
     iokit::LabDir lab("io05_reward_table_hidden");
     iokit::writeBytes(lab / "boss.txt", "900 901 902 903 904\nREWARD\n1000 1500 2000 2500 9999\n");
     const RewardTable table = loadRewards(lab / "boss.txt");
-    expect("숨은 보상표: 보상 개수", static_cast<size_t>(5), table.gold.size());
-    expect("숨은 보상표: 901", 1500, goldFor(table, 901));
-    expect("숨은 보상표: 904", 9999, goldFor(table, 904));
+    expect(i18n::L("숨은 보상표: 보상 개수", "隠し報酬表: 報酬の数"), static_cast<size_t>(5), table.gold.size());
+    expect(i18n::L("숨은 보상표: 901", "隠し報酬表: 901"), 1500, goldFor(table, 901));
+    expect(i18n::L("숨은 보상표: 904", "隠し報酬表: 904"), 9999, goldFor(table, 904));
 }
 #pragma endregion

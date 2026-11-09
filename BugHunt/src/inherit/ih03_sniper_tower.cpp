@@ -51,8 +51,8 @@ void ih03_sniper_tower()
     std::cout << "  " << basic.kind() << i18n::L(" 사거리 ", "の射程") << basic.range()
               << i18n::L(", ", "、") << sniper.kind() << i18n::L(" 사거리 ", "の射程") << sniper.range() << '\n';
 
-    expect("저격 탑 사거리", 8, sniper.range());
-    expect("저격 탑이 거리 7을 쏘는가?", true, sniper.canHit(7));
+    expect(i18n::L("저격 탑 사거리", "スナイパータワーの射程"), 8, sniper.range());
+    expect(i18n::L("저격 탑이 거리 7을 쏘는가?", "スナイパータワーは距離7を撃てるか?"), true, sniper.canHit(7));
 }
 
 // ============================================================================
@@ -92,12 +92,12 @@ void ih03_sniper_tower_hidden()
     using namespace inh3;
 
     const MortarTower mortar;
-    expect("박격포 탑 사거리", 6, mortar.range());
-    expect("박격포 탑: 거리 5", true, mortar.canHit(5));
-    expect("박격포 탑: 거리 7", false, mortar.canHit(7));
+    expect(i18n::L("박격포 탑 사거리", "迫撃砲タワーの射程"), 6, mortar.range());
+    expect(i18n::L("박격포 탑: 거리 5", "迫撃砲タワー: 距離5"), true, mortar.canHit(5));
+    expect(i18n::L("박격포 탑: 거리 7", "迫撃砲タワー: 距離7"), false, mortar.canHit(7));
 
     const Tower basic;
-    expect("기본 탑 사거리", 3, basic.range());
-    expect("기본 탑: 거리 4", false, basic.canHit(4));
+    expect(i18n::L("기본 탑 사거리", "基本タワーの射程"), 3, basic.range());
+    expect(i18n::L("기본 탑: 거리 4", "基本タワー: 距離4"), false, basic.canHit(4));
 }
 #pragma endregion

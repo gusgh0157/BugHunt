@@ -42,8 +42,8 @@ void ft11_cave_gate()
             ++entered;
     }
 
-    expect("보람은 들어갈 수 있는가?", true, canEnterCave(party[1]));
-    expect("들어간 인원", 2, entered);
+    expect(i18n::L("보람은 들어갈 수 있는가?", "ボラムは入れるか?"), true, canEnterCave(party[1]));
+    expect(i18n::L("들어간 인원", "入場した人数"), 2, entered);
 }
 
 // ============================================================================
@@ -80,10 +80,10 @@ void ft11_cave_gate_hidden()
 {
     using namespace flow11;
 
-    expect("열쇠 4, 횃불 2", true, canEnterCave({ i18n::L("가", "ア"), 4, 2 }));
-    expect("열쇠 1, 횃불 6", true, canEnterCave({ i18n::L("나", "イ"), 1, 6 }));
-    expect("열쇠 3, 횃불 3", true, canEnterCave({ i18n::L("다", "ウ"), 3, 3 }));
-    expect("열쇠 5, 횃불 0", false, canEnterCave({ i18n::L("라", "エ"), 5, 0 }));
-    expect("열쇠 0, 횃불 0", false, canEnterCave({ i18n::L("마", "オ"), 0, 0 }));
+    expect(i18n::L("열쇠 4, 횃불 2", "鍵4、たいまつ2"), true, canEnterCave({ i18n::L("가", "ア"), 4, 2 }));
+    expect(i18n::L("열쇠 1, 횃불 6", "鍵1、たいまつ6"), true, canEnterCave({ i18n::L("나", "イ"), 1, 6 }));
+    expect(i18n::L("열쇠 3, 횃불 3", "鍵3、たいまつ3"), true, canEnterCave({ i18n::L("다", "ウ"), 3, 3 }));
+    expect(i18n::L("열쇠 5, 횃불 0", "鍵5、たいまつ0"), false, canEnterCave({ i18n::L("라", "エ"), 5, 0 }));
+    expect(i18n::L("열쇠 0, 횃불 0", "鍵0、たいまつ0"), false, canEnterCave({ i18n::L("마", "オ"), 0, 0 }));
 }
 #pragma endregion

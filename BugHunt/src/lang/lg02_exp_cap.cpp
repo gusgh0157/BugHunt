@@ -38,8 +38,8 @@ void lg02_exp_cap()
     const int small = addExp(fromServer(1'000), fromServer(250), fromServer(2));
     std::cout << i18n::L("  슬라임 처치: 1000 + 250 x 2 → ", "  スライム討伐: 1000 + 250 x 2 → ") << small << '\n';
 
-    expect("슬라임 처치 뒤 경험치", 1'500, small);
-    expect("고대 용 처치 뒤 경험치 (상한)", kMaxExp, after);
+    expect(i18n::L("슬라임 처치 뒤 경험치", "スライム討伐後の経験値"), 1'500, small);
+    expect(i18n::L("고대 용 처치 뒤 경험치 (상한)", "古代竜討伐後の経験値(上限)"), kMaxExp, after);
 }
 
 // ============================================================================
@@ -79,9 +79,9 @@ void lg02_exp_cap()
 void lg02_exp_cap_hidden()
 {
     using namespace lang2;
-    expect("숨은 보상: 넘치지 않는 상한", kMaxExp, addExp(fromServer(1'990'000'000), fromServer(20'000'000), fromServer(1)));
-    expect("숨은 보상: 곱셈이 넘쳐 양수로 돌아옴", kMaxExp, addExp(fromServer(100), fromServer(1'500'000'000), fromServer(3)));
-    expect("숨은 보상: 덧셈이 넘침", kMaxExp, addExp(fromServer(2'000'000'000), fromServer(147'483'648), fromServer(1)));
-    expect("숨은 보상: 보통 처치", 1'234'567, addExp(fromServer(1'000'000), fromServer(78'189), fromServer(3)));
+    expect(i18n::L("숨은 보상: 넘치지 않는 상한", "隠し報酬: オーバーフローしない上限"), kMaxExp, addExp(fromServer(1'990'000'000), fromServer(20'000'000), fromServer(1)));
+    expect(i18n::L("숨은 보상: 곱셈이 넘쳐 양수로 돌아옴", "隠し報酬: 掛け算があふれて正の数に戻る"), kMaxExp, addExp(fromServer(100), fromServer(1'500'000'000), fromServer(3)));
+    expect(i18n::L("숨은 보상: 덧셈이 넘침", "隠し報酬: 足し算があふれる"), kMaxExp, addExp(fromServer(2'000'000'000), fromServer(147'483'648), fromServer(1)));
+    expect(i18n::L("숨은 보상: 보통 처치", "隠し報酬: 通常の討伐"), 1'234'567, addExp(fromServer(1'000'000), fromServer(78'189), fromServer(3)));
 }
 #pragma endregion

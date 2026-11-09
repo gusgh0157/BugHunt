@@ -123,9 +123,9 @@ void lg09_quest_chain()
     print(log);
 
     // 마을의 부탁 → 잃어버린 반지 → 반지의 주인까지 조건을 이미 채웠다. 숲의 소문은 아직.
-    expect("이번 차례에 완료한 퀘스트 수", 3, completed);
-    expect("일지의 퀘스트 수", static_cast<size_t>(5), log.size());
-    expect("일지에서 완료된 퀘스트 수", 3, log.countDone());
+    expect(i18n::L("이번 차례에 완료한 퀘스트 수", "今回のターンに完了したクエスト数"), 3, completed);
+    expect(i18n::L("일지의 퀘스트 수", "日誌のクエスト数"), static_cast<size_t>(5), log.size());
+    expect(i18n::L("일지에서 완료된 퀘스트 수", "日誌で完了したクエスト数"), 3, log.countDone());
 }
 
 // ============================================================================
@@ -181,10 +181,10 @@ void lg09_quest_chain_hidden()
         book.all.push_back({ i18n::L("보상 ", "報酬 ") + n, i18n::L("길드 방문", "ギルド訪問"), "", false });
         log.add(book.find(i18n::L("현상금 ", "賞金首 ") + n));
     }
-    expect("숨은 일지: 완료 수", 12, endTurn(log, book, { i18n::L("토벌", "討伐") }));
-    expect("숨은 일지: 일지 크기", static_cast<size_t>(18), log.size());
-    expect("숨은 일지: 남은 보상 퀘스트", 6, static_cast<int>(log.size()) - log.countDone());
-    expect("숨은 일지: 다음 차례 (길드 방문)", 6, endTurn(log, book, { i18n::L("토벌", "討伐"), i18n::L("길드 방문", "ギルド訪問") }));
-    expect("숨은 일지: 할 일 없는 차례", 0, endTurn(log, book, { i18n::L("토벌", "討伐"), i18n::L("길드 방문", "ギルド訪問") }));
+    expect(i18n::L("숨은 일지: 완료 수", "隠し日誌: 完了数"), 12, endTurn(log, book, { i18n::L("토벌", "討伐") }));
+    expect(i18n::L("숨은 일지: 일지 크기", "隠し日誌: 日誌の大きさ"), static_cast<size_t>(18), log.size());
+    expect(i18n::L("숨은 일지: 남은 보상 퀘스트", "隠し日誌: 残った報酬クエスト"), 6, static_cast<int>(log.size()) - log.countDone());
+    expect(i18n::L("숨은 일지: 다음 차례 (길드 방문)", "隠し日誌: 次のターン(ギルド訪問)"), 6, endTurn(log, book, { i18n::L("토벌", "討伐"), i18n::L("길드 방문", "ギルド訪問") }));
+    expect(i18n::L("숨은 일지: 할 일 없는 차례", "隠し日誌: やることのないターン"), 0, endTurn(log, book, { i18n::L("토벌", "討伐"), i18n::L("길드 방문", "ギルド訪問") }));
 }
 #pragma endregion

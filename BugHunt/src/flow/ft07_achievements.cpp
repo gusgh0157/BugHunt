@@ -73,8 +73,8 @@ void ft07_achievements()
     player.level += 1;
     flow7::onBattleEnd(player);
 
-    expect("해금된 업적 수", 2, static_cast<int>(player.achievements.size()));
-    expect("'베테랑' 업적", true, player.has(i18n::L("베테랑", "ベテラン")));
+    expect(i18n::L("해금된 업적 수", "解除された実績の数"), 2, static_cast<int>(player.achievements.size()));
+    expect(i18n::L("'베테랑' 업적", "「ベテラン」の実績"), true, player.has(i18n::L("베테랑", "ベテラン")));
 }
 
 // ============================================================================
@@ -117,8 +117,8 @@ void ft07_achievements_hidden()
     player.level = 10;
     flow7::onBattleEnd(player);
 
-    expect("해금된 업적 수", 2, static_cast<int>(player.achievements.size()));
-    expect("'부자' 업적", true, player.has(i18n::L("부자", "金持ち")));
-    expect("'베테랑' 업적", true, player.has(i18n::L("베테랑", "ベテラン")));
+    expect(i18n::L("해금된 업적 수", "解除された実績の数"), 2, static_cast<int>(player.achievements.size()));
+    expect(i18n::L("'부자' 업적", "「金持ち」の実績"), true, player.has(i18n::L("부자", "金持ち")));
+    expect(i18n::L("'베테랑' 업적", "「ベテラン」の実績"), true, player.has(i18n::L("베테랑", "ベテラン")));
 }
 #pragma endregion

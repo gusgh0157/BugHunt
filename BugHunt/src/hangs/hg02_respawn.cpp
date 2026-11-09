@@ -23,12 +23,12 @@ void hg02_respawn()
 {
     int announcements = 0;
 
-    runWithWatchdog("부활 알림 횟수 계산", [&] {
+    runWithWatchdog(i18n::L("부활 알림 횟수 계산", "復活通知の回数計算"), [&] {
         announcements = hang2::countAnnouncements(12);
     });
 
     // 12초: 10, 5, 3, 2, 1, 0 → 6번
-    expect("12초 대기 알림 횟수", 6, announcements);
+    expect(i18n::L("12초 대기 알림 횟수", "12秒待機の通知回数"), 6, announcements);
 }
 
 // ============================================================================
@@ -68,13 +68,13 @@ void hg02_respawn()
 void hg02_respawn_hidden()
 {
     int a = 0, b = 0, c = 0;
-    runWithWatchdog("부활 알림 횟수 계산 (숨은 케이스)", [&] {
+    runWithWatchdog(i18n::L("부활 알림 횟수 계산 (숨은 케이스)", "復活通知の回数計算(隠しケース)"), [&] {
         a = hang2::countAnnouncements(7);
         b = hang2::countAnnouncements(20);
         c = hang2::countAnnouncements(0);
     });
-    expect("7초 대기 (5, 3, 2, 1, 0)", 5, a);
-    expect("20초 대기 (20, 15, 10, 5, 3, 2, 1, 0)", 8, b);
-    expect("0초 대기 (0)", 1, c);
+    expect(i18n::L("7초 대기 (5, 3, 2, 1, 0)", "7秒待機(5, 3, 2, 1, 0)"), 5, a);
+    expect(i18n::L("20초 대기 (20, 15, 10, 5, 3, 2, 1, 0)", "20秒待機(20, 15, 10, 5, 3, 2, 1, 0)"), 8, b);
+    expect(i18n::L("0초 대기 (0)", "0秒待機(0)"), 1, c);
 }
 #pragma endregion

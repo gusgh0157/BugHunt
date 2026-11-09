@@ -34,9 +34,9 @@ void chC3_shrine()
         std::cout << "  " << line << '\n';
     std::cout << i18n::L("  부활 후 체력 ", "  復活後のHP ") << aria.hp() << "/" << aria.maxHp() << i18n::L(", 버프 ", "、バフ ") << aria.buffs().size() << i18n::L("개\n", "個\n");
 
-    expect("쓰러지기 전 한 방 (전투 함성 포함)", 57, beforeDeath);
-    expect("부활 후 체력 (절반)", 50, aria.hp());
-    expect("부활 후 한 방 (버프는 사라졌으므로 전투 함성 없이)", 52, afterRespawn);
+    expect(i18n::L("쓰러지기 전 한 방 (전투 함성 포함)", "倒れる前の一撃(雄叫び込み)"), 57, beforeDeath);
+    expect(i18n::L("부활 후 체력 (절반)", "復活後のHP(半分)"), 50, aria.hp());
+    expect(i18n::L("부활 후 한 방 (버프는 사라졌으므로 전투 함성 없이)", "復活後の一撃(バフは消えたので雄叫びなし)"), 52, afterRespawn);
 }
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
@@ -55,20 +55,20 @@ void chC3_shrine_hidden()
     RespawnSystem respawns(checkpoints);
 
     checkpoints.save(brom);
-    expect("성소에 저장된 프레스티지", 3, checkpoints.snapshotOf("Brom").prestige());
+    expect(i18n::L("성소에 저장된 프레스티지", "聖所に保存されたプレステージ"), 3, checkpoints.snapshotOf("Brom").prestige());
     brom.addBuff({ i18n::L("광폭화", "狂暴化"), 25 });
     brom.setHp(0);
     respawns.respawn(brom);
-    expect("부활 후 프레스티지", 3, brom.prestige());
-    expect("부활 후 버프는 사라져야 한다 (기획서 7.1)", static_cast<size_t>(0), brom.buffs().size());
-    expect("부활 후 공격력 (62 x 115%)", 71, StatSystem::attackOf(brom));
+    expect(i18n::L("부활 후 프레스티지", "復活後のプレステージ"), 3, brom.prestige());
+    expect(i18n::L("부활 후 버프는 사라져야 한다 (기획서 7.1)", "復活後はバフが消えるべき(企画書 7.1)"), static_cast<size_t>(0), brom.buffs().size());
+    expect(i18n::L("부활 후 공격력 (62 x 115%)", "復活後の攻撃力(62 x 115%)"), 71, StatSystem::attackOf(brom));
 
     const Hero copy = brom;
-    expect("복사본의 프레스티지", 3, copy.prestige());
+    expect(i18n::L("복사본의 프레스티지", "コピーのプレステージ"), 3, copy.prestige());
     Hero other("Other", 1, 10);
     other.adoptPet("Owl", 2);
     other = brom;
-    expect("대입한 뒤의 프레스티지", 3, other.prestige());
-    expect("대입하면 펫도 대입한 쪽을 따른다 (Brom은 펫 없음)", true, other.pet() == nullptr);
+    expect(i18n::L("대입한 뒤의 프레스티지", "代入した後のプレステージ"), 3, other.prestige());
+    expect(i18n::L("대입하면 펫도 대입한 쪽을 따른다 (Brom은 펫 없음)", "代入するとペットも代入元に従う(Brom はペットなし)"), true, other.pet() == nullptr);
 }
 #pragma endregion

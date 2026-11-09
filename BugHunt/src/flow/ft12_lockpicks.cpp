@@ -55,8 +55,8 @@ void ft12_lockpicks()
             ++opened;
     }
 
-    expect("연 문 수", 5, opened);
-    expect("남은 자물쇠 따개", 1, thief.lockpicks);
+    expect(i18n::L("연 문 수", "開いた扉の数"), 5, opened);
+    expect(i18n::L("남은 자물쇠 따개", "残りのロックピック"), 1, thief.lockpicks);
 }
 
 // ============================================================================
@@ -98,13 +98,13 @@ void ft12_lockpicks_hidden()
     Thief t;
     t.keys = { i18n::L("북문", "北門"), i18n::L("남문", "南門") };
     t.lockpicks = 1;
-    expect("북문(열쇠) 열림", true, openDoor(t, i18n::L("북문", "北門")));
-    expect("북문 뒤 따개", 1, t.lockpicks);
-    expect("남문(열쇠) 열림", true, openDoor(t, i18n::L("남문", "南門")));
-    expect("남문 뒤 따개", 1, t.lockpicks);
-    expect("동문(따개) 열림", true, openDoor(t, i18n::L("동문", "東門")));
-    expect("동문 뒤 따개", 0, t.lockpicks);
-    expect("서문(없음) 잠김", false, openDoor(t, i18n::L("서문", "西門")));
-    expect("북문 다시(열쇠) 열림", true, openDoor(t, i18n::L("북문", "北門")));
+    expect(i18n::L("북문(열쇠) 열림", "北門(鍵)開く"), true, openDoor(t, i18n::L("북문", "北門")));
+    expect(i18n::L("북문 뒤 따개", "北門の後のロックピック"), 1, t.lockpicks);
+    expect(i18n::L("남문(열쇠) 열림", "南門(鍵)開く"), true, openDoor(t, i18n::L("남문", "南門")));
+    expect(i18n::L("남문 뒤 따개", "南門の後のロックピック"), 1, t.lockpicks);
+    expect(i18n::L("동문(따개) 열림", "東門(ロックピック)開く"), true, openDoor(t, i18n::L("동문", "東門")));
+    expect(i18n::L("동문 뒤 따개", "東門の後のロックピック"), 0, t.lockpicks);
+    expect(i18n::L("서문(없음) 잠김", "西門(なし)開かない"), false, openDoor(t, i18n::L("서문", "西門")));
+    expect(i18n::L("북문 다시(열쇠) 열림", "北門ふたたび(鍵)開く"), true, openDoor(t, i18n::L("북문", "北門")));
 }
 #pragma endregion

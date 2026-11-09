@@ -30,8 +30,8 @@ void lg06_save_screen()
     passCheckpoint(i18n::L("용의 둥지", "竜の巣"));
     showSaveScreen();
 
-    expect("저장 횟수", 3, g_saveStats.count);
-    expect("마지막 슬롯", std::string(i18n::L("auto-용의 둥지", "auto-竜の巣")), g_saveStats.lastSlot);
+    expect(i18n::L("저장 횟수", "セーブ回数"), 3, g_saveStats.count);
+    expect(i18n::L("마지막 슬롯", "最後のスロット"), std::string(i18n::L("auto-용의 둥지", "auto-竜の巣")), g_saveStats.lastSlot);
 }
 
 // ============================================================================
@@ -76,7 +76,7 @@ void lg06_save_screen_hidden()
     const int before = g_saveStats.count;
     for (const char* place : { i18n::L("항구", "港"), i18n::L("등대", "灯台"), i18n::L("난파선", "難破船"), i18n::L("인어의 동굴", "人魚の洞窟"), i18n::L("해적 요새", "海賊の砦") })
         autosave(std::string("auto-") + place);
-    expect("숨은 저장: 늘어난 횟수", 5, g_saveStats.count - before);
-    expect("숨은 저장: 마지막 슬롯", std::string(i18n::L("auto-해적 요새", "auto-海賊の砦")), g_saveStats.lastSlot);
+    expect(i18n::L("숨은 저장: 늘어난 횟수", "隠しセーブ: 増えた回数"), 5, g_saveStats.count - before);
+    expect(i18n::L("숨은 저장: 마지막 슬롯", "隠しセーブ: 最後のスロット"), std::string(i18n::L("auto-해적 요새", "auto-海賊の砦")), g_saveStats.lastSlot);
 }
 #pragma endregion

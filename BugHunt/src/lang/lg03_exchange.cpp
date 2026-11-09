@@ -41,8 +41,8 @@ void lg03_exchange()
     const SaleRecord bundle = sellBundle(potionGold, 300);
     std::cout << i18n::L("  치유 물약 ", "  ポーション") << bundle.count << i18n::L("개 묶음 판매: 은화 ", "個まとめ売り: 銀貨") << bundle.totalSilver << i18n::L("개\n", "枚\n");
 
-    expect("치유 물약 1개 (은화)", 115, potionSilver);
-    expect("물약 300개 묶음 총액 (은화)", 34'500, static_cast<int>(bundle.totalSilver));
+    expect(i18n::L("치유 물약 1개 (은화)", "回復ポーション1個(銀貨)"), 115, potionSilver);
+    expect(i18n::L("물약 300개 묶음 총액 (은화)", "ポーション300個まとめ売りの総額(銀貨)"), 34'500, static_cast<int>(bundle.totalSilver));
 }
 
 // ============================================================================
@@ -88,10 +88,10 @@ void lg03_exchange()
 void lg03_exchange_hidden()
 {
     using namespace lang3;
-    expect("숨은 가격: 0.29 골드", 29, toSilver(0.29));
-    expect("숨은 가격: 4.35 골드", 435, toSilver(4.35));
-    expect("숨은 가격: 2.5 골드", 250, toSilver(2.5));
-    expect("숨은 묶음: 화살 1000개", 29'000, static_cast<int>(sellBundle(0.29, 1000).totalSilver));
-    expect("숨은 묶음: 마나 물약 500개", 217'500, static_cast<int>(sellBundle(4.35, 500).totalSilver));
+    expect(i18n::L("숨은 가격: 0.29 골드", "隠し価格: 0.29 ゴールド"), 29, toSilver(0.29));
+    expect(i18n::L("숨은 가격: 4.35 골드", "隠し価格: 4.35 ゴールド"), 435, toSilver(4.35));
+    expect(i18n::L("숨은 가격: 2.5 골드", "隠し価格: 2.5 ゴールド"), 250, toSilver(2.5));
+    expect(i18n::L("숨은 묶음: 화살 1000개", "隠しまとめ売り: 矢1000本"), 29'000, static_cast<int>(sellBundle(0.29, 1000).totalSilver));
+    expect(i18n::L("숨은 묶음: 마나 물약 500개", "隠しまとめ売り: マナポーション500個"), 217'500, static_cast<int>(sellBundle(4.35, 500).totalSilver));
 }
 #pragma endregion

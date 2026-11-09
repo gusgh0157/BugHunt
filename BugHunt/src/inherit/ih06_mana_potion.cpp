@@ -79,9 +79,9 @@ void ih06_mana_potion()
     std::cout << i18n::L("  물약 ", "  ポーション") << used << i18n::L("개 사용, 아린 마나 ", "個使用、アリンのマナ") << manaOf(party, i18n::L("아린", "アリン"))
               << i18n::L(", 보람 마나 ", "、ボラムのマナ") << manaOf(party, i18n::L("보람", "ボラム")) << '\n';
 
-    expect("사용한 물약", 2, used);
-    expect("아린 마나", 70, manaOf(party, i18n::L("아린", "アリン")));
-    expect("보람 마나 (최대 100)", 100, manaOf(party, i18n::L("보람", "ボラム")));
+    expect(i18n::L("사용한 물약", "使ったポーション"), 2, used);
+    expect(i18n::L("아린 마나", "アリンのマナ"), 70, manaOf(party, i18n::L("아린", "アリン")));
+    expect(i18n::L("보람 마나 (최대 100)", "ボラムのマナ(最大100)"), 100, manaOf(party, i18n::L("보람", "ボラム")));
 }
 
 // ============================================================================
@@ -123,12 +123,12 @@ void ih06_mana_potion_hidden()
     Party warriors;
     warriors.push_back(std::make_unique<Warrior>(i18n::L("가", "ア")));
     warriors.push_back(std::make_unique<Warrior>(i18n::L("나", "イ")));
-    expect("전사만: 사용한 물약", 0, drinkManaPotions(warriors, 50));
+    expect(i18n::L("전사만: 사용한 물약", "戦士だけ: 使ったポーション"), 0, drinkManaPotions(warriors, 50));
 
     Party mixed;
     mixed.push_back(std::make_unique<Warrior>(i18n::L("다", "ウ")));
     mixed.push_back(std::make_unique<Mage>(i18n::L("라", "エ"), 10));
-    expect("섞인 파티: 사용한 물약", 1, drinkManaPotions(mixed, 45));
-    expect("섞인 파티: 라 마나", 55, manaOf(mixed, i18n::L("라", "エ")));
+    expect(i18n::L("섞인 파티: 사용한 물약", "混成パーティー: 使ったポーション"), 1, drinkManaPotions(mixed, 45));
+    expect(i18n::L("섞인 파티: 라 마나", "混成パーティー: エのマナ"), 55, manaOf(mixed, i18n::L("라", "エ")));
 }
 #pragma endregion

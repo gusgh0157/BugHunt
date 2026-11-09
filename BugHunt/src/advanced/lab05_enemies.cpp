@@ -36,7 +36,7 @@ void lab05_enemies()
 
     removeDead(enemies);
 
-    expect("남은 적 수", size_t{ 2 }, enemies.size());
+    expect(i18n::L("남은 적 수", "残りの敵の数"), size_t{ 2 }, enemies.size());
 }
 
 // ============================================================================

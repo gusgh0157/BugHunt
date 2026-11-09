@@ -64,8 +64,8 @@ void chB8()
     bell.ring(2);
     for (const Turret& t : turrets)
         std::cout << "  " << t.name() << i18n::L(" 포탑 발사 ", "の砲塔 発射 ") << t.shots() << i18n::L("번\n", "回\n");
-    expect("북문 포탑", 5, turrets.at(0).shots());
-    expect("서문 포탑", 5, turrets.at(2).shots());
+    expect(i18n::L("북문 포탑", "北門の砲塔"), 5, turrets.at(0).shots());
+    expect(i18n::L("서문 포탑", "西門の砲塔"), 5, turrets.at(2).shots());
 }
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
@@ -78,8 +78,8 @@ void chB8_hidden()
     int total = 0;
     for (const Turret& t : turrets)
         total += t.shots();
-    expect("모든 포탑이 한 번씩 쏨", 28, total);
-    expect("첫 포탑", 4, turrets.front().shots());
-    expect("마지막 포탑", 4, turrets.back().shots());
+    expect(i18n::L("모든 포탑이 한 번씩 쏨", "すべての砲塔が1回ずつ撃つ"), 28, total);
+    expect(i18n::L("첫 포탑", "最初の砲塔"), 4, turrets.front().shots());
+    expect(i18n::L("마지막 포탑", "最後の砲塔"), 4, turrets.back().shots());
 }
 #pragma endregion

@@ -49,10 +49,10 @@ void of05_skill_tree()
     print(hero);
     const bool rejected = !learnSkill(hero, 5);
 
-    expect("없는 5번 스킬은 거절", true, rejected);
-    expect("2번 스킬 레벨", 1, hero.skillLevels[1]);
-    expect("4번 스킬 레벨", 1, hero.skillLevels[3]);
-    expect("남은 골드", 800, hero.gold);
+    expect(i18n::L("없는 5번 스킬은 거절", "存在しない5番スキルは拒否"), true, rejected);
+    expect(i18n::L("2번 스킬 레벨", "2番スキルのレベル"), 1, hero.skillLevels[1]);
+    expect(i18n::L("4번 스킬 레벨", "4番スキルのレベル"), 1, hero.skillLevels[3]);
+    expect(i18n::L("남은 골드", "残りのゴールド"), 800, hero.gold);
 }
 
 // ============================================================================
@@ -98,10 +98,10 @@ void of05_skill_tree_hidden()
     hero.gold = 450;
     for (int id : { 4, 4, 1, 3, 0, 2 })
         learnSkill(hero, id);
-    expect("숨은 스킬: 1번", 1, hero.skillLevels[0]);
-    expect("숨은 스킬: 2번 (골드 부족)", 0, hero.skillLevels[1]);
-    expect("숨은 스킬: 3번", 1, hero.skillLevels[2]);
-    expect("숨은 스킬: 4번", 2, hero.skillLevels[3]);
-    expect("숨은 스킬: 남은 골드", 50, hero.gold);
+    expect(i18n::L("숨은 스킬: 1번", "隠しスキル: 1番"), 1, hero.skillLevels[0]);
+    expect(i18n::L("숨은 스킬: 2번 (골드 부족)", "隠しスキル: 2番(ゴールド不足)"), 0, hero.skillLevels[1]);
+    expect(i18n::L("숨은 스킬: 3번", "隠しスキル: 3番"), 1, hero.skillLevels[2]);
+    expect(i18n::L("숨은 스킬: 4번", "隠しスキル: 4番"), 2, hero.skillLevels[3]);
+    expect(i18n::L("숨은 스킬: 남은 골드", "隠しスキル: 残りのゴールド"), 50, hero.gold);
 }
 #pragma endregion

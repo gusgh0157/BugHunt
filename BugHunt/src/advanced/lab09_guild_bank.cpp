@@ -44,7 +44,7 @@ void lab09_guild_bank()
     for (std::thread& t : members)
         t.join();
 
-    expect("길드 금고 골드", kMembers * kDepositsPerMember, bank.gold());
+    expect(i18n::L("길드 금고 골드", "ギルド金庫のゴールド"), kMembers * kDepositsPerMember, bank.gold());
 }
 
 // ============================================================================

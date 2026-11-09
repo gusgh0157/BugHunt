@@ -40,12 +40,12 @@ void hg03_chat_command()
 {
     std::vector<std::string> words;
 
-    runWithWatchdog("채팅 명령어 분석", [&] {
+    runWithWatchdog(i18n::L("채팅 명령어 분석", "チャットコマンドの解析"), [&] {
         words = hang3::splitCommand("/party invite Kael");
     });
 
-    expect("단어 수", 3, static_cast<int>(words.size()));
-    expect("초대할 이름", std::string("Kael"), words.size() == 3 ? words[2] : std::string());
+    expect(i18n::L("단어 수", "単語数"), 3, static_cast<int>(words.size()));
+    expect(i18n::L("초대할 이름", "招待する名前"), std::string("Kael"), words.size() == 3 ? words[2] : std::string());
 }
 
 // ============================================================================
@@ -75,13 +75,13 @@ void hg03_chat_command()
 void hg03_chat_command_hidden()
 {
     std::vector<std::string> a, b;
-    runWithWatchdog("채팅 명령어 분석 (숨은 케이스)", [&] {
+    runWithWatchdog(i18n::L("채팅 명령어 분석 (숨은 케이스)", "チャットコマンドの解析(隠しケース)"), [&] {
         a = hang3::splitCommand("  /w   Mira  see you there ");
         b = hang3::splitCommand("/logout");
     });
-    expect("단어 수 (공백 여러 개)", 5, static_cast<int>(a.size()));
-    expect("두 번째 단어", std::string("Mira"), a.size() > 1 ? a[1] : std::string());
-    expect("마지막 단어", std::string("there"), a.empty() ? std::string() : a.back());
-    expect("한 단어 명령", 1, static_cast<int>(b.size()));
+    expect(i18n::L("단어 수 (공백 여러 개)", "単語数(空白が複数)"), 5, static_cast<int>(a.size()));
+    expect(i18n::L("두 번째 단어", "2番目の単語"), std::string("Mira"), a.size() > 1 ? a[1] : std::string());
+    expect(i18n::L("마지막 단어", "最後の単語"), std::string("there"), a.empty() ? std::string() : a.back());
+    expect(i18n::L("한 단어 명령", "1単語のコマンド"), 1, static_cast<int>(b.size()));
 }
 #pragma endregion

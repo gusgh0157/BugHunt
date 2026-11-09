@@ -66,8 +66,8 @@ void as02_crafting()
     };
 
     const CraftReport report = craftAll(orders, 10);
-    expect("판매 수익 (120 + 150 + 80)", 350, report.revenue);
-    expect("실패한 주문 수", 1, report.failed);
+    expect(i18n::L("판매 수익 (120 + 150 + 80)", "販売収益(120 + 150 + 80)"), 350, report.revenue);
+    expect(i18n::L("실패한 주문 수", "失敗した注文数"), 1, report.failed);
 }
 
 // ============================================================================
@@ -113,7 +113,7 @@ void as02_crafting_hidden()
         { "Leather Cap", 0, 15 },
     };
     const CraftReport report = craftAll(orders, 8);
-    expect("판매 수익 (40 + 260 + 15)", 315, report.revenue);
-    expect("실패한 주문 수", 2, report.failed);
+    expect(i18n::L("판매 수익 (40 + 260 + 15)", "販売収益(40 + 260 + 15)"), 315, report.revenue);
+    expect(i18n::L("실패한 주문 수", "失敗した注文数"), 2, report.failed);
 }
 #pragma endregion

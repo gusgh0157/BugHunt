@@ -86,9 +86,9 @@ void chC2_raid_night()
         std::cout << ' ' << t;
     std::cout << '\n';
 
-    expect("의뢰 완료", true, quest.done());
-    expect("전리품 상자", 8, loot.chests());
-    expect("칭호 \"그림자\"를 받았는가? (무피격 연속 처치 6 이상)", true, hasTitle(titles, i18n::L("그림자", "影")));
+    expect(i18n::L("의뢰 완료", "依頼完了"), true, quest.done());
+    expect(i18n::L("전리품 상자", "戦利品の箱"), 8, loot.chests());
+    expect(i18n::L("칭호 \"그림자\"를 받았는가? (무피격 연속 처치 6 이상)", "称号「影」をもらったか?(ノーダメージ連続撃破6以上)"), true, hasTitle(titles, i18n::L("그림자", "影")));
 }
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
@@ -108,8 +108,8 @@ void chC2_raid_night_hidden()
         for (int i = 0; i < 6; ++i)
             raid.kill(i18n::L("늑대", "オオカミ"));
         raid.end();
-        expect("업적의 늑대 처치 수 = 기록의 처치 수", log.kills(), tracker.killsOf(i18n::L("늑대", "オオカミ")));
-        expect("칭호 \"늑대 사냥꾼\"", true, hasTitle(titles, i18n::L("늑대 사냥꾼", "オオカミハンター")));
+        expect(i18n::L("업적의 늑대 처치 수 = 기록의 처치 수", "実績のオオカミ討伐数 = 記録の討伐数"), log.kills(), tracker.killsOf(i18n::L("늑대", "オオカミ")));
+        expect(i18n::L("칭호 \"늑대 사냥꾼\"", "称号「オオカミハンター」"), true, hasTitle(titles, i18n::L("늑대 사냥꾼", "オオカミハンター")));
     }
     {
         Raid raid;
@@ -121,8 +121,8 @@ void chC2_raid_night_hidden()
         for (int i = 0; i < 3; ++i)
             raid.kill(i18n::L("박쥐", "コウモリ"));
         raid.end();
-        expect("막아 낸 공격 뒤의 최고 연속 처치", 5, tracker.bestStreak());
-        expect("칭호 \"그림자\"를 받지 않아야 한다", false, hasTitle(titles, i18n::L("그림자", "影")));
+        expect(i18n::L("막아 낸 공격 뒤의 최고 연속 처치", "防いだ攻撃の後の最高連続討伐"), 5, tracker.bestStreak());
+        expect(i18n::L("칭호 \"그림자\"를 받지 않아야 한다", "称号「影」はもらってはいけない"), false, hasTitle(titles, i18n::L("그림자", "影")));
     }
     {
         Raid raid;
@@ -134,10 +134,10 @@ void chC2_raid_night_hidden()
         raid.kill(i18n::L("박쥐", "コウモリ"));
         raid.kill(i18n::L("박쥐", "コウモリ"));
         raid.kill(i18n::L("거미", "クモ"));
-        expect("두 의뢰 모두 완료", true, first.done() && second.done());
-        expect("전리품 상자 = 처치 수", log.kills(), loot.chests());
-        expect("업적 처치 수 = 처치 수", log.kills(), tracker.totalKills());
-        expect("끝난 의뢰는 구독이 끊겨야 한다 (남은 구독자 수)", static_cast<size_t>(3), raid.bus.subscriberCount());
+        expect(i18n::L("두 의뢰 모두 완료", "2つの依頼がどちらも完了"), true, first.done() && second.done());
+        expect(i18n::L("전리품 상자 = 처치 수", "戦利品の箱 = 討伐数"), log.kills(), loot.chests());
+        expect(i18n::L("업적 처치 수 = 처치 수", "実績の討伐数 = 討伐数"), log.kills(), tracker.totalKills());
+        expect(i18n::L("끝난 의뢰는 구독이 끊겨야 한다 (남은 구독자 수)", "終わった依頼は購読が解除されるべき(残りの購読者数)"), static_cast<size_t>(3), raid.bus.subscriberCount());
     }
 }
 #pragma endregion

@@ -57,11 +57,11 @@ void ct07_season_ranking()
     season.recordMatch(&mira, -50);
 
     std::cout << i18n::L("  1위: ", "  1位: ") << season.top()->name << " " << season.top()->score << '\n';
-    expect("1위", std::string("Doran"), season.top()->name);
+    expect(i18n::L("1위", "1位"), std::string("Doran"), season.top()->name);
 
     const bool left = season.leave(&selene);
-    expect("Selene 탈퇴 처리", true, left);
-    expect("남은 인원", static_cast<size_t>(3), season.size());
+    expect(i18n::L("Selene 탈퇴 처리", "Selene の脱退処理"), true, left);
+    expect(i18n::L("남은 인원", "残りの人数"), static_cast<size_t>(3), season.size());
 }
 
 // ============================================================================
@@ -109,12 +109,12 @@ void ct07_season_ranking_hidden()
 
     season.recordMatch(&players[0], 500);    // 1000 → 1500 (1위)
     season.recordMatch(&players[11], -300);  // 1110 → 810 (꼴찌)
-    expect("1위", std::string("P0"), season.top()->name);
+    expect(i18n::L("1위", "1位"), std::string("P0"), season.top()->name);
 
     int removed = 0;
     for (int i = 1; i < 12; i += 2)
         removed += season.leave(&players[i]) ? 1 : 0;
-    expect("탈퇴 성공 수", 6, removed);
-    expect("남은 인원", static_cast<size_t>(6), season.size());
+    expect(i18n::L("탈퇴 성공 수", "脱退に成功した数"), 6, removed);
+    expect(i18n::L("남은 인원", "残りの人数"), static_cast<size_t>(6), season.size());
 }
 #pragma endregion

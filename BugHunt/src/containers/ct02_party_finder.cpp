@@ -73,8 +73,8 @@ void ct02_party_finder()
 
     const std::string invited = finder.confirmInvite();
     std::cout << i18n::L("  초대한 플레이어: ", "  招待したプレイヤー: ") << invited << '\n';
-    expect("초대한 플레이어", std::string("Mira"), invited);
-    expect("Mira가 게시판에서 빠졌나?", static_cast<size_t>(0), finder.board().count("Mira"));
+    expect(i18n::L("초대한 플레이어", "招待したプレイヤー"), std::string("Mira"), invited);
+    expect(i18n::L("Mira가 게시판에서 빠졌나?", "Mira は掲示板から外れたか?"), static_cast<size_t>(0), finder.board().count("Mira"));
 }
 
 // ============================================================================
@@ -124,8 +124,8 @@ void ct02_party_finder_hidden()
     finder.select(row);
     ct2::registerWave(finder, "Night", 120);
 
-    expect("rehash 뒤 선택된 이름", std::string("Oren"), finder.selectedName());
-    expect("초대한 플레이어", std::string("Oren"), finder.confirmInvite());
-    expect("남은 인원", static_cast<size_t>(127), finder.board().size());
+    expect(i18n::L("rehash 뒤 선택된 이름", "rehash 後に選ばれた名前"), std::string("Oren"), finder.selectedName());
+    expect(i18n::L("초대한 플레이어", "招待したプレイヤー"), std::string("Oren"), finder.confirmInvite());
+    expect(i18n::L("남은 인원", "残りの人数"), static_cast<size_t>(127), finder.board().size());
 }
 #pragma endregion

@@ -21,15 +21,15 @@ void hg01_cooldown()
     int dash = 0;
     int fireball = 0;
 
-    runWithWatchdog("쿨다운 계산", [&] {
+    runWithWatchdog(i18n::L("쿨다운 계산", "クールダウン計算"), [&] {
         dash = hang1::ticksUntilReady(0.5f, 0.1f);
         std::cout << i18n::L("  대시: ", "  ダッシュ: ") << dash << i18n::L("틱\n", "ティック\n");
         fireball = hang1::ticksUntilReady(1.5f, 0.1f);
         std::cout << i18n::L("  파이어볼: ", "  ファイアボール: ") << fireball << i18n::L("틱\n", "ティック\n");
     });
 
-    expect("대시 (0.5초 / 0.1초)", 5, dash);
-    expect("파이어볼 (1.5초 / 0.1초)", 15, fireball);
+    expect(i18n::L("대시 (0.5초 / 0.1초)", "ダッシュ(0.5秒 / 0.1秒)"), 5, dash);
+    expect(i18n::L("파이어볼 (1.5초 / 0.1초)", "ファイアボール(1.5秒 / 0.1秒)"), 15, fireball);
 }
 
 // ============================================================================
@@ -67,13 +67,13 @@ void hg01_cooldown()
 void hg01_cooldown_hidden()
 {
     int a = 0, b = 0, c = 0;
-    runWithWatchdog("쿨다운 계산 (숨은 케이스)", [&] {
+    runWithWatchdog(i18n::L("쿨다운 계산 (숨은 케이스)", "クールダウン計算(隠しケース)"), [&] {
         a = hang1::ticksUntilReady(2.0f, 0.25f);
         b = hang1::ticksUntilReady(1.2f, 0.05f);
         c = hang1::ticksUntilReady(0.8f, 0.1f);
     });
-    expect("2.0초 / 0.25초", 8, a);
-    expect("1.2초 / 0.05초", 24, b);
-    expect("0.8초 / 0.1초", 8, c);
+    expect(i18n::L("2.0초 / 0.25초", "2.0秒 / 0.25秒"), 8, a);
+    expect(i18n::L("1.2초 / 0.05초", "1.2秒 / 0.05秒"), 24, b);
+    expect(i18n::L("0.8초 / 0.1초", "0.8秒 / 0.1秒"), 8, c);
 }
 #pragma endregion

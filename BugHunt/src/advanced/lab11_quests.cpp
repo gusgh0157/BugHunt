@@ -53,7 +53,7 @@ int countAllPrereqs(const QuestDb& db, const std::string& questId)
 void lab11_quests()
 {
     const QuestDb db = loadQuests(kQuestTable);
-    expect("dragon_hunt 선행 퀘스트 수", 5, countAllPrereqs(db, "dragon_hunt"));
+    expect(i18n::L("dragon_hunt 선행 퀘스트 수", "dragon_hunt の前提クエスト数"), 5, countAllPrereqs(db, "dragon_hunt"));
 }
 
 // ============================================================================

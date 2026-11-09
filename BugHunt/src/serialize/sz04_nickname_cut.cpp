@@ -43,14 +43,14 @@ void sz04_nickname_cut()
     using namespace sz4;
 
     std::string saved;
-    expect("영어 닉네임 저장", true, saveProfile("DragonSlayer99", 30, saved));
+    expect(i18n::L("영어 닉네임 저장", "英語ニックネームの保存"), true, saveProfile("DragonSlayer99", 30, saved));
     std::cout << "  " << saved << '\n';
 
     const bool ok = saveProfile(i18n::L("Lv99용감한전사", "Lv99勇敢な戦士"), 99, saved);
     if (ok)
         std::cout << "  " << saved << '\n';
-    expect("한글 닉네임 저장", true, ok);
-    expect("잘린 닉네임", std::string(i18n::L("Lv99용감", "Lv99勇敢")), clampName(i18n::L("Lv99용감한전사", "Lv99勇敢な戦士")));
+    expect(i18n::L("한글 닉네임 저장", "日本語ニックネームの保存"), true, ok);
+    expect(i18n::L("잘린 닉네임", "切り詰めたニックネーム"), std::string(i18n::L("Lv99용감", "Lv99勇敢")), clampName(i18n::L("Lv99용감한전사", "Lv99勇敢な戦士")));
 }
 
 // ============================================================================
@@ -89,12 +89,12 @@ void sz04_nickname_cut_hidden()
 {
     using namespace sz4;
 
-    expect("한글만 15바이트", std::string(i18n::L("가나다라", "あいうえ")), clampName(i18n::L("가나다라마", "あいうえお")));
-    expect("영어 2 + 한글", std::string(i18n::L("ab가나다", "abあいう")), clampName(i18n::L("ab가나다라", "abあいうえ")));
-    expect("4바이트 글자", std::string("a\xF0\x9F\x90\x89\xF0\x9F\x90\x89"),
+    expect(i18n::L("한글만 15바이트", "日本語だけ15バイト"), std::string(i18n::L("가나다라", "あいうえ")), clampName(i18n::L("가나다라마", "あいうえお")));
+    expect(i18n::L("영어 2 + 한글", "英字2 + 日本語"), std::string(i18n::L("ab가나다", "abあいう")), clampName(i18n::L("ab가나다라", "abあいうえ")));
+    expect(i18n::L("4바이트 글자", "4バイト文字"), std::string("a\xF0\x9F\x90\x89\xF0\x9F\x90\x89"),
            clampName("a\xF0\x9F\x90\x89\xF0\x9F\x90\x89\xF0\x9F\x90\x89"));   // a + 용 이모지 3개
-    expect("짧은 이름", std::string("Kim"), clampName("Kim"));
+    expect(i18n::L("짧은 이름", "短い名前"), std::string("Kim"), clampName("Kim"));
     std::string saved;
-    expect("숨은 닉네임 저장", true, saveProfile(i18n::L("마법사ab다람쥐", "魔術師abコリス"), 7, saved));
+    expect(i18n::L("숨은 닉네임 저장", "隠しニックネームの保存"), true, saveProfile(i18n::L("마법사ab다람쥐", "魔術師abコリス"), 7, saved));
 }
 #pragma endregion

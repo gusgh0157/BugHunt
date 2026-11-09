@@ -53,8 +53,8 @@ void ft01_attendance()
     const std::vector<bool> loginLog = { true, true, true, true, true, true, true, false, true, true };
 
     const flow1::RewardResult result = flow1::calculateRewards(loginLog);
-    expect("최장 연속 출석", 7, result.bestStreak);
-    expect("받은 골드 (9일 x 100 + 보너스 1000)", 1900, result.gold);
+    expect(i18n::L("최장 연속 출석", "最長連続出席"), 7, result.bestStreak);
+    expect(i18n::L("받은 골드 (9일 x 100 + 보너스 1000)", "受け取ったゴールド(9日 x 100 + ボーナス 1000)"), 1900, result.gold);
 }
 
 // ============================================================================
@@ -85,7 +85,7 @@ void ft01_attendance_hidden()
     const std::vector<bool> loginLog = { true, true, false, true, true, true, true, true, true, true, true, false, true };
 
     const flow1::RewardResult result = flow1::calculateRewards(loginLog);
-    expect("최장 연속 출석", 8, result.bestStreak);
-    expect("받은 골드 (11일 x 100 + 보너스 1000)", 2100, result.gold);
+    expect(i18n::L("최장 연속 출석", "最長連続出席"), 8, result.bestStreak);
+    expect(i18n::L("받은 골드 (11일 x 100 + 보너스 1000)", "受け取ったゴールド(11日 x 100 + ボーナス 1000)"), 2100, result.gold);
 }
 #pragma endregion

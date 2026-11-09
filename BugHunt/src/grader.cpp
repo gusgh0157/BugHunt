@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <set>
 #include <string>
 
 // 채점기 구조
@@ -222,26 +221,14 @@ int runGrader(const std::vector<GradeTarget>& targets, int totalCount, const cha
     int passed = 0;
     int challengeCount = 0;
     int challengePassed = 0;
-    std::set<std::string> missing;   // 일본어 번역이 없는 expect 설명 (자식 출력의 "[NO-JA] " 줄)
-    auto collectMissing = [&missing](const std::string& output) {
-        const std::string mark = i18n::kMissingMark;
-        for (size_t at = output.find(mark); at != std::string::npos; at = output.find(mark, at + 1))
-        {
-            const size_t b = at + mark.size();
-            const size_t e = output.find('\n', b);
-            missing.insert(trim(output.substr(b, e == std::string::npos ? std::string::npos : e - b)));
-        }
-    };
     for (const GradeTarget& t : targets)
     {
         ChildResult r = runChild(t.id, false);
-        collectMissing(r.output);
         Verdict v = judge(r, false);
         long long ms = r.ms;
         if (std::string(v.result) == "PASS" && t.hasHiddenCase)
         {
             const ChildResult hidden = runChild(t.id, true);
-            collectMissing(hidden.output);
             v = judge(hidden, true);
             ms += hidden.ms;
         }
@@ -283,13 +270,5 @@ int runGrader(const std::vector<GradeTarget>& targets, int totalCount, const cha
                   << i18n::L(", 챌린지 ", ", チャレンジ ")
                   << challengePassed << "/" << challengeCount << ")\n";
     std::cout << i18n::L("결과 파일: ", "結果ファイル: ") << reportPath << '\n';
-    if (!missing.empty())
-    {
-        // 빠진 번역은 판정에 영향을 주지 않지만, 채점 끝에 모아서 눈에 띄게 알린다
-        std::cout << i18n::L("\n일본어 번역이 없는 문자열 ", "\n日本語訳がない文字列 ") << missing.size()
-                  << i18n::L("개 (src/i18n/strings_expect.inc에 넣으세요):\n", " 個 (src/i18n/strings_expect.inc に追加してください):\n");
-        for (const std::string& m : missing)
-            std::cout << "  " << i18n::kMissingMark << m << '\n';
-    }
     return passed == static_cast<int>(targets.size()) ? 0 : 1;
 }

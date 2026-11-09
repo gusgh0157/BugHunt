@@ -60,7 +60,7 @@ void pt03_particles()
     ptr3::playExplosion(16);
     std::cout << i18n::L("  두 번째 폭발 끝\n", "  2回目の爆発が終了\n");
 
-    expect("사용 중인 GPU 슬롯", 0, ptr3::g_slotsInUse);
+    expect(i18n::L("사용 중인 GPU 슬롯", "使用中の GPU スロット"), 0, ptr3::g_slotsInUse);
 }
 
 // ============================================================================
@@ -100,12 +100,12 @@ void pt03_particles_hidden()
     ptr3::g_slotsInUse = 0;
     {
         ptr3::Explosion big(40);
-        expect("폭발 중 사용 중인 슬롯", 40, ptr3::g_slotsInUse);
+        expect(i18n::L("폭발 중 사용 중인 슬롯", "爆発中に使用中のスロット"), 40, ptr3::g_slotsInUse);
     }
-    expect("폭발 후 사용 중인 슬롯", 0, ptr3::g_slotsInUse);
+    expect(i18n::L("폭발 후 사용 중인 슬롯", "爆発後に使用中のスロット"), 0, ptr3::g_slotsInUse);
 
     ptr3::playExplosion(3);
     ptr3::playExplosion(1);
-    expect("작은 폭발 두 번 후 슬롯", 0, ptr3::g_slotsInUse);
+    expect(i18n::L("작은 폭발 두 번 후 슬롯", "小さな爆発2回後のスロット"), 0, ptr3::g_slotsInUse);
 }
 #pragma endregion

@@ -83,9 +83,9 @@ void pf05_fog_map()
     std::cout << i18n::L("  2000x2000 맵 세기: ", "  2000x2000 マップの集計: ") << sw.ms() << i18n::L(" ms, 건너뛴 접근 ", " ms、飛び越したアクセス ")
               << map.jumps() << i18n::L("번\n", "回\n");
 
-    expect("밝혀진 칸 수", 2000044LL, s.revealed);
-    expect("밝기 합", 510006272LL, s.brightness);
-    expect("건너뛴 접근이 행 수 이하인가?", true, map.jumps() <= map.rows());
+    expect(i18n::L("밝혀진 칸 수", "明らかになったマスの数"), 2000044LL, s.revealed);
+    expect(i18n::L("밝기 합", "明るさの合計"), 510006272LL, s.brightness);
+    expect(i18n::L("건너뛴 접근이 행 수 이하인가?", "飛び越しアクセスが行数以下か?"), true, map.jumps() <= map.rows());
 }
 
 // ============================================================================
@@ -118,8 +118,8 @@ void pf05_fog_map_hidden()
     perf5::reveal(map);
     map.resetJumps();
     const perf5::FogStats s = perf5::countFog(map);
-    expect("밝혀진 칸 수", 974LL, s.revealed);
-    expect("밝기 합", 249004LL, s.brightness);
-    expect("건너뛴 접근이 행 수 이하인가?", true, map.jumps() <= map.rows());
+    expect(i18n::L("밝혀진 칸 수", "明らかになったマスの数"), 974LL, s.revealed);
+    expect(i18n::L("밝기 합", "明るさの合計"), 249004LL, s.brightness);
+    expect(i18n::L("건너뛴 접근이 행 수 이하인가?", "飛び越しアクセスが行数以下か?"), true, map.jumps() <= map.rows());
 }
 #pragma endregion

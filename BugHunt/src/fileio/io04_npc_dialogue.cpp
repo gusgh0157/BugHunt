@@ -48,8 +48,8 @@ void io04_npc_dialogue()
     for (const std::string& line : lines)
         std::cout << i18n::L("  여관 주인: \"", "  宿屋の主人: \"") << line << "\"\n";
 
-    expect("첫 대사", std::string(i18n::L("어서 오세요, 모험가님.", "いらっしゃいませ、冒険者さま。")), lines.at(0));
-    expect("마지막 대사", std::string(i18n::L("조심해서 다녀오세요!", "気をつけていってらっしゃい!")), lines.at(2));
+    expect(i18n::L("첫 대사", "最初のセリフ"), std::string(i18n::L("어서 오세요, 모험가님.", "いらっしゃいませ、冒険者さま。")), lines.at(0));
+    expect(i18n::L("마지막 대사", "最後のセリフ"), std::string(i18n::L("조심해서 다녀오세요!", "気をつけていってらっしゃい!")), lines.at(2));
 }
 
 // ============================================================================
@@ -97,11 +97,11 @@ void io04_npc_dialogue_hidden()
         "   (ハンマーを置きながら) 何を直してほしい?\n"
         "刃がだいぶ傷んでいるな。\n"));
     const std::vector<std::string> lines = loadDialogue(lab / "smith.txt");
-    expect("숨은 대사 수", static_cast<size_t>(2), lines.size());
+    expect(i18n::L("숨은 대사 수", "隠しセリフの数"), static_cast<size_t>(2), lines.size());
     if (lines.size() == 2)
     {
-        expect("들여 쓴 첫 대사", std::string(i18n::L("   (망치를 내려놓으며) 뭘 고쳐 줄까?", "   (ハンマーを置きながら) 何を直してほしい?")), lines[0]);
-        expect("둘째 대사", std::string(i18n::L("칼날이 많이 상했군.", "刃がだいぶ傷んでいるな。")), lines[1]);
+        expect(i18n::L("들여 쓴 첫 대사", "字下げした最初のセリフ"), std::string(i18n::L("   (망치를 내려놓으며) 뭘 고쳐 줄까?", "   (ハンマーを置きながら) 何を直してほしい?")), lines[0]);
+        expect(i18n::L("둘째 대사", "2番目のセリフ"), std::string(i18n::L("칼날이 많이 상했군.", "刃がだいぶ傷んでいるな。")), lines[1]);
     }
 }
 #pragma endregion

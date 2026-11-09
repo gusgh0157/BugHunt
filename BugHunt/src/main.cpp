@@ -183,13 +183,13 @@ constexpr PartEntry kParts[] = {
     { 92, { "[11부] 멈춤 - 무한루프와 데드락. 멈추면 디버거에서 모두 중단(break all)", "[第11部] 停止 - 無限ループとデッドロック。止まったらデバッガーで「すべて中断」(break all)" } },
     { 98, { "[12부] 성능 - 틀리지 않지만 느리다. Release + CPU 프로파일러", "[第12部] 性能 - 間違ってはいないが遅い。Release + CPU プロファイラー" } },
 };
-static_assert(i18n::allTranslated(kParts, [](const PartEntry& p) { return p.header; }), "kParts에 빈 번역이 있다");
-static_assert(kParts[std::size(kParts) - 1].lastLab == static_cast<int>(std::size(kLabs)), "kParts와 kLabs의 랩 수가 다르다");
+static_assert(i18n::allTranslated(kParts, [](const PartEntry& p) { return p.header; }), "kParts에 빈 번역이 있다 / kParts に空の翻訳がある");
+static_assert(kParts[std::size(kParts) - 1].lastLab == static_cast<int>(std::size(kLabs)), "kParts와 kLabs의 랩 수가 다르다 / kParts と kLabs のラボ数が違う");
 
 static_assert(i18n::allTranslated(kLabs, [](const LabEntry& e) { return e.title; }) && i18n::allTranslated(kLabs, [](const LabEntry& e) { return e.symptom; }),
-              "kLabs에 빈 번역이 있다");
+              "kLabs에 빈 번역이 있다 / kLabs に空の翻訳がある");
 static_assert(i18n::allTranslated(kChallenges, [](const ChallengeEntry& e) { return e.title; }) && i18n::allTranslated(kChallenges, [](const ChallengeEntry& e) { return e.symptom; }),
-              "kChallenges에 빈 번역이 있다");
+              "kChallenges에 빈 번역이 있다 / kChallenges に空の翻訳がある");
 
 constexpr int kChallengePart = 0;   // grade-report.json의 part. 챌린지는 0 (네 판 공통)
 
@@ -327,6 +327,10 @@ int main(int argc, char** argv)
     // --lang ja|ko를 읽고 지운다 (환경 변수 BUGHUNT_LANG, 운영체제 언어 순으로 기본값). 나머지 인자로 아래를 처리한다.
     const std::vector<std::string> args = i18n::init(argc, argv);
     const int argCount = static_cast<int>(args.size());
+
+    // 빌드 뒤 소스 검사: BugHunt.exe --check-i18n <src 폴더> (CMakeLists.txt와 BugHunt.vcxproj가 빌드할 때마다 실행)
+    if (argCount > 2 && args[1] == "--check-i18n")
+        return i18n::checkSources(args[2]);
 
     // 채점: BugHunt.exe --grade [번호 | C-1 | labs | challenges]
     if (argCount > 1 && args[1] == "--grade")

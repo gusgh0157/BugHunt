@@ -78,11 +78,11 @@ void chC1_auction_night()
         std::cout << "  " << line << '\n';
     std::cout << i18n::L("  낙찰: ", "  落札: ") << winnerOf(house) << i18n::L(", 판매자 수령액 ", "、出品者の受取額 ") << house.sellerProceeds() << '\n';
 
-    expect("낙찰자 (가장 높게 부른 사람)", std::string("Mira"), winnerOf(house));
-    expect("Mira의 금화 (800 - 450)", 350, goldOf(house, "Mira"));
-    expect("Kael의 금화 (밀려나서 돌려받음)", 600, goldOf(house, "Kael"));
-    expect("Doran의 금화 (밀려나서 돌려받음)", 500, goldOf(house, "Doran"));
-    expect("판매자 수령액 (450 - 수수료 5%)", 428, house.sellerProceeds());
+    expect(i18n::L("낙찰자 (가장 높게 부른 사람)", "落札者(いちばん高く入札した人)"), std::string("Mira"), winnerOf(house));
+    expect(i18n::L("Mira의 금화 (800 - 450)", "Mira の金貨(800 - 450)"), 350, goldOf(house, "Mira"));
+    expect(i18n::L("Kael의 금화 (밀려나서 돌려받음)", "Kael の金貨(競り負けて返金)"), 600, goldOf(house, "Kael"));
+    expect(i18n::L("Doran의 금화 (밀려나서 돌려받음)", "Doran の金貨(競り負けて返金)"), 500, goldOf(house, "Doran"));
+    expect(i18n::L("판매자 수령액 (450 - 수수료 5%)", "出品者の受取額(450 - 手数料5%)"), 428, house.sellerProceeds());
 }
 
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
@@ -101,9 +101,9 @@ void chC1_auction_night_hidden()
     const BidderId d = house.join("Rook", 400, Tier::Silver);
 
     panel.refresh(house);
-    expect("목록 첫 줄은 골드 등급", true, panel.lines().size() == 4 && panel.lines()[0].find("Pia") != std::string::npos);
-    expect("목록 둘째 줄은 먼저 온 실버", true, panel.lines()[1].find("Nell") != std::string::npos);
-    expect("화면을 그린 뒤에도 참가 번호는 그대로", std::string("Ivo"), house.bidder(a).name);
+    expect(i18n::L("목록 첫 줄은 골드 등급", "一覧の1行目はゴールドランク"), true, panel.lines().size() == 4 && panel.lines()[0].find("Pia") != std::string::npos);
+    expect(i18n::L("목록 둘째 줄은 먼저 온 실버", "一覧の2行目は先に来たシルバー"), true, panel.lines()[1].find("Nell") != std::string::npos);
+    expect(i18n::L("화면을 그린 뒤에도 참가 번호는 그대로", "画面を描いた後も参加番号はそのまま"), std::string("Ivo"), house.bidder(a).name);
 
     house.placeBid(a, 250);
     panel.refresh(house);
@@ -116,11 +116,11 @@ void chC1_auction_night_hidden()
     house.placeBid(c, 640);   // 최고가보다 낮아서 실패
     house.close();
 
-    expect("낙찰자 번호", b, house.leader().value_or(99));
-    expect("Nell의 금화", 250, house.bidder(b).gold);
-    expect("Ivo의 금화", 300, house.bidder(a).gold);
-    expect("Rook의 금화", 400, house.bidder(d).gold);
-    expect("Pia의 금화", 700, house.bidder(c).gold);
-    expect("판매자 수령액", 618, house.sellerProceeds());
+    expect(i18n::L("낙찰자 번호", "落札者の番号"), b, house.leader().value_or(99));
+    expect(i18n::L("Nell의 금화", "Nell の金貨"), 250, house.bidder(b).gold);
+    expect(i18n::L("Ivo의 금화", "Ivo の金貨"), 300, house.bidder(a).gold);
+    expect(i18n::L("Rook의 금화", "Rook の金貨"), 400, house.bidder(d).gold);
+    expect(i18n::L("Pia의 금화", "Pia の金貨"), 700, house.bidder(c).gold);
+    expect(i18n::L("판매자 수령액", "出品者の受取額"), 618, house.sellerProceeds());
 }
 #pragma endregion

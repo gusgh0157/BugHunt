@@ -52,13 +52,13 @@ void sz03_skill_bar()
     const std::string file = i18n::L(R"({"화염구":"1","얼음창":"2","번개":"3","치유":"4"})", R"({"ファイアボール":"1","アイススピア":"2","サンダー":"3","ヒール":"4"})");
     std::vector<Slot> bar = loadSkillBar(file);
     std::cout << i18n::L("  불러온 스킬 바: ", "  読み込んだスキルバー: ") << order(bar) << '\n';
-    expect("불러온 순서", std::string(i18n::L("화염구 얼음창 번개 치유", "ファイアボール アイススピア サンダー ヒール")), order(bar));
+    expect(i18n::L("불러온 순서", "読み込んだ順番"), std::string(i18n::L("화염구 얼음창 번개 치유", "ファイアボール アイススピア サンダー ヒール")), order(bar));
 
     // 플레이어가 치유를 1번 칸으로 끌어다 놓았다
     bar = { { i18n::L("치유", "ヒール"), "1" }, { i18n::L("화염구", "ファイアボール"), "2" }, { i18n::L("얼음창", "アイススピア"), "3" }, { i18n::L("번개", "サンダー"), "4" } };
     const std::vector<Slot> reloaded = loadSkillBar(saveSkillBar(bar));
     std::cout << i18n::L("  저장 후 다시 불러온 스킬 바: ", "  保存後に読み込み直したスキルバー: ") << order(reloaded) << '\n';
-    expect("저장 후 순서", std::string(i18n::L("치유 화염구 얼음창 번개", "ヒール ファイアボール アイススピア サンダー")), order(reloaded));
+    expect(i18n::L("저장 후 순서", "保存後の順番"), std::string(i18n::L("치유 화염구 얼음창 번개", "ヒール ファイアボール アイススピア サンダー")), order(reloaded));
 }
 
 // ============================================================================
@@ -98,9 +98,9 @@ void sz03_skill_bar_hidden()
     using namespace sz3;
 
     const std::vector<Slot> a = loadSkillBar(i18n::L(R"({"zeta":"Q","alpha":"W","방패 막기":"E","Mid":"R"})", R"({"zeta":"Q","alpha":"W","シールド ブロック":"E","Mid":"R"})"));
-    expect("숨은 바: 불러온 순서", std::string(i18n::L("zeta alpha 방패 막기 Mid", "zeta alpha シールド ブロック Mid")), order(a));
+    expect(i18n::L("숨은 바: 불러온 순서", "隠しバー: 読み込んだ順番"), std::string(i18n::L("zeta alpha 방패 막기 Mid", "zeta alpha シールド ブロック Mid")), order(a));
 
     const std::vector<Slot> b = { { i18n::L("회복", "リカバリー"), "F1" }, { "Dash", "F2" }, { i18n::L("가속", "ヘイスト"), "F3" }, { "blink", "F4" }, { "Aura", "F5" } };
-    expect("숨은 바: 저장 후 순서", std::string(i18n::L("회복 Dash 가속 blink Aura", "リカバリー Dash ヘイスト blink Aura")), order(loadSkillBar(saveSkillBar(b))));
+    expect(i18n::L("숨은 바: 저장 후 순서", "隠しバー: 保存後の順番"), std::string(i18n::L("회복 Dash 가속 blink Aura", "リカバリー Dash ヘイスト blink Aura")), order(loadSkillBar(saveSkillBar(b))));
 }
 #pragma endregion

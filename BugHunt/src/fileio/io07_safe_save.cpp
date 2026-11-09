@@ -61,15 +61,15 @@ void io07_safe_save()
     const fs::path file = lab / "save.txt";
 
     std::vector<Item> bag = { { i18n::L("포션", "ポーション"), 5 }, { i18n::L("해독제", "解毒剤"), 2 }, { i18n::L("귀환서", "帰還の書"), 1 }, { i18n::L("화살", "矢"), 40 }, { i18n::L("금화주머니", "金貨袋"), 3 } };
-    expect("첫 저장 성공", true, saveInventory(file, bag));
+    expect(i18n::L("첫 저장 성공", "最初の保存成功"), true, saveInventory(file, bag));
 
     bag[3].count = -1;                                   // 버그로 개수가 깨진 아이템
-    expect("깨진 아이템이 있으면 저장 실패", false, saveInventory(file, bag));
+    expect(i18n::L("깨진 아이템이 있으면 저장 실패", "壊れたアイテムがあれば保存失敗"), false, saveInventory(file, bag));
 
     const std::vector<Item> loaded = loadInventory(file);
     std::cout << i18n::L("  불러온 아이템 ", "  読み込んだアイテム") << loaded.size() << i18n::L("종\n", "種\n");
-    expect("불러온 세이브의 아이템 수", static_cast<size_t>(5), loaded.size());
-    expect("마지막 아이템", std::string(i18n::L("금화주머니", "金貨袋")), loaded.empty() ? std::string() : loaded.back().name);
+    expect(i18n::L("불러온 세이브의 아이템 수", "読み込んだセーブのアイテム数"), static_cast<size_t>(5), loaded.size());
+    expect(i18n::L("마지막 아이템", "最後のアイテム"), std::string(i18n::L("금화주머니", "金貨袋")), loaded.empty() ? std::string() : loaded.back().name);
 }
 
 // ============================================================================
@@ -113,19 +113,19 @@ void io07_safe_save_hidden()
     iokit::LabDir lab("io07_safe_save_hidden");
     const fs::path file = lab / "slot2.sav";
 
-    expect("숨은: 첫 저장", true, saveInventory(file, { { i18n::L("나무검", "木剣"), 1 }, { i18n::L("빵", "パン"), 7 } }));
-    expect("숨은: 깨진 첫 아이템", false, saveInventory(file, { { i18n::L("유령", "幽霊"), -3 }, { i18n::L("빵", "パン"), 9 } }));
+    expect(i18n::L("숨은: 첫 저장", "隠し: 最初の保存"), true, saveInventory(file, { { i18n::L("나무검", "木剣"), 1 }, { i18n::L("빵", "パン"), 7 } }));
+    expect(i18n::L("숨은: 깨진 첫 아이템", "隠し: 壊れた最初のアイテム"), false, saveInventory(file, { { i18n::L("유령", "幽霊"), -3 }, { i18n::L("빵", "パン"), 9 } }));
     std::vector<Item> loaded = loadInventory(file);
-    expect("숨은: 실패 뒤 아이템 수", static_cast<size_t>(2), loaded.size());
-    expect("숨은: 실패 뒤 빵 개수", 7, loaded.size() == 2 ? loaded[1].count : -1);
+    expect(i18n::L("숨은: 실패 뒤 아이템 수", "隠し: 失敗後のアイテム数"), static_cast<size_t>(2), loaded.size());
+    expect(i18n::L("숨은: 실패 뒤 빵 개수", "隠し: 失敗後のパンの数"), 7, loaded.size() == 2 ? loaded[1].count : -1);
 
-    expect("숨은: 정상 덮어쓰기", true, saveInventory(file, { { i18n::L("강철검", "鋼の剣"), 1 }, { i18n::L("빵", "パン"), 2 }, { i18n::L("열쇠", "鍵"), 1 } }));
+    expect(i18n::L("숨은: 정상 덮어쓰기", "隠し: 正常な上書き"), true, saveInventory(file, { { i18n::L("강철검", "鋼の剣"), 1 }, { i18n::L("빵", "パン"), 2 }, { i18n::L("열쇠", "鍵"), 1 } }));
     loaded = loadInventory(file);
-    expect("숨은: 덮어쓴 아이템 수", static_cast<size_t>(3), loaded.size());
+    expect(i18n::L("숨은: 덮어쓴 아이템 수", "隠し: 上書き後のアイテム数"), static_cast<size_t>(3), loaded.size());
 
     size_t filesInFolder = 0;                            // 남은 임시 파일이 없어야 한다
     for ([[maybe_unused]] const auto& entry : fs::directory_iterator(lab.path()))
         ++filesInFolder;
-    expect("숨은: 폴더에 남은 파일 수", static_cast<size_t>(1), filesInFolder);
+    expect(i18n::L("숨은: 폴더에 남은 파일 수", "隠し: フォルダーに残ったファイル数"), static_cast<size_t>(1), filesInFolder);
 }
 #pragma endregion

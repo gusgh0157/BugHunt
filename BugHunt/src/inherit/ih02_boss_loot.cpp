@@ -93,8 +93,8 @@ void ih02_boss_loot()
         std::cout << " [" << item << "]";
     std::cout << '\n';
 
-    expect("전리품 개수", static_cast<size_t>(4), bag.size());
-    expect("황금 왕관이 나왔는가?", true, contains(bag, i18n::L("황금 왕관", "黄金の王冠")));
+    expect(i18n::L("전리품 개수", "戦利品の数"), static_cast<size_t>(4), bag.size());
+    expect(i18n::L("황금 왕관이 나왔는가?", "黄金の王冠は出たか?"), true, contains(bag, i18n::L("황금 왕관", "黄金の王冠")));
 }
 
 // ============================================================================
@@ -138,9 +138,9 @@ void ih02_boss_loot_hidden()
         { i18n::L("박쥐", "コウモリ"), 8, "" },
         { i18n::L("리치", "リッチ"), 900, i18n::L("영혼석", "魂の石") },
     }));
-    expect("숨은 웨이브: 전리품 개수", static_cast<size_t>(5), bag.size());
-    expect("숨은 웨이브: 저주받은 검", true, contains(bag, i18n::L("저주받은 검", "呪われた剣")));
-    expect("숨은 웨이브: 영혼석", true, contains(bag, i18n::L("영혼석", "魂の石")));
-    expect("숨은 웨이브: 황금 왕관은 없어야", false, contains(bag, i18n::L("황금 왕관", "黄金の王冠")));
+    expect(i18n::L("숨은 웨이브: 전리품 개수", "隠しウェーブ: 戦利品の数"), static_cast<size_t>(5), bag.size());
+    expect(i18n::L("숨은 웨이브: 저주받은 검", "隠しウェーブ: 呪われた剣"), true, contains(bag, i18n::L("저주받은 검", "呪われた剣")));
+    expect(i18n::L("숨은 웨이브: 영혼석", "隠しウェーブ: 魂の石"), true, contains(bag, i18n::L("영혼석", "魂の石")));
+    expect(i18n::L("숨은 웨이브: 황금 왕관은 없어야", "隠しウェーブ: 黄金の王冠はないはず"), false, contains(bag, i18n::L("황금 왕관", "黄金の王冠")));
 }
 #pragma endregion
