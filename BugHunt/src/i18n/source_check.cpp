@@ -15,6 +15,9 @@
 // 일본어 쪽은 비어 있으면 안 되고, 한글이 들어 있으면 안 되며, 가나나 한자가 있어야 한다.
 // static_assert 메시지는 L()을 쓸 수 없으므로 한 문자열에 "한국어 / 日本語"를 함께 적는다.
 // 주석도 검사한다. 한글이 든 주석은 일본어 짝이 있어야 한다. 허용하는 모양은 세 가지다.
+// 빌드 뒤 검사에서는 주석 짝 문제를 알림으로만 출력하고 빌드를 멈추지 않는다 (학습자가 한국어로 메모하거나
+// SOLUTIONS.md의 풀이를 붙여 넣어도 빌드되도록). 관리자는 PR 전에 아래처럼 실행해 주석 짝 문제도 실패로 만든다.
+//   BugHunt.exe --check-i18n BugHunt/src --strict-comments
 //   1) 줄 전체 주석: 한국어 줄들 뒤(또는 앞)에, 빈 줄과 주석 줄만으로 이어진 같은 묶음 안에
 //      "// [JA] 日本語" 줄을 한국어 줄 수 이상 적는다. 코드 줄이 끼면 묶음이 끊긴다.
 //   2) 코드 뒤 주석이나 /* */ 주석: 같은 주석 안에 "[JA] 日本語"를 이어 적는다.
@@ -30,6 +33,9 @@
 // [JA] 日本語側は空ではいけず、ハングルを含んでもいけず、かなか漢字が必要です。
 // [JA] static_assert のメッセージには L() が使えないので、1 つの文字列に "한국어 / 日本語" を並べて書きます。
 // [JA] コメントも検査します。ハングルを含むコメントには日本語の対が必要です。許される形は次の 3 つです。
+// [JA] ビルド後の検査では、コメントの対の問題は通知として出すだけで、ビルドは止めません (学習者が韓国語でメモしたり、
+// [JA] SOLUTIONS.md の解答を貼り付けたりしてもビルドできるように)。メンテナーは PR の前に次のように実行し、コメントの対の問題も失敗にします。
+// [JA]   BugHunt.exe --check-i18n BugHunt/src --strict-comments
 // [JA]   1) 行全体のコメント: 韓国語の行の後(または前)、空行とコメント行だけで続く同じまとまりの中に、
 // [JA]      "// [JA] 日本語" の行を韓国語の行数以上書きます。コードの行が挟まるとまとまりは切れます。
 // [JA]   2) コードの後ろのコメントや /* */ コメント: 同じコメントの中に "[JA] 日本語" を続けて書きます。
@@ -532,7 +538,10 @@ void checkComments(const std::string& src, const std::vector<Comment>& comments,
 
 // 파일 하나를 검사해 문제를 problems에 더한다
 // [JA] ファイル 1 つを検査して、問題を problems に追加します
-void checkFile(const std::filesystem::path& path, const std::string& shown, std::vector<std::string>& problems)
+// 주석 짝 문제는 commentGaps에 따로 더한다 (기본은 알림만)
+// [JA] コメントの対の問題は commentGaps に別に追加します (既定では通知だけ)
+void checkFile(const std::filesystem::path& path, const std::string& shown, std::vector<std::string>& problems,
+               std::vector<std::string>& commentGaps)
 {
     std::ifstream in(path, std::ios::binary);
     if (!in)
@@ -543,7 +552,7 @@ void checkFile(const std::filesystem::path& path, const std::string& shown, std:
     const std::string src((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
     std::vector<Comment> comments;
     const std::vector<Token> tokens = tokenize(src, comments);
-    checkComments(src, comments, shown, problems);
+    checkComments(src, comments, shown, commentGaps);
     if (!tokens.empty() && tokens.back().kind == Kind::bad)
         problems.push_back(shown + ":" + std::to_string(tokens.back().line) + ": "
                            + L("닫히지 않은 문자열이나 주석. 이 뒤는 검사하지 못했다", "閉じていない文字列かコメント。ここから後は検査できなかった"));
@@ -612,7 +621,7 @@ void checkFile(const std::filesystem::path& path, const std::string& shown, std:
 }
 }
 
-int checkSources(const std::string& dir)
+int checkSources(const std::string& dir, bool strictComments)
 {
     namespace fs = std::filesystem;
     std::error_code ec;
@@ -639,11 +648,26 @@ int checkSources(const std::string& dir)
     std::sort(files.begin(), files.end());
 
     std::vector<std::string> problems;
+    std::vector<std::string> commentGaps;
     for (const fs::path& f : files)
     {
         std::error_code relEc;
         const fs::path rel = fs::relative(f, dir, relEc);
-        checkFile(f, (relEc ? f : rel).generic_string(), problems);
+        checkFile(f, (relEc ? f : rel).generic_string(), problems, commentGaps);
+    }
+
+    // 주석 짝 문제: strictComments이면 실패, 아니면 알림만 (학습자가 한국어로 메모하거나 풀이를 붙여 넣어도 빌드는 된다)
+    // [JA] コメントの対の問題: strictComments なら失敗、そうでなければ通知だけ (学習者が韓国語でメモしたり解答を貼り付けたりしてもビルドは通る)
+    if (strictComments)
+        problems.insert(problems.end(), commentGaps.begin(), commentGaps.end());
+    else if (!commentGaps.empty())
+    {
+        for (const std::string& p : commentGaps)
+            std::cout << p << '\n';
+        std::cout << L("--check-i18n: 알림: 일본어 짝이 없는 한글 주석 ", "--check-i18n: お知らせ: 日本語の対がないハングルのコメント ")
+                  << commentGaps.size()
+                  << L("개 (빌드는 계속된다. 관리자는 PR 전에 --strict-comments로 검사)\n",
+                       " 個 (ビルドは続行します。メンテナーは PR の前に --strict-comments で検査)\n");
     }
 
     for (const std::string& p : problems)

@@ -61,7 +61,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <!-- 한글 문자열이나 주석이 일본어와 짝 없이 있으면 빌드 실패 (src/i18n/source_check.cpp) [JA] ハングルの文字列やコメントに日本語の対がなければビルド失敗 -->
+      <!-- 한글 문자열이 일본어와 짝 없이 있으면 빌드 실패, 주석은 알림만 (src/i18n/source_check.cpp) [JA] ハングルの文字列に日本語の対がなければビルド失敗、コメントは通知だけ -->
       <Command>"$(TargetPath)" --check-i18n "$(ProjectDir)src"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

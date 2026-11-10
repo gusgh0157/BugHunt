@@ -124,12 +124,12 @@ if(BUGHUNT_ASAN)
     endif()
 endif()
 
-# 빌드할 때마다 소스 검사: 한글 문자열이 일본어와 짝(i18n::L("ko", "ja") 또는 { "ko", "ja" }) 없이 있거나,
-# 한글 주석에 // [JA] 일본어 줄이 없으면 빌드 실패.
+# 빌드할 때마다 소스 검사: 한글 문자열이 일본어와 짝(i18n::L("ko", "ja") 또는 { "ko", "ja" }) 없이 있으면 빌드 실패.
+# 한글 주석에 // [JA] 일본어 줄이 없으면 알림만 낸다 (실패는 --strict-comments일 때만).
 # (src/i18n/source_check.cpp) 검사가 통과해야 표시 파일이 생기므로, 실패하면 다음 빌드에서 다시 검사한다.
 # 만든 exe를 이 컴퓨터에서 실행할 수 없는 경우(교차 컴파일, 다른 아키텍처)에는 기본으로 끈다.
-# [JA] ビルドのたびにソースを検査します: ハングルの文字列が日本語と対(i18n::L("ko", "ja") または { "ko", "ja" })になっていないか、
-# [JA] ハングルのコメントに // [JA] の日本語の行がなければ、ビルドが失敗します。
+# [JA] ビルドのたびにソースを検査します: ハングルの文字列が日本語と対(i18n::L("ko", "ja") または { "ko", "ja" })になっていなければビルド失敗。
+# [JA] ハングルのコメントに // [JA] の日本語の行がなければ、通知だけを出します (失敗するのは --strict-comments のときだけ)。
 # [JA] (src/i18n/source_check.cpp) 検査に通ったときだけ印のファイルができるので、失敗すると次のビルドでもう一度検査します。
 # [JA] 作った exe をこのコンピューターで実行できない場合(クロスコンパイル、別のアーキテクチャー)は、既定でオフにします。
 set(BUGHUNT_CHECK_I18N_DEFAULT ON)
@@ -140,7 +140,7 @@ elseif(CMAKE_GENERATOR_PLATFORM MATCHES "^(ARM|arm)" AND NOT CMAKE_HOST_SYSTEM_P
 elseif(APPLE AND CMAKE_OSX_ARCHITECTURES AND NOT CMAKE_OSX_ARCHITECTURES STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR)
     set(BUGHUNT_CHECK_I18N_DEFAULT OFF)
 endif()
-option(BUGHUNT_CHECK_I18N "빌드 뒤 한글 문자열·주석 짝 검사 / ビルド後のハングル文字列・コメントの対の検査 (BugHunt --check-i18n)" ${BUGHUNT_CHECK_I18N_DEFAULT})
+option(BUGHUNT_CHECK_I18N "빌드 뒤 한글 문자열 짝 검사 / ビルド後のハングル文字列の対の検査 (BugHunt --check-i18n)" ${BUGHUNT_CHECK_I18N_DEFAULT})
 if(BUGHUNT_CHECK_I18N)
     set(BUGHUNT_I18N_STAMP "${CMAKE_CURRENT_BINARY_DIR}/check_i18n.stamp")
     add_custom_command(OUTPUT "${BUGHUNT_I18N_STAMP}"

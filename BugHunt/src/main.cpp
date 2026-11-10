@@ -352,8 +352,10 @@ int main(int argc, char** argv)
 
     // 빌드 뒤 소스 검사: BugHunt.exe --check-i18n <src 폴더> (CMakeLists.txt와 BugHunt.vcxproj가 빌드할 때마다 실행)
     // [JA] ビルド後のソース検査: BugHunt.exe --check-i18n <src フォルダー>(CMakeLists.txt と BugHunt.vcxproj がビルドのたびに実行)
+    // --strict-comments를 붙이면 일본어 짝이 없는 한글 주석도 실패로 친다 (관리자가 PR 전에 실행)
+    // [JA] --strict-comments を付けると、日本語の対がないハングルのコメントも失敗とみなします (メンテナーが PR の前に実行)
     if (argCount > 2 && args[1] == "--check-i18n")
-        return i18n::checkSources(args[2]);
+        return i18n::checkSources(args[2], argCount > 3 && args[3] == "--strict-comments");
 
     // 채점: BugHunt.exe --grade [번호 | C-1 | labs | challenges]
     // [JA] 採点: BugHunt.exe --grade [番号 | C-1 | labs | challenges]

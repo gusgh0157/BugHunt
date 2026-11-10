@@ -1047,7 +1047,7 @@ CPU 샘플링 프로파일러는 프로그램을 디버거 없이 돌리면서 "
 - `grade.sh Debug labs`: 기본 랩 98개만, `grade.sh Debug challenges`: 챌린지 11개만 채점합니다.
 - 이미 빌드했다면 `bin/Debug/BugHunt --grade`(Windows는 `bin\Debug\BugHunt.exe --grade`)로 바로 실행해도 됩니다. `--grade 70`, `--grade C-1`, `--grade challenges`도 됩니다. IDE에서 빌드했다면 그 실행 파일에 `--grade`를 주면 됩니다.
 - 출력 언어: `--lang ja` 또는 `--lang ko`를 붙입니다(예: `bin/Debug/BugHunt --lang ja --grade`). 붙이지 않으면 환경 변수 `BUGHUNT_LANG`(예: `BUGHUNT_LANG=ja ./grade.sh`, Windows는 `set BUGHUNT_LANG=ja` 뒤 `grade.bat`), 그다음 운영체제의 표시 언어를 따르고, 기본은 한국어입니다. 메뉴, 랩 제목과 증상, `[PASS]`/`[FAIL]` 줄의 설명, 채점기 메시지, 랩 코드가 따로 출력하는 진행 문구와 예외 메시지가 바뀝니다. 게임 안의 데이터(캐릭터·아이템 이름, 파일 내용 등)와 랩이 저장해 두고 비교하는 문구도 고른 언어를 따릅니다. `grade-report.json`은 키와 `result` 값이 언어와 상관없이 같고 `title`과 `detail`만 고른 언어로 나옵니다.
-- 소스 코드에서는 화면에 나오는 한국어 문자열마다 그 자리에 일본어를 함께 적습니다. 예: `expect(i18n::L("최장 연속 출석", "最長連続出席"), 7, result.bestStreak)`. 한국어 문자열에 일본어 짝이 없으면 빌드가 실패합니다(빌드 끝에 `BugHunt --check-i18n BugHunt/src`가 실행됨). 주석도 같습니다. 한국어 주석 줄 뒤에는 `// [JA] 日本語` 줄을 같은 수 이상 적고, 코드 뒤에 붙은 주석은 `// 남은 체력 [JA] 残りの体力`처럼 한 줄에 함께 적습니다. 검사를 건너뛰는 표시는 없습니다.
+- 소스 코드에서는 화면에 나오는 한국어 문자열마다 그 자리에 일본어를 함께 적습니다. 예: `expect(i18n::L("최장 연속 출석", "最長連続出席"), 7, result.bestStreak)`. 한국어 문자열에 일본어 짝이 없으면 빌드가 실패합니다(빌드 끝에 `BugHunt --check-i18n BugHunt/src`가 실행됨). 주석에 일본어 짝이 없으면 빌드는 그대로 되고 알림만 나옵니다. 직접 한국어로 메모하거나 SOLUTIONS.md의 풀이를 붙여 넣어도 괜찮습니다. 저장소 관리자는 PR을 올리기 전에 `BugHunt --check-i18n BugHunt/src --strict-comments`를 실행해 주석 짝 문제도 실패로 확인합니다. 짝을 적는 방법: 한국어 주석 줄 뒤에 `// [JA] 日本語` 줄을 같은 수 이상 적고, 코드 뒤에 붙은 주석은 `// 남은 체력 [JA] 残りの体力`처럼 한 줄에 함께 적습니다.
 
 ```
    #  부  결과       시간  랩
@@ -2186,7 +2186,7 @@ CPU サンプリング プロファイラーは、プログラムをデバッガ
 - `grade.sh Debug labs`: 基本ラボ 98 個だけ、`grade.sh Debug challenges`: チャレンジ 11 個だけを採点します。
 - すでにビルドしてあれば、`bin/Debug/BugHunt --grade`(Windows は `bin\Debug\BugHunt.exe --grade`)で直接実行してもかまいません。`--grade 70`、`--grade C-1`、`--grade challenges` も使えます。IDE でビルドした場合は、その実行ファイルに `--grade` を渡せば OK です。
 - 出力言語: `--lang ja` または `--lang ko` を付けます(例: `bin/Debug/BugHunt --lang ja --grade`)。付けなければ環境変数 `BUGHUNT_LANG`(例: `BUGHUNT_LANG=ja ./grade.sh`、Windows は `set BUGHUNT_LANG=ja` の後に `grade.bat`)、次に OS の表示言語に従い、既定は韓国語です。メニュー、ラボのタイトルと症状、`[PASS]`/`[FAIL]` 行の説明、採点器のメッセージ、ラボのコードが独自に出力する進行メッセージと例外メッセージが切り替わります。ゲーム内のデータ(キャラクター・アイテムの名前、ファイルの内容など)と、ラボが保存して比較する文言も選んだ言語になります。`grade-report.json` はキーと `result` の値が言語に関係なく同じで、`title` と `detail` だけが選んだ言語になります。
-- ソースコードでは、画面に出る韓国語の文字列ごとに、その場に日本語も並べて書いています。例: `expect(i18n::L("최장 연속 출석", "最長連続出席"), 7, result.bestStreak)`。韓国語の文字列に日本語訳がないとビルドが失敗します(ビルドの最後に `BugHunt --check-i18n BugHunt/src` が実行されます)。コメントも同じです。韓国語のコメント行の後には `// [JA] 日本語` の行を同じ数以上書き、コードの後ろに付けたコメントは `// 남은 체력 [JA] 残りの体力` のように 1 行に並べて書きます。検査を飛ばす印はありません。
+- ソースコードでは、画面に出る韓国語の文字列ごとに、その場に日本語も並べて書いています。例: `expect(i18n::L("최장 연속 출석", "最長連続出席"), 7, result.bestStreak)`。韓国語の文字列に日本語訳がないとビルドが失敗します(ビルドの最後に `BugHunt --check-i18n BugHunt/src` が実行されます)。コメントに日本語の対がなくてもビルドはそのまま通り、通知が出るだけです。自分で韓国語のメモを書いたり、SOLUTIONS.md の解答を貼り付けたりしても大丈夫です。リポジトリのメンテナーは PR を出す前に `BugHunt --check-i18n BugHunt/src --strict-comments` を実行し、コメントの対の問題も失敗として確認します。対の書き方: 韓国語のコメント行の後に `// [JA] 日本語` の行を同じ数以上書き、コードの後ろに付けたコメントは `// 남은 체력 [JA] 残りの体力` のように 1 行に並べて書きます。
 
 ```
    #  部  結果       時間  ラボ
