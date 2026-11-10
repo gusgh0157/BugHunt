@@ -23,7 +23,7 @@
 ```
 **가짜 용의자:** `close()`의 수수료 계산(`TODO: 반올림이 맞는지 기획 확인`)과 `placeBid`의 "자기 입찰 올리기" 분기. 둘 다 맞다. 수령액 428도 이미 맞게 나온다.
 **증상만 가리는 수정:** 시나리오의 `drawFrame`에서 `bidders.refresh(house)`를 빼면 화면의 검사는 모두 통과하지만, 숨은 케이스가 패널을 그린 뒤 참가 번호를 확인해서 FAIL.
-**수정:** 저장소는 그대로 두고 보여 줄 순서만 정렬한다.
+**수정:** 저장소는 그대로 두고 보여 줄 순서만 정렬한다. `c1_auction.cpp`의 `AuctionHouse::forEachByTier` 함수 전체를 다음으로 바꾼다.
 ```cpp
 void AuctionHouse::forEachByTier(const std::function<void(const Bidder&)>& visit)
 {
@@ -53,14 +53,14 @@ void AuctionHouse::forEachByTier(const std::function<void(const Bidder&)>& visit
 **증상만 가리는 수정:**
 - 피해 0이면 연속 처치를 끊지 않게 바꾸면 5 + 2 = 7이 되어 화면은 통과. 숨은 케이스가 업적의 처치 수와 기획서 4.2를 확인해서 FAIL.
 - 의뢰가 구독을 끊지 않게(`done_`만 세우게) 바꾸면 화면은 통과. 숨은 케이스가 남은 구독자 수를 확인해서 FAIL. 버스는 "핸들러 안에서 unsubscribe해도 된다"고 약속했으므로 고칠 곳은 버스다.
-**수정:** 이번 이벤트를 받을 구독자 목록을 먼저 복사해 두고 그 복사본을 돈다.
+**수정:** 이번 이벤트를 받을 구독자 목록을 먼저 복사해 두고 그 복사본을 돈다. `c2_event_bus.h`의 `EventBus` 클래스 안에 있는 `publish` 멤버 함수 전체를 다음으로 바꾼다.
 ```cpp
-void publish(const Event& e)
-{
-    const std::vector<Subscriber> snapshot = subscribers_;
-    for (const Subscriber& s : snapshot)
-        s.handler(e);
-}
+    void publish(const Event& e)
+    {
+        const std::vector<Subscriber> snapshot = subscribers_;
+        for (const Subscriber& s : snapshot)
+            s.handler(e);
+    }
 ```
 (지우기를 미뤄 두었다가 publish가 끝난 뒤 한꺼번에 지우는 방법도 있다. 이렇게 하면 실행 중인 `std::function`을 덮어쓰는 문제도 함께 사라진다.)
 **교훈:** "순회 중 컨테이너 수정"은 이터레이터 대신 인덱스를 써도 사라지지 않는다. 크래시 없이 한 번만 건너뛰므로, 값을 세는 쪽(업적)에서 시작해 이벤트 하나하나를 추적점으로 찍어 보는 것이 가장 빠르다.
@@ -80,10 +80,15 @@ void publish(const Event& e)
 ```
 **가짜 용의자:** `RespawnSystem::respawn`의 `hero.clearBuffs()`. 줄어든 피해(48 → 52, 약 10%)가 사라진 "전투 함성 +10%"와 딱 맞아 보인다. 하지만 기획서 7.1대로 죽으면 버프는 사라져야 하고, 프레스티지 2단계도 +10%라서 우연히 같다.
 **증상만 가리는 수정:** `clearBuffs()`를 지우면 0 + 10% = 52가 되어 화면은 통과. 숨은 케이스가 프레스티지 3, 버프 없는 영웅으로 확인해서 FAIL.
-**수정:**
+**수정:** 빠진 `prestige_`를 초기화 목록에 넣는다. `c3_hero.cpp`의 복사 생성자 `Hero::Hero(const Hero& other)` 전체를 다음으로 바꾼다.
 ```cpp
 Hero::Hero(const Hero& other)
-    : ...
+    : name_(other.name_),
+      level_(other.level_),
+      hp_(other.hp_),
+      maxHp_(other.maxHp_),
+      baseAttack_(other.baseAttack_),
+      pet_(other.pet_ ? std::make_unique<Pet>(*other.pet_) : nullptr),
       buffs_(other.buffs_),
       prestige_(other.prestige_)
 {
@@ -97,52 +102,127 @@ Hero::Hero(const Hero& other)
 
 ## B-1 — 빈 vector에서 `size() - 1`
 `shelf.size() - 1`은 `size_t`라서 빈 진열대에서 0 - 1 = 18446744073709551615. 반복이 돌고 `shelf[0]`을 읽는다. 빈 vector는 버퍼가 없어서(data()가 nullptr) 잘못된 주소 접근으로 죽는다(MSVC Debug STL은 그 전에 범위 어설션).
-**수정:** `for (size_t i = 0; i + 1 < shelf.size(); ++i)`
+**수정:** 빼기 대신 더하기로 비교해 빈 vector에서도 언더플로가 없게 한다. `b1.cpp`의 `isSortedByPrice` 함수 전체를 다음으로 바꾼다.
+```cpp
+bool isSortedByPrice(const std::vector<ShopItem>& shelf)
+{
+    for (size_t i = 0; i + 1 < shelf.size(); ++i)
+    {
+        if (shelf[i].price > shelf[i + 1].price)
+            return false;
+    }
+    return true;
+}
+```
 
 ## B-2 — 임시 문자열을 가리키는 참조를 돌려줌
 `authorOr(n, i18n::L("길드 운영 위원회 (자동 공지)", "ギルド運営委員会 (自動お知らせ)"))`의 두 번째 인자는 그 줄이 끝나면 사라지는 임시 `std::string`이다. 돌려받은 `const std::string&`는 해제된 메모리를 가리킨다. (SSO 15바이트보다 길어서 힙에 있다. 짧은 이름이었다면 우연히 맞게 나왔을 수 있다.)
-**수정:** `std::string authorOr(...)`로 값을 돌려준다.
+**수정:** 값을 돌려준다. `b2.cpp`의 `authorOr` 함수 전체를 다음으로 바꾼다(반환형만 `std::string`으로 바뀐다). `boardLines`의 `const std::string& who = authorOr(...)`는 돌려받은 임시 객체의 수명을 연장하므로 그대로 둔다.
+```cpp
+std::string authorOr(const Notice& n, const std::string& fallback)
+{
+    return n.author.empty() ? fallback : n.author;
+}
+```
 
 ## B-3 — `uint8_t` 반복 변수
 `x`가 255에서 0으로 돌아가므로 폭이 257 이상이면 `x + 1 < count`가 영원히 참이다.
-**수정:** `for (int x = 0; x + 1 < count; ++x)`
+**수정:** 반복 변수를 `count`와 같은 `int`로 바꾼다. `b3.cpp`의 `climbOf` 함수 전체를 다음으로 바꾼다. (`#include <cstdint>`는 더 쓰이지 않지만 남겨 둬도 된다.)
+```cpp
+int climbOf(const std::vector<Tile>& row)
+{
+    int climb = 0;
+    const int count = static_cast<int>(row.size());
+    for (int x = 0; x + 1 < count; ++x)
+    {
+        const int diff = row[x + 1].height - row[x].height;
+        if (diff > 0)
+            climb += diff;
+    }
+    return climb;
+}
+```
 
 ## B-4 — 멤버 대신 매개변수에 대입
 생성자 안의 `maxHp = maxHp;`는 매개변수에 자기 자신을 대입한다(멤버는 `maxHp_`). 멤버 `maxHp_`는 초기화되지 않아 vector 안의 몬스터는 메모리 검사기가 채운 `0xA5A5A5A5`(-1515870811)가 된다. MSVC는 자기 대입에 경고를 내지 않는다(Clang은 `-Wself-assign`으로 단서를 준다. GCC는 경고가 없다). 디버거에서 `this->maxHp_`를 보면 바로 보인다.
-**수정:** `maxHp_ = maxHp;` (가능하면 초기화 목록에서 `maxHp_(maxHp)`)
+**수정:** 멤버를 초기화 목록에서 초기화한다. `b4.cpp`의 `Monster` 클래스 안에 있는 생성자 `Monster(std::string name, int maxHp, int armor)` 전체를 다음으로 바꾼다.
+```cpp
+    Monster(std::string name, int maxHp, int armor)
+        : name_(std::move(name)), maxHp_(maxHp), hp_(maxHp), armor_(armor)
+    {
+    }
+```
+(생성자 본문에서 `maxHp_ = maxHp;`로 대입해도 통과하지만, 초기화 목록에 두면 같은 이름의 매개변수와 헷갈릴 일이 없다.)
 
 ## B-5 — 범위 for 안에서 같은 vector에 `push_back`
 첫 `push_back`에서 재할당이 일어나면 범위 for의 이터레이터가 옛 버퍼를 가리킨다. 그 뒤로는 해제된 메모리를 읽는다.
-**수정:** 원래 크기만큼 인덱스로 돌고, 원소는 복사해 둔다.
+**수정:** 원래 크기만큼 인덱스로 돌고, 원소는 복사해 둔다. `b5.cpp`의 `spawnWave` 함수 전체를 다음으로 바꾼다.
 ```cpp
-const size_t original = wave.size();
-for (size_t w = 0; w < original; ++w)
+std::vector<Unit> spawnWave(std::vector<Unit> wave)
 {
-    const Unit u = wave[w];
-    for (int i = 0; i < u.summons; ++i)
-        wave.push_back({ u.name + i18n::L("의 부하", "の手下"), 0 });
+    const size_t original = wave.size();
+    for (size_t w = 0; w < original; ++w)
+    {
+        const Unit u = wave[w];   // 복사해 둔다 (push_back이 재할당해도 안전)
+        for (int i = 0; i < u.summons; ++i)
+            wave.push_back({ u.name + i18n::L("의 부하", "の手下"), 0 });
+    }
+    return wave;
 }
 ```
 
 ## B-6 — 중복 제거를 선형 검색으로 (O(n²))
 접속 기록마다 지금까지 모은 목록 전체와 비교한다. 비교 약 6천만 번.
-**수정:** 본 적 있는지를 `std::set`(또는 해시를 정의한 `unordered_set`)으로 확인한다. 처음 나온 순서는 결과 vector가 지킨다.
+**수정:** 본 적 있는지를 `std::set`(또는 해시를 정의한 `unordered_set`)으로 확인한다. 처음 나온 순서는 결과 vector가 지킨다. `b6.cpp` 맨 위 `#include`에 다음을 추가한다.
 ```cpp
-std::set<std::pair<int, int>> seen;
-for (const PlayerId& p : logins)
+#include <set>
+#include <utility>
+```
+그리고 `uniquePlayers` 함수 전체를 다음으로 바꾼다.
+```cpp
+std::vector<PlayerId> uniquePlayers(const std::vector<PlayerId>& logins)
 {
-    if (seen.insert({ p.server, p.number }).second)
-        unique.push_back(p);
+    std::vector<PlayerId> unique;
+    std::set<std::pair<int, int>> seen;
+    for (const PlayerId& p : logins)
+    {
+        if (seen.insert({ p.server, p.number }).second)   // 처음 본 플레이어일 때만 true
+            unique.push_back(p);
+    }
+    return unique;
 }
 ```
 
 ## B-7 — `std::accumulate`의 초깃값이 `int`
 초깃값 `0`의 타입이 누적 타입이 된다. 더할 때마다 `int`로 잘려 2.5 + 3.75 + 1.25 + 2.5가 8이 된다. MSVC는 경고 C4244로 `<numeric>` 안을 가리킨다(이 저장소의 빌드에서 나온다). GCC·Clang은 경고가 시스템 헤더 안에서 나므로 기본 설정에서는 보이지 않을 수 있다.
-**수정:** `std::accumulate(prices.begin(), prices.end(), 0.0)`
+**수정:** 초깃값을 `double`인 `0.0`으로 준다. `b7.cpp`의 `cartTotal` 함수 전체를 다음으로 바꾼다.
+```cpp
+double cartTotal(const std::vector<Order>& cart)
+{
+    std::vector<double> prices;
+    for (const Order& o : cart)
+        prices.push_back(o.price);
+    return std::accumulate(prices.begin(), prices.end(), 0.0);
+}
+```
 
 ## B-8 — `[this]` 람다를 등록한 뒤 객체가 옮겨짐
 포탑을 `emplace_back`할 때마다 vector가 재할당되면 이전 포탑들은 새 주소로 옮겨진다. 경보에 등록한 람다는 옛 주소의 `this`를 들고 있다.
-**수정:** 미리 `turrets.reserve(names.size())`로 옮겨지지 않게 하거나, 모두 세운 뒤에 연결하거나, 뒤에만 추가할 때 주소가 변하지 않는 `std::deque`에 둔다(`push_back`만 하면 원소가 옮겨지지 않는다). `std::list`나 `unique_ptr`의 vector도 주소는 안정적이지만, 그러면 숨은 테스트의 `turrets.at(0)` 같은 접근 방식도 함께 바꿔야 한다.
+**수정:** 미리 `reserve`해서 포탑이 옮겨지지 않게 한다. `b8.cpp`의 `buildWall` 함수 전체를 다음으로 바꾼다.
+```cpp
+std::vector<Turret> buildWall(AlarmBell& bell, const std::vector<std::string>& names)
+{
+    std::vector<Turret> turrets;
+    turrets.reserve(names.size());   // 미리 자리를 잡아 두면 emplace_back이 포탑을 옮기지 않는다
+    for (const std::string& n : names)
+    {
+        turrets.emplace_back(n);
+        turrets.back().connect(bell);
+    }
+    return turrets;
+}
+```
+모두 세운 뒤에 연결하거나, 뒤에만 추가할 때 주소가 변하지 않는 `std::deque`에 두는 방법도 있다(`push_back`만 하면 원소가 옮겨지지 않는다). `std::list`나 `unique_ptr`의 vector도 주소는 안정적이지만, 그러면 숨은 테스트의 `turrets.at(0)` 같은 접근 방식도 함께 바꿔야 한다.
 
 ---
 

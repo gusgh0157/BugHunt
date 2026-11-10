@@ -12,7 +12,28 @@
 値の出どころ: showProfile ← findPlayer が見つけられず nullptr を返した
 本当の原因:   openFriendList で "Doran" を "Dorna" と打ち間違えた
 ```
-**修正:** 打ち間違いを直します。防御も追加: `if (!player) { std::cout << "  " << name << ": " << i18n::L("없는 플레이어", "存在しないプレイヤー") << '\n'; return; }`
+**修正:** 打ち間違いを直します。`cs01_profile.cpp` の `openFriendList` 関数全体を次に置き換えます。
+```cpp
+void openFriendList()
+{
+    showProfile("Kael");
+    showProfile("Mira");
+    showProfile("Doran");
+}
+```
+防御も追加します。`findPlayer` が `nullptr` を返したら印刷せずに知らせるよう、同じファイルの `showProfile` 関数全体を次に置き換えます。
+```cpp
+void showProfile(const std::string& name)
+{
+    Player* player = findPlayer(name);
+    if (!player)
+    {
+        std::cout << "  " << name << ": " << i18n::L("없는 플레이어", "存在しないプレイヤー") << '\n';
+        return;
+    }
+    printPlayer(player);
+}
+```
 **教訓:** 落ちた場所(printPlayer)には何の罪もありません。nullptr を **受け取って検査しなかった** 場所と、**間違った名前を渡した** 場所が原因です。
 
 ## Lab 2 — 1から数えるキーを0から数えるインデックスとしてそのまま使用
@@ -21,7 +42,13 @@
 値の出どころ: onNumberKey(key = 4) ← replayInput
 本当の原因:   キー番号(1~4)をスロットインデックス(0~3)に変換していない
 ```
-**修正:** `useItem(bar.itemAt(key - 1));`
+**修正:** キー番号から1を引いてスロットインデックスにします。`cs02_quickslot.cpp` の `onNumberKey` 関数全体を次に置き換えます。
+```cpp
+void onNumberKey(const QuickSlotBar& bar, int key)
+{
+    useItem(bar.itemAt(key - 1));
+}
+```
 **教訓:** 外部コードは飛ばして、自分のコードの最初の行から見ます。そして、クラッシュの前に出た「間違った出力」も同じバグの症状です。
 
 ## Lab 3 — 整数の割り算で0秒になる
@@ -31,6 +58,7 @@
 本当の原因:   1秒未満の戦闘が整数の割り算で0秒になる
 ```
 **修正:** 秒ではなくミリ秒で計算します。変わるシグネチャは `damagePerSecond` の2番目の引数(`seconds` → `durationMs`)で、呼び出す `printBattleSummary` も `battle.durationMs` を渡すように直します。`toSeconds` は画面に秒を表示するためだけに残します。
+`cs03_battle_log.cpp` の `damagePerSecond` 関数全体を次に置き換えます。
 ```cpp
 int damagePerSecond(int totalDamage, int durationMs)
 {
@@ -38,7 +66,9 @@ int damagePerSecond(int totalDamage, int durationMs)
         throw std::invalid_argument(i18n::L("damagePerSecond: 전투 시간이 0ms 이하", "damagePerSecond: 戦闘時間が0ms以下"));
     return totalDamage * 1000 / durationMs;
 }
-
+```
+同じファイルの `printBattleSummary` 関数全体を次に置き換えます。
+```cpp
 void printBattleSummary(const BattleRecord& battle)
 {
     const int seconds = toSeconds(battle.durationMs);                          // 画面表示用
@@ -54,7 +84,20 @@ void printBattleSummary(const BattleRecord& battle)
 止まった関数: leaderOf ← sendRaidReminders  (printPartyBoard ではない!)
 おかしな値:   party.name == "Silent Hollow"、members が空
 ```
-**修正:** `sendRaidReminders` にも `if (party.members.empty()) continue;`。さらに良い方法は、`leaderOf` が空のパーティーを安全に扱うようにすることです(`const std::string*` を返す、`std::optional` など)。
+**修正:** `printPartyBoard` にある空のパーティーの検査を `sendRaidReminders` にも入れます。`cs04_party_board.cpp` の `sendRaidReminders` 関数全体を次に置き換えます。
+```cpp
+void sendRaidReminders(const std::vector<Party>& parties)
+{
+    std::cout << i18n::L("  [레이드 알림]\n", "  [レイド通知]\n");
+    for (const Party& party : parties)
+    {
+        if (party.members.empty())
+            continue;   // リーダーのいないパーティーには送らない
+        std::cout << "    " << leaderOf(party) << i18n::L("님, 20시 레이드를 잊지 마세요!\n", "さん、20時のレイドを忘れないでください!\n");
+    }
+}
+```
+さらに良い方法は、`leaderOf` が空のパーティーを安全に扱うようにすることです(`const std::string*` を返す、`std::optional` など)。
 **教訓:** 同じ関数でも **どの経路で呼ばれたか** は、呼び出し履歴だけが正確に教えてくれます。
 
 ## Lab 5 — 終了条件を飛び越える再帰
@@ -63,7 +106,15 @@ void printBattleSummary(const BattleRecord& battle)
 値の出どころ: n が奇数 → startFireworks(seconds = 5)
 本当の原因:   5, 3, 1, -1, ... と0を飛び越えて終わらない
 ```
-**修正:** `if (n <= 0) return i18n::L("발사!", "発射!");`
+**修正:** 終了条件を `n == 0` から `n <= 0` に広げて、0を飛び越えても止まるようにします。`cs05_fireworks.cpp` の `countdown` 関数全体を次に置き換えます。
+```cpp
+std::string countdown(int n)
+{
+    if (n <= 0)
+        return i18n::L("발사!", "発射!");
+    return std::to_string(n) + " " + countdown(n - 2);
+}
+```
 **教訓:** スタックが同じ関数で埋まっていたら、再帰が終わっていないということです。引数の値の変化を見れば理由がわかります。
 
 ## Lab 6 — 存在しないキーで map::at
@@ -72,7 +123,33 @@ void printBattleSummary(const BattleRecord& battle)
 値の出どころ: cartTotal ← checkout のカート一覧
 本当の原因:   "mana_potion" の打ち間違い
 ```
-**修正:** 打ち間違いを直します。防御: `auto it = kPrices.find(itemId); if (it == kPrices.end()) { /* 警告して0 */ }`
+**修正:** 打ち間違いを直します。`cs06_shop.cpp` の `checkout` 関数全体を次に置き換えます。
+```cpp
+void checkout()
+{
+    const std::vector<std::string> cart = {
+        "iron_sword",
+        "healing_potion",
+        "healing_potion",
+        "mana_potion",
+        "oak_shield",
+    };
+    std::cout << i18n::L("  합계: ", "  合計: ") << cartTotal(cart) << i18n::L(" 골드\n", " ゴールド\n");
+}
+```
+防御も追加します。価格表にない ID なら警告を出して0ゴールドとして扱うよう、同じファイルの `priceOf` 関数全体を次に置き換えます。
+```cpp
+int priceOf(const std::string& itemId)
+{
+    const auto it = kPrices.find(itemId);
+    if (it == kPrices.end())
+    {
+        std::cout << i18n::L("  경고: 가격표에 없는 아이템 ", "  警告: 価格表にないアイテム ") << itemId << '\n';
+        return 0;
+    }
+    return it->second;
+}
+```
 **教訓:** 例外も呼び出し履歴で追跡します。throw した場所 → 最初に出てくる自分のコード。
 
 ## Lab 7 — 早すぎるタイミングでキャプチャしたポインター
@@ -83,7 +160,20 @@ void printBattleSummary(const BattleRecord& battle)
 本当の原因:   startGame で connectHealthBar(game) を createUi(game) より先に呼んでいる。
            その時点で game.healthBar.get() は nullptr で、ラムダはその値をコピーして保存した。
 ```
-**修正:** `createUi(game);` を `connectHealthBar(game);` の上に移します。または、ラムダが `&game` をキャプチャして、呼び出し時点で `game.healthBar` を確認するようにします。
+**修正:** `createUi(game);` を `connectHealthBar(game);` の上に移します。`cs07_events.cpp` の `startGame` 関数全体を次に置き換えます。
+```cpp
+void startGame()
+{
+    Game game;
+    connectLogger(game);
+    createUi(game);          // HP バーを先に作ってから
+    connectHealthBar(game);  // そのポインターをキャプチャする
+
+    // プレイヤーがダメージを受けた。
+    game.events.publishHpChanged(75);
+}
+```
+または、ラムダが `&game` をキャプチャして、呼び出し時点で `game.healthBar` を確認するようにします。
 **教訓:** 呼び出し履歴が見せてくれるのは **今どうやってここに来たか** だけです。「その値が **いつ** 保存されたか」は、ブレークポイントを置いて再実行して探します。
 
 ## Lab 8 — 引数の順序が入れ替わっている
@@ -94,7 +184,17 @@ void printBattleSummary(const BattleRecord& battle)
 本当の原因:   spawnMonster("Ogre Boss", 200, 10 + wave)
            → 意図はレベル 10 + wave、ボーナス HP 200
 ```
-**修正:** `spawnMonster("Ogre Boss", 10 + wave, 200);`
+**修正:** ボスの呼び出しで、レベルとボーナス HP の引数を正しい順序に戻します。`cs08_waves.cpp` の `spawnWave` 関数全体を次に置き換えます。
+```cpp
+void spawnWave(int wave, std::vector<Monster>& field)
+{
+    field.push_back(spawnMonster("Goblin", 3 + wave, 0));
+    field.push_back(spawnMonster("Orc", 5 + wave, 20));
+
+    if (wave % 3 == 0)
+        field.push_back(spawnMonster("Ogre Boss", 10 + wave, 200));
+}
+```
 **教訓:** 同じ型(int, int)の引数が並んでいると、順序を入れ替えて渡しやすくなります。強い型(`struct Level { int value; };`)や指示付き初期化で防げます。
 
 ---
@@ -103,15 +203,27 @@ void printBattleSummary(const BattleRecord& battle)
 
 ## Lab 9 — off-by-one
 `i <= scores.size()` → 最後の反復で `scores.at(5)` の範囲外アクセス → `std::out_of_range`。
-**修正:** `i < scores.size()`、または範囲ベース for / `std::accumulate`。
+**修正:** ループの条件を `i < scores.size()` にします。`lab01_average.cpp` の `average` 関数全体を次に置き換えます。
+```cpp
+double average(const std::vector<int>& scores)
+{
+    int sum = 0;
+    for (size_t i = 0; i < scores.size(); ++i)
+        sum += scores.at(i);
+    return static_cast<double>(sum) / scores.size();
+}
+```
+(範囲ベース for や `std::accumulate` で書けば、インデックスの境界を間違える余地そのものがなくなります。)
 **教訓:** 例外(またはアサーション)で止まる → 呼び出し履歴 → 最初の自分のコード、が最も基本的な追跡ルートです。`[]` の代わりに `at()` を使えば、どのコンパイラー、どの構成でも範囲外アクセスが例外として表に出ます。
 
 ## Lab 10 — 参照の無効化(vector の再割り当て)
 `add` が `items_.back()` の参照を返しますが、その後の `push_back` で capacity が増えると要素が新しいメモリに移され、`sword` は解放されたメモリを指します(解放後の使用 (use-after-free))。
 **修正:** `add` が参照の代わりにインデックスを返し、使う側はそのインデックスで毎回探し直します。呼び出す `lab02_inventory` も一緒に変わります。
+`lab02_inventory.cpp` の `Inventory` クラス全体(`class Inventory` から `};` まで)を次に置き換えます。
 ```cpp
-#include <cstddef>   // std::size_t
-// Inventory
+class Inventory
+{
+public:
     // アイテムを追加し、後で探し直せるようにインデックスを返す。(参照は push_back の後で無効になりうる)
     std::size_t add(const std::string& name, int count)
     {
@@ -121,7 +233,22 @@ void printBattleSummary(const BattleRecord& battle)
 
     Item& at(std::size_t index) { return items_[index]; }
 
-// lab02_inventory
+    int countOf(const std::string& name) const
+    {
+        for (const Item& item : items_)
+            if (item.name == name)
+                return item.count;
+        return 0;
+    }
+
+private:
+    std::vector<Item> items_;
+};
+```
+同じファイルの `lab02_inventory` 関数全体を次に置き換えます。
+```cpp
+void lab02_inventory()
+{
     Inventory inv;
     const std::size_t sword = inv.add("Sword of the Northern Watch", 1);
     inv.add("Oak Shield", 1);
@@ -130,60 +257,148 @@ void printBattleSummary(const BattleRecord& battle)
 
     // クエスト報酬: 剣をもう1本渡す。
     inv.at(sword).count += 1;
+
+    expect(i18n::L("검 개수", "剣の数"), 2, inv.countOf("Sword of the Northern Watch"));
+    expect(i18n::L("포션 개수", "ポーションの数"), 5, inv.countOf("Healing Potion"));
+}
 ```
 別の方法: `lab02_inventory` の最初の行で `inv.reserve(4)` を呼んで再割り当てを防ぐ(`Inventory` に `void reserve(std::size_t n) { items_.reserve(n); }` を追加)、または `items_` を `std::deque<Item>` のように `push_back` しても要素のアドレスが変わらないコンテナーに変えます。
 **教訓:** 「参照/ポインター/イテレーターを持っている間はコンテナーを変更しないこと。」
 
 ## Lab 11 — 一時オブジェクトを指す string_view
 `makeTitle` が作った `std::string` は `titleOf` の return 文が終わると破棄され、`string_view` はその解放されたバッファーを指します。
-**修正:** `titleOf` が `std::string` を返し、呼び出す `lab03_titles` の `titles` も `std::vector<std::string>` に変えます。`string_view` は所有者のほうが長く生きているときだけ使います。(`#include <string_view>` と `titleOf` の上の「string_view で返します(最適化)」のコメントはもう正しくないので消します。)
+**修正:** `titleOf` が `std::string` を返し、呼び出す `lab03_titles` の `titles` も `std::vector<std::string>` に変えます。`string_view` は所有者のほうが長く生きているときだけ使います。
+`lab03_titles.cpp` で、もう使わない `#include <string_view>` の行を消します。`titleOf` の上のコメント2行(韓国語の `// 호출할 때마다 문자열을 복사하지 않도록 string_view로 돌려준다. (최적화)` と、その下の `// [JA] 呼び出すたびに文字列をコピーしないよう、string_view で返します。(最適化)`)ももう正しくないので、間の空行と一緒に消します。
+そのうえで `titleOf` 関数全体を次に置き換えます。
 ```cpp
 std::string titleOf(const Player& p)
 {
     return makeTitle(p);
 }
+```
+同じファイルの `lab03_titles` 関数全体を次に置き換えます。
+```cpp
+void lab03_titles()
+{
+    const std::vector<Player> players = {
+        { "Kael the Wanderer", "Northwind Rangers" },
+        { "Mira Stormcaller",  "Order of the Ember" },
+        { "Doran Ironhand",    "Deepforge Clan" },
+    };
 
-// lab03_titles
     std::vector<std::string> titles;
     for (const Player& p : players)
         titles.push_back(titleOf(p));
+
+    expect(i18n::L("첫 번째 칭호", "1番目の称号"), std::string("[Northwind Rangers] Kael the Wanderer"), std::string(titles[0]));
+    expect(i18n::L("세 번째 칭호", "3番目の称号"), std::string("[Deepforge Clan] Doran Ironhand"), std::string(titles[2]));
+}
 ```
-`expect` 2行の `std::string(titles[0])` は `std::string` をコピーするだけなので、そのままでもコンパイルできます。
+`expect` 2行の `std::string(titles[0])` は `std::string` をコピーするだけなので、元のままです。
 
 ## Lab 12 — 初期化されていないメンバー
 `int combo_;` に初期値がありません。カウンターはオブジェクトプール(`bughunt::recycledStorage`)の再利用メモリの上に作られ、そこには以前使われていた値(BugHunt では `0xA5A5A5A5` = -1515870811)が残っているので、最初の4連続命中が負の数として記録されて無視されます。普通のローカル変数だったら、コンパイラーや構成によってはたまたま0になり、正しく見えることもあります。
-**修正:** `int combo_ = 0;`
+**修正:** `combo_` に初期値 `0` を与えます(`int combo_ = 0;`)。`lab04_combo.cpp` の `ComboCounter` クラス全体(`class ComboCounter` から `};` まで)を次に置き換えます。
+```cpp
+class ComboCounter
+{
+public:
+    void hit()
+    {
+        ++combo_;
+        if (combo_ > best_)
+            best_ = combo_;
+    }
+
+    void miss() { combo_ = 0; }
+
+    int best() const { return best_; }
+
+private:
+    int combo_ = 0;
+    int best_ = 0;
+};
+```
 **教訓:** コンストラクターがすべてのメンバーを初期化しているか確認します。値が実行ごと、構成ごとに違うなら、未初期化変数を真っ先に疑います。(コンパイラーの「メンバーを初期化していない」静的解析警告。例: MSVC コード分析 C26495、clang-tidy `cppcoreguidelines-pro-type-member-init`)
 
 ## Lab 13 — erase 後のイテレーター無効化
 `erase(it)` の後 `it` は無効なのに `++it` しています。
-**修正:**
+**修正:** `erase` が返す「消した要素の次」を指す新しいイテレーターを受け取り、消さなかったときだけ `++it` します。`lab05_enemies.cpp` の `removeDead` 関数全体を次に置き換えます。
 ```cpp
-for (auto it = enemies.begin(); it != enemies.end(); )
-    it = (it->hp <= 0) ? enemies.erase(it) : it + 1;
-// 一覧が std::vector なら、C++20 の std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; }); で1行で書けます。
+void removeDead(bughunt::CheckedList<Enemy>& enemies)
+{
+    for (auto it = enemies.begin(); it != enemies.end(); )
+    {
+        if (it->hp <= 0)
+            it = enemies.erase(it);   // erase が返す新しいイテレーターを使う
+        else
+            ++it;
+    }
+}
 ```
+(一覧が `std::vector` なら、C++20 の `std::erase_if(enemies, [](const Enemy& e) { return e.hp <= 0; });` で1行で書けます。このラボの `bughunt::CheckedList` には `std::erase_if` がないので、上のループを使います。)
 
 ## Lab 14 — unsigned のアンダーフロー
 `20u - 22u` = 4294967294。「残りのスロット」がとても大きくなり、何でも入ってしまいます。
-**修正:** `if (bag.usedSlots >= bag.maxSlots) return false;` を先に検査するか、符号付きの型で計算します。
+**修正:** 引き算の前に、使用中のスロットが最大値以上かを先に検査します。`lab06_backpack.cpp` の `canPickUp` 関数全体を次に置き換えます。
+```cpp
+bool canPickUp(const Backpack& bag, unsigned itemSize)
+{
+    if (bag.usedSlots >= bag.maxSlots)
+        return false;   // 空きがない(呪いで最大値を超えていることもある)
+    const unsigned freeSlots = bag.maxSlots - bag.usedSlots;
+    return freeSlots >= itemSize;
+}
+```
+(または符号付きの型で計算します。)
 
 ## Lab 15 — Rule of Three 違反(二重解放)
 `PacketBuffer` は生ポインターを所有していますが、コピーコンストラクター/代入はデフォルト(浅いコピー)です。デストラクターを自分で宣言しているのでムーブコンストラクターは自動生成されず、`push_back(PacketBuffer(64))` で **コピー** が起きる → 一時オブジェクトの破棄時に `data_` を解放 → vector の中のオブジェクトは解放されたバッファーを指す → **2回目の `push_back`** で vector が再割り当てして古い要素を破棄するとき、同じバッファーをもう一度解放(double free)。その場でメモリチェッカーが `[CRASH] メモリ検査: 解放済みのメモリをもう一度解放した` で止めるので、`expect` 行まで届きません。
-**修正(推奨、Rule of Zero):** `std::vector<char> data_;` または `std::unique_ptr<char[]>` を使います。または、コピーコンストラクター/代入/ムーブを自分で実装します。
+**修正(推奨、Rule of Zero):** バッファーを `std::vector<char>` に持たせ、デストラクターを消します。コピーもムーブも `std::vector` が正しく行うので、特殊メンバー関数を一つも書く必要がありません。`lab07_packets.cpp` の `PacketBuffer` クラス全体(`class PacketBuffer` から `};` まで)を次に置き換えます。
+```cpp
+class PacketBuffer
+{
+public:
+    explicit PacketBuffer(size_t size)
+        : data_(size, '\0')   // 0で埋めた size バイト
+    {
+    }
+
+    void write(const char* text) { std::snprintf(data_.data(), data_.size(), "%s", text); }
+    const char* text() const { return data_.data(); }
+
+private:
+    std::vector<char> data_;   // 大きさも data_.size() が覚えている
+};
+```
+`std::memset` を使わなくなるので `#include <cstring>` は不要になりますが、残しておいてもかまいません。(`std::unique_ptr<char[]>` でも二重解放はなくなりますが、コピーできなくなり、ムーブだけになります。または、コピーコンストラクター/代入/ムーブを自分で実装します。)
 
 ## Lab 16 — 仮想デストラクターの欠落(メモリリーク + UB)
 `StatusEffect` のデストラクターが virtual ではないので、`unique_ptr<StatusEffect>` が `delete` するときに `Burn` のデストラクターが呼ばれません → メンバー `schedule_`(`DamageSchedule`)も破棄されず、戦闘1000回の後に1000個が生き残ります(その中の vector のメモリもリーク)。厳密には未定義動作です。
 **追跡:** `DamageSchedule` のデストラクターにブレークポイントを置くと、一度も止まりません。コンストラクターでは止まります。→ 誰が消すべきだったのか? `unique_ptr` の `delete` は `StatusEffect` のデストラクターしか呼びません。
-**修正:** `virtual ~StatusEffect() = default;`
+**修正:** 基底クラスのデストラクターを `virtual ~StatusEffect() = default;` にします。`lab08_effects.cpp` の `StatusEffect` クラス全体(`class StatusEffect` から `};` まで)を次に置き換えます。
+```cpp
+class StatusEffect
+{
+public:
+    virtual ~StatusEffect() = default;
+    virtual void tick(int& hp) = 0;
+};
+```
 **教訓:** ポリモーフィックに delete される基底クラスには必ず virtual デストラクターを付けます。(警告: MSVC C5205(標準ヘッダー内のテンプレートなので `/external:templates-` があるときに見えます。このリポジトリの CMake は有効にしています)、Clang `-Wall` の `-Wdelete-abstract-non-virtual-dtor`。GCC はシステムヘッダーの中なので見えないことがあります)
 
 ## Lab 17 — データ競合
 `gold_` の読み取り-変更-書き込みがアトミックではありません。2つのスレッドが同じ値を読んでそれぞれ +1 を書き込むと、1つが消えます。読み取りと書き込みの間の `std::this_thread::sleep_for(1ms)` はその隙間を広げて、どのコンパイラーでも症状が出るようにしているだけで、原因ではありません(消してもデータ競合は残ります)。
 **修正:** `gold_` を `std::atomic<int>` に変え、加算をアトミック操作一つで行います。読み取りと書き込みを引き離していた `current` と `sleep_for` の行は消します(隙間を広げるのが役目だったので、残す理由がありません)。
+`lab09_guild_bank.cpp` のファイル先頭の `#include` に次を追加します。
 ```cpp
 #include <atomic>
-// GuildBank
+```
+同じファイルの `GuildBank` クラス全体(`class GuildBank` から `};` まで)を次に置き換えます。
+```cpp
+class GuildBank
+{
+public:
     void deposit(int amount)
     {
         gold_ += amount;   // 読み取り-変更-書き込みがアトミック操作一つで終わる
@@ -193,22 +408,47 @@ for (auto it = enemies.begin(); it != enemies.end(); )
 
 private:
     std::atomic<int> gold_{ 0 };
+};
 ```
 `std::mutex` で保護してもかまいません: `std::lock_guard<std::mutex> lock(mutex_);` を `deposit` の最初の行に置き、`gold_ += amount;` だけを残します(`std::mutex mutex_;` メンバー、`#include <mutex>`)。このときも `sleep_for` は消します。ロックの中で眠ると入金200回がロックを一つずつ待つので、ラボが目に見えて遅くなります。(`#include <chrono>` は使われなくなりますが、残しておいてもかまいません。)
 
 ## Lab 18 — 構造体内部のバッファーオーバーフロー
 `char name[8]` に `"Sir Kael"`(8文字 + NUL = 9バイト)を `memcpy` → すぐ後ろの `hp` の先頭バイトを0で上書き → 100(0x64)が0になる。`"Sir Doran"` は10バイトなので、`hp` の下位2バイトを `'n'`、`0` で上書きして 120 → 110。
-**修正:** `name` を `std::string` に変えるか、長さを制限してコピーします(`std::snprintf(c.name, sizeof(c.name), "%s", newName)`)。
+**修正:** 長さを制限してコピーします。`std::snprintf` は配列の大きさ(NUL を含めて8バイト)を超えて書かないので、長い名前は切り詰められ、`hp` には触れません。`lab10_party.cpp` の `setName` 関数全体を次に置き換えます。
+```cpp
+void setName(Character& c, const char* newName)
+{
+    std::snprintf(c.name, sizeof(c.name), "%s", newName);   // NUL を含めて sizeof(c.name) バイトまで
+}
+```
+(名前を切り詰めたくなければ、`name` を `std::string` に変えます。このときは `makeCharacter` と `grantKnighthood` の `char` 配列の扱いも一緒に変わります。)
 **教訓:** 「誰がこの値を変えた?」はデータ ブレークポイントですぐに答えが出ます。
 
 ## Lab 19 — 循環データによる無限再帰(スタックオーバーフロー)
 テーブルに `village_intro: forge_sword` の打ち間違いがあり、`forge_sword → meet_blacksmith → village_intro → forge_sword ...` と循環します。
-**修正:** データを `village_intro:` に直し、コードでも防御します: 訪問済みの集合(`std::set<std::string> visited`)で循環の検出と重複の除去。
+**修正:** データを `village_intro:`(前提クエストなし)に直します。`lab11_quests.cpp` の `kQuestTable` の定義を、`const char* kQuestTable = R"(` の行から `)";` の行までまとめて次に置き換えます。
+```cpp
+const char* kQuestTable = R"(
+dragon_hunt: forge_sword find_map
+forge_sword: meet_blacksmith
+meet_blacksmith: village_intro
+find_map: visit_cartographer
+visit_cartographer:
+village_intro:
+)";
+```
+(任意: コードでも防御するなら、`countAllPrereqs` に訪問中の集合(`std::set<std::string>`)を渡して、すでに辿っている途中のクエストに戻ってきたら循環として報告する方法があります。このラボの修正はデータの修正だけで足ります。)
 **教訓:** 呼び出し履歴が同じパターンで繰り返されていたら、再帰の終了条件/データの循環を疑います。
 
 ## Lab 20 — 演算子の優先順位
 `==` が `&` より先に計算されて `flags & (status == status)` = `flags & 1` → 常に STUN ビットだけを検査します。
-**修正:** `return (flags & status) == status;`
+**修正:** `&` をかっこで囲んで先に計算させます。`lab12_status_flags.cpp` の `hasStatus` 関数全体を次に置き換えます。
+```cpp
+bool hasStatus(unsigned flags, unsigned status)
+{
+    return (flags & status) == status;
+}
+```
 **教訓:** コンパイラーの警告(MSVC C4554、GCC・Clang `-Wparentheses`)がすでに教えてくれていました。警告は0個に保ちましょう。
 
 ---
@@ -221,7 +461,36 @@ private:
 最初にずれた行: 2周目の int streak = 0;  (1だった値が0に戻る)
 本当の原因:     streak が for の中で宣言されていて、毎周新しく作られる
 ```
-**修正:** `int streak = 0;` を `for` の上に移します。(欠席の処理 `streak = 0;` はそのまま残します。)
+**修正:** `int streak = 0;` を `for` の上に移します。(欠席の処理 `streak = 0;` はそのまま残します。)`ft01_attendance.cpp` の `calculateRewards` 関数全体を次に置き換えます。
+```cpp
+RewardResult calculateRewards(const std::vector<bool>& loginLog)
+{
+    RewardResult result;
+    bool bonusGiven = false;
+    int streak = 0;   // ループの外で宣言して、日をまたいで数え続ける
+
+    for (bool loggedIn : loginLog)
+    {
+        if (loggedIn)
+        {
+            result.gold += kDailyGold;
+            ++streak;
+            if (streak > result.bestStreak)
+                result.bestStreak = streak;
+            if (streak == kStreakGoal && !bonusGiven)
+            {
+                result.gold += kStreakBonus;
+                bonusGiven = true;
+            }
+        }
+        else
+        {
+            streak = 0;
+        }
+    }
+    return result;
+}
+```
 **教訓:** クラッシュがなければ呼び出し履歴は役に立ちません。**期待値を先に書き**、1行ずつ実行して最初にずれる行を探します。
 
 ## Lab 22 — 計算した値ではなく元の値を返す
@@ -230,7 +499,7 @@ private:
 最初にずれた所: applyCrit の戻り値(関数から出た直後にデバッガーが見せる戻り値: "applyCrit が 70 を返した")
 本当の原因:     result に元の値をコピーしておき、damage だけ変えてから result を返している
 ```
-**修正:** `applyCrit` が計算した `damage` を返します。`result` 変数は不要になるので消します(残すと「初期化されたが使われていない変数」の警告が出ます)。
+**修正:** `applyCrit` が計算した `damage` を返します。`result` 変数は不要になるので消します(残すと「初期化されたが使われていない変数」の警告が出ます)。`ft02_critical.cpp` の `applyCrit` 関数全体を次に置き換えます。
 ```cpp
 int applyCrit(int damage, bool isCrit, int critBonusPercent)
 {
@@ -249,11 +518,14 @@ int applyCrit(int damage, bool isCrit, int critBonusPercent)
 最初にずれた所: シールドが damage より少なく残っていたティック(例: シールド6にダメージ7)
 本当の原因:     takeDamage がシールドを0まで削ってすぐ return → あふれたダメージが HP に行かない
 ```
-**修正:**
+**修正:** シールドが吸収できる分だけ吸収し、残りを HP から引きます。`ft03_shield.cpp` の `takeDamage` 関数全体を次に置き換えます(`std::min` の `<algorithm>` はこのファイルにすでにあります)。
 ```cpp
-const int absorbed = std::min(unit.shield, damage);
-unit.shield -= absorbed;
-unit.hp -= damage - absorbed;
+void takeDamage(Unit& unit, int damage)
+{
+    const int absorbed = std::min(unit.shield, damage);   // シールドが防げる分
+    unit.shield -= absorbed;
+    unit.hp -= damage - absorbed;                         // 防げなかった残りは HP へ
+}
 ```
 **教訓:** 数百回のうち数回だけ間違うなら、1行ずつ実行しても見つかりません。「間違った瞬間」を **条件式** で表して、ブレークポイントに入れます。合計の検証(不変条件)は、その条件を作る良い材料です。
 
@@ -262,7 +534,7 @@ unit.hp -= damage - absorbed;
 トレースポイントの出力(5匹目のオオカミ):  クエスト検査: カウンター値 4  →  カウンター: Wolf、増加前 4
 本当の原因:     Game::setup でクエストをカウンターより先に購読 → クエストが更新前の値を読む
 ```
-**修正:** `Game::setup` でカウンターを先に購読します。購読順を説明していたコメントも新しい順序に合わせて直します。
+**修正:** `Game::setup` でカウンターを先に購読します。購読順を説明していたコメントも新しい順序に合わせて直します。`ft04_quest.cpp` の `struct Game` の中にある `setup` 関数全体を次に置き換えます。
 ```cpp
     void setup()
     {
@@ -280,7 +552,22 @@ unit.hp -= damage - absorbed;
 矢印:            else if (c.isMember()) → return 5
 本当の原因:       VIP は常にメンバーなので、isVip() の分岐には永遠に届かない
 ```
-**修正:** 狭い条件(VIP)を広い条件(メンバー)より先に検査します。ルールが「最も大きい割引を1つ」なので、順序に依存しないように `std::max` で該当する割引の中の最大値を選ぶほうがより安全です。
+**修正:** 狭い条件(VIP)を広い条件(メンバー)より先に検査します。`ft05_discount.cpp` の `discountPercent` 関数全体を次に置き換えます。
+```cpp
+int discountPercent(const Customer& c, int total)
+{
+    if (c.isFirstOrder())
+        return 10;
+    else if (c.isVip())        // VIP は必ずメンバーなので、メンバーより先に検査する
+        return 15;
+    else if (c.isMember())
+        return 5;
+    else if (total >= 50000)
+        return 3;
+    return 0;
+}
+```
+ルールが「最も大きい割引を1つ」なので、順序に依存しないように `std::max` で該当する割引の中の最大値を選ぶほうがより安全です。
 **教訓:** 分岐のバグは、ウォッチに **条件を1つずつ別々に入れて計算** してみると一目でわかります。
 
 ## Lab 26 — auto が参照を捨ててコピーを作る
@@ -289,7 +576,21 @@ unit.hp -= damage - absorbed;
 本当の原因:  auto item = backpack.get(...)  → get() は Equipment& を返すが、auto は値で受け取ってコピーする
              コピーを修理し、コピーで「修理完了」を出力している
 ```
-**修正:** `auto& item = backpack.get(itemName);`
+**修正:** `get()` が返す参照をそのまま参照で受け取ります(`auto& item = backpack.get(itemName);`)。`ft06_repair.cpp` の `visitBlacksmith` 関数全体を次に置き換えます。
+```cpp
+void visitBlacksmith(Backpack& backpack, int& gold, const std::string& itemName)
+{
+    auto& item = backpack.get(itemName);   // コピーではなく、バックパックの中の装備そのもの
+    const int cost = repairCost(item);
+    if (cost == 0 || gold < cost)
+        return;
+
+    gold -= cost;
+    repair(item);
+    std::cout << i18n::L("  수리 완료: ", "  修理完了: ") << item.name << " " << item.durability << "/" << item.maxDurability
+              << " (-" << cost << i18n::L(" 골드)\n", " ゴールド)\n");
+}
+```
 **教訓:** 「直したと出力されるのに反映されない」なら、**同じオブジェクトかどうかから** 疑いましょう。アドレスの比較やオブジェクト ID で確認します。
 
 ## Lab 27 — || の短絡評価で後ろの検査が実行されない
@@ -297,12 +598,17 @@ unit.hp -= damage - absorbed;
 ブレークポイント: checkKill で止まる、checkGold・checkLevel で止まらない
 本当の原因:   checkKillAchievements(p) が true → || の後ろは計算しない → ベテラン実績の検査そのものが実行されない
 ```
-**修正:** 副作用のある呼び出しは、それぞれ実行してから結果を合わせます。
+**修正:** 副作用のある呼び出しは、それぞれ実行してから結果を合わせます。`ft07_achievements.cpp` の `onBattleEnd` 関数全体を次に置き換えます。
 ```cpp
-const bool kill  = checkKillAchievements(p);
-const bool gold  = checkGoldAchievements(p);
-const bool level = checkLevelAchievements(p);
-if (kill || gold || level) ...
+void onBattleEnd(Player& p)
+{
+    // 検査をすべて先に実行してから、結果を合わせる。
+    const bool kill = checkKillAchievements(p);
+    const bool gold = checkGoldAchievements(p);
+    const bool level = checkLevelAchievements(p);
+    if (kill || gold || level)
+        std::cout << i18n::L("  (축하 폭죽!)\n", "  (お祝いの花火!)\n");
+}
 ```
 (`|` に変えても動きますが、意図が隠れるのでお勧めしません。)
 **教訓:** **止まらなかったブレークポイント** も結果です。「この関数はそもそも呼ばれたのか?」から確認しましょう。
@@ -315,11 +621,31 @@ if (kill || gold || level) ...
 本当の原因:  World は Settings を値で保持し、Game のコンストラクターで(= loadSettings の前に)コピーされる。
              AudioSystem は参照で保持するので、後から読んだ音量が反映される。
 ```
-**修正(どれか1つ):**
-- `World` も `const Settings& settings_;` で保持する(設定の変更がすぐ反映される、ただし寿命の管理に注意)
-- 設定をすべて読んだ後で `World` を作る(初期化の順序を明確に)
-- `spawnWave(const Settings&)` のように、必要なときに引数で受け取る
+**修正:** `World` も `AudioSystem` と同じように設定を `const Settings&` で保持し、`loadSettings` が後から書いた値を見るようにします(設定の変更がすぐ反映されます。ただし、参照先の設定が `World` より長く生きている必要があります。ここでは `g_settings` がグローバルなので問題ありません)。`ft08_difficulty.cpp` の `class World` 全体を次に置き換えます。
+```cpp
+class World
+{
+public:
+    explicit World(const Settings& settings) : settings_(settings) {}
 
+    int spawnWave()
+    {
+        constexpr int kBaseHp = 100;
+        switch (settings_.difficulty)
+        {
+        case Difficulty::Easy:   enemyHp_ = kBaseHp * 7 / 10; break;
+        case Difficulty::Normal: enemyHp_ = kBaseHp;          break;
+        case Difficulty::Hard:   enemyHp_ = kBaseHp * 3 / 2;  break;
+        }
+        return enemyHp_;
+    }
+
+private:
+    const Settings& settings_;   // コピーではなく参照: 後から読んだ設定も見える
+    int enemyHp_ = 0;
+};
+```
+ほかの直し方: 設定をすべて読んだ後で `World` を作る(初期化の順序を明確に)、または `spawnWave(const Settings&)` のように必要なときに引数で受け取る。
 **教訓:** バグが「どんな入力で」ではなく「どんな **順序** で」起きる場合は、最初から追いかけながら **2つのコピーを並べて** ウォッチに表示し、いつ分かれるかを見ます。
 
 ## 演算子のミス(ラボ29~32)
@@ -332,7 +658,13 @@ if (kill || gold || level) ...
 期待値 → 実際:  lastId 1007 → 新しい番号1008を期待 / 実際の戻り値1007
 本当の原因:     return guild.lastId++; は増やす前の値(最後にすでに渡した番号)を返す
 ```
-**修正:** `return ++guild.lastId;`
+**修正:** 前置インクリメントで、増やした後の値(新しい番号)を返します。`ft09_member_ids.cpp` の `issueId` 関数全体を次に置き換えます。
+```cpp
+int issueId(Guild& guild)
+{
+    return ++guild.lastId;
+}
+```
 **教訓:** `x++` は「xを増やす」と「式の値は古いx」の2つのことをします。変数の意味(「最後に渡した番号」か「次に渡す番号」か)を先に決めてから前置/後置を選びます。`if (hits++ == 3)` も同じミスで、4回目の攻撃でやっと真になります。
 
 ## Lab 30 — マクロが副作用のある引数を2回評価する
@@ -342,10 +674,8 @@ if (kill || gold || level) ...
 最初にずれた行: c.best = BUGHUNT_MAX(c.best, ++c.current);
 本当の原因:     ((a) > (b) ? (a) : (b)) に展開され、条件で1回、選ばれた側でもう1回 ++c.current
 ```
-**修正:** 値を先に増やし、比較は別に行います。`std::max` には `#include <algorithm>` が必要です。マクロ `BUGHUNT_MAX` は使われなくなるので消します。
+**修正:** 値を先に増やし、比較は別に行います。`ft10_best_combo.cpp` の `onAttack` 関数全体を次に置き換えます。
 ```cpp
-#include <algorithm>   // std::max
-
 void onAttack(Combo& c, bool hit)
 {
     if (!hit)
@@ -357,6 +687,11 @@ void onAttack(Combo& c, bool hit)
     c.best = std::max(c.best, c.current);
 }
 ```
+`std::max` を使うので、`ft10_best_combo.cpp` のファイル先頭の `#include` に次を追加します。
+```cpp
+#include <algorithm>
+```
+マクロは使われなくなるので、`#define BUGHUNT_MAX(a, b) ((a) > (b) ? (a) : (b))` の行を削除します。
 **教訓:** マクロは関数ではなく文字の置き換えです。引数に `++`、`--`、関数呼び出しを入れないでください。できれば `std::max` や `inline`/`constexpr` 関数を使います。(`?:` は条件を先に計算し、選ばれた側だけを計算する順序が決まっているので、この結果はどのコンパイラーでも同じです。)
 
 ## Lab 31 — `&&` の代わりにビットAND `&`
@@ -366,7 +701,13 @@ void onAttack(Combo& c, bool hit)
 期待値 → 実際:  a.keys & a.torches → 真を期待 / 実際は0(2 = 10、1 = 01)
 本当の原因:     整数2つを & で結ぶと、共通のビットがなければ0(偽)になる
 ```
-**修正:** `return a.keys > 0 && a.torches > 0;`
+**修正:** 個数をそれぞれ `> 0` で真偽にしてから `&&` で結びます。`ft11_cave_gate.cpp` の `canEnterCave` 関数全体を次に置き換えます。
+```cpp
+bool canEnterCave(const Adventurer& a)
+{
+    return a.keys > 0 && a.torches > 0;
+}
+```
 **教訓:** `&` は整数のビット同士、`&&` は真偽同士を計算します。両方1のときだけ偶然同じ答えになるので、最初のテスト(1, 1)は通ってしまいます。個数を真偽として使うときは、`> 0` で意味を書いておきます。
 
 ## Lab 32 — `||` の代わりに `|` → 短絡評価がなくなる
@@ -376,7 +717,13 @@ void onAttack(Combo& c, bool hit)
 最初にずれた所: 「牢屋」の扉(鍵があるのにロックピックが減る)
 本当の原因:     hasKey(...) | useLockpick(...) は左が true でも右を呼ぶ
 ```
-**修正:** `return hasKey(t, door) || useLockpick(t);`
+**修正:** `|` を `||` に戻し、鍵があればロックピックを使わないようにします。`ft12_lockpicks.cpp` の `openDoor` 関数全体を次に置き換えます。
+```cpp
+bool openDoor(Thief& t, const std::string& door)
+{
+    return hasKey(t, door) || useLockpick(t);
+}
+```
 **教訓:** 短絡評価をするのは `||`/`&&` だけです。右側のオペランドに副作用(消費、セーブ、ログ)があると、`|`/`&` はその副作用を必ず起こします。ラボ27と対になります: 27は短絡評価のせいで **必要な呼び出しが抜け**、32は短絡評価がないせいで **不要な呼び出しが起きました**。`p == nullptr | p->hp <= 0` のように左の検査が右を守っている式では、`|` はnull参照のクラッシュになります。
 
 ---
@@ -388,7 +735,7 @@ void onAttack(Combo& c, bool hit)
 観察:        openShop の前は bag.size() == 3、後は == 6("Mana Potion"、"Fire Scroll"、"Rope" が個数0で生まれる)
 本当の原因:  countOf の bag[item] はキーがなければ既定値(0)で要素を新しく作る
 ```
-**修正:** 読むだけのときは `find`(または C++20 の `contains`)を使い、`const Bag&` で受け取ります。
+**修正:** 読むだけのときは `find`(または C++20 の `contains`)を使い、`const Bag&` で受け取ります。`ct01_bag_lookup.cpp` の `countOf` 関数全体を次に置き換えます。
 ```cpp
 int countOf(const Bag& bag, const std::string& item)
 {
@@ -404,7 +751,7 @@ int countOf(const Bag& bag, const std::string& item)
 ウォッチ:    registerWave(..., 60) の前後で bucket_count が大きく増え、selectedName() が Mira → 別の人に変わる
 本当の原因:  選択を巡回順の位置(行番号)で覚えている。rehash が要素を新しいバケットに振り分け直すので順序が変わる
 ```
-**修正:** rehash でも変わらないもので覚えます。規格は、rehash がイテレーターを無効化しても **要素への参照とポインターは保たれる** と保証しています。メンバー `selectedRow_` を要素ポインター `selected_` に変え、それを使っていた3つの関数をすべて直します。
+**修正:** rehash でも変わらないもので覚えます。規格は、rehash がイテレーターを無効化しても **要素への参照とポインターは保たれる** と保証しています。メンバー `selectedRow_` を要素ポインター `selected_` に変え、それを使っていた3つの関数をすべて直します。`ct02_party_finder.cpp` の `class PartyFinder` 全体を次に置き換えます(`std::next` の `<iterator>` はこのファイルにすでにあります)。
 ```cpp
 class PartyFinder
 {
@@ -440,7 +787,15 @@ private:
 ウォッチ:    comp(Kael, Doran) == true、comp(Doran, Kael) == true (どちらも1500点)
 本当の原因:  >= は等しい値に対して true を返す。「a が b より前で、b も a より前」という矛盾
 ```
-**修正:** `return a.score > b.score;`
+**修正:** 比較を `>=` から `>` に変え、等しい点数には false を返します。`ct03_leaderboard.cpp` の `sortByScore` 関数全体を次に置き換えます。
+```cpp
+void sortByScore(std::vector<Entry>& entries)
+{
+    std::sort(entries.begin(), entries.end(), bughunt::checkedOrder([](const Entry& a, const Entry& b) {
+        return a.score > b.score;   // 高い点数が前へ(等しければ false)
+    }));
+}
+```
 **構成ごと:** ラボでは比較関数を `bughunt::checkedOrder` で包み、どのコンパイラー、どの構成でも同じ場所で止まるようにしました。このチェックがなければ標準ライブラリごとに異なります。MSVC の Debug STL は `invalid comparator` アサーションを出し、libstdc++ は `-D_GLIBCXX_DEBUG`、libc++ はハードニングモードでのみチェックします。チェックのない Release では、要素が少なければ偶然正しくソートされ、等しい値がとても多いとソートが配列の外まで読み進んで落ちることもあります。
 **教訓:** 比較関数は「厳密に前にあるか」に答えます。等しければ false です。
 
@@ -449,7 +804,14 @@ private:
 観察:        呼び出し後も size は 6。前の3つは残す装備、後ろの3つは移動された後の残りかす(remove_if は要素を **移動** するので、名前は空で耐久度だけが残る)
 警告:        戻り値を捨てている(MSVC C4858、GCC・Clang -Wunused-result。remove_if は [[nodiscard]])
 ```
-**修正:** C++20 の `std::erase_if(bag, pred);`、または erase-remove イディオム `bag.erase(std::remove_if(bag.begin(), bag.end(), pred), bag.end());`
+**修正:** C++20 の `std::erase_if` で、条件に合う要素を消してコンテナーのサイズまで縮めます(`<vector>` に含まれる関数です)。`ct04_repair_shop.cpp` の `discardBroken` 関数全体を次に置き換えます。
+```cpp
+void discardBroken(std::vector<Gear>& bag)
+{
+    std::erase_if(bag, [](const Gear& g) { return g.durability == 0; });
+}
+```
+C++17 以前なら erase-remove イディオム `bag.erase(std::remove_if(bag.begin(), bag.end(), pred), bag.end());`(`pred` は上と同じラムダ)を使います。
 **教訓:** アルゴリズムはイテレーターしか受け取らないので、コンテナーのサイズを変えられません。警告を0個に保っていれば、このバグはビルド時に見えます。
 
 ## Lab 37 — vector<bool> のプロキシ参照
@@ -459,7 +821,22 @@ private:
 本当の原因:  vector<bool> はビットに圧縮されているので operator[] が bool& を返せず、ビットを指すプロキシオブジェクトを返す。
              auto はそのプロキシをコピーするので、「以前の値」ではなく「今の値」を指し続ける
 ```
-**修正:** `const bool wasOpen = doorsOpen[door];`(型を書いて値として取り出す)。ビット圧縮が不要なら `std::vector<char>` や `std::vector<std::uint8_t>` も良い選択です。
+**修正:** 型を書いて値として取り出します(`const bool wasOpen = doorsOpen[door];`)。`ct05_dungeon_doors.cpp` の `pressSwitches` 関数全体を次に置き換えます。
+```cpp
+int pressSwitches(std::vector<bool>& doorsOpen, const std::vector<int>& presses)
+{
+    int score = 0;
+    for (int door : presses)
+    {
+        const bool wasOpen = doorsOpen[door];   // プロキシではなく、今の値のコピー
+        doorsOpen[door] = !doorsOpen[door];
+        if (!wasOpen)
+            ++score;
+    }
+    return score;
+}
+```
+ビット圧縮が不要なら `std::vector<char>` や `std::vector<std::uint8_t>` も良い選択です。
 **教訓:** `auto x = v[i];` がコピーだという思い込みは `vector<bool>` で崩れます。デバッガーで変数の型を見ましょう(gdb `ptype`、lldb `frame variable -T`)。
 
 ## Lab 38 — c_str() ポインターの寿命と SSO
@@ -469,11 +846,19 @@ Kael:        "Kael the Brave" 14文字 → まだオブジェクト内のバッ�
 Doran:       21文字 → オブジェクト内のバッファーからヒープへ引っ越し。ネームプレートはオブジェクト内の古いバッファー(今はヒープへのポインターが入っている)を読んで文字化け
 Selene:      もともとヒープ(18文字、MSVC STL では容量31) → 37文字で再割り当て。ネームプレートは解放されたヒープを読む(メモリチェッカーの 0xEE の文字)
 ```
-**修正:** ネームプレートが文字列バッファーではなく、文字列を持つオブジェクトを指すようにします。
+**修正:** ネームプレートが文字列バッファーではなく、文字列を持つオブジェクトを指すようにします。`ct06_nameplates.cpp` の `class Nameplate` 全体を次に置き換えます。
 ```cpp
-explicit Nameplate(const Hero& hero) : hero_(&hero) {}
-const char* text() const { return hero_->name.c_str(); }
-const Hero* hero_;
+class Nameplate
+{
+public:
+    explicit Nameplate(const Hero& hero) : hero_(&hero) {}
+
+    // 毎回、今の文字列のバッファーを尋ねる。
+    const char* text() const { return hero_->name.c_str(); }
+
+private:
+    const Hero* hero_;
+};
 ```
 **構成ごと:** 上の文字数の境界は MSVC STL と libstdc++(オブジェクト内バッファー15文字)が基準です。ヒープの容量も実装ごとに違います(18文字のとき MSVC STL は31、libstdc++ は18)。libc++(macOS の既定)は22文字までオブジェクト内に置くので、Doran も偶然合うことがあり、Selene も最初はオブジェクト内にあって Doran と同じようにヒープへ移ります。ASan が捕まえるのは Selene だけです(heap-use-after-free、MSVC STL・libstdc++ 基準)。Doran はまだ生きている `Hero` オブジェクト内のメモリを読むので、ASan から見れば正常なアクセスです。
 **教訓:** `c_str()`/`data()`/`string_view` は文字列が変わると無効になることがあります。短い文字列は SSO のせいで「動いているように」見えるので、発見がさらに遅れます。
@@ -484,14 +869,14 @@ const Hero* hero_;
 本当の原因:  recordMatch が set に入っている Player の score を直接変える。set は挿入するときにしか位置を決めないので、木がソートの不変条件を失う。
              その後の find/erase は見当違いの枝へ下りていき、要素を見つけられないことがある
 ```
-**修正:** 取り出して、変えて、入れ直します。
+**修正:** 取り出して、変えて、入れ直します。`ct07_season_ranking.cpp` の `class SeasonRanking` の中にある `recordMatch` 関数全体を次に置き換えます。
 ```cpp
-void recordMatch(Player* p, int points)
-{
-    ranked_.erase(p);
-    p->score += points;
-    ranked_.insert(p);
-}
+    void recordMatch(Player* p, int points)
+    {
+        ranked_.erase(p);       // まだ正しい位置にあるうちに取り出す
+        p->score += points;
+        ranked_.insert(p);      // 新しい点数で入れ直す
+    }
 ```
 (C++17 の `extract` でノードを取り出して直してから `insert` してもかまいません。)
 **教訓:** `set`/`map` のキーは const ですが、ポインターをキーにすると、指している先までは守ってくれません。
@@ -508,7 +893,7 @@ void recordMatch(Player* p, int points)
 本当の原因:     from が const Trader& なので item は const Item&。std::move(item) は const Item&& になりコピーコンストラクターへ行く。
                 さらに、移動できても要素を移動しただけで vector から消してはいない
 ```
-**修正:**
+**修正:** `from` を `const` でない参照で受け取って要素を実際に移動し、移動した後でトレード画面を空にします。`lg01_trade_items.cpp` の `trade` 関数全体を次に置き換えます。
 ```cpp
 void trade(Trader& from, Trader& to)
 {
@@ -522,15 +907,18 @@ void trade(Trader& from, Trader& to)
 ## Lab 41 — 符号付き整数のオーバーフロー、オーバーフロー後のチェック
 ```
 間違った結果:   経験値 -2144967296(期待 2000000000)
-止めた位置:     addExp の if の行、条件付きブレークポイント total < 0。current 1950000000、baseExp * multiplier 2000000000000
+止めた位置:     addExp の if の行、条件付きブレークポイント total < 0。current 1950000000、baseExp * multiplier 200000000
 本当の原因:     int の足し算がオーバーフローして負の数になり、上限チェックはすでに壊れた値を見ている
 ```
-**修正:**
+**修正:** より広い型(`long long`)で計算してから上限をチェックします。`lg02_exp_cap.cpp` の `addExp` 関数全体を次に置き換えます。
 ```cpp
-long long total = static_cast<long long>(current) + static_cast<long long>(baseExp) * multiplier;
-if (total > kMaxExp)
-    total = kMaxExp;
-return static_cast<int>(total);
+int addExp(int current, int baseExp, int multiplier)
+{
+    long long total = static_cast<long long>(current) + static_cast<long long>(baseExp) * multiplier;
+    if (total > kMaxExp)            // 上限チェック(オーバーフローする前の値で)
+        total = kMaxExp;
+    return static_cast<int>(total);
+}
 ```
 **教訓:** 符号付き整数のオーバーフローは未定義動作です。たいていは負の数に回り込みますが、コンパイラーは「オーバーフローしない」と仮定してよいので、`if (a + b < a)` のような「オーバーフローしたかを見る」チェックは Release で丸ごと消えることがあります(このリポジトリのラボはそうしたチェックを使わないので、構成ごとに結果は同じです)。チェックはオーバーフローする **前に** 行います。より広い型で計算するか、`std::numeric_limits<int>::max() - current < gain` のように残りの余裕を見ます。オーバーフローした後で `total < 0` を見るつぎはぎは、掛け算があふれて正の数に戻る場合(隠しテスト)を見逃します。
 
@@ -540,7 +928,21 @@ return static_cast<int>(total);
 止めた位置:     toSilver の return の行、ウォッチ gold * 100 = 114.99999999999999 / sellBundle で toSilver(unitGold) * count と record.totalSilver
 本当の原因:     1.15 は2進数で正確に表せず 1.1499... として保存され、double→int は切り捨て。総額のフィールドが short なので 34200 が切り落とされる
 ```
-**修正:** `return static_cast<int>(std::lround(gold * 100));`、`SaleRecord::totalSilver` を `int` に
+**修正:** 銀貨に変えるときに四捨五入し(`std::lround`。`<cmath>` はすでにインクルードされています)、総額のフィールドを `int` に広げます。`lg03_exchange.cpp` の `SaleRecord` 構造体の定義全体(`};` まで)を次に置き換えます。
+```cpp
+struct SaleRecord
+{
+    int count;
+    int totalSilver;     // 販売総額(銀貨)
+};
+```
+同じファイルの `toSilver` 関数全体を次に置き換えます。
+```cpp
+int toSilver(double gold)
+{
+    return static_cast<int>(std::lround(gold * 100));
+}
+```
 **教訓:** `=` や `return` の縮小変換は警告だけか(MSVC C4244)、何も言われません。波かっこ初期化(`int silver{ gold * 100 };`)は縮小変換をコンパイルエラーにして(MSVC・Clang。GCC は定数でない値には警告だけなので `-Werror=narrowing`)、二か所を一度に見つけてくれます。お金は最初から最小単位の整数で持ち歩きます。`+ 1` で合わせるつぎはぎは 2.5 ゴールド(ちょうど250)で間違えます。
 
 ## Lab 43 — `std::min<std::size_t>` が負の数をとても大きな正の数に
@@ -549,7 +951,13 @@ return static_cast<int>(total);
 止めた位置:     levelBonus、条件付きブレークポイント myLevel > average。average - myLevel = -12、size_t では 18446744073709551604
 本当の原因:     コンパイルエラーを避けるため std::min の型を std::size_t に決めたので、負の数が符号なしに変換された
 ```
-**修正:** `return std::clamp(average - myLevel, 0, static_cast<int>(maxBonus));`
+**修正:** 符号付きの `int` で計算し、0 と `maxBonus` の間に切り詰めます(`std::clamp`。`<algorithm>` はすでにインクルードされています)。`lg04_level_bonus.cpp` の `levelBonus` 関数全体を次に置き換えます。
+```cpp
+int levelBonus(int myLevel, int average, std::size_t maxBonus)
+{
+    return std::clamp(average - myLevel, 0, static_cast<int>(maxBonus));
+}
+```
 **教訓:** 符号付きと符号なしの値が出会うと、符号付きの方が符号なしの型に変わります(`-1 < v.size()` が false になるのと同じ規則)。型の不一致によるコンパイルエラーをキャストで黙らせると、エラーが知らせていた問題が隠れます。混ぜて比較する必要があるなら C++20 の `std::cmp_less` などを使います。
 
 ## Lab 44 — 二つのファイルのグローバル変数が互いを使う(初期化順序)
@@ -558,20 +966,23 @@ return static_cast<int>(total);
 止めた位置:     g_warriorHp の初期化の行のブレークポイント、呼び出し履歴に main がない。そのとき g_baseHp == 0
 本当の原因:     翻訳単位の間のグローバル初期化の順序は決まっていない(普通はリンク順)。二つのファイルが互いの値を使うので、どちらが先でも一方は0を読む
 ```
-**修正:** グローバル変数八つ(`g_baseHp`、`g_baseMana`、`g_bossAttack`、`g_eliteArmor`、`g_baseAttack`、`g_baseArmor`、`g_warriorHp`、`g_mageMana`)をすべて消し、同じ値を返していた関数八つの中に関数ローカルの static として入れます。`readStat` とヘッダー `lg05_stats.h` はそのままです。二つのファイルの先頭にある「グローバル変数に入れておきます」のコメントも新しい構造に合わせて直します。
+**修正:** グローバル変数八つ(`g_baseHp`、`g_baseMana`、`g_bossAttack`、`g_eliteArmor`、`g_baseAttack`、`g_baseArmor`、`g_warriorHp`、`g_mageMana`)をすべて消し、同じ値を返していた関数八つの中に関数ローカルの static として入れます。`readStat` とヘッダー `lg05_stats.h` はそのままです。
+
+`lg05_stat_table.cpp` の `int g_baseHp = readStat("base_hp", 100);` の行から `int eliteArmor() { return g_eliteArmor; }` の行まで(グローバル変数四つと関数四つ)を次に置き換えます。
 ```cpp
-// lg05_stat_table.cpp (namespace lang5 の中、readStat の下)
 int baseHp()     { static const int value = readStat("base_hp", 100); return value; }
 int baseMana()   { static const int value = readStat("base_mana", 40); return value; }
 int bossAttack() { static const int value = baseAttack() * 4; return value; }   // ボスは基本攻撃力の4倍
 int eliteArmor() { static const int value = baseArmor() * 2; return value; }    // 精鋭モンスターは基本防御力の2倍
-
-// lg05_class_stats.cpp (namespace lang5 の中)
+```
+`lg05_class_stats.cpp` の `int g_baseAttack = readStat("base_attack", 12);` の行から `int mageMana() { return g_mageMana; }` の行までを次に置き換えます。
+```cpp
 int baseAttack() { static const int value = readStat("base_attack", 12); return value; }
 int baseArmor()  { static const int value = readStat("base_armor", 7); return value; }
 int warriorHp()  { static const int value = baseHp() * 3; return value; }       // 戦士は基本HPの3倍
 int mageMana()   { static const int value = baseMana() * 5; return value; }     // 魔法使いは基本マナの5倍
 ```
+`lg05_stat_table.cpp` の先頭の説明コメントのうち、「…グローバル変数に入れておきます。」で終わる `// [JA]` の日本語の行と、同じ内容の韓国語の行(「…전역 변수에 담아 둔다.」で終わる行)はもう事実と合わないので、二行とも消します。このコメントは `lg05_stat_table.cpp` にだけあります(`lg05_class_stats.cpp` のコメントはそのままです)。
 **教訓:** 別のファイルのグローバルオブジェクトに頼るグローバル初期化は、順序任せの賭けです。関数の中の static は最初に呼ばれたときに作られ(C++11 からスレッドセーフ)、依存する側が呼んだ瞬間に用意されます。コンパイル時に決められる値なら `constexpr`/`constinit` が最善です。このラボは両方向に依存させているので、リンク順が変わってもバグのある状態では常に FAIL です。画面の二つの値だけを定数で埋め込むつぎはぎは、隠しテストの別の二つの値で引っかかります。
 
 ## Lab 45 — ヘッダーの `static` 変数がファイルごとに別々
@@ -580,7 +991,11 @@ int mageMana()   { static const int value = baseMana() * 5; return value; }     
 止めた位置:     lg06_autosave.cpp の ++g_saveStats.count と showSaveScreen で &g_saveStats が異なる
 本当の原因:     名前空間スコープの static は内部リンケージ。ヘッダーをインクルードした .cpp ごとに別の g_saveStats ができる
 ```
-**修正:** ヘッダーで `inline SaveStats g_saveStats;`(C++17 の inline 変数)。またはヘッダーに `extern` 宣言、.cpp 一か所で定義。
+**修正:** ヘッダーの変数を C++17 の inline 変数に変え、プログラム全体で一つだけにします。`lg06_save_stats.h` の `static SaveStats g_saveStats;` の行を次に置き換えます。
+```cpp
+inline SaveStats g_saveStats;
+```
+(または、ヘッダーに `extern SaveStats g_saveStats;` の宣言だけを置き、.cpp の一か所で `SaveStats g_saveStats;` を定義しても構いません。)
 **教訓:** ヘッダーに定義を置くときの `static` は「一つだけ」ではなく「ファイルごとに一つずつ」です。コンパイラーもリンカーも警告しません。ヘッダーの `const`/`constexpr` 変数も既定で内部リンケージなので、値は同じでもアドレスは異なります。
 
 ## Lab 46 — 例外の経路でだけ漏れるテクスチャー
@@ -589,10 +1004,12 @@ int mageMana()   { static const int value = baseMana() * 5; return value; }     
 止めた位置:     Texture のコンストラクター/デストラクターのブレークポイント: 生成6回、破棄4回。残った二つは「呪われた城」
 本当の原因:     loadDungeon がテクスチャーを new した後で countRooms が投げると、生ポインター floor/walls だけが消えて Texture は残る
 ```
-**修正:** テクスチャーを作ったらすぐ `std::unique_ptr` に任せます(`#include <memory>`)。`countRooms` が投げても、スタックの巻き戻しが二つのデストラクターを呼んでくれます。
+**修正:** テクスチャーを作ったらすぐ `std::unique_ptr` に任せます。`countRooms` が投げても、スタックの巻き戻しが二つのデストラクターを呼んでくれます。`lg07_dungeon_load.cpp` のファイル先頭の `#include` に次を追加します。
 ```cpp
 #include <memory>
-
+```
+同じファイルの `loadDungeon` 関数全体を次に置き換えます。
+```cpp
 Dungeon* loadDungeon(const DungeonFile& file)
 {
     auto floor = std::make_unique<Texture>(file.name + "/floor");
@@ -600,9 +1017,8 @@ Dungeon* loadDungeon(const DungeonFile& file)
     const int rooms = countRooms(file.layout);   // ここで投げても floor、walls が Texture を消す
     return new Dungeon{ file.name, floor.release(), walls.release(), rooms };
 }
-// さらに良いのは Dungeon のメンバーも unique_ptr<Texture> に変え(デストラクターの delete 2行を削除)、
-// loadDungeon が std::unique_ptr<Dungeon> を返すようにすること。exploreAll の delete d; も消える
 ```
+(さらに進めるなら、`Dungeon` のメンバーも `std::unique_ptr<Texture>` に変え(デストラクターの `delete` 2行を削除)、`loadDungeon` が `std::unique_ptr<Dungeon>` を返すようにすると、`exploreAll` の `delete d;` も消えます。このラボを通すためには必要ありません。)
 **教訓:** 例外が起きるとその間の関数の残りの行は実行されず、デストラクターが呼ばれるのはスタックのオブジェクトだけです。資源は作ったらすぐ所有オブジェクト(RAII)に任せます。正常な経路だけを見ると new/delete の対が合っているように見えるので、見つけにくいリークです。
 
 ## Lab 47 — デストラクターから投げて `std::terminate`
@@ -611,7 +1027,7 @@ Dungeon* loadDungeon(const DungeonFile& file)
 止めた位置:     例外が投げられた ~SaveFile。呼び出し履歴の下に saveGame の catch ではなく std::terminate
 本当の原因:     C++11 からデストラクターは暗黙の noexcept。noexcept の関数の外へ出ようとする例外は catch を探さず terminate
 ```
-**修正:** 失敗しうる書き込みを `close()` に出し、閉じたかどうかを覚えるメンバー `closed_` を追加します。デストラクターはまだ閉じていない場合だけ試み、失敗は握りつぶします。`saveGame` の try ブロックの最後の行で `file.close()` を呼びます。
+**修正:** 失敗しうる書き込みを `close()` に出し、閉じたかどうかを覚えるメンバー `closed_` を追加します。デストラクターはまだ閉じていない場合だけ試み、失敗は握りつぶします。`lg08_save_close.cpp` の `class SaveFile` の定義全体(`};` まで)を次に置き換えます。
 ```cpp
 class SaveFile
 {
@@ -650,8 +1066,11 @@ private:
     std::string buffer_;
     bool closed_ = false;
 };
-
-// saveGame の try ブロック
+```
+同じファイルの `saveGame` 関数全体を次に置き換えます。try ブロックの最後の行で `file.close()` を呼びます。
+```cpp
+bool saveGame(const std::string& slot, const std::vector<std::string>& lines, std::size_t freeBytes)
+{
     try
     {
         SaveFile file(slot, freeBytes);
@@ -659,6 +1078,14 @@ private:
             file.write(line);
         file.close();   // ここで投げた SaveError は下の catch が捕まえる
     }
+    catch (const SaveError& e)
+    {
+        g_lastMessage = std::string(i18n::L("저장 실패: ", "セーブ失敗: ")) + e.what();
+        return false;
+    }
+    g_lastMessage = i18n::L("저장 완료", "セーブ完了");
+    return true;
+}
 ```
 **教訓:** デストラクターは失敗を知らせる手段がない場所です。失敗しうる後始末は明示的な関数(`close`、`commit`)に出し、デストラクターでは例外を握りつぶします。`noexcept(false)` にするつぎはぎは、別の例外でスタックを巻き戻している最中にデストラクターがさらに投げると、やはり terminate です(隠しテスト)。MSVC は C4297、clang は `-Wexceptions`、GCC は `-Wterminate` ですでに警告しています。関数に `noexcept` を付けておいて中で投げる場合も同じ結果です。
 
@@ -668,15 +1095,20 @@ private:
 止めた位置:     endTurn の for。ループは2回、その間に log.size() は3に増えた。&q は日誌の中ではなく entries() が返したコピーの中
 本当の原因:     範囲 for は log.entries() を一度評価し、その begin/end を取っておく。ループ中に日誌に追加されたクエストはコピーにも、取っておいた終端の内側にもない
 ```
-**修正:**
+**修正:** 範囲 for の代わりにインデックスで回し、毎回 `log.size()` を読み直します。`lg09_quest_chain.cpp` の `endTurn` 関数全体を次に置き換えます。
 ```cpp
-for (std::size_t i = 0; i < log.size(); ++i)
+int endTurn(QuestLog& log, const QuestBook& book, const std::set<std::string>& achieved)
 {
-    const Quest q = log.at(i);   // コピーで受け取る(complete 内の push_back が再割り当てしても安全)
-    if (q.done || achieved.count(q.goal) == 0)
-        continue;
-    log.complete(q.name, book);
-    ++completed;
+    int completed = 0;
+    for (std::size_t i = 0; i < log.size(); ++i)
+    {
+        const Quest q = log.at(i);   // コピーで受け取る(complete 内の push_back が再割り当てしても安全)
+        if (q.done || achieved.count(q.goal) == 0)
+            continue;
+        log.complete(q.name, book);   // 続きのクエストが日誌の末尾に付き、毎回 size() を読み直すので今回のターンに確認される
+        ++completed;
+    }
+    return completed;
 }
 ```
 **教訓:** 範囲 for は `auto&& r = 範囲式; auto b = r.begin(); auto e = r.end();` に展開されます。ループ中に大きくなるコンテナーはインデックスで回し、毎回 `size()` を読み直します。`entries()` が参照を返すように変えるのは答えではありません。ループ中の vector に push_back すると終端イテレーターが無効になり(未定義動作)、再割り当てが起きると `q` も解放されたメモリを指します(ラボ10)。
@@ -694,7 +1126,10 @@ for (std::size_t i = 0; i < log.size(); ++i)
 止めた位置:     Backstab::damage のブレークポイントは止まらない → useSkill からステップ イン (Step Into) → Skill::damage
 本当の原因:     Backstab::damage に const がなく、Skill::damage(const Target&) const とは別の関数。Skill& で呼ぶと基底版
 ```
-**修正:** `int damage(const Target& t) const override { ... }`
+**修正:** `Backstab::damage` に `const` を付けて基底とシグネチャーを合わせ、`override` でコンパイラーに確認させます。`ih01_backstab.cpp` の `Backstab` クラスの中にある1行の関数 `virtual int damage(const Target& t) { return t.facingAway ? power_ * 3 : power_; }` を次に置き換えます。
+```cpp
+    int damage(const Target& t) const override { return t.facingAway ? power_ * 3 : power_; }
+```
 **教訓:** オーバーライドするつもりの関数には必ず `override`。付けた瞬間、`const` 漏れ、引数の型の違い(`int` と `long`、`const&` と値)、基底側の名前変更をコンパイラーがエラーで教えてくれます。clang と GCC 13 以降は `-Wall` で `-Woverloaded-virtual` 警告を出しますが、MSVC は既定の警告レベル(/W3)では何も言いません。
 
 ## Lab 50 — `vector<Monster>` に入れて Boss が切られる(スライシング)
@@ -703,7 +1138,11 @@ for (std::size_t i = 0; i < log.size(); ++i)
 止めた位置:     Boss::loot のブレークポイントは止まらない → collectLoot で wave[2] を展開すると型は Monster、rare_ がない
 本当の原因:     wave.push_back(Boss(...)) が Boss の Monster 部分だけをコピーして格納する
 ```
-**修正:**
+**修正:** モンスターを `std::unique_ptr<Monster>` で格納し、Boss が Boss のまま残るようにします。`ih02_boss_loot.cpp` のファイル先頭の `#include` に次を追加します。
+```cpp
+#include <memory>
+```
+同じファイルの `spawnWave` 関数全体を次に置き換えます。
 ```cpp
 std::vector<std::unique_ptr<Monster>> spawnWave(const std::vector<SpawnInfo>& infos)
 {
@@ -717,7 +1156,19 @@ std::vector<std::unique_ptr<Monster>> spawnWave(const std::vector<SpawnInfo>& in
     }
     return wave;
 }
-// collectLoot も同じ型を受け取って m->loot()
+```
+`collectLoot` も同じ型を受け取るように、同じファイルの `collectLoot` 関数全体を次に置き換えます。
+```cpp
+std::vector<std::string> collectLoot(const std::vector<std::unique_ptr<Monster>>& wave)
+{
+    std::vector<std::string> bag;
+    for (const auto& m : wave)
+    {
+        for (const std::string& item : m->loot())   // 実際の型(Boss)の loot が呼ばれる
+            bag.push_back(item);
+    }
+    return bag;
+}
 ```
 **教訓:** ポリモーフィックなオブジェクトはポインター(所有は `unique_ptr`)で格納します。値で受け取る関数引数(`void f(Monster m)`)も同じように切り落とします。ポリモーフィックな基底クラスのコピーを `= delete` で禁止しておくと、このミスはコンパイルエラーになります。
 
@@ -727,10 +1178,19 @@ std::vector<std::unique_ptr<Monster>> spawnWave(const std::vector<SpawnInfo>& in
 止めた位置:     Tower::baseRange のブレークポイント → 呼び出し履歴に Tower::Tower ← SniperTower::SniperTower
 本当の原因:     基底のコンストラクターが動いている間、オブジェクトの動的な型はまだ Tower。仮想呼び出しも Tower 版に行く
 ```
-**修正:** 射程を必要なときに問い合わせます。
+**修正:** 射程をコンストラクターで保存せず、必要なときに問い合わせます。`ih03_sniper_tower.cpp` の `class Tower` の定義全体(`};` まで)を次に置き換えます。コンストラクター `Tower()` とメンバー `range_` はなくなります。
 ```cpp
-int range() const { return baseRange(); }
-bool canHit(int distance) const { return distance <= range(); }
+class Tower
+{
+public:
+    virtual ~Tower() = default;
+
+    virtual int baseRange() const { return 3; }
+    virtual std::string kind() const { return i18n::L("기본 탑", "基本タワー"); }
+
+    int range() const { return baseRange(); }   // 完成した後で問い合わせるので派生クラスの版が呼ばれる
+    bool canHit(int distance) const { return distance <= range(); }
+};
 ```
 (または `Tower(int range)` コンストラクターで派生クラスが値を渡す)
 **教訓:** コンストラクターとデストラクターの中では、「今作っている(壊している)クラス」の仮想関数が呼ばれます。これは規格で決まった動作なので、どのコンパイラーでも同じです。デストラクターから **純粋** 仮想関数を呼ぶ場合は未定義動作なので、このラボからは外しました(下の未収録を参照)。
@@ -741,11 +1201,33 @@ bool canHit(int distance) const { return distance <= range(); }
 止めた位置:     Priest::heal の中、castDefaultHeal から入ったとき amount == 10
 本当の原因:     どの heal が呼ばれるかは動的な型(Priest)で、デフォルト引数は静的な型(Healer)で決まる
 ```
-**修正:** 既定値も仮想関数で問い合わせます。
+**修正:** 既定値も仮想関数で問い合わせます。`ih04_priest_heal.cpp` の `Healer`、`Priest`、`Druid` クラスの定義全体(それぞれ `};` まで)を順に次に置き換え、`castDefaultHeal` 関数全体も置き換えます。`heal` のデフォルト引数は、`priest.heal()` のように直接呼ぶコードがあるのでそのままにします。
 ```cpp
-// Healer
-virtual int defaultAmount() const { return 10; }
-// Priest: return 25;  Druid: return 18;
+class Healer
+{
+public:
+    virtual ~Healer() = default;
+    virtual int heal(int amount = 10) const { return amount; }
+    virtual int defaultAmount() const { return 10; }
+};
+```
+```cpp
+class Priest : public Healer
+{
+public:
+    int heal(int amount = 25) const override { return amount + 5; }    // 神聖ボーナス
+    int defaultAmount() const override { return 25; }
+};
+```
+```cpp
+class Druid : public Healer
+{
+public:
+    int heal(int amount = 18) const override { return amount + 2; }    // 自然ボーナス
+    int defaultAmount() const override { return 18; }
+};
+```
+```cpp
 int castDefaultHeal(const Healer& healer)
 {
     return healer.heal(healer.defaultAmount());
@@ -759,7 +1241,33 @@ int castDefaultHeal(const Healer& healer)
 止めた位置:     box.give(500) からステップ イン → Item::Item(int) に入る
 本当の原因:     EventMailbox が give(const Item&) を宣言したため Mailbox::give(int) が隠れた。500 は explicit のない Item(int) で変換
 ```
-**修正:** `EventMailbox` に `using Mailbox::give;`(そして `Item` のコンストラクターに `explicit`)
+**修正:** `EventMailbox` に `using Mailbox::give;` を入れて基底の `give(int)` が再び見えるようにし、`Item` のコンストラクターに `explicit` を付けて数値が黙って `Item` に変わらないようにします。`ih05_reward_mail.cpp` の `struct Item` の定義全体(`};` まで)を次に置き換えます。
+```cpp
+struct Item
+{
+    int id = 0;
+    explicit Item(int itemId) : id(itemId) {}       // アイテム番号で作る
+};
+```
+同じファイルの `class EventMailbox` の定義全体(`};` まで)を次に置き換えます。
+```cpp
+class EventMailbox : public Mailbox
+{
+public:
+    using Mailbox::give;   // 基底の give(int) も見えるようにする
+
+    void give(const Item& item) override
+    {
+        Mailbox::give(item);
+        ++eventItems_;
+    }
+
+    int eventItems() const { return eventItems_; }
+
+private:
+    int eventItems_ = 0;
+};
+```
 **教訓:** 名前探索はオーバーロード解決より先です。派生クラスで同じ名前を1つでも宣言すると、基底の同じ名前はすべて見えなくなります。見える候補が1つだけで暗黙の変換ができると、エラーなしで見当違いの関数が呼ばれます。数値1つから作るコンストラクターには `explicit` を。
 
 ## Lab 54 — `dynamic_cast` の結果の nullptr 確認漏れ
@@ -768,12 +1276,20 @@ int castDefaultHeal(const Healer& healer)
 止めた位置:     Mage::restoreMana、this == nullptr → 呼び出し履歴の1つ上 drinkManaPotions: unit は Warrior、mage は nullptr
 本当の原因:     ポインターに対する dynamic_cast は型が合わなければ nullptr を返す。確認せずに呼んだ
 ```
-**修正:**
+**修正:** `dynamic_cast` の結果が nullptr でないときだけ使います。`ih06_mana_potion.cpp` の `drinkManaPotions` 関数全体を次に置き換えます。
 ```cpp
-if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
+int drinkManaPotions(Party& party, int amount)
 {
-    mage->restoreMana(amount);
-    ++used;
+    int used = 0;
+    for (const auto& unit : party)
+    {
+        if (Mage* mage = dynamic_cast<Mage*>(unit.get()))   // 魔法使いでなければ nullptr なので飛ばす
+        {
+            mage->restoreMana(amount);
+            ++used;
+        }
+    }
+    return used;
 }
 ```
 **教訓:** `dynamic_cast<T*>` は「型が合うか尋ねる」演算です。結果を確認しないなら、尋ねる意味がありません。失敗を例外で受け取りたいなら参照版(`dynamic_cast<T&>`、失敗時は `std::bad_cast`)を使います。型による分岐が増えてきたら、仮想関数に移すべきサインです。
@@ -790,7 +1306,18 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 期待値 → 実際:  開くファイル game/data/prices.txt を期待 / 実際は workspace/data/prices.txt(古いコピー)
 本当の原因:     "data/prices.txt" は実行ファイルのフォルダーではなく現在の作業ディレクトリ基準
 ```
-**修正:** `std::ifstream in(gameDir() / "data/prices.txt");`
+**修正:** 作業ディレクトリではなくゲームフォルダー(`gameDir()`)を基準に開きます。`io01_patch_prices.cpp` の `loadPrices` 関数全体を次に置き換えます。
+```cpp
+std::vector<Item> loadPrices()
+{
+    std::vector<Item> items;
+    std::ifstream in(gameDir() / "data/prices.txt");   // 実行ファイルのフォルダー基準
+    Item item;
+    while (in >> item.name >> item.price)
+        items.push_back(item);
+    return items;
+}
+```
 **教訓:** 作業ディレクトリはプログラムを起動した側(IDE、ショートカット、別のプログラム)が決めます。実行ファイルの隣のデータは、実行ファイルの場所を基準に絶対パスを作ります。開けなかったときに空のリストを黙って返さず、知らせます(隠しテストのようにファイルがまったくなければ品目0個になります)。
 
 ## Lab 56 — バッファーにだけあってファイルにはまだない内容を読み直す
@@ -799,7 +1326,14 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 止めた位置:     readJournal を呼ぶ行で止めて journal.txt を確認 → 0バイト
 本当の原因:     ofstream が開いている間に書いた内容はストリームのバッファーにあり、flush/close するまでディスクにはない
 ```
-**修正:** `record` で書いた後に `out_.flush();`。flush は Journal の中で行います。本文の `readJournal` の前にだけ flush・close を入れると、日誌を書いてすぐ読む別の場所(隠しケース)でまた間違えます。
+**修正:** `record` で書いた後に `out_.flush();`。flush は Journal の中で行います。本文の `readJournal` の前にだけ flush・close を入れると、日誌を書いてすぐ読む別の場所(隠しケース)でまた間違えます。`io02_quest_journal.cpp` の `Journal` クラスの中にある `record` メンバー関数全体を次に置き換えます。
+```cpp
+    void record(const std::string& entry)
+    {
+        out_ << entry << '\n';
+        out_.flush();   // 読み直す側がすぐ見られるようにバッファーをファイルへ書き出す
+    }
+```
 **教訓:** 同じプログラムの中で書いて読み直すなら、読む前に書いた内容がディスクにあることを保証します。第12部ラボ96(`std::endl` が毎回 flush して遅い)と対になります: flush は必要な瞬間にだけ。
 
 ## Lab 57 — `while (!in.eof())` で最後の記録が2回
@@ -809,7 +1343,19 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 期待値 → 実際:  4周目はないはず / 実際は in.fail() == true なのに前の値で push_back
 本当の原因:     eof() は末尾を越えて読もうとして失敗した「後で」立つ。最後の改行が残っていて1周多く回る
 ```
-**修正:** `while (in >> name >> points) scores.push_back({ name, points });`
+**修正:** 読み込みに成功したかどうかをループの条件にします。`io03_high_scores.cpp` の `loadScores` 関数全体を次に置き換えます。
+```cpp
+std::vector<Score> loadScores(const fs::path& file)
+{
+    std::vector<Score> scores;
+    std::ifstream in(file);
+    std::string name;
+    int points = 0;
+    while (in >> name >> points)   // 二つの値をどちらも読めたときだけ格納する
+        scores.push_back({ name, points });
+    return scores;
+}
+```
 **教訓:** 読み込みは「読む → 成功を確認 → 使う」の順番です。失敗した `>>` は変数をそのままにするので(このラボ)、前の値がもう一度入ります。`pop_back` のその場しのぎは、改行なしで終わるファイルで本物の記録を消してしまいます。
 
 ## Lab 58 — `>>` の後の `getline` が残った改行を読む
@@ -818,10 +1364,16 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 止めた位置:     push_back、1周目で line.size() == 0
 本当の原因:     in >> count は「3」までしか読まず改行を残す。getline はその改行までを空行として読む
 ```
-**修正:** `in >> count;` の後に、数字の行の残り(改行まで)を捨てます。`std::numeric_limits` には `#include <limits>` が必要です(`io_kit.h` は含んでいません)。
+**修正:** `in >> count;` の後に、数字の行の残り(改行まで)を捨てます。`std::numeric_limits` には `<limits>` が必要です(`io_kit.h` は含んでいません)。`io04_npc_dialogue.cpp` のファイル先頭の `#include` に次を追加します。
 ```cpp
 #include <limits>
-// loadDialogue
+```
+同じファイルの `loadDialogue` 関数全体を次に置き換えます。
+```cpp
+std::vector<std::string> loadDialogue(const fs::path& file)
+{
+    std::vector<std::string> lines;
+    std::ifstream in(file);
     int count = 0;
     in >> count;
     in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');   // 「3」の後の空白と改行を捨てる
@@ -831,6 +1383,8 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
         std::getline(in, line);
         lines.push_back(line);
     }
+    return lines;
+}
 ```
 **教訓:** `>>`(トークン単位)と `getline`(行単位)を混ぜるなら、境目の改行を自分で処理します。`in >> std::ws` も通ったように見えますが、次の行の先頭の空白まで食べて字下げしたセリフを壊します(隠しテスト)。
 
@@ -840,7 +1394,27 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 止めた位置:     in >> header 行、ウォッチ in.fail() == true
 本当の原因:     最初の while が見出しの「報酬」を数値として読もうとして失敗 → failbit。消さなかったので header とゴールドの読み込みが全部素通り
 ```
-**修正:** `std::string header;` の前に `in.clear();`
+**修正:** `std::string header;` の前に `in.clear();` を入れます。`io05_reward_table.cpp` の `loadRewards` 関数全体を次に置き換えます。
+```cpp
+RewardTable loadRewards(const fs::path& file)
+{
+    RewardTable table;
+    std::ifstream in(file);
+
+    int id = 0;
+    while (in >> id)                  // 数字ではない「報酬」で止まる
+        table.monsterIds.push_back(id);
+
+    in.clear();                       // 想定した失敗で立った failbit を消す(「報酬」はそのまま残る)
+    std::string header;
+    in >> header;
+
+    int gold = 0;
+    while (in >> gold)
+        table.gold.push_back(gold);
+    return table;
+}
+```
 **教訓:** 失敗フラグは自然には消えません。失敗を「想定した」地点(セクションの終わり)では `clear()` で消してから読み続けます。`clear()` は文字を捨てないので、失敗を起こしたトークン(「報酬」)はそのまま次の読み込みに入ります。
 
 ## Lab 60 — UTF-8のBOMが最初のキーにくっつく
@@ -849,15 +1423,26 @@ if (Mage* mage = dynamic_cast<Mage*>(unit.get()))
 止めた位置:     getInt、条件 key == "volume" → settings の最初のキーは "volume" に見えるが size() == 9
 本当の原因:     ファイル先頭のBOM(EF BB BF)3バイトが1行目のキーの前に付いて "\xEF\xBB\xBFvolume" になる
 ```
-**修正:** 1行目が `"\xEF\xBB\xBF"` で始まるときだけ3バイトを消します。
+**修正:** 1行目が `"\xEF\xBB\xBF"` で始まるときだけ3バイトを消します。`io06_settings_bom.cpp` の `loadSettings` 関数全体を次に置き換えます。
 ```cpp
-bool firstLine = true;
-while (std::getline(in, line))
+std::map<std::string, std::string> loadSettings(const fs::path& file)
 {
-    if (firstLine && line.rfind("\xEF\xBB\xBF", 0) == 0)
-        line.erase(0, 3);
-    firstLine = false;
-    ...
+    std::map<std::string, std::string> settings;
+    std::ifstream in(file);
+    std::string line;
+    bool firstLine = true;
+    while (std::getline(in, line))
+    {
+        if (firstLine && line.rfind("\xEF\xBB\xBF", 0) == 0)   // ファイル先頭の UTF-8 BOM だけを消す
+            line.erase(0, 3);
+        firstLine = false;
+        const size_t eq = line.find('=');
+        if (eq == std::string::npos)
+            continue;
+        settings[line.substr(0, eq)] = line.substr(eq + 1);
+    }
+    return settings;
+}
 ```
 **教訓:** 「1行目だけがおかしい」なら、ファイル先頭の見えないバイトを疑います。デバッガーが見せる文字より `size()` とバイト値を信じます。無条件に3バイト捨てるその場しのぎは、BOMのないファイルの最初のキーを壊します(隠しテスト)。
 
@@ -867,29 +1452,36 @@ while (std::getline(in, line))
 止めた位置:     writeItem の throw 行、止めたまま save.txt を開く → すでに消えて前の数行だけ
 本当の原因:     trunc で開いた瞬間に古いセーブが消え、例外で抜けるときに ofstream のデストラクターが前半だけのファイルを閉じる
 ```
-**修正:** 一時ファイルに最後まで書いて閉じた後でだけ置き換えます。
+**修正:** 一時ファイルに最後まで書いて閉じた後でだけ置き換えます。`std::error_code` には `<system_error>` が必要です。`io07_safe_save.cpp` のファイル先頭の `#include` に次を追加します。
 ```cpp
-fs::path temp = file;
-temp += ".tmp";
-try
+#include <system_error>
+```
+同じファイルの `saveInventory` 関数全体を次に置き換えます。
+```cpp
+bool saveInventory(const fs::path& file, const std::vector<Item>& items)
 {
+    fs::path temp = file;
+    temp += ".tmp";
+    try
     {
-        std::ofstream out(temp, std::ios::trunc);
-        for (const Item& item : items)
-            writeItem(out, item);
-        out.close();
-        if (!out)
-            throw std::runtime_error(i18n::L("쓰기 실패", "書き込み失敗"));
+        {
+            std::ofstream out(temp, std::ios::trunc);
+            for (const Item& item : items)
+                writeItem(out, item);
+            out.close();
+            if (!out)
+                throw std::runtime_error(i18n::L("쓰기 실패", "書き込み失敗"));
+        }
+        fs::rename(temp, file);          // 同じフォルダーの中で置き換える
+        return true;
     }
-    fs::rename(temp, file);          // 同じフォルダーの中で置き換える
-    return true;
-}
-catch (const std::exception& e)
-{
-    std::cout << i18n::L("  저장 실패: ", "  保存失敗: ") << e.what() << '\n';
-    std::error_code ec;
-    fs::remove(temp, ec);            // 失敗した一時ファイルを片付ける
-    return false;
+    catch (const std::exception& e)
+    {
+        std::cout << i18n::L("  저장 실패: ", "  保存失敗: ") << e.what() << '\n';
+        std::error_code ec;
+        fs::remove(temp, ec);            // 失敗した一時ファイルを片付ける
+        return false;
+    }
 }
 ```
 **教訓:** 保存は「全部か無か」でなければなりません。新しい内容は一時ファイルに、成功した後でだけ `rename`。一時ファイルは同じフォルダー(同じドライブ)に置いてこそ、rename がコピーなしの置き換えになります。rename の前にストリームを閉じます(開いているファイルは OS によっては名前を変えられません)。実際のゲームでは電源が切れる場合まで備えて、rename の前にディスクの同期(OS の API)を行うこともあります。このラボは標準 C++ の範囲で例外の経路だけを扱います。
@@ -906,7 +1498,15 @@ catch (const std::exception& e)
 最初にずれた行: if (save["pet"].is_null())
 本当の原因:     const でない json の [] は、ないキーを null で挿入する(std::map::operator[] と同じ)
 ```
-**修正:** `if (!save.contains("pet"))`(読むだけの関数は `const json&` で受けて `contains`/`find`/`at`)
+**修正:** ないキーを作らずに、あるかどうかだけを確認します。読むだけの関数は `const json&` で受けて `[]` がキーを差し込めないようにし、`contains` で確認してから `at` で取り出します。`sz01_pet_slot.cpp` の `petLabel` 関数全体を次に置き換えます。
+```cpp
+std::string petLabel(const json& save)
+{
+    if (!save.contains("pet"))
+        return i18n::L("(펫 없음)", "(ペットなし)");
+    return save.at("pet").at("name").get<std::string>();
+}
+```
 **教訓:** 「あるか確認する」と「取り出す」を区別します。const json にないキーで `[]` を使うのは未定義動作(Debug ではアサーション)なので、const にするだけでなく `contains` で確認します。
 
 ## Lab 63 — `value("crit", 1)` が int で読んで1.5を1に切り捨てる
@@ -915,7 +1515,17 @@ catch (const std::exception& e)
 止めた位置:     loadWeapon の return、条件 w.name == "短剣"(`--lang ko` では "단검") → w.crit == 1
 本当の原因:     value() の戻り値の型は既定値1(int)が決める。nlohmann は小数 → 整数の変換で例外を出さずに切り捨てる
 ```
-**修正:** `w.crit = j.value("crit", 1.0);`(または `j.value<double>("crit", 1)`)
+**修正:** 既定値を `1.0`(double)にして戻り値の型を double にします(`j.value<double>("crit", 1)` のように型を直接書いてもかまいません)。`sz02_crit_multiplier.cpp` の `loadWeapon` 関数全体を次に置き換えます。
+```cpp
+Weapon loadWeapon(const json& j)
+{
+    Weapon w;
+    w.name = j.at("name").get<std::string>();
+    w.attack = j.at("attack").get<int>();
+    w.crit = j.value("crit", 1.0);
+    return w;
+}
+```
 **教訓:** ライブラリの変換関数は「型をどこで決めるか」を確認します。`get<int>()` も1.5を黙って1に切り捨てます。整数で保存されていた値を小数に変えるデータパッチでよく起きます。四捨五入のその場しのぎは1.75、2.25でまた間違えます(隠しテスト)。
 
 ## Lab 64 — `json` がキーを並べ替えて順番が消える
@@ -924,7 +1534,10 @@ catch (const std::exception& e)
 止めた位置:     loadSkillBar の for、j を展開するとすでに並べ替えられている
 本当の原因:     nlohmann::json のオブジェクトは std::map(キー順)に入る。JSONの規格もオブジェクトのキーの順番に意味を持たせない
 ```
-**修正:** `using Json = nlohmann::ordered_json;`(読み込みと保存が一緒に変わる)
+**修正:** キーを入れた順番のまま持つ `ordered_json` を使います。`sz03_skill_bar.cpp` の `namespace sz3` の中の `using Json = nlohmann::json;` の1行を次に置き換えます(`loadSkillBar` と `saveSkillBar` が一緒に変わります)。
+```cpp
+using Json = nlohmann::ordered_json;
+```
 **教訓:** 順番に意味があるデータは配列で保存するのが定石です。オブジェクトのキーの順番に頼ると、ライブラリや言語を変えるたびに壊れます。ハングルや日本語のキーは UTF-8 のバイト順で並ぶので、「辞書順のように見えて実はそうではない」結果になることもあります。
 
 ## Lab 65 — UTF-8をバイトで切って `dump` が例外を投げる
@@ -933,12 +1546,18 @@ catch (const std::exception& e)
 止めた位置:     catch ブロック → clampName の return で最後のバイトを確認(0xE3 0x81 = 「な」の先頭2バイト。`--lang ko` では "Lv99용감한전사" の「한」の先頭2バイト 0xED 0x95)
 本当の原因:     4 + 3 + 3 = 10バイトの後の「な」(3バイト)の途中、12バイト目で切れた
 ```
-**修正:**
+**修正:** 切る位置が文字の途中(後続バイト `10xxxxxx`)なら、その文字の先頭バイトまで戻ってから切ります。12バイト以下ならそのまま返す確認は残します。`sz04_nickname_cut.cpp` の `clampName` 関数全体を次に置き換えます。
 ```cpp
-size_t cut = kMaxNameBytes;
-while (cut > 0 && (static_cast<unsigned char>(name[cut]) & 0xC0) == 0x80)
-    --cut;
-return name.substr(0, cut);
+std::string clampName(const std::string& name)
+{
+    if (name.size() <= kMaxNameBytes)
+        return name;
+    size_t cut = kMaxNameBytes;
+    // 文字の途中(10xxxxxx)なら、その文字の先頭バイトまで戻る
+    while (cut > 0 && (static_cast<unsigned char>(name[cut]) & 0xC0) == 0x80)
+        --cut;
+    return name.substr(0, cut);
+}
 ```
 **教訓:** バイト数の制限は文字の境界で切ります(後続バイトは `10xxxxxx`)。`dump` のエラーハンドラー(`error_handler_t::replace/ignore`)で例外だけを止めると、壊れた名前が画面とサーバーに残ります。CP949で読んだ文字列をそのまま入れても同じ例外(type_error 316)になります。原因は「JSONにUTF-8ではないバイトが入った」で同じです。
 
@@ -948,7 +1567,20 @@ return name.substr(0, cut);
 止めた位置:     savePosition の return(out.str())、デバッガーの p.x 表示(1234.56775)と比較
 本当の原因:     ostream の既定精度は有効数字6桁。float を正確に復元するには max_digits10(9)桁が必要
 ```
-**修正:** `out << std::setprecision(std::numeric_limits<float>::max_digits10);`(`<limits>`)または json オブジェクトに入れて `dump()`
+**修正:** 保存するときに精度を `max_digits10`(float は9桁)に上げます。(自分で連結せず、json オブジェクトに入れて `dump()` で保存してもかまいません。nlohmann は往復が保証される桁数で書きます。)`std::numeric_limits` には `<limits>` が必要です。`sz05_float_position.cpp` のファイル先頭の `#include` に次を追加します。
+```cpp
+#include <limits>
+```
+`sz05_float_position.cpp` の `savePosition` 関数全体を次に置き換えます。
+```cpp
+std::string savePosition(const Vec3& p)
+{
+    std::ostringstream out;
+    out << std::setprecision(std::numeric_limits<float>::max_digits10);   // float を復元できる9桁
+    out << "{\"x\":" << p.x << ",\"y\":" << p.y << ",\"z\":" << p.z << "}";
+    return out.str();
+}
+```
 **教訓:** 人が読む出力と、読み直す保存は別物です。保存は往復(round-trip)が保証される形式で。`std::fixed` は小数点以下の桁数なので、0.0003141 のような小さい値を壊します。隠しテストには7~8桁では足りない値も入れてあります(MSVC と clang で同じ結果を確認)。
 
 ## Lab 67 — 属性を子要素として読んで空のノードの0
@@ -957,7 +1589,25 @@ return name.substr(0, cut);
 止めた位置:     m.hp = ... の行、ウォッチ node.child("hp").empty() == true、node.attribute("hp").value() == "320"
 本当の原因:     hp は属性(hp="320")なのに child("hp") で探した → 空のノード → as_int() は0
 ```
-**修正:** `m.hp = node.attribute("hp").as_int();`
+**修正:** hp は子要素ではなく属性として読みます。`sz06_bestiary.cpp` の `loadBestiary` 関数全体を次に置き換えます。
+```cpp
+std::vector<Monster> loadBestiary(const char* xml)
+{
+    std::vector<Monster> list;
+    pugi::xml_document doc;
+    if (!doc.load_string(xml))
+        return list;
+    for (pugi::xml_node node : doc.child("Bestiary").children("Monster"))
+    {
+        Monster m;
+        m.name = node.attribute("name").as_string();
+        m.hp = node.attribute("hp").as_int();
+        m.attack = node.child("Attack").text().as_int();
+        list.push_back(m);
+    }
+    return list;
+}
+```
 **教訓:** pugixml はないノード/属性に例外ではなく空のオブジェクトを返します。タイプミス、大文字小文字("Attack"/"attack")、属性と子要素の取り違えはすべて黙った0になります。必須の値は `if (!attr)` で確認し、データのエラーとして知らせます。
 
 ## Lab 68 — エスケープせずに連結したXML
@@ -966,9 +1616,8 @@ return name.substr(0, cut);
 止めた位置:     loadGuilds の失敗側、xml.c_str() + result.offset → "騎士団>..." の部分
 本当の原因:     名前 "<剣と盾 騎士団>" の < が新しいタグの始まりとして解釈された
 ```
-**修正:** 名前をXMLに入れる前に特殊文字をエスケープする関数を `saveGuilds` の上に追加し、`saveGuilds` は `g.name` の代わりにその結果を連結します。1文字ずつ置き換えるので、`&` がほかの置換結果にまた触れることはありません。
+**修正:** 名前をXMLに入れる前に特殊文字をエスケープします。1文字ずつ置き換えるので、`&` がほかの置換結果にまた触れることはありません。`sz07_guild_list.cpp` の `namespace sz7` の中、`saveGuilds` 関数のすぐ上に次の関数を追加します。
 ```cpp
-// namespace sz7 の中、saveGuilds の上
 std::string escapeXml(const std::string& text)
 {
     std::string out;
@@ -987,30 +1636,22 @@ std::string escapeXml(const std::string& text)
     }
     return out;
 }
-
-// saveGuilds のループ本体
-        xml += "  <Guild members=\"" + std::to_string(g.members) + "\">"
-             + "<Name>" + escapeXml(g.name) + "</Name></Guild>\n";
 ```
-または文字列の連結をやめて pugixml で文書を組み立てます(エスケープは pugixml が行います)。`saveGuilds` を丸ごと置き換え、`#include <sstream>` を追加します(ファイル先頭の「文字列の連結で」のコメントも直します)。
+そして `saveGuilds` 関数全体を次に置き換えます(`g.name` の代わりに `escapeXml(g.name)` を連結します)。
 ```cpp
-#include <sstream>
-
 std::string saveGuilds(const std::vector<Guild>& guilds)
 {
-    pugi::xml_document doc;
-    pugi::xml_node root = doc.append_child("Guilds");
+    std::string xml = "<Guilds>\n";
     for (const Guild& g : guilds)
     {
-        pugi::xml_node node = root.append_child("Guild");
-        node.append_attribute("members") = g.members;
-        node.append_child("Name").text().set(g.name.c_str());
+        xml += "  <Guild members=\"" + std::to_string(g.members) + "\">"
+             + "<Name>" + escapeXml(g.name) + "</Name></Guild>\n";
     }
-    std::ostringstream out;
-    doc.save(out);
-    return out.str();
+    xml += "</Guilds>\n";
+    return xml;
 }
 ```
+文字列の連結そのものをやめて pugixml で文書を組み立てる方法もあります(`pugi::xml_document` に `append_child`/`append_attribute` でノードを作り、`doc.save(std::ostringstream&)` で文字列を得ます。エスケープは pugixml が行います)。その場合は `<sstream>` が必要で、ファイル先頭の「文字列の連結で」のコメントも合わなくなります。
 **教訓:** 文字列の連結で構造化された形式(XML、JSON、SQL、HTML)を作るとエスケープを忘れます。もっと怖いのはエラーにならない場合です: 名前 "I &lt;3 PvP" は黙って "I <3 PvP" に変わります(隠しテスト)。pugixml は対応のない `&` を大目に見るので "Tom & Jerry" は読めますが、他のパーサーではエラーです。
 **参考(セキュリティ):** 外部から受け取ったXMLを読むときは、外部エンティティ(XXE)とエンティティ展開爆弾に注意します。pugixml はDTD内のエンティティを処理しないのでこの二つの攻撃には当たりませんが、他のパーサー(libxml2、MSXML、.NET の昔の既定値)は設定によってファイルを読んだりメモリを使い切ったりすることがあります。
 
@@ -1024,7 +1665,25 @@ std::string saveGuilds(const std::vector<Guild>& guilds)
 本当の原因:   formatEntry がローカル配列 line のアドレスを返す。関数が終わると line は消え、
              次の formatEntry 呼び出し(と他の関数呼び出し)が同じスタックの場所を再び使う。
 ```
-**修正:** 値で返します。`std::string formatEntry(...)`、`std::vector<std::string> buildBoard(...)`。(`static char line[64]` に変えると壊れはしませんが、すべての行が最後の値で同じになります。)
+**修正:** ポインターではなく値(`std::string`)で返します。返すときに `line` の中身が `std::string` にコピーされるので、ローカル配列が消えても問題ありません。(`static char line[64]` に変えると壊れはしませんが、すべての行が最後の値で同じになります。)`pt01_ranking.cpp` の `formatEntry` 関数全体を次に置き換えます。
+```cpp
+std::string formatEntry(int rank, const Player& player)
+{
+    char line[64];
+    std::snprintf(line, sizeof(line), i18n::L("%d위 %s (%d점)", "%d位 %s (%d点)"), rank, player.name.c_str(), player.score);
+    return line;   // ここで std::string にコピーされる
+}
+```
+受け取る側の `buildBoard` も文字列を持つように、関数全体を次に置き換えます。ラボ関数の `std::string(board[0])` と出力のループはそのまま動きます。
+```cpp
+std::vector<std::string> buildBoard(const std::vector<Player>& ranking)
+{
+    std::vector<std::string> board;
+    for (size_t i = 0; i < ranking.size(); ++i)
+        board.push_back(formatEntry(static_cast<int>(i) + 1, ranking[i]));
+    return board;
+}
+```
 **構成ごと:** Debug と Release はどちらも文字化け。MSVC の ASan は既定の設定では捕まえられません。Clang の ASan は `stack-use-after-scope` で捕まえることもあります(このリポジトリで確認)。いちばん早い手がかりはコンパイラーの警告(MSVC C4172、Clang `-Wreturn-stack-address`、GCC `-Wreturn-local-addr`)でした。
 **教訓:** ポインターを返すときは「指している対象は関数より長生きするか?」をまず問います。
 
@@ -1034,11 +1693,19 @@ std::string saveGuilds(const std::vector<Guild>& guilds)
 最初にずれた行: field.removeDefeated()  (ターゲットのモンスターを delete)
 本当の原因:     hunt が戦場を片付けた後で hunter.target から懸賞金を読む
 ```
-**修正:** 懸賞金を先に受け取ってから片付けます。
+**修正:** 懸賞金を先に受け取り、ターゲットを放してから戦場を片付けます。`pt02_bounty.cpp` の `hunt` 関数全体を次に置き換えます。
 ```cpp
-hunter.gold += hunter.target->bounty;
-hunter.target = nullptr;
-field.removeDefeated();
+void hunt(Battlefield& field, Hunter& hunter, const std::string& targetName, int damagePerHit)
+{
+    hunter.target = field.find(targetName);
+    while (!attack(hunter, damagePerHit))
+    {
+    }
+
+    hunter.gold += hunter.target->bounty;   // 懸賞金を先に受け取り
+    hunter.target = nullptr;
+    field.removeDefeated();                 // その後で戦場を片付ける
+}
 ```
 もっと堅牢にするなら、生ポインターを持ち続けずに ID で探し直すか、モンスターを `shared_ptr` で保持してターゲットは `weak_ptr` で持ちます。
 **構成ごと:** Debug と Release はメモリチェッカーが `0xEE` で埋めるので FAIL(ゴールド -572662308)。チェッカーのない本物のプログラムなら、解放されたメモリに古い値が残って **PASS** することもあります(チェッカーを入れる前の MSVC Release がそうでした)。ASan は heap-use-after-free とともに、読んだ場所(`hunt`)、解放した場所(`removeDefeated`)、確保した場所(`spawn`)の呼び出し履歴を見せてくれます。
@@ -1051,7 +1718,10 @@ field.removeDefeated();
              (char*)particles_ - 8 の位置に配列の個数16が保存されている(主要な ABI で共通、規格が決めたものではない)
 本当の原因:   new Particle[count] で作った配列を delete(配列ではない形)で消した
 ```
-**修正:** `delete[] particles_;` もっと良いのは `std::vector<Particle>` や `std::unique_ptr<Particle[]>` に変えて、自分で消さないことです。
+**修正:** `new[]` で作った配列は `delete[]` で消します。`pt03_particles.cpp` の `Explosion` クラスの中のデストラクター `~Explosion() { delete particles_; }` の1行を次に置き換えます。もっと良いのは `std::vector<Particle>` や `std::unique_ptr<Particle[]>` に変えて、自分で消さないことです。
+```cpp
+    ~Explosion() { delete[] particles_; }
+```
 **構成ごと:** Debug と Release はメモリチェッカーがその場で `[CRASH]`。チェッカーがなければ MSVC Debug は CRT ヒープのアサーション、Release はヒープ破損(Windows `0xC0000374`、glibc `free(): invalid pointer`)で落ちます。ASan は "attempting free on address which was not malloc()-ed"。デストラクターのない型(`int` など)なら先頭の個数の欄がないので、Debug と Release では何の症状もなく通ることもあります。それでも未定義動作です。
 **教訓:** デストラクターを持つ型の配列では、`new[]` が先頭にこっそり個数を書いておきます。作り方と消し方はいつも対にそろえます。
 
@@ -1061,7 +1731,19 @@ field.removeDefeated();
 本当の原因:   header は PacketHeader*。header + sizeof(PacketHeader) は「4バイト後」ではなく
              「PacketHeader 4個分後」= 16バイト後
 ```
-**修正:** `reinterpret_cast<const LootEntry*>(header + 1)`、またはバイト単位で `reinterpret_cast<const LootEntry*>(packet.data() + sizeof(PacketHeader))`。
+**修正:** ヘッダーの直後は `header + 1`(PacketHeader 1個分後)です。バイト単位で `reinterpret_cast<const LootEntry*>(packet.data() + sizeof(PacketHeader))` と書いてもかまいません。`pt04_loot_packet.cpp` の `totalItems` 関数全体を次に置き換えます。
+```cpp
+int totalItems(const std::vector<uint8_t>& packet)
+{
+    const PacketHeader* header = reinterpret_cast<const PacketHeader*>(packet.data());
+    const LootEntry* entries = reinterpret_cast<const LootEntry*>(header + 1);   // PacketHeader 1個分後 = 4バイト後
+
+    int total = 0;
+    for (uint32_t i = 0; i < header->entryCount; ++i)
+        total += entries[i].count;
+    return total;
+}
+```
 **構成ごと:** Debug と Release は、パケットの直後にメモリチェッカーが置いた境界バイト `0xBDBD`(= 48573)を個数として読み、合計が145722になります。チェッカーがなければゴミ値。ASan は heap-buffer-overflow(READ of size 2)でその行で止まります。
 **教訓:** ポインターに足す数の単位は「指す型1個」です。バイト単位で動かすなら `char*`/`uint8_t*` で計算します。
 
@@ -1072,7 +1754,10 @@ field.removeDefeated();
 本当の原因:   武器を受け取らないコンストラクターが weapon_ を初期化しない。
              if (weapon_ != nullptr) のチェックは 0xA5A5... の前では何の役にも立たない。
 ```
-**修正:** メンバーの宣言で初期化します。`const Weapon* weapon_ = nullptr;`
+**修正:** メンバーの宣言で初期化し、武器を受け取らないコンストラクターも `nullptr` から始まるようにします。`pt05_equipment.cpp` の `Hero` クラスの `private:` の下にある `const Weapon* weapon_;` の1行を次に置き換えます。
+```cpp
+    const Weapon* weapon_ = nullptr;
+```
 **構成ごと:** パーティーは再利用メモリ(`bughunt::recycledStorage`、`0xA5` で埋められている)の上に作られるので、Debug と Release のどちらでも毎回同じ場所で落ちます(Windows はアクセス違反、POSIX は `SIGSEGV`)。再利用メモリでなければ、残ったゴミによって通ったり、とんでもない攻撃力が出たりします。ゴミのアドレスがどこを指すかによって、stack-buffer-overflow のような見当違いの名前のレポートが出ることもあります。ASan は「初期化されていない値」そのものを捕まえる道具ではありません。
 **教訓:** x64 で `0xA5A5...` のように正規アドレスでない値を読むと、例外メッセージには `0xFFFFFFFFFFFFFFFF` と出ることがあります。例外メッセージよりデバッガーのポインター値を見ます。ラボ12のように「メンバーを初期化していない」静的解析の警告が前もって教えてくれます。
 
@@ -1082,13 +1767,22 @@ field.removeDefeated();
 本当の原因:   Guild → members(shared_ptr) → Member → guild(shared_ptr) → Guild
              互いにつかみ合っているので、最後のローカル変数が消えても参照カウントが0にならない。
 ```
-**修正:** ギルドメンバーはギルドを所有せず、見ているだけにします。
+**修正:** ギルドメンバーはギルドを所有せず、見ているだけにします。`pt06_guild.cpp` の `struct Member` の定義全体を次に置き換えます(`join` の `member->guild = guild;` はそのままコンパイルできます)。
 ```cpp
-std::weak_ptr<Guild> guild;
-...
+struct Member
+{
+    explicit Member(const std::string& n) : name(n) { ++g_aliveMembers; }
+    ~Member() { --g_aliveMembers; }
+
+    std::string name;
+    std::weak_ptr<Guild> guild;   // 所有せず、見ているだけ
+};
+```
+`weak_ptr` はそのまま `->` で使えないので、`guildNameOf` 関数全体を次に置き換えます。
+```cpp
 std::string guildNameOf(const Member& member)
 {
-    const auto guild = member.guild.lock();
+    const auto guild = member.guild.lock();   // ギルドがまだ生きていれば shared_ptr、なければ空のポインター
     return guild ? guild->name : i18n::L("(없음)", "(なし)");
 }
 ```
@@ -1104,12 +1798,19 @@ std::string guildNameOf(const Member& member)
              その場所を後で Doran の castRage が上書きしたので、Doran の bonus(45)が入っている
 本当の原因:   [&] がローカル変数 bonus を参照でキャプチャしたが、ラムダはタイマーに預けられて castRage より長生きする
 ```
-**修正:** 関数より長生きするラムダはローカル変数を値で持っていきます。`hero` は呼び出し側がずっと持っているので参照のままにします。
+**修正:** 関数より長生きするラムダはローカル変数を値で持っていきます。`hero` は呼び出し側がずっと持っているので参照のままにします。`pt07_rage_timer.cpp` の `castRage` 関数全体を次に置き換えます(変わるのはキャプチャリスト `[&]` → `[&hero, bonus]` だけです)。
 ```cpp
-timers.after(3, [&hero, bonus] {
-    hero.attack -= bonus;
-    ...
-});
+void castRage(TurnTimers& timers, Hero& hero)
+{
+    const int bonus = rageBonus(hero);
+    hero.attack += bonus;
+    std::cout << "  " << hero.name << i18n::L(" 분노! 공격력 ", " 怒り! 攻撃力 ") << hero.attack << " (+" << bonus << ")\n";
+
+    timers.after(3, [&hero, bonus] {   // bonus は値でコピー、hero は参照
+        hero.attack -= bonus;
+        std::cout << "  " << hero.name << i18n::L(" 분노 끝. 공격력 ", " の怒りが切れた。攻撃力 ") << hero.attack << '\n';
+    });
+}
 ```
 **構成ごと:** 間違った値はコンパイラーと構成ごとに違います(このリポジトリでの Kael の例: MSVC Debug -124(ビルドし直すと変わることがある)、MSVC・Clang Release 45、Clang Debug 85、ASan はゴミ値)。上のウォッチは Release で45が出た理由です。既定の ASan は stack-use-after-return を捕まえません。Clang の ASan は `ASAN_OPTIONS=detect_stack_use_after_return=1` で実行すると、このラムダの行で `stack-use-after-return` で止まります(README.md「ラムダキャプチャと ASan」)。
 **教訓:** `[&]` はラムダが **今この場で** 実行されるときだけ安全です。コールバック、タイマー、スレッド、後で実行するリストに入れるラムダはキャプチャリストを一つずつ書き、何を参照で持っていくかを確認します。`hero` を参照で持っていくのも「Hero がタイマーより長生きする」という約束に頼っています。
@@ -1123,7 +1824,7 @@ timers.after(3, [&hero, bonus] {
 止めた位置:     countReachable の最初の行(またはスタックを事前に触る補助関数)。呼び出し履歴は lab → countReachable の数行だけ
 本当の原因:     int dist[2048][2048] = 16 MB のローカル変数。関数に入った直後にスタック(Windows 1 MB)を超える。マップの大きさとは関係ない
 ```
-**修正:** 距離表をマップの大きさの分だけヒープに確保します。`dist` を宣言する行とその下の `-1` で埋めていた二重 for 文を、下の1行に置き換えます(コンストラクターが `-1` で埋めます)。残りの `dist[y][x]` のコードはそのまま動きます。`kMaxSize` 定数とファイル先頭の「最大サイズで一度に確保しておきます」のコメントは合わなくなるので消します。
+**修正:** 距離表をマップの大きさの分だけヒープに確保します。`dist` を宣言していた行とその下の `-1` で埋めていた二重 for 文が `vector` の1行に変わり(コンストラクターが `-1` で埋めます)、残りの `dist[y][x]` のコードはそのまま動きます。`of01_minimap.cpp` の `countReachable` 関数全体を次に置き換えます。
 ```cpp
 int countReachable(const Map& map, int startX, int startY)
 {
@@ -1131,8 +1832,29 @@ int countReachable(const Map& map, int startX, int startY)
     std::vector<std::vector<int>> dist(static_cast<size_t>(map.height), std::vector<int>(static_cast<size_t>(map.width), -1));
 
     std::vector<std::pair<int, int>> queue;
-    // ... 以下そのまま
+    queue.emplace_back(startX, startY);
+    dist[startY][startX] = 0;
+    int reached = 0;
+    for (size_t head = 0; head < queue.size(); ++head)
+    {
+        const auto [x, y] = queue[head];
+        ++reached;
+        const int step[4][2] = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+        for (const auto& s : step)
+        {
+            const int nx = x + s[0];
+            const int ny = y + s[1];
+            if (map.walkable(nx, ny) && dist[ny][nx] < 0)
+            {
+                dist[ny][nx] = dist[y][x] + 1;
+                queue.emplace_back(nx, ny);
+            }
+        }
+    }
+    return reached;
+}
 ```
+もう使わない定数の行 `constexpr int kMaxSize = 2048;` を消します。ファイル先頭の説明コメントのうち、韓国語の行 `// 지도는 최대 2048 x 2048칸까지 지원한다. 거리표(dist)는 최대 크기로 한 번에 잡아 둔다.` とその下の日本語の行 `// [JA] マップは最大 2048 x 2048 マスまで対応しています。距離表(dist)は最大サイズで一度に確保しておきます。` も合わなくなるので、2行とも消します。
 (1次元の `std::vector<int> dist(static_cast<size_t>(map.width) * map.height, -1);` で確保して `dist[y * map.width + x]` で使ってもかまいません。その場合は `dist[...]` の4か所をすべて直します。)
 **教訓:** スタックオーバーフローがいつも再帰とは限りません。呼び出し履歴が短いのにスタックオーバーフローなら、大きなローカル変数を疑います。大きさが実行中に決まるデータや数十 KB を超えるデータはヒープ(`vector`)に。`static` 配列に変えると落ちはしませんが、16 MB をずっと抱え込み、複数のスレッドから使えなくなります。
 
@@ -1142,11 +1864,32 @@ int countReachable(const Map& map, int startX, int startY)
 止めた位置:     buildRooms が十段ほど積まれた呼び出し履歴。隣り合う二つのフレームの &layout の差 ≈ 98,000バイト
 本当の原因:     再帰は160段で終わるが、1段が 96 KB なので160段で 15 MB。バッファーは再帰呼び出しの後でも使われるので小さくできない
 ```
-**修正:** バッファーをヒープへ移します。`char layout[kLayoutBytes];` の1行を `std::vector<char>` に変え、`#include <vector>` を追加します。フレームには vector 一つ(ポインター3つ)だけが残ります。
+**修正:** バッファーをヒープへ移します。最初の行 `char layout[kLayoutBytes];` が `std::vector<char>` に変わり、フレームには vector 一つ(ポインター3つ)だけが残ります。残りの `layout[i]` のコードはそのままです。`of02_dungeon_gen.cpp` のファイル先頭の `#include` に次を追加します。
 ```cpp
 #include <vector>
-// buildRooms の最初の行
+```
+`of02_dungeon_gen.cpp` の `buildRooms` 関数全体を次に置き換えます。
+```cpp
+int buildRooms(int index, int roomCount, std::uint32_t seed)
+{
     std::vector<char> layout(kLayoutBytes);           // この部屋の配置図 (ヒープ)
+    const std::size_t size = 2048 + seed % 2048;      // 実際の部屋の大きさ
+    std::uint32_t s = seed;
+    for (std::size_t i = 0; i < size; ++i)
+    {
+        s = nextSeed(s);
+        layout[i] = (s >> 16) % 64 == 0 ? '$' : '.';
+    }
+    if (index % 8 == 0)
+        std::cout << i18n::L("  방 ", "  部屋") << index << i18n::L("번 생성\n", "番を生成\n") << std::flush;
+
+    int chests = 0;
+    if (index + 1 < roomCount)
+        chests += buildRooms(index + 1, roomCount, nextSeed(seed ^ 0x9E3779B9u));
+    for (std::size_t i = 0; i < size; ++i)
+        chests += layout[i] == '$' ? 1 : 0;
+    return chests;
+}
 ```
 または宝箱を再帰呼び出しの前に数えてバッファーを早めに使い終えるか、再帰をループに変えます。
 **教訓:** スタックの使用量は「フレームの大きさ × 深さ」です。深さがデータ(部屋の数、木の高さ)で決まる再帰は、スタックの上限を考える必要があります。フレームの大きさは構成ごとに違います(Debug はチェック用の領域、ASan は変数の間の境界)。そのため、フレームが小さく深さが境界ぎりぎりの再帰は、Debug でだけ、あるいは ASan でだけ落ちることもあります。自分で確かめるなら、`kLayoutBytes` を 8 KB に減らして部屋の数を増やし、Debug と Release で落ちる部屋の番号を比べてみてください。
@@ -1157,7 +1900,14 @@ int countReachable(const Map& map, int startX, int startY)
 止めた位置:     ~ReplayRecorder の delete[]。データ ブレークポイント(&frames_[ticks_])を置くと recordAll の frames_[t] = ... で t == 600
 本当の原因:     for (t = 0; t <= ticks_; ++t) が要素600個の配列の frames_[600] に書き込む
 ```
-**修正:** `for (int t = 0; t < ticks_; ++t)`
+**修正:** ループの条件を `<=` から `<` に変え、最後の要素 `frames_[ticks_ - 1]` までだけ書きます。`of03_replay_buffer.cpp` の `ReplayRecorder` クラスの中の `recordAll` 関数全体を次に置き換えます。
+```cpp
+    void recordAll(std::uint32_t seed)
+    {
+        for (int t = 0; t < ticks_; ++t)
+            frames_[t] = Frame{ t, buttonsAt(seed, t) };
+    }
+```
 **教訓:** ヒープのあふれは書いた瞬間ではなく、その場所を他の誰かが見るとき(解放、次の割り当て、隣のブロックの使用)に表に出ます。クラッシュの位置と原因が離れていたら、**データ ブレークポイント** で「そのバイトを誰が変えるか」を尋ねます。ASan は書いた瞬間に捕まえます。ラボ72(ポインター演算の単位、読み込み)と違い、このラボはループの境界での1つ余分な書き込みです。
 
 ## Lab 79 — `memcpy` に `sizeof(ポインター)`
@@ -1166,22 +1916,26 @@ int countReachable(const Map& map, int startX, int startY)
 止めた位置:     writeName、ウォッチ sizeof(dst) == 8、std::strlen(src) == 11。メモリ ウィンドウで packet.name の9バイト目から前の人の名前
 本当の原因:     引数 char* dst は配列ではなくポインターなので sizeof は8。先頭8バイトだけコピーされ、ヌル文字がない
 ```
-**修正:** バッファーの大きさを一緒に渡し、あふれないように切り詰めてからヌル文字を自分で入れます。`std::min` には `#include <algorithm>` が必要です。呼び出す `sendLogin` も大きさを渡すように直します。
+**修正:** バッファーの大きさを一緒に渡し、あふれないように切り詰めてからヌル文字を自分で入れます。`std::min` には `<algorithm>` が必要です。`of04_name_packet.cpp` のファイル先頭の `#include` に次を追加します。
 ```cpp
 #include <algorithm>   // std::min
-
+```
+`of04_name_packet.cpp` の `writeName` 関数全体を次に置き換えます(引数 `cap` が増えます)。
+```cpp
 void writeName(char* dst, std::size_t cap, const char* src)
 {
-    const std::size_t n = std::min(std::strlen(src), cap - 1);
+    const std::size_t n = std::min(std::strlen(src), cap - 1);   // ヌル文字の分の1バイトを残して切り詰める
     std::memcpy(dst, src, n);
     dst[n] = '\0';
 }
-
+```
+呼び出す `sendLogin` 関数全体も、大きさを渡すように次に置き換えます。
+```cpp
 std::string sendLogin(NamePacket& packet, const char* name, int level)
 {
     writeName(packet.name, sizeof(packet.name), name);   // ここの sizeof は本物の配列なので32
     packet.level = level;
-    return std::string(packet.name);
+    return std::string(packet.name);   // 受け取る側はヌル文字までを名前として読む
 }
 ```
 **教訓:** 配列は関数の引数になった瞬間にポインターに変わります(配列の減衰)。大きさは一緒に渡すか、`char (&dst)[N]` のテンプレートで受けます。C 文字列のコピーは「長さ + ヌル文字1」と「バッファーの大きさ - 1 で切り詰め」の両方が必要です。clang は `-Wsizeof-pointer-memaccess` ですでに警告します。パケットの外では `std::string`。
@@ -1192,7 +1946,17 @@ std::string sendLogin(NamePacket& packet, const char* name, int level)
 止めた位置:     Debug: learnSkill の hero.skillLevels[skillId] の行(アサーション) / Release: hero.gold のデータ ブレークポイントが同じ行で止まる
 本当の原因:     画面の番号1~4をそのままインデックスに使った。skillLevels[4] は配列の直後の gold
 ```
-**修正:** `hero.skillLevels[skillId - 1] += 1;`
+**修正:** 画面の番号(1~4)をインデックス(0~3)に直して使います。`of05_skill_tree.cpp` の `learnSkill` 関数全体を次に置き換えます。
+```cpp
+bool learnSkill(Hero& hero, int skillId)
+{
+    if (skillId < 1 || skillId > 4 || hero.gold < kSkillCost)
+        return false;
+    hero.skillLevels[skillId - 1] += 1;   // 画面の番号 1~4 → インデックス 0~3
+    hero.gold -= kSkillCost;
+    return true;
+}
+```
 **教訓:** `operator[]` は範囲をチェックしません。Debug 構成の標準ライブラリのチェックは保険にすぎず(Release CRT でビルドした ASan にはありません)、同じオブジェクトの中のはみ出しは ASan もたいてい捕まえられません。確信のないインデックスには `at()`。「どこで変わったのか分からない値」にはデータ ブレークポイント(ラボ18)。
 
 ---
@@ -1206,7 +1970,14 @@ std::string sendLogin(NamePacket& packet, const char* name, int level)
 本当の原因:    std::async の戻り値を保存しなかったため、一時 future がその行の終わりで破棄される。
               std::launch::async で作った future のデストラクターはタスクが終わるまで待つ
 ```
-**修正:** `jobs_.push_back(std::async(std::launch::async, [this, i] { chunks_[i] = disk_.read(i); }));` こうすると `finishLoading` が集めておいた future を待ちます。
+**修正:** `std::async` が返した future を `jobs_` に集めておきます。こうすると `finishLoading` が集めておいた future を待ちます。`as01_loading.cpp` の `startLoading` 関数全体を次に置き換えます。
+```cpp
+void startLoading()
+{
+    for (int i = 0; i < static_cast<int>(chunks_.size()); ++i)
+        jobs_.push_back(std::async(std::launch::async, [this, i] { chunks_[i] = disk_.read(i); }));
+}
+```
 **構成別:** どのコンパイラーでも同じです(標準が定めた動作)。C++20 から `std::async` は `[[nodiscard]]` なので、警告(MSVC C4858、GCC・Clang `-Wunused-result`)がこの行を指します。
 **教訓:** 「非同期で起動した」と「待たない」は別物です。future をどこに置き、いつ待つかがコードの実行順序を決めます。
 
@@ -1216,7 +1987,7 @@ std::string sendLogin(NamePacket& packet, const char* name, int level)
 abort 時点の呼び出し履歴:   メインスレッド craftAll → std::future<int>::get → 例外の再スロー
 本当の原因:             try/catch が std::async の呼び出しだけを囲んでいた。タスク内の例外は future に格納され、get() でスローされる
 ```
-**修正:** `get()` を try の中に移します。`craftAll` の最初のループは try なしでタスクを起動するだけにし、2番目のループが結果を取り出しながら例外を捕まえます。
+**修正:** `get()` を try の中に移します。`craftAll` の最初のループは try なしでタスクを起動するだけにし、2番目のループが結果を取り出しながら例外を捕まえます。`as02_crafting.cpp` の `craftAll` 関数全体を次に置き換えます。
 ```cpp
 CraftReport craftAll(const std::vector<Recipe>& orders, int oreInStock)
 {
@@ -1249,8 +2020,14 @@ CraftReport craftAll(const std::vector<Recipe>& orders, int oreInStock)
 ウォッチ:     readyCount_ == 4, memberCount_ == 4  → 待つ理由がない
 本当の原因:  notify_one はリーダーが wait する前にすでに 4 回呼ばれていた。通知は保存されないので消えてしまった
 ```
-**修正:** `allReady_.wait(lock, [&] { return readyCount_ >= memberCount_; });`
-条件がすでに真なら待たず、見せかけの起床(spurious wakeup)でも条件が偽なら再び待ちます。
+**修正:** 条件と一緒に待ちます。条件がすでに真なら待たず、見せかけの起床(spurious wakeup)でも条件が偽なら再び待ちます。`as03_raid_ready.cpp` の `waitForAll` 関数全体を次に置き換えます。
+```cpp
+void waitForAll()
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    allReady_.wait(lock, [&] { return readyCount_ >= memberCount_; });
+}
+```
 **構成別:** どの構成でも TIMEOUT。`if (readyCount_ < memberCount_) allReady_.wait(lock);` のように 1 回だけ検査すると画面上は通りますが、リーダーが先に待つ隠しケースで最初の通知で起きてしまい、3 人中 1 人だけが準備した状態で入場します(FAIL)。
 **教訓:** `condition_variable` は「何かが変わったかもしれない」という合図にすぎません。待つ**条件**は mutex で守られた変数にあり、`wait` は常にその条件と一緒に使います。
 
@@ -1261,7 +2038,16 @@ CraftReport craftAll(const std::vector<Recipe>& orders, int oreInStock)
 本当の原因:  ラムダが this をキャプチャしたが、AuctionWindow(unique_ptr)は bidAndCloseWindow の終了時に削除された。
             ラムダは締め切りのベルが鳴った後、ウィンドウが消えた後に実行される
 ```
-**修正:** 必要な値だけをコピーして持っていきます。`std::thread([bid = bid_, &bell, &board] { bell.waitForRing(); board.post(bid); }).detach();`
+**修正:** 必要な値だけをコピーして持っていきます。`as04_auction_notice.cpp` の `subscribeClosingNotice` 関数全体を次に置き換えます。
+```cpp
+void subscribeClosingNotice(ClosingBell& bell, NoticeBoard& board)
+{
+    std::thread([bid = bid_, &bell, &board] {
+        bell.waitForRing();
+        board.post(bid);
+    }).detach();
+}
+```
 (ベルと掲示板はサーバーが動いている間ずっと生きているオブジェクトなので参照のままにします。その保証がなければ `shared_ptr` で共同所有します。)
 スレッドを detach しない設計もありますが、条件が付きます。ウィンドウに `std::jthread` を所有させてデストラクターで待たせると、このラボのようにベルが鳴る前にウィンドウが閉じられる流れでは、デストラクターがベルを待って止まります(TIMEOUT)。その方法はベルが鳴った後にウィンドウが閉じられるときだけ正しいです。この流れでは通知をサーバー側のオブジェクトに登録するほうが合っています。
 **構成別:** Debug と Release はメモリチェッカーの `0xEE` で FAIL。ASan はワーカースレッドで heap-use-after-free(解放した場所はメインスレッドの `bidAndCloseWindow`)として CRASH。
@@ -1274,17 +2060,21 @@ CraftReport craftAll(const std::vector<Recipe>& orders, int oreInStock)
 本当の原因:      「残っているか確認 → 決済 → 1 つ減らす」がアトミックではない。atomic の一つ一つは安全だが、
                 確認と減算の間に他のスレッドがすべて確認を終えてしまうことがある
 ```
-**修正:** 決済する前に数量をアトミックに確保します。
+**修正:** 決済する前に数量をアトミックに確保します。`as05_limited_sale.cpp` の `LimitedShop::buy` 関数全体を次に置き換えます。
 ```cpp
-int left = stock_.load();
-do
+bool buy(const std::string& player)
 {
-    if (left <= 0)
-        return false;
-} while (!stock_.compare_exchange_weak(left, left - 1));
-payment_.charge(player, price_);
-++sold_;
-return true;
+    int left = stock_.load();
+    do
+    {
+        if (left <= 0)
+            return false;
+    } while (!stock_.compare_exchange_weak(left, left - 1));
+
+    payment_.charge(player, price_);
+    ++sold_;
+    return true;
+}
 ```
 (`fetch_sub` で減らして結果が 0 以下なら元に戻す方法もあります。決済が失敗しうるなら、失敗したときに数量を戻します。)`buy` 全体を `std::mutex` で囲んでも正しいですが、決済を待つ間ほかの購入者が全員行列に並ぶことになります。
 **構成別:** どの構成でも販売 5、数量 -2。ラボ 17 と違って**データ競合ではありません。**すべてのアクセスが `atomic` なので ThreadSanitizer も報告しません。
@@ -1296,13 +2086,26 @@ return true;
 本当の原因:  人数が足りずにキャンセルする経路が matcher.join() なしで関数を抜ける。
             joinable な std::thread のデストラクターは std::terminate を呼ぶ
 ```
-**修正:** キャンセル経路でも待ちます。結果はスレッドが終わった後で直します(まだ動いているスレッドが `result.matches` を書いているため)。
+**修正:** キャンセル経路でも待ちます。結果はスレッドが終わった後で直します(まだ動いているスレッドが `result.matches` を書いているため)。`as06_matchmaking.cpp` の `runMatchmaking` 関数全体を次に置き換えます。
 ```cpp
-cancel = true;
-matcher.join();
-result.cancelled = true;
-result.matches = 0;
-return result;
+MatchResult runMatchmaking(const std::vector<std::string>& queue)
+{
+    MatchResult result;
+    std::atomic<bool> cancel{ false };
+    std::thread matcher(groupPlayers, std::cref(queue), std::cref(cancel), std::ref(result.matches));
+
+    if (queue.empty() || queue.size() % 4 != 0)
+    {
+        cancel = true;
+        matcher.join();
+        result.cancelled = true;
+        result.matches = 0;
+        return result;
+    }
+
+    matcher.join();
+    return result;
+}
 ```
 `std::jthread` に替えると、すべての抜け道で自動的に停止を要求して join します。ただし jthread は関数の終わりで join するので、上のように「止めて待ってから結果を直す」必要があるなら `request_stop()` と `join()` を自分で呼びます。
 **教訓:** スレッドオブジェクトもリソースです。例外や早期 `return` を含むすべての経路で後始末されるよう RAII(`std::jthread`)を使います。
@@ -1314,7 +2117,16 @@ return result;
 本当の原因:  talkTo は initial_suspend ですぐに中断し、コルーチンフレームには npc の参照だけが保存される。
             startVillageScene が終わって Npc(unique_ptr)が削除された後に、エンジンがコルーチンを初めて実行する
 ```
-**修正:** コルーチンが使う値はフレームの中にコピーして持っていきます。`Cutscene talkTo(Npc npc, DialogueLog& log)` (`log` は呼び出し側がカットシーンより長く保持するので参照のままにします。)
+**修正:** コルーチンが使う値はフレームの中にコピーして持っていきます。`npc` を値で受け取ります(`log` は呼び出し側がカットシーンより長く保持するので参照のままにします)。`as07_cutscene.cpp` の `talkTo` 関数全体を次に置き換えます。
+```cpp
+Cutscene talkTo(Npc npc, DialogueLog& log)
+{
+    log.affinityShown.push_back(npc.affinity);
+    co_await std::suspend_always{};
+    co_await std::suspend_always{};
+    log.affinityShown.push_back(npc.affinity + 10);   // プレゼントで好感度 +10
+}
+```
 **構成別:** Debug と Release はメモリチェッカーの `0xEE` で FAIL。ASan は heap-use-after-free として CRASH。MSVC 14.51 と Clang 22 で確認しました。
 **教訓:** コルーチンの参照引数は「最初に中断する場所まで」しか安全ではありません。中断して再開するコルーチンは、ラムダを後で実行するのと同じ寿命の問題を抱えます。
 
@@ -1329,10 +2141,13 @@ return result;
 本当の原因:     0.1 は 2 進数で正確に表せないため、0.1f を 15 回足しても正確に 1.5f にならない。
                t != cooldownSeconds は永遠に真。(ダッシュの 0.5 秒はたまたまぴったり合って終わった)
 ```
-**修正:** 繰り返し回数を整数で計算します。関数本体を丸ごと置き換え(`ticks` 変数とループはなくなります)、`#include <cmath>` を追加します。
+**修正:** 繰り返し回数を整数で計算します。`hg01_cooldown.cpp` の `ticksUntilReady` 関数を丸ごと置き換えます(`ticks` 変数とループはなくなります)。
+まず同じファイルの先頭の `#include` に次を追加します。
 ```cpp
-#include <cmath>   // std::lround
-
+#include <cmath>
+```
+`hg01_cooldown.cpp` の `ticksUntilReady` 関数全体を次に置き換えます。
+```cpp
 int ticksUntilReady(float cooldownSeconds, float tickSeconds)
 {
     return static_cast<int>(std::lround(cooldownSeconds / tickSeconds));
@@ -1346,7 +2161,20 @@ int ticksUntilReady(float cooldownSeconds, float tickSeconds)
 すべて中断:   s が 12 よりはるかに大きい数 (数十億)。条件付きブレークポイント s == 0 で 1 行実行すると 4294967295 (0xFFFFFFFF)
 本当の原因:   unsigned には負の数がないので s >= 0 は常に真。0 で --s すると 4294967295 に戻る。
 ```
-**修正:** `for (unsigned int s = waitSeconds + 1; s-- > 0;)` または符号付き整数で数えます: `for (int s = static_cast<int>(waitSeconds); s >= 0; --s)`。
+**修正:** 比較の前に減らす `s-- > 0` の形で数えます。`hg02_respawn.cpp` の `countAnnouncements` 関数全体を次に置き換えます。
+```cpp
+int countAnnouncements(unsigned int waitSeconds)
+{
+    int count = 0;
+    for (unsigned int s = waitSeconds + 1; s-- > 0;)
+    {
+        if (s % 5 == 0 || s <= 3)
+            ++count;
+    }
+    return count;
+}
+```
+(符号付き整数で数えてもかまいません: `for (int s = static_cast<int>(waitSeconds); s >= 0; --s)`。)
 **教訓:** このミスを知らせる「式が常に true」の警告は、既定の警告レベルでは表示されないことが多いです。MSVC C4296 は `/W4` でもオフなので `/w14296` で有効にし、GCC は `-Wtype-limits`(`-Wextra` に含まれる)、Clang は `-Wtautological-unsigned-zero-compare` で有効にします。逆順に数えるループで `unsigned`/`size_t` を見たら疑います。
 
 ## Lab 90 — continue が ++i を飛ばす
@@ -1354,7 +2182,36 @@ int ticksUntilReady(float cooldownSeconds, float tickSeconds)
 すべて中断:   i == 6 (最初の空白), c == ' ', words == { "/party" }。1 行ずつ実行し続けても i はそのまま
 本当の原因:   空白の分岐が i を増やさずに continue → 同じ空白を永遠に読み直す
 ```
-**修正:** `continue;` の前に `++i;`。または `for (char c : line)` のようにインデックスを直接扱わないループに変えます。
+**修正:** `continue;` の前に `++i;` を入れます。`hg03_chat_command.cpp` の `splitCommand` 関数全体を次に置き換えます。
+```cpp
+std::vector<std::string> splitCommand(const std::string& line)
+{
+    std::vector<std::string> words;
+    std::string current;
+
+    size_t i = 0;
+    while (i < line.size())
+    {
+        const char c = line[i];
+        if (c == ' ')
+        {
+            if (!current.empty())
+            {
+                words.push_back(current);
+                current.clear();
+            }
+            ++i;
+            continue;
+        }
+        current += c;
+        ++i;
+    }
+    if (!current.empty())
+        words.push_back(current);
+    return words;
+}
+```
+(`for (char c : line)` のようにインデックスを直接扱わないループに変えてもかまいません。)
 **教訓:** `while` ループのすべての経路がループ変数を前に進めるか確認します。次のステートメントの設定で `++i;` を 1 回実行させてみると、仮説をすぐに試せます。
 
 ## Lab 91 — 挿入の順序が逆で自分自身を指す
@@ -1363,10 +2220,13 @@ int ticksUntilReady(float cooldownSeconds, float tickSeconds)
 ウォッチ:      p == p->next  (Forest の next が自分自身)
 本当の原因:   pos->next = wp; を先に行うと、次の行 wp->next = pos->next が今入れたばかりの wp 自身を読む
 ```
-**修正:** 順序を入れ替えます。
+**修正:** 順序を入れ替えます。`hg04_route.cpp` の `insertAfter` 関数全体を次に置き換えます。
 ```cpp
-wp->next = pos->next;
-pos->next = wp;
+void insertAfter(Waypoint* pos, Waypoint* wp)
+{
+    wp->next = pos->next;
+    pos->next = wp;
+}
 ```
 防御するなら、巡回するときに循環を検査します(ウサギとカメ: 1 つずつ進むポインターと 2 つずつ進むポインターが出会えば循環)。
 **教訓:** 連結リストで無限ループが起きたら、ウォッチに `p`、`p->next`、`p->next->next` を入れて**アドレス**を比較します。
@@ -1379,11 +2239,21 @@ pos->next = wp;
 本当の原因:   「売り手が先、買い手が後」というロック順序は取引の方向によって逆転する。
              逆方向の取引が同時に来ると、互いに相手が持っているロックを待つ (循環待機)。
 ```
-**修正:** 2 つの mutex をまとめてロックします。`std::scoped_lock` はデッドロックを避ける順序でロックします。
+**修正:** 2 つの mutex をまとめてロックします。`std::scoped_lock` はデッドロックを避ける順序でロックします。元の `std::lock_guard<std::mutex> sellerLock(seller.lock);` と `std::lock_guard<std::mutex> buyerLock(buyer.lock);` はどちらもなくなります(残すと同じ mutex を 2 回ロックします)。`hg05_trade.cpp` の `trade` 関数全体を次に置き換えます。
 ```cpp
-std::scoped_lock locks(seller.lock, buyer.lock);
-if (!verifyItem(seller, item))
-    return;
+void trade(Inventory& seller, Inventory& buyer, const std::string& item, int price)
+{
+    std::scoped_lock locks(seller.lock, buyer.lock);
+    if (!verifyItem(seller, item))
+        return;
+    if (buyer.gold < price)
+        return;
+
+    seller.items.erase(std::find(seller.items.begin(), seller.items.end(), item));
+    buyer.items.push_back(item);
+    buyer.gold -= price;
+    seller.gold += price;
+}
 ```
 または常に同じ基準(プレイヤー ID が小さい方、アドレスが小さい方)で先にロックします。隠しケースの 3 人の循環取引もこの方法で解けます。
 偽造チェックをロックの前に移すだけでも 50ms の隙間が縮んでほとんど通りますが、ロック順序の問題はそのままなので、ごくまれにしか止まらない、さらに見つけにくいバグになります。しかもロックなしで検査すると、検査と取引の間にアイテムが変わる可能性があります。
@@ -1401,11 +2271,16 @@ if (!verifyItem(seller, item))
 ホット パス:     ChatQueue::drain → vector::erase → Message のムーブ代入 / memmove
 本当の原因:   queue_.erase(queue_.begin()) は後ろの要素をすべて 1 つずつ前に詰める。n 個をこうして取り出すと n²/2 回の移動
 ```
-**修正:** 消さずに最後まで読んでから一度に空にします。
+**修正:** 消さずに最後まで読んでから一度に空にします。`pf01_chat_queue.cpp` の `ChatQueue::drain` 関数全体を次に置き換えます。
 ```cpp
-for (const Message& m : queue_)
-    chars += static_cast<long long>(m.text.size());
-queue_.clear();
+long long drain()
+{
+    long long chars = 0;
+    for (const Message& m : queue_)
+        chars += static_cast<long long>(m.text.size());
+    queue_.clear();
+    return chars;
+}
 ```
 (先頭から取り出すことが多いなら `std::deque` の `pop_front` でもかまいません。移動 0 回。)
 **修正後:** 要素の移動 0 回。
@@ -1418,11 +2293,15 @@ queue_.clear();
 本当の原因:   totalWeight(std::vector<Item> items) がベクター全体をコピーし、範囲 for が要素をさらに 1 つずつコピーする。
              Item ごとに 200 文字の説明文字列があり、コピーのたびに割り当てが起きる
 ```
-**修正:**
+**修正:** 引数を `const&` で受け取り、範囲 for も `const&` で回します。`pf02_loadout.cpp` の `totalWeight` 関数全体を次に置き換えます。
 ```cpp
 int totalWeight(const std::vector<Item>& items)
-...
-for (const Item& item : items)
+{
+    int total = 0;
+    for (const Item& item : items)
+        total += item.weight;
+    return total;
+}
 ```
 **修正後:** Item のコピー 0 回。どちらか一方だけ直すと 72,000 回が残ります。
 **教訓:** 読むだけの大きな引数は `const&`、範囲 for も `const auto&` が基本です。
@@ -1434,15 +2313,23 @@ for (const Item& item : items)
 本当の原因:   log = log + "[" + ... は行ごとにそれまでの log 全体をコピーした一時文字列を作り、連結するたびにさらに大きくなる。
              4000 行目を連結するときには 6 万文字が何度もコピーされる
 ```
-**修正:** 既存の文字列の後ろに追加します(`+=` は容量が足りないときだけ拡張します)。
+**修正:** 既存の文字列の後ろに追加します(`+=` は容量が足りないときだけ拡張します)。ループ本体が複数の文になるので波かっこで囲みます。`pf03_combat_log.cpp` の `exportLog` 関数全体を次に置き換えます。
 ```cpp
-log += "[";
-log += toText(e.tick);
-log += "] hit ";
-log += toText(e.amount);
-log += "\n";
+Text exportLog(const std::vector<DamageEvent>& events)
+{
+    Text log;
+    for (const DamageEvent& e : events)
+    {
+        log += "[";
+        log += toText(e.tick);
+        log += "] hit ";
+        log += toText(e.amount);
+        log += "\n";
+    }
+    return log;
+}
 ```
-(`log += "[" + toText(e.tick) + ... ;` のように 1 行分の一時文字列だけを作るのでも通ります。サイズがわかっているなら `log.reserve(...)` で割り当てを 1 回に減らせます。)
+(`log += "[" + toText(e.tick) + "] hit " + toText(e.amount) + "\n";` のように 1 行分の一時文字列だけを作るのでも通ります。サイズがわかっているなら `log.reserve(...)` で割り当てを 1 回に減らせます。)
 **修正後:** Release で割り当て 20 回、約 200KB。Debug はイテレーターデバッグ用の補助割り当てのため回数が多くなりますが、結果の長さに比例します。
 **教訓:** 文字列を累積するとき、`s = s + x` は O(n²)、`s += x` は償却 O(n) です。
 
@@ -1452,13 +2339,16 @@ log += "\n";
 FakeLogFile::sync のブレークポイントでの呼び出し履歴:  writeSave の << std::endl の 2 行
 本当の原因:   std::endl = '\n' + flush。行ごとにディスク書き込みを行う
 ```
-**修正:**
+**修正:** 2 つの `std::endl` を `'\n'` に替え、最後の `out.flush()` は残します。`pf04_save_log.cpp` の `writeSave` 関数全体を次に置き換えます。
 ```cpp
-out << "SAVE v3 " << objects.size() << '\n';
-...
-out << o.id << ' ' << o.x << ' ' << o.y << '\n';
+void writeSave(std::ostream& out, const std::vector<WorldObject>& objects)
+{
+    out << "SAVE v3 " << objects.size() << '\n';
+    for (const WorldObject& o : objects)
+        out << o.id << ' ' << o.x << ' ' << o.y << '\n';
+    out.flush();   // 書き終えた後に一度ディスクへ書き出す
+}
 ```
-最後の `out.flush()` は残します。
 **修正後:** flush 1 回。(最後の flush まで消すと 0 回になって FAIL。書き終えた後に一度は書き出す必要があります。)
 **教訓:** 改行は `'\n'`、flush は必要なときに 1 回。コンソール出力も同じです。
 
@@ -1469,11 +2359,23 @@ out << o.id << ' ' << o.x << ' ' << o.y << '\n';
 本当の原因:   マスは 1 行ずつ連続して並んでいるのに、countFog は列を外側、行を内側のループで回る。
              毎回のアクセスが別のキャッシュラインなのでメモリから新たに読み込む。reveal は行優先なので速い
 ```
-**修正:** ループの順序を入れ替えます。
+**修正:** ループの順序を入れ替えます(行が外側、列が内側)。`pf05_fog_map.cpp` の `countFog` 関数全体を次に置き換えます。
 ```cpp
-for (int r = 0; r < map.rows(); ++r)
+FogStats countFog(FogMap& map)
 {
-    for (int c = 0; c < map.cols(); ++c)
+    FogStats s{ 0, 0 };
+    for (int r = 0; r < map.rows(); ++r)
+    {
+        for (int c = 0; c < map.cols(); ++c)
+        {
+            const int v = map.at(r, c);
+            s.brightness += v;
+            if (v >= 128)
+                ++s.revealed;
+        }
+    }
+    return s;
+}
 ```
 **修正後:** 飛び越したアクセス 0 回。
 **教訓:** 2 次元配列はメモリに並んだ順にループします。プロファイラーは「countFog が遅い」までしか教えてくれず、なぜ遅いかは同じ仕事をする reveal と比べて初めて見えます。
@@ -1484,11 +2386,31 @@ for (int r = 0; r < map.rows(); ++r)
 条件付きブレークポイント (use_count() > 1) の呼び出し履歴:  mostDangerous の for (MonsterPtr m : monsters)、threatOf(MonsterPtr monster)
 本当の原因:   shared_ptr をコピーするたびに参照カウントをアトミックに増減する。3000 体 × 300 ティック × 2 回
 ```
-**修正:**
+**修正:** 2 か所とも `const&` に替えます。`pf06_aggro_scan.cpp` の `threatOf` 関数全体を次に置き換えます。
 ```cpp
 int threatOf(const MonsterPtr& monster)
-...
-for (const MonsterPtr& m : monsters)
+{
+    monster->noteHolders();
+    return monster->level * 10 - monster->distance;
+}
+```
+同じファイルの `mostDangerous` 関数全体を次に置き換えます。
+```cpp
+MonsterPtr mostDangerous(const std::vector<MonsterPtr>& monsters)
+{
+    MonsterPtr best;
+    int bestThreat = -1000000;
+    for (const MonsterPtr& m : monsters)
+    {
+        const int threat = threatOf(m);
+        if (threat > bestThreat)
+        {
+            bestThreat = threat;
+            best = m;
+        }
+    }
+    return best;
+}
 ```
 (`threatOf(const Monster& monster)` のように所有権と関係ない関数はオブジェクトの参照を受け取ってもかまいません。)
 **修正後:** 最大 1 個。どちらか一方だけ直すと 2 個が残ります。`best = m;` は最も危険なモンスターが変わったときだけコピーするので、そのままでかまいません。
