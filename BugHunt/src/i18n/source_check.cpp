@@ -499,8 +499,10 @@ void checkComments(const std::string& src, const std::vector<Comment>& comments,
         const size_t first = c.text.find_first_not_of(" \t");
         const bool tagged = first != std::string::npos && c.text.compare(first, 4, "[JA]") == 0;
         LineKind k = other;
+        // [JA] 줄이라도 가나·한자가 없으면 짝이 아니다. 한글만 있으면 한국어 줄로 센다 (빈 [JA]나 코드 예시는 세지 않는다)
+        // [JA] [JA] の行でも、かなや漢字がなければ対ではありません。ハングルだけなら韓国語の行として数えます (空の [JA] やコード例は数えません)
         if (tagged)
-            k = hasJapanese(c.text) ? ja : other;
+            k = hasJapanese(c.text) ? ja : hangul ? ko : other;
         else if (hangul && !hasInlineJapanese(c.text))
             k = ko;
         kinds[static_cast<size_t>(c.line)] = k;
