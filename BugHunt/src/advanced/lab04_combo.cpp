@@ -26,9 +26,11 @@ private:
 void lab04_combo()
 {
     // H = 명중, M = 빗나감
+    // [JA] H = 命中、M = 外れ
     const char* log = "HHHHMHHMH";
 
     // 판이 끝날 때마다 새로 할당하지 않도록, 전 판에 쓰던 메모리 자리에 카운터를 다시 만든다. (오브젝트 풀)
+    // [JA] 試合が終わるたびに新しく割り当てないよう、前の試合で使っていたメモリの場所にカウンターを作り直します。(オブジェクトプール)
     ComboCounter* counter = new (bughunt::recycledStorage(sizeof(ComboCounter))) ComboCounter;
     for (const char* p = log; *p != '\0'; ++p)
     {

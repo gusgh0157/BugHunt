@@ -18,11 +18,12 @@ public:
     int cols() const { return cols_; }
 
     // 칸은 한 줄(row)씩 이어서 메모리에 놓여 있다: [0행 0열][0행 1열]...[0행 끝][1행 0열]...
+    // [JA] マスは 1 行(row)ずつ続けてメモリに並んでいます: [0行 0列][0行 1列]...[0行 末尾][1行 0列]...
     int& at(int row, int col)
     {
         const size_t index = static_cast<size_t>(row) * cols_ + col;
         if (index != lastIndex_ + 1)
-            ++jumps_;   // 바로 다음 칸이 아닌 곳으로 건너뛴 횟수 (캐시가 싫어하는 접근)
+            ++jumps_;   // 바로 다음 칸이 아닌 곳으로 건너뛴 횟수 (캐시가 싫어하는 접근) [JA] すぐ次のマスではない場所へ飛んだ回数 (キャッシュが嫌うアクセス)
         lastIndex_ = index;
         return cells_[index];
     }
@@ -51,8 +52,8 @@ void reveal(FogMap& map)
 
 struct FogStats
 {
-    long long revealed;     // 밝기가 128 이상인 칸 수
-    long long brightness;   // 밝기 합
+    long long revealed;     // 밝기가 128 이상인 칸 수 [JA] 明るさが 128 以上のマスの数
+    long long brightness;   // 밝기 합 [JA] 明るさの合計
 };
 
 FogStats countFog(FogMap& map)
@@ -112,6 +113,8 @@ void pf05_fog_map()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void pf05_fog_map_hidden()
 {
     perf5::FogMap map(37, 53);

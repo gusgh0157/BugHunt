@@ -15,6 +15,8 @@ namespace async1
 {
 // 디스크를 흉내 낸다. 깨어나기(spinUp) 전에 들어온 읽기는 조금 기다려 보고,
 // 그래도 깨어나지 않으면 아주 느린 경로(콜드 읽기)로 읽는다.
+// [JA] ディスクをまねます。起きる(spinUp)前に来た読み込みは少し待ってみて、
+// [JA] それでも起きなければとても遅い経路(コールド読み込み)で読みます。
 class ChunkDisk
 {
 public:
@@ -54,6 +56,7 @@ public:
     MapLoader(ChunkDisk& disk, int chunkCount) : disk_(disk), chunks_(chunkCount) {}
 
     // 청크마다 비동기 작업을 띄우고 바로 돌아온다.
+    // [JA] チャンクごとに非同期タスクを起動して、すぐに戻ります。
     void startLoading()
     {
         for (int i = 0; i < static_cast<int>(chunks_.size()); ++i)
@@ -61,6 +64,7 @@ public:
     }
 
     // 띄운 작업이 모두 끝날 때까지 기다린다.
+    // [JA] 起動したタスクがすべて終わるまで待ちます。
     void finishLoading()
     {
         for (std::future<void>& job : jobs_)
@@ -83,11 +87,12 @@ private:
 };
 
 // 맵 하나를 불러온다. 불러온 청크 수를 돌려준다.
+// [JA] マップを1つ読み込みます。読み込んだチャンク数を返します。
 int loadMap(ChunkDisk& disk, int chunkCount)
 {
     MapLoader loader(disk, chunkCount);
     loader.startLoading();
-    disk.spinUp();          // 로딩 화면을 띄우면서 디스크를 깨운다
+    disk.spinUp();          // 로딩 화면을 띄우면서 디스크를 깨운다 [JA] ロード画面を表示しながらディスクを起こす
     loader.finishLoading();
     return loader.loadedCount();
 }
@@ -142,6 +147,8 @@ void as01_loading()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void as01_loading_hidden()
 {
     using namespace async1;

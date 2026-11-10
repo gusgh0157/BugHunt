@@ -15,7 +15,7 @@ long long g_itemCopies = 0;
 struct Item
 {
     std::string name;
-    std::string description;   // 툴팁에 쓰는 긴 설명
+    std::string description;   // 툴팁에 쓰는 긴 설명 [JA] ツールチップに使う長い説明
     int weight = 0;
 
     Item(std::string n, int w) : name(std::move(n)), description(std::string(200, '.')), weight(w) {}
@@ -116,6 +116,8 @@ void pf02_loadout()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void pf02_loadout_hidden()
 {
     const std::vector<perf2::Item> inventory = perf2::makeInventory(37);

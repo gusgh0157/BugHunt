@@ -26,7 +26,7 @@ struct Bidder
     int itemsWon = 0;
 };
 
-using BidderId = size_t;   // 경매에 참가한 순서 (0부터)
+using BidderId = size_t;   // 경매에 참가한 순서 (0부터) [JA] オークションに参加した順番(0から)
 
 class AuctionHouse
 {
@@ -36,9 +36,11 @@ public:
     BidderId join(std::string name, int gold, Tier tier);
 
     // 최고가보다 높아야 하고, 금화가 충분해야 한다. 성공하면 true.
+    // [JA] 最高額より高く、金貨が足りていなければなりません。成功したら true。
     bool placeBid(BidderId who, int amount);
 
     // 낙찰. 최고 입찰자가 물건을 받고, 판매자는 최고가에서 수수료를 뺀 금액을 받는다.
+    // [JA] 落札です。最高入札者が品物を受け取り、出品者は最高額から手数料を引いた金額を受け取ります。
     void close();
 
     const Bidder& bidder(BidderId id) const { return bidders_.at(id); }
@@ -50,6 +52,7 @@ public:
     const std::string& item() const { return item_; }
 
     // 등급이 높은 참가자부터(같은 등급은 참가 순서대로) 하나씩 보여 준다. 화면 표시용.
+    // [JA] 等級の高い参加者から(同じ等級は参加順に)1人ずつ見せます。画面表示用です。
     void forEachByTier(const std::function<void(const Bidder&)>& visit);
 
 private:
@@ -61,7 +64,7 @@ private:
     bool closed_ = false;
 };
 
-constexpr int kFeePercent = 5;   // 판매 수수료 5%
+constexpr int kFeePercent = 5;   // 판매 수수료 5% [JA] 販売手数料5%
 
 // 경매장 화면의 패널들 (c1_panels.cpp). 게임 루프가 틈날 때마다 refresh를 부른다.
 

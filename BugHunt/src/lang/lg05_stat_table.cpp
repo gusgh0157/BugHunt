@@ -9,6 +9,7 @@
 namespace lang5
 {
 // 실제 게임에서는 설정 파일에서 읽는다. 컴파일러가 값을 미리 계산해 두지 못하게 실행 중에 읽는다.
+// [JA] 実際のゲームでは設定ファイルから読みます。コンパイラーが値を前もって計算しておけないよう、実行中に読みます。
 int readStat(const char*, int fallback)
 {
     volatile int value = fallback;
@@ -18,8 +19,8 @@ int readStat(const char*, int fallback)
 int g_baseHp = readStat("base_hp", 100);
 int g_baseMana = readStat("base_mana", 40);
 
-int g_bossAttack = baseAttack() * 4;   // 보스는 기본 공격력의 4배
-int g_eliteArmor = baseArmor() * 2;    // 정예 몬스터는 기본 방어력의 2배
+int g_bossAttack = baseAttack() * 4;   // 보스는 기본 공격력의 4배 [JA] ボスは基本攻撃力の 4 倍
+int g_eliteArmor = baseArmor() * 2;    // 정예 몬스터는 기본 방어력의 2배 [JA] 精鋭モンスターは基本防御力の 2 倍
 
 int baseHp() { return g_baseHp; }
 int baseMana() { return g_baseMana; }
@@ -77,6 +78,8 @@ void lg05_stat_table()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void lg05_stat_table_hidden()
 {
     using namespace lang5;

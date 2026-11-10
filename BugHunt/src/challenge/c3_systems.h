@@ -45,11 +45,12 @@ public:
     explicit RespawnSystem(const CheckpointSystem& checkpoints) : checkpoints_(checkpoints) {}
 
     // 마지막 성소 상태로 되살린다. 체력은 절반.
+    // [JA] 最後の聖域の状態で復活させます。体力は半分。
     void respawn(Hero& hero) const
     {
         if (checkpoints_.has(hero.name()))
             hero = checkpoints_.snapshotOf(hero.name());
-        hero.clearBuffs();               // 죽으면 버프가 모두 사라진다 (기획서 7.1)
+        hero.clearBuffs();               // 죽으면 버프가 모두 사라진다 (기획서 7.1) [JA] 死ぬとバフがすべて消える(企画書 7.1)
         hero.setHp(hero.maxHp() / 2);
     }
 

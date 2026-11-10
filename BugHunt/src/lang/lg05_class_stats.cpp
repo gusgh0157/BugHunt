@@ -7,8 +7,8 @@ namespace lang5
 int g_baseAttack = readStat("base_attack", 12);
 int g_baseArmor = readStat("base_armor", 7);
 
-int g_warriorHp = baseHp() * 3;      // 전사는 기본 체력의 3배
-int g_mageMana = baseMana() * 5;     // 마법사는 기본 마나의 5배
+int g_warriorHp = baseHp() * 3;      // 전사는 기본 체력의 3배 [JA] 戦士は基本HPの3倍
+int g_mageMana = baseMana() * 5;     // 마법사는 기본 마나의 5배 [JA] 魔法使いは基本マナの5倍
 
 int baseAttack() { return g_baseAttack; }
 int baseArmor() { return g_baseArmor; }

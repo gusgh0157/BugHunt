@@ -61,7 +61,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <!-- 한글 문자열이 일본어와 짝 없이 있으면 빌드 실패 (src/i18n/source_check.cpp) -->
+      <!-- 한글 문자열이나 주석이 일본어와 짝 없이 있으면 빌드 실패 (src/i18n/source_check.cpp) [JA] ハングルの文字列やコメントに日本語の対がなければビルド失敗 -->
       <Command>"$(TargetPath)" --check-i18n "$(ProjectDir)src"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -83,12 +83,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='ASan'">
     <ClCompile>
-      <!-- ASan과 /RTC는 함께 쓸 수 없다 -->
+      <!-- ASan과 /RTC는 함께 쓸 수 없다 [JA] ASan と /RTC は一緒に使えない -->
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <PostBuildEvent>
-      <!-- 명령줄에서 직접 실행할 수 있도록 ASan 런타임 DLL을 exe 옆에 복사한 뒤, 위와 같은 한글 문자열 검사 -->
+      <!-- 명령줄에서 직접 실행할 수 있도록 ASan 런타임 DLL을 exe 옆에 복사한 뒤, 위와 같은 한글 검사 [JA] コマンドラインから直接実行できるように ASan ランタイム DLL を exe の隣にコピーした後、上と同じハングルの検査 -->
       <Command>copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dbg_dynamic-x86_64.dll" "$(OutDir)" &gt;nul
 copy /Y "$(VCToolsInstallDir)bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll" "$(OutDir)" &gt;nul
 "$(TargetPath)" --check-i18n "$(ProjectDir)src"</Command>

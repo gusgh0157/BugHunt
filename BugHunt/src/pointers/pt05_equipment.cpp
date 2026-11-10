@@ -65,10 +65,11 @@ void pt05_equipment()
     const Weapon oakStaff = { "Oak Staff", 10 };
 
     // 파티 슬롯은 던전마다 새로 할당하지 않고, 지난 던전에 쓰던 메모리 자리에 다시 만든다. (오브젝트 풀)
+    // [JA] パーティースロットはダンジョンごとに新しく割り当てず、前のダンジョンで使っていたメモリの場所に作り直します。(オブジェクトプール)
     Hero* party = static_cast<Hero*>(bughunt::recycledStorage(sizeof(Hero) * 3));
     new (&party[0]) Hero("Kael", 30, &flameSword);
     new (&party[1]) Hero("Mira", 18, &oakStaff);
-    new (&party[2]) Hero("Doran", 35);   // 맨손 격투가
+    new (&party[2]) Hero("Doran", 35);   // 맨손 격투가 [JA] 素手の格闘家
 
     expect(i18n::L("파티 총 공격력 (55 + 28 + 35)", "パーティーの合計攻撃力(55 + 28 + 35)"), 118, partyAttack(party, 3));
 
@@ -112,15 +113,17 @@ void pt05_equipment()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void pt05_equipment_hidden()
 {
     using namespace ptr5;
 
     const Weapon bow = { "Long Bow", 14 };
 
-    Hero rookie("Nell", 12);             // 맨손으로 시작했다가
+    Hero rookie("Nell", 12);             // 맨손으로 시작했다가 [JA] 素手で始めてから
     expect(i18n::L("Nell 맨손 공격력", "Nell の素手の攻撃力"), 12, rookie.attackPower());
-    rookie.equip(&bow);                  // 활을 든다
+    rookie.equip(&bow);                  // 활을 든다 [JA] 弓を持つ
     expect(i18n::L("Nell 활 장착 공격력", "Nell の弓装備時の攻撃力"), 26, rookie.attackPower());
 
     const Hero duo[] = { Hero("Ivo", 40), Hero("Pia", 22, &bow) };

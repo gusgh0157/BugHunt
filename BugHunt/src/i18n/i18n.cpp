@@ -12,6 +12,7 @@ namespace
 Lang g_lang = Lang::ko;
 
 // "ja", "JA", "ja_JP.UTF-8", "ja-JP" → ja / "ko..." → ko / 그 밖 → false
+// [JA] "ja", "JA", "ja_JP.UTF-8", "ja-JP" → ja / "ko..." → ko / それ以外 → false
 bool parseLang(std::string_view text, Lang& out)
 {
     if (text.size() < 2)
@@ -52,6 +53,7 @@ std::vector<std::string> init(int argc, char** argv)
         else
         {
             // 아직 언어를 모르므로 두 언어를 모두 보여 준다
+            // [JA] まだ言語が分からないので、両方の言語を表示します
             constexpr Text kUsage = { "ko 또는 ja", "ko または ja" };
             std::cout << "--lang: " << kUsage.ko << " / " << kUsage.ja << " (" << value << ")\n";
         }

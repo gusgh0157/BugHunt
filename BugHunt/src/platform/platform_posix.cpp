@@ -45,6 +45,7 @@ std::string exePath()
 void platform::initConsole()
 {
     // 대부분의 터미널은 이미 UTF-8이다.
+    // [JA] ほとんどの端末はすでに UTF-8 です。
 }
 
 std::string platform::envVar(const char* name)
@@ -56,6 +57,7 @@ std::string platform::envVar(const char* name)
 std::string platform::osLanguage()
 {
     // POSIX 로캘 변수의 우선순위: LC_ALL > LC_MESSAGES > LANG (예: "ja_JP.UTF-8")
+    // [JA] POSIX のロケール変数の優先順位: LC_ALL > LC_MESSAGES > LANG (例: "ja_JP.UTF-8")
     for (const char* name : { "LC_ALL", "LC_MESSAGES", "LANG" })
     {
         const char* value = std::getenv(name);
@@ -68,6 +70,7 @@ std::string platform::osLanguage()
 void platform::prepareCrashExit()
 {
     // POSIX에서는 크래시가 신호로 끝나고 대화 상자가 없으므로 할 일이 없다.
+    // [JA] POSIX ではクラッシュはシグナルで終わり、ダイアログもないので、することはありません。
 }
 
 bool platform::debuggerAttached()
@@ -94,6 +97,7 @@ bool platform::debuggerAttached()
 void platform::nameThisThread(const char* name)
 {
     // Linux는 이름이 15바이트까지라 ASCII로 짧게 붙인다. 한글 이름은 잘릴 수 있다.
+    // [JA] Linux は名前が 15 バイトまでなので、ASCII で短く付けます。ハングルの名前は切れることがあります。
     char shortName[16] = {};
     std::strncpy(shortName, name, sizeof(shortName) - 1);
 #ifdef __APPLE__
@@ -145,6 +149,7 @@ platform::ProcessResult platform::runSelf(const std::vector<std::string>& args, 
     }
 
     // 파이프 버퍼가 차서 자식이 멈추지 않도록 따로 읽는다.
+    // [JA] パイプのバッファーが一杯になって子プロセスが止まらないよう、別に読み取ります。
     std::thread reader([&] {
         char buffer[4096];
         ssize_t n = 0;

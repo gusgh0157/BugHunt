@@ -9,6 +9,9 @@
 //     50 75 120
 
 // [JA] 報酬表ファイル: モンスター番号が並び、「報酬」(`--lang ko` では「보상」)という見出しの後に同じ順番でゴールドが並びます。
+// [JA]     101 102 103
+// [JA]     報酬
+// [JA]     50 75 120
 namespace io5
 {
 namespace fs = std::filesystem;
@@ -25,7 +28,7 @@ RewardTable loadRewards(const fs::path& file)
     std::ifstream in(file);
 
     int id = 0;
-    while (in >> id)                  // 숫자가 아닌 "보상"에서 멈춘다
+    while (in >> id)                  // 숫자가 아닌 "보상"에서 멈춘다 [JA] 数字ではない「報酬」(`--lang ko` では「보상」)で止まる
         table.monsterIds.push_back(id);
 
     std::string header;
@@ -95,6 +98,8 @@ void io05_reward_table()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void io05_reward_table_hidden()
 {
     using namespace io5;

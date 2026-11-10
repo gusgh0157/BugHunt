@@ -90,6 +90,8 @@ void ft05_discount()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ft05_discount_hidden()
 {
     using namespace flow5;
@@ -97,7 +99,7 @@ void ft05_discount_hidden()
     const Customer goldMember  = { "Ivo",   Grade::Gold,     2,  9 };
     const Customer firstTimer  = { "Nell",  Grade::Silver,   0,  0 };
     const Customer bigSpender  = { "Oren",  Grade::Silver,  14, 30 };
-    const Customer richGuest   = { "Pia",   Grade::Platinum, 0,  5 };   // 멤버십이 없으니 VIP가 아니다
+    const Customer richGuest   = { "Pia",   Grade::Platinum, 0,  5 };   // 멤버십이 없으니 VIP가 아니다 [JA] メンバーシップがないので VIP ではない
 
     expect(i18n::L("Ivo (VIP, 40000원)", "Ivo (VIP、40000ウォン)"),        34000, finalPrice(goldMember, 40000));
     expect(i18n::L("Nell (첫 구매, 10000원)", "Nell (初回購入、10000ウォン)"),    9000, finalPrice(firstTimer, 10000));

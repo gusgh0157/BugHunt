@@ -13,6 +13,7 @@
 namespace async4
 {
 // 경매 마감 종. ring()이 불릴 때까지 기다리는 스레드를 깨운다.
+// [JA] オークションの締め切りの鐘です。ring() が呼ばれるまで待っているスレッドを起こします。
 class ClosingBell
 {
 public:
@@ -38,6 +39,7 @@ private:
 };
 
 // 공지 게시판. 올라온 낙찰가를 모은다.
+// [JA] 告知掲示板です。載せられた落札価格を集めます。
 class NoticeBoard
 {
 public:
@@ -49,6 +51,7 @@ public:
     }
 
     // 공지가 count개 올라올 때까지 기다린다.
+    // [JA] 告知が count 件載るまで待ちます。
     std::vector<int> waitFor(size_t count)
     {
         std::unique_lock<std::mutex> lock(mutex_);
@@ -74,6 +77,7 @@ public:
     }
 
     // "마감 알림 받기"
+    // [JA] 「締め切り通知を受け取る」
     void subscribeClosingNotice(ClosingBell& bell, NoticeBoard& board)
     {
         std::thread([this, &bell, &board] {
@@ -87,19 +91,21 @@ private:
 };
 
 // 플레이어가 입찰하고 알림을 신청한 뒤, 마감 전에 경매 창을 닫는다.
+// [JA] プレイヤーが入札して通知を申し込んだあと、締め切り前にオークション画面を閉じます。
 void bidAndCloseWindow(int startPrice, const std::vector<int>& bids, ClosingBell& bell, NoticeBoard& board)
 {
     auto window = std::make_unique<AuctionWindow>(startPrice);
     for (int price : bids)
         window->placeBid(price);
     window->subscribeClosingNotice(bell, board);
-}   // 경매 창을 닫는다
+}   // 경매 창을 닫는다 [JA] オークション画面を閉じる
 }
 
 void as04_auction_notice()
 {
     using namespace async4;
     // 종과 게시판은 서버가 켜져 있는 동안 계속 있는 객체다.
+    // [JA] 鐘と掲示板は、サーバーが動いている間ずっと存在するオブジェクトです。
     static ClosingBell bell;
     static NoticeBoard board;
 
@@ -147,6 +153,8 @@ void as04_auction_notice()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void as04_auction_notice_hidden()
 {
     using namespace async4;

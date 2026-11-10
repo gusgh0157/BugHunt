@@ -35,6 +35,7 @@ void onNumberKey(const QuickSlotBar& bar, int key)
 }
 
 // 녹화해 둔 입력을 재생한다: 1번, 3번, 2번, 4번 키를 차례로 눌렀다.
+// [JA] 録画しておいた入力を再生します: 1番、3番、2番、4番のキーを順に押しました。
 void replayInput()
 {
     QuickSlotBar bar;

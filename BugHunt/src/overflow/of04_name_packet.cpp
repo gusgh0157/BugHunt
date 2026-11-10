@@ -12,11 +12,12 @@ namespace ovf4
 {
 struct NamePacket
 {
-    char name[32];   // 널 문자 포함 최대 32바이트
+    char name[32];   // 널 문자 포함 최대 32바이트 [JA] ヌル文字を含めて最大32バイト
     int level;
 };
 
 // 이름을 패킷 버퍼에 복사한다
+// [JA] 名前をパケットのバッファーにコピーします
 void writeName(char* dst, const char* src)
 {
     std::memcpy(dst, src, sizeof(dst));
@@ -26,7 +27,7 @@ std::string sendLogin(NamePacket& packet, const char* name, int level)
 {
     writeName(packet.name, name);
     packet.level = level;
-    return std::string(packet.name);   // 받는 쪽은 널 문자까지를 이름으로 읽는다
+    return std::string(packet.name);   // 받는 쪽은 널 문자까지를 이름으로 읽는다 [JA] 受け取る側はヌル文字までを名前として読む
 }
 }
 
@@ -35,7 +36,7 @@ void of04_name_packet()
     using namespace ovf4;
 
     NamePacket packet{};
-    const char previous[] = "Silverwind_Archer";   // 직전 접속자의 이름이 버퍼에 남아 있다
+    const char previous[] = "Silverwind_Archer";   // 직전 접속자의 이름이 버퍼에 남아 있다 [JA] 直前の接続者の名前がバッファーに残っている
     std::memcpy(packet.name, previous, sizeof(previous));
     const std::string first = sendLogin(packet, "Nightingale", 31);
     const std::string second = sendLogin(packet, "Moonshadow", 47);
@@ -84,6 +85,8 @@ void of04_name_packet()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void of04_name_packet_hidden()
 {
     using namespace ovf4;

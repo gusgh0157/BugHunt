@@ -10,7 +10,7 @@ namespace blind5
 struct Unit
 {
     std::string name;
-    int summons;   // 등장할 때 부르는 부하 수
+    int summons;   // 등장할 때 부르는 부하 수 [JA] 登場時に呼ぶ手下の数
 };
 
 // 소환사는 등장하자마자 부하를 부른다. 부하는 아무도 부르지 않는다.

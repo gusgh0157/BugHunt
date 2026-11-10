@@ -24,11 +24,13 @@ public:
     void registerPlayer(const std::string& name, const std::string& role, int level) { board_[name] = { role, level }; }
 
     // 화면에서 row번째 줄을 고른다. (초대 확인 창이 뜨는 동안 기억해 둔다)
+    // [JA] 画面で row 番目の行を選びます。(招待の確認ウィンドウが出ている間、覚えておきます)
     void select(size_t row) { selectedRow_ = row; }
 
     const std::string& selectedName() const { return std::next(board_.begin(), selectedRow_)->first; }
 
     // 확인 창에서 "초대"를 누르면 고른 사람을 데려온다.
+    // [JA] 確認ウィンドウで「招待」を押すと、選んだ人を連れてきます。
     std::string confirmInvite()
     {
         auto it = std::next(board_.begin(), selectedRow_);
@@ -58,6 +60,7 @@ void ct02_party_finder()
     finder.registerPlayer("Mira", "Healer", 42);
 
     // 게시판에서 Mira가 있는 줄을 찾아 고른다.
+    // [JA] 掲示板で Mira がいる行を探して選びます。
     size_t row = 0;
     for (const auto& [name, applicant] : finder.board())
     {
@@ -69,6 +72,7 @@ void ct02_party_finder()
     std::cout << "  " << row << i18n::L("번째 줄 선택: ", "行目を選択: ") << finder.selectedName() << '\n';
 
     // 확인 창이 떠 있는 동안 저녁 시간이라 플레이어가 대거 등록했다.
+    // [JA] 確認ウィンドウが出ている間に、夕方の時間帯でプレイヤーが大量に登録しました。
     ct2::registerWave(finder, "Evening", 60);
 
     const std::string invited = finder.confirmInvite();
@@ -107,6 +111,8 @@ void ct02_party_finder()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ct02_party_finder_hidden()
 {
     ct2::PartyFinder finder;

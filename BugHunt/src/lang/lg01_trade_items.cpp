@@ -33,15 +33,16 @@ struct Item
 struct Trader
 {
     std::string name;
-    std::vector<Item> offer;      // 거래 창에 올린 아이템
-    std::vector<Item> received;   // 거래로 받은 아이템
+    std::vector<Item> offer;      // 거래 창에 올린 아이템 [JA] 取引ウィンドウに載せたアイテム
+    std::vector<Item> received;   // 거래로 받은 아이템 [JA] 取引で受け取ったアイテム
 };
 
 // from의 거래 창에 있는 아이템을 to에게 옮긴다. 거래가 끝나면 from의 거래 창은 비어야 한다.
+// [JA] from の取引ウィンドウにあるアイテムを to に移します。取引が終わったら from の取引ウィンドウは空でなければなりません。
 void trade(const Trader& from, Trader& to)
 {
     for (const Item& item : from.offer)
-        to.received.push_back(std::move(item));   // 복사하지 않고 옮긴다
+        to.received.push_back(std::move(item));   // 복사하지 않고 옮긴다 [JA] コピーせずに移動する
 }
 
 void put(Trader& t, std::initializer_list<const char*> names)
@@ -116,6 +117,8 @@ void lg01_trade_items()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void lg01_trade_items_hidden()
 {
     using namespace lang1;

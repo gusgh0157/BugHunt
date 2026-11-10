@@ -24,9 +24,10 @@ int pressSwitches(std::vector<bool>& doorsOpen, const std::vector<int>& presses)
 
 void ct05_dungeon_doors()
 {
-    std::vector<bool> doors = { false, true, false, false };   // 문 1만 열려 있다
+    std::vector<bool> doors = { false, true, false, false };   // 문 1만 열려 있다 [JA] 扉 1 だけが開いている
 
     // 문 0 열기, 문 1 닫기, 문 2 열기, 문 0 닫기, 문 3 열기
+    // [JA] 扉 0 を開ける、扉 1 を閉じる、扉 2 を開ける、扉 0 を閉じる、扉 3 を開ける
     const int score = ct5::pressSwitches(doors, { 0, 1, 2, 0, 3 });
 
     expect(i18n::L("퍼즐 점수 (닫힌 문을 연 횟수)", "パズルのスコア(閉じた扉を開けた回数)"), 3, score);
@@ -57,10 +58,12 @@ void ct05_dungeon_doors()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ct05_dungeon_doors_hidden()
 {
     std::vector<bool> doors(6, true);
-    const int score = ct5::pressSwitches(doors, { 5, 5, 5, 2, 0, 2, 4 });   // 5: 닫기, 열기, 닫기 / 2: 닫기, 열기
+    const int score = ct5::pressSwitches(doors, { 5, 5, 5, 2, 0, 2, 4 });   // 5: 닫기, 열기, 닫기 / 2: 닫기, 열기 [JA] 5: 閉じる、開ける、閉じる / 2: 閉じる、開ける
     expect(i18n::L("퍼즐 점수", "パズルのスコア"), 2, score);
     expect(i18n::L("문 5가 닫혀 있나?", "扉5は閉じているか?"), false, static_cast<bool>(doors[5]));
     expect(i18n::L("문 2가 열려 있나?", "扉2は開いているか?"), true, static_cast<bool>(doors[2]));

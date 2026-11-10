@@ -77,6 +77,7 @@ struct Game
     void setup()
     {
         // 퀘스트 창이 먼저 반응하도록 퀘스트를 먼저 붙이고, 통계는 그다음에 붙인다.
+        // [JA] クエストウィンドウが先に反応するようにクエストを先に登録し、統計はその後に登録します。
         bus.subscribe([this](const std::string& e) { quest.onKill(e); });
         bus.subscribe([this](const std::string& e) { counter.onKill(e); });
     }
@@ -130,17 +131,19 @@ void ft04_quest()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ft04_quest_hidden()
 {
     {
-        flow4::Game game;            // 늑대 4마리: 아직 완료되면 안 된다
+        flow4::Game game;            // 늑대 4마리: 아직 완료되면 안 된다 [JA] オオカミ4匹: まだ完了してはいけない
         game.setup();
         for (const char* enemy : { "Wolf", "Boar", "Wolf", "Wolf", "Boar", "Wolf" })
             game.bus.publishKill(enemy);
         expect(i18n::L("늑대 4마리 후 완료 번호 (미완료 = 0)", "オオカミ4匹後の完了番号(未完了 = 0)"), 0, game.quest.completedAtKill());
     }
     {
-        flow4::Game game;            // 늑대 7마리 사이사이에 멧돼지
+        flow4::Game game;            // 늑대 7마리 사이사이에 멧돼지 [JA] オオカミ7匹の合間にイノシシ
         game.setup();
         for (const char* enemy : { "Boar", "Wolf", "Wolf", "Boar", "Wolf", "Boar", "Wolf", "Wolf", "Wolf", "Wolf" })
             game.bus.publishKill(enemy);

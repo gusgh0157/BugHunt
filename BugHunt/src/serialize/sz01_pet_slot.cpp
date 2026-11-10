@@ -12,6 +12,7 @@ namespace sz1
 using nlohmann::json;
 
 // 상태 창: 펫 이름 칸
+// [JA] ステータス画面: ペット名の欄
 std::string petLabel(json& save)
 {
     if (save["pet"].is_null())
@@ -20,6 +21,7 @@ std::string petLabel(json& save)
 }
 
 // 소환 버튼: 펫이 있을 때만 켠다
+// [JA] 召喚ボタン: ペットがいるときだけ有効にします
 bool canSummonPet(const json& save)
 {
     return save.contains("pet");
@@ -34,8 +36,8 @@ void sz01_pet_slot()
     json save = json::parse(text);
     const std::string before = save.dump();
 
-    const std::string label = petLabel(save);         // 상태 창을 먼저 그리고
-    const bool summon = canSummonPet(save);           // 버튼을 정한다
+    const std::string label = petLabel(save);         // 상태 창을 먼저 그리고 [JA] 先にステータス画面を描いて
+    const bool summon = canSummonPet(save);           // 버튼을 정한다 [JA] ボタンを決める
 
     std::cout << i18n::L("  펫 칸: ", "  ペット欄: ") << label << i18n::L(", 소환 버튼: ", "、召喚ボタン: ")
               << (summon ? i18n::L("켬", "オン") : i18n::L("끔", "オフ")) << '\n';
@@ -78,6 +80,8 @@ void sz01_pet_slot()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void sz01_pet_slot_hidden()
 {
     using namespace sz1;

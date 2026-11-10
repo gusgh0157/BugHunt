@@ -14,6 +14,7 @@ class Inventory
 {
 public:
     // 아이템을 추가하고, 바로 수정할 수 있도록 참조를 돌려준다.
+    // [JA] アイテムを追加し、すぐに修正できるように参照を返します。
     Item& add(const std::string& name, int count)
     {
         items_.push_back({ name, count });
@@ -42,6 +43,7 @@ void lab02_inventory()
     inv.add("Iron Arrow", 30);
 
     // 퀘스트 보상: 검을 하나 더 준다.
+    // [JA] クエスト報酬: 剣をもう1本与えます。
     sword.count += 1;
 
     expect(i18n::L("검 개수", "剣の数"), 2, inv.countOf("Sword of the Northern Watch"));

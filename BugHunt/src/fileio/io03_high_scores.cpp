@@ -87,18 +87,20 @@ void io03_high_scores()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void io03_high_scores_hidden()
 {
     using namespace io3;
 
     iokit::LabDir lab("io03_high_scores_hidden");
 
-    iokit::writeBytes(lab / "no_newline.txt", i18n::L("가 500\n나 400", "ア 500\nイ 400"));          // 마지막 줄바꿈 없음
+    iokit::writeBytes(lab / "no_newline.txt", i18n::L("가 500\n나 400", "ア 500\nイ 400"));          // 마지막 줄바꿈 없음 [JA] 最後の改行なし
     const std::vector<Score> a = loadScores(lab / "no_newline.txt");
     expect(i18n::L("줄바꿈 없이 끝남: 줄 수", "改行なしで終わる: 行数"), static_cast<size_t>(2), a.size());
     expect(i18n::L("줄바꿈 없이 끝남: 총점", "改行なしで終わる: 合計点"), 900, total(a));
 
-    iokit::writeBytes(lab / "blank_tail.txt", i18n::L("다 30\n라 20\n마 10\n\n\n", "ウ 30\nエ 20\nオ 10\n\n\n"));   // 빈 줄이 여러 개
+    iokit::writeBytes(lab / "blank_tail.txt", i18n::L("다 30\n라 20\n마 10\n\n\n", "ウ 30\nエ 20\nオ 10\n\n\n"));   // 빈 줄이 여러 개 [JA] 空行が複数
     const std::vector<Score> b = loadScores(lab / "blank_tail.txt");
     expect(i18n::L("빈 줄로 끝남: 줄 수", "空行で終わる: 行数"), static_cast<size_t>(3), b.size());
     expect(i18n::L("빈 줄로 끝남: 총점", "空行で終わる: 合計点"), 60, total(b));

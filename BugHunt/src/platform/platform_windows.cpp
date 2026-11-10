@@ -46,6 +46,7 @@ std::wstring exePath()
 
 #ifdef _MSC_VER
 // MSVC 런타임(Debug)의 어설션 창 대신 메시지 한 줄을 남기고 바로 끝낸다.
+// [JA] MSVC ランタイム(Debug)のアサーションウィンドウの代わりにメッセージを1行残して、すぐに終了します。
 int __cdecl reportHook(int reportType, char* message, int* returnValue)
 {
     if (reportType == _CRT_WARN)
@@ -99,9 +100,11 @@ std::string platform::osLanguage()
 void platform::prepareCrashExit()
 {
     // 크래시 대화 상자(WER)를 끈다.
+    // [JA] クラッシュのダイアログ(WER)を無効にします。
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
 #ifdef _MSC_VER
     // Debug 런타임의 어설션 창, abort() 메시지 창도 끈다.
+    // [JA] Debug ランタイムのアサーションウィンドウと abort() のメッセージウィンドウも無効にします。
     _CrtSetReportHook2(_CRT_RPTHOOK_INSTALL, reportHook);
     _set_invalid_parameter_handler(invalidParameterHandler);
     _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
@@ -116,6 +119,7 @@ bool platform::debuggerAttached()
 void platform::nameThisThread(const char* name)
 {
     // Windows 10 1607 이상. 없는 시스템에서는 조용히 넘어간다.
+    // [JA] Windows 10 1607 以降。ないシステムでは何もせずに進みます。
     using SetDescription = HRESULT(WINAPI*)(HANDLE, PCWSTR);
     const HMODULE kernel = GetModuleHandleW(L"kernel32.dll");
     const auto set = kernel ? reinterpret_cast<SetDescription>(reinterpret_cast<void*>(GetProcAddress(kernel, "SetThreadDescription"))) : nullptr;
@@ -154,9 +158,10 @@ platform::ProcessResult platform::runSelf(const std::vector<std::string>& args, 
         result.output = i18n::L("자식 프로세스를 시작하지 못했다", "子プロセスを開始できなかった");
         return result;
     }
-    CloseHandle(writePipe);   // 자식이 끝나면 파이프가 닫혀 읽기 스레드가 끝나도록
+    CloseHandle(writePipe);   // 자식이 끝나면 파이프가 닫혀 읽기 스레드가 끝나도록 [JA] 子が終わるとパイプが閉じて、読み取りスレッドが終わるように
 
     // 파이프 버퍼가 차서 자식이 멈추지 않도록 따로 읽는다.
+    // [JA] パイプのバッファーがいっぱいになって子が止まらないように、別に読み取ります。
     std::thread reader([&] {
         char buffer[4096];
         DWORD n = 0;

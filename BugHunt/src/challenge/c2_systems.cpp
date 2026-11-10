@@ -32,7 +32,7 @@ HuntQuest::HuntQuest(EventBus& bus, std::string title, std::string target, int c
         if (progress_ >= count_)
         {
             done_ = true;
-            bus_.unsubscribe(sub_);   // 끝난 의뢰는 더 듣지 않는다
+            bus_.unsubscribe(sub_);   // 끝난 의뢰는 더 듣지 않는다 [JA] 終わった依頼はもう購読しない
         }
     });
 }
@@ -48,6 +48,7 @@ AchievementTracker::AchievementTracker(EventBus& bus)
         else if (e.type == EventType::PlayerHit)
         {
             // 막아 낸 공격(피해 0)도 피격이다. (기획서 4.2)
+            // [JA] 防いだ攻撃(ダメージ0)も被弾です。(企画書 4.2)
             if (current_ > best_)
                 best_ = current_;
             current_ = 0;

@@ -26,6 +26,7 @@ struct Inventory
 };
 
 // 위조 아이템인지 서버에 물어본다. (네트워크라 시간이 좀 걸린다)
+// [JA] 偽造アイテムかどうかをサーバーに問い合わせます。(ネットワーク越しなので少し時間がかかります)
 bool verifyItem(const Inventory& inv, const std::string& item)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -33,6 +34,7 @@ bool verifyItem(const Inventory& inv, const std::string& item)
 }
 
 // seller가 item을 buyer에게 price골드에 판다.
+// [JA] seller が item を buyer に price ゴールドで売ります。
 void trade(Inventory& seller, Inventory& buyer, const std::string& item, int price)
 {
     std::lock_guard<std::mutex> sellerLock(seller.lock);
@@ -58,6 +60,7 @@ struct Order
 };
 
 // 주문들을 동시에(각자 스레드에서) 처리한다.
+// [JA] 注文を同時に(それぞれ別スレッドで)処理します。
 void runTradeServer(const std::vector<Order>& orders)
 {
     std::latch start(static_cast<std::ptrdiff_t>(orders.size()));
@@ -65,7 +68,7 @@ void runTradeServer(const std::vector<Order>& orders)
     for (const Order& order : orders)
     {
         workers.emplace_back([&start, order] {
-            start.arrive_and_wait();   // 모든 거래가 같은 순간에 시작한다
+            start.arrive_and_wait();   // 모든 거래가 같은 순간에 시작한다 [JA] すべての取引が同じ瞬間に始まる
             trade(*order.seller, *order.buyer, order.item, order.price);
         });
     }
@@ -83,8 +86,8 @@ void hg05_trade()
 
     runWithWatchdog(i18n::L("동시 거래 처리", "同時トレードの処理"), [&] {
         runTradeServer({
-            { &kael, &mira, "Flame Sword", 500 },     // Kael → Mira: 검
-            { &mira, &kael, "Healing Potion", 30 },   // Mira → Kael: 포션
+            { &kael, &mira, "Flame Sword", 500 },     // Kael → Mira: 검 [JA] Kael → Mira: 剣
+            { &mira, &kael, "Healing Potion", 30 },   // Mira → Kael: 포션 [JA] Mira → Kael: ポーション
         });
     });
 
@@ -125,11 +128,14 @@ void hg05_trade()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void hg05_trade_hidden()
 {
     using namespace hang5;
 
     // 세 명이 원을 이루며 동시에 판다: Ivo → Nell → Pia → Ivo
+    // [JA] 3 人が輪になって同時に売ります: Ivo → Nell → Pia → Ivo
     Inventory ivo{ "Ivo", 300, { "Bow" } };
     Inventory nell{ "Nell", 300, { "Shield" } };
     Inventory pia{ "Pia", 300, { "Ring" } };

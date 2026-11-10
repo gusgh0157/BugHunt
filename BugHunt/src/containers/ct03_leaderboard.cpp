@@ -17,7 +17,7 @@ struct Entry
 void sortByScore(std::vector<Entry>& entries)
 {
     std::sort(entries.begin(), entries.end(), bughunt::checkedOrder([](const Entry& a, const Entry& b) {
-        return a.score >= b.score;   // 높은 점수가 앞으로
+        return a.score >= b.score;   // 높은 점수가 앞으로 [JA] 高いスコアが前へ
     }));
 }
 
@@ -81,6 +81,8 @@ void ct03_leaderboard()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ct03_leaderboard_hidden()
 {
     std::vector<ct3::Entry> league;

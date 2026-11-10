@@ -24,6 +24,7 @@ void onAttack(Combo& c, bool hit)
         return;
     }
     // 콤보를 올리면서 최고 기록과 비교한다.
+    // [JA] コンボを増やしながら最高記録と比べます。
     c.best = BUGHUNT_MAX(c.best, ++c.current);
 }
 }
@@ -33,10 +34,11 @@ void ft10_best_combo()
     using namespace flow10;
 
     // 맞음 x3, 빗나감, 맞음 x2
+    // [JA] 命中 x3、ミス、命中 x2
     const std::vector<bool> attacks = { true, true, true, false, true, true };
 
     Combo combo;
-    std::vector<int> shown;           // 매 공격 뒤 화면에 띄운 콤보 숫자
+    std::vector<int> shown;           // 매 공격 뒤 화면에 띄운 콤보 숫자 [JA] 攻撃のたびに画面に表示したコンボ数
     for (bool hit : attacks)
     {
         onAttack(combo, hit);
@@ -85,12 +87,14 @@ void ft10_best_combo()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ft10_best_combo_hidden()
 {
     using namespace flow10;
 
     Combo c;
-    c.best = 4;                       // 이전 구간에서 4콤보를 이미 찍었다
+    c.best = 4;                       // 이전 구간에서 4콤보를 이미 찍었다 [JA] 前の区間ですでに4コンボを記録している
     const bool pattern[] = { true, true, false, true, true, true, true, true, true };
     const int expected[] = { 1, 2, 0, 1, 2, 3, 4, 5, 6 };
     for (int i = 0; i < 9; ++i)

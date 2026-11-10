@@ -94,6 +94,6 @@ private:
     std::vector<std::string> titles_;
 };
 
-constexpr int kShadowStreak = 6;   // 무피격 연속 처치 6 이상이면 "그림자"
-constexpr int kWolfSlayer = 5;     // 늑대 5마리 이상이면 "늑대 사냥꾼"
+constexpr int kShadowStreak = 6;   // 무피격 연속 처치 6 이상이면 "그림자" [JA] ノーダメージ連続撃破6以上なら「影」(--lang ko では「그림자」)
+constexpr int kWolfSlayer = 5;     // 늑대 5마리 이상이면 "늑대 사냥꾼" [JA] オオカミ5匹以上なら「オオカミハンター」(--lang ko では「늑대 사냥꾼」)
 }

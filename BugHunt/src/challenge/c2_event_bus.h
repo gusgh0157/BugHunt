@@ -20,10 +20,10 @@ enum class EventType
 
 struct Event
 {
-    int seq = 0;                // 몇 번째 이벤트인가 (1부터)
+    int seq = 0;                // 몇 번째 이벤트인가 (1부터) [JA] 何番目のイベントか(1から)
     EventType type = EventType::MonsterKilled;
-    std::string monster;        // MonsterKilled일 때 몬스터 종류
-    int damage = 0;             // PlayerHit일 때 받은 피해 (방어로 막으면 0)
+    std::string monster;        // MonsterKilled일 때 몬스터 종류 [JA] MonsterKilled のときのモンスターの種類
+    int damage = 0;             // PlayerHit일 때 받은 피해 (방어로 막으면 0) [JA] PlayerHit のときに受けたダメージ(防御で防いだら0)
 };
 
 using SubscriptionId = int;
@@ -72,7 +72,7 @@ private:
     struct Subscriber
     {
         SubscriptionId id;
-        std::string name;   // 디버깅용 이름
+        std::string name;   // 디버깅용 이름 [JA] デバッグ用の名前
         Handler handler;
     };
 

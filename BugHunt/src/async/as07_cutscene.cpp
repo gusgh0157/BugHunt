@@ -14,6 +14,7 @@
 namespace async7
 {
 // 매 프레임 한 번 깨워 주는 아주 작은 코루틴 타입
+// [JA] 毎フレーム1回起こしてくれる、ごく小さなコルーチン型
 struct Cutscene
 {
     struct promise_type
@@ -37,6 +38,7 @@ struct Cutscene
     }
 
     // 다음 프레임까지 실행한다. 끝났으면 false.
+    // [JA] 次のフレームまで実行します。終わっていれば false。
     bool step()
     {
         if (!handle || handle.done())
@@ -51,29 +53,31 @@ struct Cutscene
 struct Npc
 {
     std::string name;
-    int affinity;   // 호감도
+    int affinity;   // 호감도 [JA] 好感度
 };
 
 struct DialogueLog
 {
-    std::vector<int> affinityShown;   // 대사 창에 보여 준 호감도
+    std::vector<int> affinityShown;   // 대사 창에 보여 준 호감도 [JA] 会話ウィンドウに表示した好感度
 };
 
 // NPC와의 대화 컷신. 인사 → (다음 프레임) 선물 받기 → (다음 프레임) 호감도 보여 주기
+// [JA] NPC との会話カットシーン。あいさつ → (次のフレーム) プレゼントを受け取る → (次のフレーム) 好感度を表示
 Cutscene talkTo(const Npc& npc, DialogueLog& log)
 {
     log.affinityShown.push_back(npc.affinity);
     co_await std::suspend_always{};
     co_await std::suspend_always{};
-    log.affinityShown.push_back(npc.affinity + 10);   // 선물로 호감도 +10
+    log.affinityShown.push_back(npc.affinity + 10);   // 선물로 호감도 +10 [JA] プレゼントで好感度 +10
 }
 
 // 마을 장면: NPC를 불러와 대화 컷신을 예약한다. 컷신은 엔진이 다음 프레임부터 돌린다.
+// [JA] 村のシーン: NPC を読み込み、会話カットシーンを予約します。カットシーンはエンジンが次のフレームから実行します。
 Cutscene startVillageScene(int baseAffinity, DialogueLog& log)
 {
     auto npc = std::make_unique<Npc>(Npc{ "Elder Bram", baseAffinity });
     return talkTo(*npc, log);
-}   // 장면 준비 끝. 불러온 NPC 정리
+}   // 장면 준비 끝. 불러온 NPC 정리 [JA] シーンの準備完了。読み込んだ NPC を片付ける
 }
 
 void as07_cutscene()
@@ -122,6 +126,8 @@ void as07_cutscene()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void as07_cutscene_hidden()
 {
     using namespace async7;

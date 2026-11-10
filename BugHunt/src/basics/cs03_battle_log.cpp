@@ -11,7 +11,7 @@ struct BattleRecord
 {
     std::string enemy;
     int totalDamage;
-    int durationMs;   // 전투 시간 (밀리초)
+    int durationMs;   // 전투 시간 (밀리초) [JA] 戦闘時間(ミリ秒)
 };
 
 int toSeconds(int ms)

@@ -10,7 +10,7 @@ namespace blind2
 struct Notice
 {
     std::string title;
-    std::string author;   // 비어 있으면 시스템 공지
+    std::string author;   // 비어 있으면 시스템 공지 [JA] 空ならシステムのお知らせ
 };
 
 const std::string& authorOr(const Notice& n, const std::string& fallback)
@@ -58,6 +58,7 @@ void chB2_hidden()
     expect(i18n::L("이름 없는 공지", "名前のないお知らせ"), std::string(i18n::L("아무개", "名無し")), authorOr({ "t", "" }, fallback));
 
     // 임시 fallback을 넘기고 결과를 붙잡아 둔다. 값을 돌려주는 authorOr라면 수명이 연장되어 안전하다.
+    // [JA] 一時的な fallback を渡して、結果を保持しておきます。値を返す authorOr なら寿命が延長されるので安全です。
     const std::string& kept = authorOr({ "t", "" }, std::string(i18n::L("임시로 만든 기본 작성자 이름", "一時的に作った既定の作成者名")));
     expect(i18n::L("임시 fallback으로 받은 이름", "一時的な fallback で受け取った名前"), std::string(i18n::L("임시로 만든 기본 작성자 이름", "一時的に作った既定の作成者名")), kept);
 }

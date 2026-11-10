@@ -17,6 +17,8 @@ namespace async5
 {
 // 결제 서버. 요청을 모아서 한 번에 처리한다.
 // 묶음이 다 차거나, 첫 요청 뒤 조금 기다려도 더 오지 않으면 모인 요청을 처리한다.
+// [JA] 決済サーバーです。リクエストを集めて一度に処理します。
+// [JA] まとまりが満杯になるか、最初のリクエストのあと少し待っても次が来なければ、集まったリクエストを処理します。
 class PaymentServer
 {
 public:
@@ -32,7 +34,7 @@ public:
         }
         else if (!flushed_.wait_for(lock, std::chrono::milliseconds(200), [&] { return batch_ != myBatch; }))
         {
-            flush();   // 더 오지 않는다. 모인 것만 처리
+            flush();   // 더 오지 않는다. 모인 것만 처리 [JA] もう来ない。集まった分だけ処理
         }
     }
 
@@ -57,6 +59,7 @@ public:
     LimitedShop(int stock, int price, PaymentServer& payment) : stock_(stock), price_(price), payment_(payment) {}
 
     // 한 개 산다. 샀으면 true.
+    // [JA] 1個買います。買えたら true。
     bool buy(const std::string& player)
     {
         if (stock_.load() <= 0)
@@ -79,6 +82,7 @@ private:
 };
 
 // 플레이어들이 같은 순간에 구매 버튼을 누른다.
+// [JA] プレイヤーたちが同じ瞬間に購入ボタンを押します。
 int rush(LimitedShop& shop, const std::vector<std::string>& players)
 {
     std::latch start(static_cast<std::ptrdiff_t>(players.size()));
@@ -102,7 +106,7 @@ void as05_limited_sale()
 {
     using namespace async5;
     PaymentServer payment(8);
-    LimitedShop shop(3, 990, payment);   // 한정 3개
+    LimitedShop shop(3, 990, payment);   // 한정 3개 [JA] 限定3個
 
     const int bought = rush(shop, { "Kael", "Mira", "Doran", "Selene", "Ivo" });
     std::cout << i18n::L("  구매 성공 ", "  購入成功 ") << bought << i18n::L("명, 남은 수량 ", "人、残り数量 ") << shop.stock() << i18n::L(", 판매 수 ", "、販売数 ") << shop.sold() << '\n';
@@ -143,6 +147,8 @@ void as05_limited_sale()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void as05_limited_sale_hidden()
 {
     using namespace async5;

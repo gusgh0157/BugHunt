@@ -22,6 +22,7 @@ struct LootEntry
 };
 
 // 서버 쪽 코드: 항목들을 패킷 바이트로 만든다.
+// [JA] サーバー側のコード: 項目をパケットのバイト列にします。
 std::vector<uint8_t> buildPacket(const std::vector<LootEntry>& entries)
 {
     const PacketHeader header = { static_cast<uint32_t>(entries.size()) };
@@ -32,6 +33,7 @@ std::vector<uint8_t> buildPacket(const std::vector<LootEntry>& entries)
 }
 
 // 클라이언트 쪽 코드: 패킷에서 받은 아이템 개수를 모두 더한다.
+// [JA] クライアント側のコード: パケットで受け取ったアイテムの個数をすべて足します。
 int totalItems(const std::vector<uint8_t>& packet)
 {
     const PacketHeader* header = reinterpret_cast<const PacketHeader*>(packet.data());
@@ -47,6 +49,7 @@ int totalItems(const std::vector<uint8_t>& packet)
 void pt04_loot_packet()
 {
     // 포션 3, 화살 20, 금화 50, 열쇠 1, 보석 2
+    // [JA] ポーション 3、矢 20、金貨 50、鍵 1、宝石 2
     const std::vector<ptr4::LootEntry> loot = { { 101, 3 }, { 205, 20 }, { 900, 50 }, { 777, 1 }, { 310, 2 } };
     const std::vector<uint8_t> packet = ptr4::buildPacket(loot);
 
@@ -86,6 +89,8 @@ void pt04_loot_packet()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void pt04_loot_packet_hidden()
 {
     const std::vector<ptr4::LootEntry> loot = { { 12, 7 }, { 13, 11 }, { 14, 100 }, { 15, 4 }, { 16, 9 }, { 17, 30 }, { 18, 2 } };

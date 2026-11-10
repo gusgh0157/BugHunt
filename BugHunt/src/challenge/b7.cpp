@@ -11,7 +11,7 @@ namespace blind7
 struct Order
 {
     std::string item;
-    double price;   // 금화 (소수점은 은화)
+    double price;   // 금화 (소수점은 은화) [JA] 金貨(小数点以下は銀貨)
 };
 
 double cartTotal(const std::vector<Order>& cart)

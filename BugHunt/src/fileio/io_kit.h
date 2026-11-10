@@ -23,7 +23,7 @@ public:
         : path_(fs::temp_directory_path() / "BugHunt" / name)
     {
         std::error_code ec;
-        fs::remove_all(path_, ec);      // 지난번에 중간에 멈춘 실행이 남긴 것
+        fs::remove_all(path_, ec);      // 지난번에 중간에 멈춘 실행이 남긴 것 [JA] 前回の途中で止まった実行が残したもの
         fs::create_directories(path_);
     }
     ~LabDir()
@@ -42,6 +42,7 @@ private:
 };
 
 // 연습용 파일을 바이트 그대로 만든다 (줄바꿈 변환 없음). 필요하면 폴더도 만든다.
+// [JA] 練習用のファイルをバイトそのままで作ります(改行変換なし)。必要ならフォルダーも作ります。
 inline void writeBytes(const fs::path& file, std::string_view bytes)
 {
     fs::create_directories(file.parent_path());

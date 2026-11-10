@@ -20,6 +20,7 @@ public:
     explicit ReadyCheck(int memberCount) : memberCount_(memberCount) {}
 
     // 공대원 스레드: 준비 완료
+    // [JA] レイドメンバーのスレッド: 準備完了
     void markReady()
     {
         {
@@ -30,6 +31,7 @@ public:
     }
 
     // 공대장 스레드: 모두 준비될 때까지 기다린다.
+    // [JA] レイドリーダーのスレッド: 全員の準備ができるまで待ちます。
     void waitForAll()
     {
         std::unique_lock<std::mutex> lock(mutex_);
@@ -53,6 +55,8 @@ private:
 
 // 공대장이 입장 공지를 쓰는 동안 공대원들이 먼저 준비를 마치는 상황.
 // (이 랩은 이 순서를 매번 똑같이 재현하려고, 공지를 다 쓰는 시점을 "공대원이 모두 버튼을 누른 뒤"로 고정했다)
+// [JA] レイドリーダーが入場の告知を書いている間に、メンバーたちが先に準備を終える状況です。
+// [JA] (このラボはこの順序を毎回同じように再現するため、告知を書き終えるタイミングを「メンバー全員がボタンを押した後」に固定しました)
 int enterRaid(const std::vector<std::string>& members)
 {
     ReadyCheck check(static_cast<int>(members.size()));
@@ -67,8 +71,8 @@ int enterRaid(const std::vector<std::string>& members)
         });
     }
 
-    buttonsPressed.wait();   // 공대장: 입장 공지를 다 썼다
-    check.waitForAll();      // 공대장: 이제 모두를 기다린다
+    buttonsPressed.wait();   // 공대장: 입장 공지를 다 썼다 [JA] レイドリーダー: 入場の告知を書き終えた
+    check.waitForAll();      // 공대장: 이제 모두를 기다린다 [JA] レイドリーダー: これから全員を待つ
 
     for (std::thread& t : clients)
         t.join();
@@ -120,11 +124,14 @@ void as03_raid_ready()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void as03_raid_ready_hidden()
 {
     using namespace async3;
 
     // 1) 공대원 여섯 명
+    // [JA] 1) レイドメンバー6人
     int entered = 0;
     runWithWatchdog(i18n::L("레이드 입장 (숨은 케이스)", "レイド入場(隠しケース)"), [&] {
         entered = enterRaid({ "Ivo", "Nell", "Pia", "Rook", "Sana", "Tom" });
@@ -132,6 +139,7 @@ void as03_raid_ready_hidden()
     expect(i18n::L("입장한 공대원 수", "入場したレイドメンバー数"), 6, entered);
 
     // 2) 공대장이 먼저 기다리고, 공대원이 한 명씩 늦게 준비하는 경우
+    // [JA] 2) レイドリーダーが先に待ち、メンバーが一人ずつ遅れて準備する場合
     ReadyCheck check(3);
     int seen = 0;
     runWithWatchdog(i18n::L("늦게 준비하는 공대원 (숨은 케이스)", "準備が遅いレイドメンバー(隠しケース)"), [&] {

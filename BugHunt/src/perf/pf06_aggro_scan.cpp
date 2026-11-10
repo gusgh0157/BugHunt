@@ -24,6 +24,8 @@ struct Monster : std::enable_shared_from_this<Monster>
 
     // 계측용: 이 몬스터를 동시에 붙잡고 있는 shared_ptr이 몇 개인지 기록한다.
     // 몬스터 목록 하나만 들고 있다면 항상 1이어야 한다.
+    // [JA] 計測用: このモンスターを同時につかんでいる shared_ptr がいくつあるかを記録します。
+    // [JA] モンスターのリスト一つだけが持っているなら、常に1のはずです。
     void noteHolders() const { g_maxHolders = std::max(g_maxHolders, weak_from_this().use_count()); }
 
     static inline long g_maxHolders = 0;
@@ -112,13 +114,16 @@ void pf06_aggro_scan()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void pf06_aggro_scan_hidden()
 {
     const auto field = perf6::makeField(77);
     perf6::Monster::g_maxHolders = 0;
     expect(i18n::L("가장 위험한 몬스터", "いちばん危険なモンスター"), std::string("Mob49"), perf6::scan(field, 5));
     // threatOf가 MonsterPtr을 받든 const Monster&를 받든 검사할 수 있게 한다.
-    const auto threatOf = [](const auto& m) {   // 제네릭 람다: 맞지 않는 쪽 분기는 만들어지지 않는다
+    // [JA] threatOf が MonsterPtr を受け取っても const Monster& を受け取っても検査できるようにします。
+    const auto threatOf = [](const auto& m) {   // 제네릭 람다: 맞지 않는 쪽 분기는 만들어지지 않는다 [JA] ジェネリックラムダ: 合わない側の分岐は生成されない
         if constexpr (requires { perf6::threatOf(m); })
             return perf6::threatOf(m);
         else

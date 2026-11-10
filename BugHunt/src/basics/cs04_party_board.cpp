@@ -10,7 +10,7 @@ namespace lab4
 struct Party
 {
     std::string name;
-    std::vector<std::string> members;   // 첫 번째 멤버가 파티장
+    std::vector<std::string> members;   // 첫 번째 멤버가 파티장 [JA] 最初のメンバーがパーティーリーダー
 };
 
 const std::string& leaderOf(const Party& party)
@@ -48,7 +48,7 @@ void runPartyScreen()
 {
     const std::vector<Party> parties = {
         { "Northwind",     { "Kael", "Mira" } },
-        { "Silent Hollow", {} },                       // 멤버가 모두 탈퇴함
+        { "Silent Hollow", {} },                       // 멤버가 모두 탈퇴함 [JA] メンバーが全員脱退した
         { "Deepforge",     { "Doran", "Brakka", "Ulf" } },
     };
 

@@ -38,7 +38,7 @@ struct Dungeon
 struct DungeonFile
 {
     std::string name;
-    std::string layout;   // 방마다 'R', 깨진 칸은 '?'
+    std::string layout;   // 방마다 'R', 깨진 칸은 '?' [JA] 部屋ごとに 'R'、壊れたマスは '?'
 };
 
 int countRooms(const std::string& layout)
@@ -63,6 +63,7 @@ Dungeon* loadDungeon(const DungeonFile& file)
 }
 
 // 던전 목록을 차례로 불러와 방 수의 합을 돌려준다. 실패한 던전은 건너뛴다.
+// [JA] ダンジョンのリストを順に読み込み、部屋数の合計を返します。失敗したダンジョンは飛ばします。
 int exploreAll(const std::vector<DungeonFile>& files)
 {
     int totalRooms = 0;
@@ -136,6 +137,8 @@ void lg07_dungeon_load()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void lg07_dungeon_load_hidden()
 {
     using namespace lang7;
@@ -155,7 +158,7 @@ void lg07_dungeon_load_hidden()
     {
         try
         {
-            (void)loadDungeon(broken);   // 깨진 지도라 항상 예외가 난다
+            (void)loadDungeon(broken);   // 깨진 지도라 항상 예외가 난다 [JA] 壊れたマップなので常に例外が出る
         }
         catch (const std::exception&)
         {

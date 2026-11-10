@@ -30,6 +30,7 @@ private:
 };
 
 // 일지 창: 파일에 적힌 줄을 모두 읽는다
+// [JA] 日誌ウィンドウ: ファイルに書かれた行をすべて読み込みます
 std::vector<std::string> readJournal(const fs::path& file)
 {
     std::vector<std::string> lines;
@@ -95,13 +96,15 @@ void io02_quest_journal()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void io02_quest_journal_hidden()
 {
     using namespace io2;
 
     iokit::LabDir lab("io02_quest_journal_hidden");
     const fs::path file = lab / "journal.txt";
-    iokit::writeBytes(file, i18n::L("지난 세션의 기록\n", "前回のセッションの記録\n"));   // 이전 실행이 남긴 줄
+    iokit::writeBytes(file, i18n::L("지난 세션의 기록\n", "前回のセッションの記録\n"));   // 이전 실행이 남긴 줄 [JA] 前回の実行が残した行
 
     Journal journal(file);
     journal.record(i18n::L("동굴 입구 발견", "洞窟の入口を発見"));

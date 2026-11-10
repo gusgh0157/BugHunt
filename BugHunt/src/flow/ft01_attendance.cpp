@@ -50,6 +50,7 @@ RewardResult calculateRewards(const std::vector<bool>& loginLog)
 void ft01_attendance()
 {
     // 1~7일 출석, 8일 결석, 9~10일 출석
+    // [JA] 1~7日目出席、8日目欠席、9~10日目出席
     const std::vector<bool> loginLog = { true, true, true, true, true, true, true, false, true, true };
 
     const flow1::RewardResult result = flow1::calculateRewards(loginLog);
@@ -79,9 +80,12 @@ void ft01_attendance()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ft01_attendance_hidden()
 {
     // 1~2일 출석, 3일 결석, 4~11일 출석(8일 연속), 12일 결석, 13일 출석
+    // [JA] 1~2日目出席、3日目欠席、4~11日目出席(8日連続)、12日目欠席、13日目出席
     const std::vector<bool> loginLog = { true, true, false, true, true, true, true, true, true, true, true, false, true };
 
     const flow1::RewardResult result = flow1::calculateRewards(loginLog);

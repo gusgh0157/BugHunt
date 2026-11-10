@@ -13,7 +13,7 @@ struct Monster
 {
     std::string name;
     int hp;
-    int bounty;   // 처치 시 받는 골드
+    int bounty;   // 처치 시 받는 골드 [JA] 倒したときにもらえるゴールド
 };
 
 class Battlefield
@@ -38,6 +38,7 @@ public:
     }
 
     // 쓰러진 몬스터를 전장에서 치운다.
+    // [JA] 倒れたモンスターを戦場から取り除きます。
     void removeDefeated()
     {
         for (size_t i = 0; i < monsters_.size();)
@@ -65,6 +66,7 @@ struct Hunter
 };
 
 // 타깃을 공격한다. 쓰러뜨렸으면 true.
+// [JA] ターゲットを攻撃します。倒したら true。
 bool attack(Hunter& hunter, int damage)
 {
     hunter.target->hp -= damage;
@@ -78,7 +80,7 @@ void hunt(Battlefield& field, Hunter& hunter, const std::string& targetName, int
     {
     }
 
-    field.removeDefeated();          // 전장 정리
+    field.removeDefeated();          // 전장 정리 [JA] 戦場の片付け
     hunter.gold += hunter.target->bounty;
     hunter.target = nullptr;
 }
@@ -134,6 +136,8 @@ void pt02_bounty()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void pt02_bounty_hidden()
 {
     ptr2::Battlefield field;
