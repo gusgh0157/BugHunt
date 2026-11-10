@@ -25,7 +25,7 @@
 ```
 **偽の容疑者:** `close()` の手数料計算(`TODO: 丸め方が正しいか企画に確認`)と、`placeBid` の「自分の入札を引き上げる」分岐。どちらも正しいです。受取額 428 もすでに正しく出ています。
 **症状だけを隠す修正:** シナリオの `drawFrame` から `bidders.refresh(house)` を外すと画面の検査はすべて通りますが、隠しケースがパネルを描画した後に参加番号を確認するので FAIL。
-**修正:** ストレージはそのままにして、表示する順序だけをソートします。
+**修正:** ストレージはそのままにして、表示する順序だけをソートします。`c1_auction.cpp` の `AuctionHouse::forEachByTier` 関数全体を次に置き換えます。
 ```cpp
 void AuctionHouse::forEachByTier(const std::function<void(const Bidder&)>& visit)
 {
@@ -55,14 +55,14 @@ void AuctionHouse::forEachByTier(const std::function<void(const Bidder&)>& visit
 **症状だけを隠す修正:**
 - ダメージ 0 なら連続撃破を途切れさせないように変えると 5 + 2 = 7 になって画面は通ります。隠しケースが実績の撃破数と企画書 4.2 を確認するので FAIL。
 - 依頼が購読を解除しないように(`done_` だけを立てるように)変えると画面は通ります。隠しケースが残りの購読者数を確認するので FAIL。バスは「ハンドラー内で unsubscribe してもよい」と約束しているので、直すべき場所はバスです。
-**修正:** 今回のイベントを受け取る購読者リストを先にコピーしておき、そのコピーを巡回します。
+**修正:** 今回のイベントを受け取る購読者リストを先にコピーしておき、そのコピーを巡回します。`c2_event_bus.h` の `EventBus` クラスの中にある `publish` メンバー関数全体を次に置き換えます。
 ```cpp
-void publish(const Event& e)
-{
-    const std::vector<Subscriber> snapshot = subscribers_;
-    for (const Subscriber& s : snapshot)
-        s.handler(e);
-}
+    void publish(const Event& e)
+    {
+        const std::vector<Subscriber> snapshot = subscribers_;
+        for (const Subscriber& s : snapshot)
+            s.handler(e);
+    }
 ```
 (削除を保留しておき、publish が終わった後にまとめて削除する方法もあります。こうすると実行中の `std::function` を上書きしてしまう問題も一緒に消えます。)
 **教訓:** 「巡回中のコンテナ変更」は、イテレーターの代わりにインデックスを使っても消えません。クラッシュせずに 1 回飛ばすだけなので、値を数える側(実績)から始めて、イベントを 1 つずつトレースポイントで記録してみるのが最も速い方法です。
@@ -82,10 +82,15 @@ void publish(const Event& e)
 ```
 **偽の容疑者:** `RespawnSystem::respawn` の `hero.clearBuffs()`。減ったダメージ(48 → 52、約 10%)が消えた「雄叫び +10%」とぴったり合うように見えます。しかし企画書 7.1 どおり死んだらバフは消えるべきで、プレステージ 2 段階も +10% なので偶然同じになっただけです。
 **症状だけを隠す修正:** `clearBuffs()` を消すと 0 + 10% = 52 になって画面は通ります。隠しケースがプレステージ 3、バフなしのヒーローで確認するので FAIL。
-**修正:**
+**修正:** 抜けていた `prestige_` を初期化リストに加えます。`c3_hero.cpp` のコピーコンストラクター `Hero::Hero(const Hero& other)` 全体を次に置き換えます。
 ```cpp
 Hero::Hero(const Hero& other)
-    : ...
+    : name_(other.name_),
+      level_(other.level_),
+      hp_(other.hp_),
+      maxHp_(other.maxHp_),
+      baseAttack_(other.baseAttack_),
+      pet_(other.pet_ ? std::make_unique<Pet>(*other.pet_) : nullptr),
       buffs_(other.buffs_),
       prestige_(other.prestige_)
 {
@@ -99,52 +104,127 @@ Hero::Hero(const Hero& other)
 
 ## B-1 — 空の vector で `size() - 1`
 `shelf.size() - 1` は `size_t` なので、空の棚では 0 - 1 = 18446744073709551615。ループが回って `shelf[0]` を読みます。空の vector はバッファーがない(data() が nullptr)ので、不正なアドレスへのアクセスで落ちます(MSVC の Debug STL はその前に範囲アサーション)。
-**修正:** `for (size_t i = 0; i + 1 < shelf.size(); ++i)`
+**修正:** 引き算ではなく足し算で比較して、空の vector でもアンダーフローしないようにします。`b1.cpp` の `isSortedByPrice` 関数全体を次に置き換えます。
+```cpp
+bool isSortedByPrice(const std::vector<ShopItem>& shelf)
+{
+    for (size_t i = 0; i + 1 < shelf.size(); ++i)
+    {
+        if (shelf[i].price > shelf[i + 1].price)
+            return false;
+    }
+    return true;
+}
+```
 
 ## B-2 — 一時文字列を指す参照を返す
 `authorOr(n, i18n::L("길드 운영 위원회 (자동 공지)", "ギルド運営委員会 (自動お知らせ)"))` の 2 番目の引数は、その行が終わると消える一時 `std::string` です。返された `const std::string&` は解放済みメモリを指します。(SSO の 15 バイトより長いのでヒープにあります。短い名前だったら偶然正しく出ていたかもしれません。)
-**修正:** `std::string authorOr(...)` で値を返します。
+**修正:** 値で返します。`b2.cpp` の `authorOr` 関数全体を次に置き換えます(戻り値の型だけが `std::string` に変わります)。`boardLines` の `const std::string& who = authorOr(...)` は返された一時オブジェクトの寿命を延ばすので、そのままでかまいません。
+```cpp
+std::string authorOr(const Notice& n, const std::string& fallback)
+{
+    return n.author.empty() ? fallback : n.author;
+}
+```
 
 ## B-3 — `uint8_t` のループ変数
 `x` が 255 から 0 に戻るので、幅が 257 以上だと `x + 1 < count` が永遠に真です。
-**修正:** `for (int x = 0; x + 1 < count; ++x)`
+**修正:** ループ変数を `count` と同じ `int` にします。`b3.cpp` の `climbOf` 関数全体を次に置き換えます。(`#include <cstdint>` は使われなくなりますが、残しておいてもかまいません。)
+```cpp
+int climbOf(const std::vector<Tile>& row)
+{
+    int climb = 0;
+    const int count = static_cast<int>(row.size());
+    for (int x = 0; x + 1 < count; ++x)
+    {
+        const int diff = row[x + 1].height - row[x].height;
+        if (diff > 0)
+            climb += diff;
+    }
+    return climb;
+}
+```
 
 ## B-4 — メンバーの代わりに引数へ代入
 コンストラクター内の `maxHp = maxHp;` は引数に自分自身を代入しています(メンバーは `maxHp_`)。メンバー `maxHp_` は初期化されず、vector 内のモンスターはメモリチェッカーが埋めた `0xA5A5A5A5`(-1515870811)になります。MSVC は自己代入に警告を出しません(Clang は `-Wself-assign` で手がかりを出します。GCC は警告を出しません)。デバッガーで `this->maxHp_` を見ればすぐにわかります。
-**修正:** `maxHp_ = maxHp;` (できれば初期化リストで `maxHp_(maxHp)`)
+**修正:** メンバーを初期化リストで初期化します。`b4.cpp` の `Monster` クラスの中にあるコンストラクター `Monster(std::string name, int maxHp, int armor)` 全体を次に置き換えます。
+```cpp
+    Monster(std::string name, int maxHp, int armor)
+        : name_(std::move(name)), maxHp_(maxHp), hp_(maxHp), armor_(armor)
+    {
+    }
+```
+(コンストラクターの本体で `maxHp_ = maxHp;` と代入しても通りますが、初期化リストに置けば同じ名前の引数と取り違えることがありません。)
 
 ## B-5 — 範囲 for の中で同じ vector に `push_back`
 最初の `push_back` で再割り当てが起きると、範囲 for のイテレーターが古いバッファーを指します。それ以降は解放済みメモリを読みます。
-**修正:** 元のサイズの分だけインデックスでループし、要素はコピーしておきます。
+**修正:** 元のサイズの分だけインデックスでループし、要素はコピーしておきます。`b5.cpp` の `spawnWave` 関数全体を次に置き換えます。
 ```cpp
-const size_t original = wave.size();
-for (size_t w = 0; w < original; ++w)
+std::vector<Unit> spawnWave(std::vector<Unit> wave)
 {
-    const Unit u = wave[w];
-    for (int i = 0; i < u.summons; ++i)
-        wave.push_back({ u.name + i18n::L("의 부하", "の手下"), 0 });
+    const size_t original = wave.size();
+    for (size_t w = 0; w < original; ++w)
+    {
+        const Unit u = wave[w];   // コピーしておく (push_back が再割り当てしても安全)
+        for (int i = 0; i < u.summons; ++i)
+            wave.push_back({ u.name + i18n::L("의 부하", "の手下"), 0 });
+    }
+    return wave;
 }
 ```
 
 ## B-6 — 重複除去を線形探索で (O(n²))
 ログイン記録ごとに、それまでに集めたリスト全体と比較します。比較は約 6 千万回。
-**修正:** 見たことがあるかを `std::set`(またはハッシュを定義した `unordered_set`)で確認します。最初に出てきた順序は結果の vector が保ちます。
+**修正:** 見たことがあるかを `std::set`(またはハッシュを定義した `unordered_set`)で確認します。最初に出てきた順序は結果の vector が保ちます。`b6.cpp` のファイル先頭の `#include` に次を追加します。
 ```cpp
-std::set<std::pair<int, int>> seen;
-for (const PlayerId& p : logins)
+#include <set>
+#include <utility>
+```
+そして `uniquePlayers` 関数全体を次に置き換えます。
+```cpp
+std::vector<PlayerId> uniquePlayers(const std::vector<PlayerId>& logins)
 {
-    if (seen.insert({ p.server, p.number }).second)
-        unique.push_back(p);
+    std::vector<PlayerId> unique;
+    std::set<std::pair<int, int>> seen;
+    for (const PlayerId& p : logins)
+    {
+        if (seen.insert({ p.server, p.number }).second)   // 初めて見たプレイヤーのときだけ true
+            unique.push_back(p);
+    }
+    return unique;
 }
 ```
 
 ## B-7 — `std::accumulate` の初期値が `int`
 初期値 `0` の型が累積の型になります。足すたびに `int` に切り捨てられ、2.5 + 3.75 + 1.25 + 2.5 が 8 になります。MSVC は警告 C4244 で `<numeric>` の中を指します(このリポジトリのビルドで出ます)。GCC・Clang は警告がシステムヘッダーの中で出るので、既定の設定では見えないことがあります。
-**修正:** `std::accumulate(prices.begin(), prices.end(), 0.0)`
+**修正:** 初期値を `double` の `0.0` にします。`b7.cpp` の `cartTotal` 関数全体を次に置き換えます。
+```cpp
+double cartTotal(const std::vector<Order>& cart)
+{
+    std::vector<double> prices;
+    for (const Order& o : cart)
+        prices.push_back(o.price);
+    return std::accumulate(prices.begin(), prices.end(), 0.0);
+}
+```
 
 ## B-8 — `[this]` ラムダを登録した後にオブジェクトが移動する
 タレットを `emplace_back` するたびに vector が再割り当てされると、以前のタレットは新しいアドレスに移動します。警報に登録したラムダは古いアドレスの `this` を持ったままです。
-**修正:** あらかじめ `turrets.reserve(names.size())` で移動しないようにするか、すべて設置してから接続するか、末尾にだけ追加する場合にアドレスが変わらない `std::deque` に置きます(`push_back` だけなら要素は移動しません)。`std::list` や `unique_ptr` の vector もアドレスは安定していますが、その場合は隠しテストの `turrets.at(0)` のようなアクセス方法も併せて変える必要があります。
+**修正:** 先に `reserve` して砲塔が移動しないようにします。`b8.cpp` の `buildWall` 関数全体を次に置き換えます。
+```cpp
+std::vector<Turret> buildWall(AlarmBell& bell, const std::vector<std::string>& names)
+{
+    std::vector<Turret> turrets;
+    turrets.reserve(names.size());   // 先に場所を確保しておけば emplace_back が砲塔を移動しない
+    for (const std::string& n : names)
+    {
+        turrets.emplace_back(n);
+        turrets.back().connect(bell);
+    }
+    return turrets;
+}
+```
+すべて設置してから接続するか、末尾にだけ追加する場合にアドレスが変わらない `std::deque` に置く方法もあります(`push_back` だけなら要素は移動しません)。`std::list` や `unique_ptr` の vector もアドレスは安定していますが、その場合は隠しテストの `turrets.at(0)` のようなアクセス方法も併せて変える必要があります。
 
 ---
 
