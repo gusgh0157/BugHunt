@@ -10,7 +10,7 @@
 // [JA] イベントが終わる瞬間にメッセージが殺到すると、サーバーが数秒間固まるという報告がありました。結果は正しいです。
 namespace perf1
 {
-long long g_moves = 0;   // Message가 옮겨진(이동 생성/대입) 횟수
+long long g_moves = 0;   // Message가 옮겨진(이동 생성/대입) 횟수 [JA] Message が移動された(ムーブ構築/代入)回数
 
 struct Message
 {
@@ -36,6 +36,7 @@ public:
     void push(Message m) { queue_.push_back(std::move(m)); }
 
     // 쌓인 메시지를 모두 처리하고, 처리한 글자 수의 합을 돌려준다.
+    // [JA] たまったメッセージをすべて処理し、処理した文字数の合計を返します。
     long long drain()
     {
         long long chars = 0;
@@ -104,6 +105,8 @@ void pf01_chat_queue()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void pf01_chat_queue_hidden()
 {
     const long long chars = perf1::runBurst(3000);

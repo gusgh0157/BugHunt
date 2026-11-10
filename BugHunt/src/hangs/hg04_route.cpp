@@ -16,6 +16,7 @@ struct Waypoint
 };
 
 // pos 바로 뒤에 wp를 끼워 넣는다.
+// [JA] pos のすぐ後ろに wp を差し込みます。
 void insertAfter(Waypoint* pos, Waypoint* wp)
 {
     pos->next = wp;
@@ -50,6 +51,7 @@ void hg04_route()
     bridge.next = &castle;
 
     // 다리로 가는 길에 숲에 들러 약초를 캔다.
+    // [JA] 橋へ向かう途中で森に寄って薬草を採ります。
     Waypoint forest = { "Forest", 15 };
     insertAfter(&town, &forest);
 
@@ -94,6 +96,8 @@ void hg04_route()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void hg04_route_hidden()
 {
     using namespace hang4;
@@ -107,7 +111,7 @@ void hg04_route_hidden()
     Waypoint shrine = { "Shrine", 10 };
     insertAfter(&camp, &river);       // Camp, River, Peak
     insertAfter(&river, &cave);       // Camp, River, Cave, Peak
-    insertAfter(&peak, &shrine);      // Camp, River, Cave, Peak, Shrine (맨 끝)
+    insertAfter(&peak, &shrine);      // Camp, River, Cave, Peak, Shrine (맨 끝) [JA] Camp, River, Cave, Peak, Shrine(いちばん最後)
 
     int stops = 0;
     int minutes = 0;

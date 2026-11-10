@@ -53,7 +53,7 @@ void ct07_season_ranking()
     for (Player* p : { &kael, &mira, &doran, &selene })
         season.join(p);
 
-    season.recordMatch(&doran, 800);    // 도란이 대회에서 우승했다 → 1700
+    season.recordMatch(&doran, 800);    // 도란이 대회에서 우승했다 → 1700 [JA] Doran が大会で優勝した → 1700
     season.recordMatch(&mira, -50);
 
     std::cout << i18n::L("  1위: ", "  1位: ") << season.top()->name << " " << season.top()->score << '\n';
@@ -96,6 +96,8 @@ void ct07_season_ranking()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ct07_season_ranking_hidden()
 {
     using namespace ct7;
@@ -107,8 +109,8 @@ void ct07_season_ranking_hidden()
     for (Player& p : players)
         season.join(&p);
 
-    season.recordMatch(&players[0], 500);    // 1000 → 1500 (1위)
-    season.recordMatch(&players[11], -300);  // 1110 → 810 (꼴찌)
+    season.recordMatch(&players[0], 500);    // 1000 → 1500 (1위) [JA] 1000 → 1500 (1位)
+    season.recordMatch(&players[11], -300);  // 1110 → 810 (꼴찌) [JA] 1110 → 810 (最下位)
     expect(i18n::L("1위", "1位"), std::string("P0"), season.top()->name);
 
     int removed = 0;

@@ -11,7 +11,7 @@ namespace inh1
 struct Target
 {
     int hp = 0;
-    bool facingAway = false;      // 등을 보이고 있는가
+    bool facingAway = false;      // 등을 보이고 있는가 [JA] 背中を向けているか
 };
 
 class Skill
@@ -40,10 +40,12 @@ class Backstab : public Skill
 public:
     Backstab() : Skill(i18n::L("백스탭", "バックスタブ"), 20) {}
     // 등 뒤에서 찌르면 세 배
+    // [JA] 背後から刺すと 3 倍
     virtual int damage(const Target& t) { return t.facingAway ? power_ * 3 : power_; }
 };
 
 // 전투 코드: 어떤 스킬이든 Skill&로 받아 쓴다
+// [JA] 戦闘コード: どのスキルも Skill& で受け取って使います
 int useSkill(const Skill& skill, Target& target)
 {
     const int dealt = skill.damage(target);
@@ -56,7 +58,7 @@ void ih01_backstab()
 {
     using namespace inh1;
 
-    Target ogre{ 200, true };          // 등을 보인 오우거
+    Target ogre{ 200, true };          // 등을 보인 오우거 [JA] 背中を向けたオーガ
     const Fireball fireball;
     const Backstab backstab;
 
@@ -101,6 +103,8 @@ void ih01_backstab()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ih01_backstab_hidden()
 {
     using namespace inh1;

@@ -16,8 +16,8 @@ namespace lang9
 struct Quest
 {
     std::string name;
-    std::string goal;   // 완료 조건 (플레이어가 이미 이룬 일 목록에 있으면 완료)
-    std::string next;   // 이어지는 퀘스트 이름 (없으면 빈 문자열)
+    std::string goal;   // 완료 조건 (플레이어가 이미 이룬 일 목록에 있으면 완료) [JA] 完了条件 (プレイヤーが達成済みのことの一覧にあれば完了)
+    std::string next;   // 이어지는 퀘스트 이름 (없으면 빈 문자열) [JA] 続きのクエスト名 (なければ空文字列)
     bool done = false;
 };
 
@@ -42,11 +42,13 @@ public:
     void add(const Quest& q) { entries_.push_back(q); }
 
     // 일지의 퀘스트 목록
+    // [JA] 日誌のクエスト一覧
     std::vector<Quest> entries() const { return entries_; }
     std::size_t size() const { return entries_.size(); }
     const Quest& at(std::size_t i) const { return entries_.at(i); }
 
     // 완료 표시를 하고, 이어지는 퀘스트를 일지 끝에 붙인다
+    // [JA] 完了の印を付け、続きのクエストを日誌の末尾に追加します
     void complete(const std::string& name, const QuestBook& book)
     {
         for (std::size_t i = 0; i < entries_.size(); ++i)
@@ -75,6 +77,7 @@ private:
 };
 
 // 차례 끝 처리. 이번 차례에 완료한 퀘스트 수를 돌려준다.
+// [JA] ターンの終わりの処理です。このターンに完了したクエストの数を返します。
 int endTurn(QuestLog& log, const QuestBook& book, const std::set<std::string>& achieved)
 {
     int completed = 0;
@@ -82,7 +85,7 @@ int endTurn(QuestLog& log, const QuestBook& book, const std::set<std::string>& a
     {
         if (q.done || achieved.count(q.goal) == 0)
             continue;
-        log.complete(q.name, book);   // 이어지는 퀘스트가 일지에 붙고, 이번 반복에서 이어서 확인된다
+        log.complete(q.name, book);   // 이어지는 퀘스트가 일지에 붙고, 이번 반복에서 이어서 확인된다 [JA] 続きのクエストが日誌に追加され、このループの中で続けて確認される
         ++completed;
     }
     return completed;
@@ -123,6 +126,7 @@ void lg09_quest_chain()
     print(log);
 
     // 마을의 부탁 → 잃어버린 반지 → 반지의 주인까지 조건을 이미 채웠다. 숲의 소문은 아직.
+    // [JA] 村の頼み → なくした指輪 → 指輪の持ち主 まで条件はすでに満たしています。森のうわさはまだです。
     expect(i18n::L("이번 차례에 완료한 퀘스트 수", "今回のターンに完了したクエスト数"), 3, completed);
     expect(i18n::L("일지의 퀘스트 수", "日誌のクエスト数"), static_cast<size_t>(5), log.size());
     expect(i18n::L("일지에서 완료된 퀘스트 수", "日誌で完了したクエスト数"), 3, log.countDone());
@@ -168,6 +172,8 @@ void lg09_quest_chain()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void lg09_quest_chain_hidden()
 {
     using namespace lang9;

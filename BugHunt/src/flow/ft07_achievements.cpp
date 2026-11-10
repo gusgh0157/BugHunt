@@ -26,6 +26,7 @@ struct Player
 };
 
 // 새로 해금했으면 true. 이미 가진 업적이면 false.
+// [JA] 新しく解除したら true。すでに持っている実績なら false。
 bool unlock(Player& p, const std::string& id)
 {
     if (p.has(id))
@@ -51,6 +52,7 @@ bool checkLevelAchievements(Player& p)
 }
 
 // 업적을 모두 검사하고, 하나라도 새로 열렸으면 축하 효과를 보여 준다.
+// [JA] 実績をすべて検査し、一つでも新しく解除されたらお祝いの演出を表示します。
 void onBattleEnd(Player& p)
 {
     const bool anyUnlocked = checkKillAchievements(p)
@@ -69,6 +71,7 @@ void ft07_achievements()
     player.level = 9;
 
     // 이번 전투에서 100번째 늑대를 잡고, 경험치를 받아 10레벨이 되었다.
+    // [JA] 今回の戦闘で100匹目のオオカミを倒し、経験値を得てレベル10になりました。
     player.wolfKills += 1;
     player.level += 1;
     flow7::onBattleEnd(player);
@@ -109,9 +112,11 @@ void ft07_achievements()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ft07_achievements_hidden()
 {
-    flow7::Player player;            // 늑대는 조금, 골드와 레벨은 충분
+    flow7::Player player;            // 늑대는 조금, 골드와 레벨은 충분 [JA] オオカミは少し、ゴールドとレベルは十分
     player.wolfKills = 5;
     player.gold = 12000;
     player.level = 10;

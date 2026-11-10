@@ -11,7 +11,7 @@
 // [JA] 部屋が数個しかない試験用ダンジョンではうまく動いていました。
 namespace ovf2
 {
-constexpr std::size_t kLayoutBytes = 96 * 1024;   // 방 배치도의 최대 크기
+constexpr std::size_t kLayoutBytes = 96 * 1024;   // 방 배치도의 최대 크기 [JA] 部屋の配置図の最大サイズ
 
 std::uint32_t nextSeed(std::uint32_t seed)
 {
@@ -19,10 +19,11 @@ std::uint32_t nextSeed(std::uint32_t seed)
 }
 
 // index번 방부터 마지막 방까지 만들고, 그 방들의 보물 상자 수를 돌려준다.
+// [JA] index 番の部屋から最後の部屋までを作り、それらの部屋の宝箱の数を返します。
 int buildRooms(int index, int roomCount, std::uint32_t seed)
 {
-    char layout[kLayoutBytes];                        // 이 방의 배치도
-    const std::size_t size = 2048 + seed % 2048;      // 실제 방 크기
+    char layout[kLayoutBytes];                        // 이 방의 배치도 [JA] この部屋の配置図
+    const std::size_t size = 2048 + seed % 2048;      // 실제 방 크기 [JA] 実際の部屋のサイズ
     std::uint32_t s = seed;
     for (std::size_t i = 0; i < size; ++i)
     {
@@ -91,6 +92,8 @@ void of02_dungeon_gen()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void of02_dungeon_gen_hidden()
 {
     using namespace ovf2;

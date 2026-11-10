@@ -85,6 +85,8 @@ void sz04_nickname_cut()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void sz04_nickname_cut_hidden()
 {
     using namespace sz4;
@@ -92,7 +94,7 @@ void sz04_nickname_cut_hidden()
     expect(i18n::L("한글만 15바이트", "日本語だけ15バイト"), std::string(i18n::L("가나다라", "あいうえ")), clampName(i18n::L("가나다라마", "あいうえお")));
     expect(i18n::L("영어 2 + 한글", "英字2 + 日本語"), std::string(i18n::L("ab가나다", "abあいう")), clampName(i18n::L("ab가나다라", "abあいうえ")));
     expect(i18n::L("4바이트 글자", "4バイト文字"), std::string("a\xF0\x9F\x90\x89\xF0\x9F\x90\x89"),
-           clampName("a\xF0\x9F\x90\x89\xF0\x9F\x90\x89\xF0\x9F\x90\x89"));   // a + 용 이모지 3개
+           clampName("a\xF0\x9F\x90\x89\xF0\x9F\x90\x89\xF0\x9F\x90\x89"));   // a + 용 이모지 3개 [JA] a + ドラゴンの絵文字3個
     expect(i18n::L("짧은 이름", "短い名前"), std::string("Kim"), clampName("Kim"));
     std::string saved;
     expect(i18n::L("숨은 닉네임 저장", "隠しニックネームの保存"), true, saveProfile(i18n::L("마법사ab다람쥐", "魔術師abコリス"), 7, saved));

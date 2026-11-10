@@ -12,7 +12,7 @@ public:
     void deposit(int amount)
     {
         const int current = gold_;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));   // 장부를 확인하는 동안 다른 길드원도 장부를 본다
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));   // 장부를 확인하는 동안 다른 길드원도 장부를 본다 [JA] 帳簿を確認している間に、ほかのギルドメンバーも帳簿を見る
         gold_ = current + amount;
     }
 
@@ -31,7 +31,8 @@ void lab09_guild_bank()
     GuildBank bank;
 
     // 길드원 4명이 동시에 1골드씩 50번 입금한다.
-    std::latch start(kMembers);   // 4명이 모두 모이면 함께 시작한다
+    // [JA] ギルドメンバー4人が同時に1ゴールドずつ50回入金します。
+    std::latch start(kMembers);   // 4명이 모두 모이면 함께 시작한다 [JA] 4人全員がそろったら一斉に始める
     std::vector<std::thread> members;
     for (int m = 0; m < kMembers; ++m)
     {

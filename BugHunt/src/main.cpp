@@ -16,11 +16,12 @@ struct LabEntry
     i18n::Text title;
     i18n::Text symptom;
     void (*run)();
-    void (*hidden)() = nullptr;   // 채점용 숨은 테스트 케이스 (없으면 nullptr)
+    void (*hidden)() = nullptr;   // 채점용 숨은 테스트 케이스 (없으면 nullptr) [JA] 採点用の隠しテストケース(なければ nullptr)
 };
 
 constexpr LabEntry kLabs[] = {
     // 1부: 호출 스택 입문
+    // [JA] 第1部: 呼び出し履歴入門
     { { "친구 프로필", "友達のプロフィール" }, { "세 번째 프로필에서 죽는다", "3番目のプロフィールで落ちます" }, cs01_profile },
     { { "퀵슬롯", "クイックスロット" }, { "엉뚱한 아이템이 나오다가 멈춘다", "おかしなアイテムが出たあとで止まります" }, cs02_quickslot },
     { { "전투 기록 DPS", "戦闘記録のDPS" }, { "DPS 계산 중에 죽는다", "DPSの計算中に落ちます" }, cs03_battle_log },
@@ -30,6 +31,7 @@ constexpr LabEntry kLabs[] = {
     { { "HP 이벤트", "HPイベント" }, { "HP 바 갱신에서 죽는다", "HPバーの更新で落ちます" }, cs07_events },
     { { "몬스터 웨이브", "モンスターウェーブ" }, { "3번째 웨이브에서 멈춘다", "3番目のウェーブで止まります" }, cs08_waves },
     // 2부: 심화
+    // [JA] 第2部: 応用
     { { "점수 평균", "スコアの平均" }, { "실행하자마자 멈춘다", "起動するとすぐに止まります" }, lab01_average },
     { { "인벤토리 보상", "インベントリの報酬" }, { "보상으로 준 아이템 개수가 이상하다", "報酬として渡したアイテムの数がおかしいです" }, lab02_inventory },
     { { "플레이어 칭호", "プレイヤーの称号" }, { "칭호 문자열이 깨진다", "称号の文字列が化けます" }, lab03_titles },
@@ -43,6 +45,7 @@ constexpr LabEntry kLabs[] = {
     { { "퀘스트 선행 조건", "クエストの前提条件" }, { "프로그램이 즉시 죽는다", "プログラムがすぐに落ちます" }, lab11_quests },
     { { "상태 플래그", "状態フラグ" }, { "독에 걸렸는데 아니라고 한다", "毒にかかっているのに、かかっていないと判定されます" }, lab12_status_flags },
     // 3부: 흐름 추적 (크래시 없음)
+    // [JA] 第3部: 流れの追跡(クラッシュなし)
     { { "출석 보상", "出席報酬" }, { "7일 연속 출석했는데 보너스가 없다", "7日連続で出席したのにボーナスがありません" }, ft01_attendance,   ft01_attendance_hidden },
     { { "치명타 피해", "クリティカルダメージ" }, { "치명타가 일반 공격과 똑같이 들어간다", "クリティカルが通常攻撃と同じダメージになります" }, ft02_critical,     ft02_critical_hidden },
     { { "보호막 탱커", "シールドタンク" }, { "피해 합계가 맞지 않는다", "ダメージの合計が合いません" }, ft03_shield,       ft03_shield_hidden },
@@ -52,11 +55,13 @@ constexpr LabEntry kLabs[] = {
     { { "업적 해금", "実績の解除" }, { "조건을 채운 업적 하나가 안 열린다", "条件を満たした実績が1つだけ解除されません" }, ft07_achievements, ft07_achievements_hidden },
     { { "난이도 설정", "難易度設定" }, { "어려움으로 저장했는데 적이 약하다", "「むずかしい」で保存したのに敵が弱いです" }, ft08_difficulty,   ft08_difficulty_hidden },
     // 3부 끝: 연산자와 평가 순서
+    // [JA] 第3部の終わり: 演算子と評価順序
     { { "길드 회원 번호", "ギルドメンバー番号" }, { "새 회원이 기존 회원과 같은 번호를 받는다", "新メンバーが既存メンバーと同じ番号をもらいます" }, ft09_member_ids, ft09_member_ids_hidden },
     { { "최고 콤보", "最高コンボ" }, { "기록을 갱신할 때마다 콤보가 2씩 오른다", "記録を更新するたびにコンボが2ずつ増えます" }, ft10_best_combo, ft10_best_combo_hidden },
     { { "어둠의 동굴", "闇の洞窟" }, { "열쇠도 횃불도 있는데 입장을 못 한다", "鍵もたいまつもあるのに入れません" }, ft11_cave_gate,    ft11_cave_gate_hidden },
     { { "자물쇠 따개", "ロックピック" }, { "열쇠가 있는데도 따개가 줄어든다", "鍵を持っているのにロックピックが減ります" }, ft12_lockpicks,    ft12_lockpicks_hidden },
     // 4부: 컨테이너
+    // [JA] 第4部: コンテナー
     { { "가방 조회", "バッグの照会" }, { "상점을 열었을 뿐인데 가방이 꽉 찬다", "ショップを開いただけなのにバッグが満杯になります" }, ct01_bag_lookup,   ct01_bag_lookup_hidden },
     { { "파티 찾기", "パーティー募集" }, { "고른 사람과 다른 사람이 초대된다", "選んだ人とは別の人が招待されます" }, ct02_party_finder, ct02_party_finder_hidden },
     { { "아레나 순위표", "アリーナランキング" }, { "순위표를 정렬하다가 멈춘다", "ランキングをソートしている途中で止まります" }, ct03_leaderboard,  ct03_leaderboard_hidden },
@@ -65,6 +70,7 @@ constexpr LabEntry kLabs[] = {
     { { "이름표", "ネームプレート" }, { "칭호를 받으면 이름표가 깨진다", "称号をもらうとネームプレートが化けます" }, ct06_nameplates,   ct06_nameplates_hidden },
     { { "시즌 랭킹", "シーズンランキング" }, { "우승자가 1위에 오르지 않는다", "優勝者が1位になりません" }, ct07_season_ranking, ct07_season_ranking_hidden },
     // 5부: C++ 언어 함정
+    // [JA] 第5部: C++ 言語の落とし穴
     { { "아이템 거래", "アイテムトレード" }, { "거래한 아이템이 내 거래 창에 그대로 남는다", "トレードしたアイテムが自分のトレード画面にそのまま残ります" }, lg01_trade_items, lg01_trade_items_hidden },
     { { "경험치 상한", "経験値の上限" }, { "이벤트 경험치를 받았더니 경험치가 음수가 된다", "イベント経験値をもらったら経験値が負の数になります" }, lg02_exp_cap, lg02_exp_cap_hidden },
     { { "환전소", "両替所" }, { "은화가 1개 모자라고, 큰 묶음 판매액은 음수가 된다", "銀貨が1枚足りず、大口の売上額が負の数になります" }, lg03_exchange, lg03_exchange_hidden },
@@ -75,6 +81,7 @@ constexpr LabEntry kLabs[] = {
     { { "세이브 파일 닫기", "セーブファイルを閉じる" }, { "저장 실패 메시지 대신 게임이 꺼진다", "セーブ失敗のメッセージの代わりにゲームが終了します" }, lg08_save_close,   lg08_save_close_hidden },
     { { "연계 퀘스트", "連続クエスト" }, { "연계 퀘스트가 한 차례에 한 단계씩만 열린다", "連続クエストが1ターンに1段階ずつしか開きません" }, lg09_quest_chain, lg09_quest_chain_hidden },
     // 6부: 인터페이스와 상속
+    // [JA] 第6部: インターフェイスと継承
     { { "백스탭", "バックスタブ" }, { "등 뒤에서 찔러도 일반 피해만 들어간다", "背後から刺しても通常ダメージしか入りません" }, ih01_backstab,     ih01_backstab_hidden },
     { { "보스 전리품", "ボスの戦利品" }, { "보스를 잡아도 희귀 아이템이 안 나온다", "ボスを倒してもレアアイテムが出ません" }, ih02_boss_loot,    ih02_boss_loot_hidden },
     { { "저격 탑", "スナイパータワー" }, { "저격 탑 사거리가 기본 탑과 같다", "スナイパータワーの射程が基本タワーと同じです" }, ih03_sniper_tower, ih03_sniper_tower_hidden },
@@ -82,6 +89,7 @@ constexpr LabEntry kLabs[] = {
     { { "보상 우편", "報酬メール" }, { "골드 500을 보냈는데 500번 아이템이 왔다", "ゴールド500を送ったのに500番のアイテムが届きました" }, ih05_reward_mail, ih05_reward_mail_hidden },
     { { "마나 물약", "マナポーション" }, { "전사가 파티에 끼면 죽는다", "戦士がパーティーに入ると落ちます" }, ih06_mana_potion,  ih06_mana_potion_hidden },
     // 7부: 파일 입출력
+    // [JA] 第7部: ファイル入出力
     { { "패치된 가격표", "パッチ後の価格表" }, { "어떤 실행에서는 패치 전 가격이 나온다", "起動のしかたによってはパッチ前の価格が出ます" }, io01_patch_prices, io01_patch_prices_hidden },
     { { "모험 일지", "冒険日誌" }, { "방금 적은 일지가 일지 창에 안 보인다", "今書いた日誌が日誌ウィンドウに出ません" }, io02_quest_journal, io02_quest_journal_hidden },
     { { "점수판", "スコアボード" }, { "마지막 기록이 두 번 나온다", "最後の記録が2回表示されます" }, io03_high_scores,  io03_high_scores_hidden },
@@ -90,6 +98,7 @@ constexpr LabEntry kLabs[] = {
     { { "설정 파일", "設定ファイル" }, { "메모장으로 고친 첫 줄 설정만 무시된다", "メモ帳で直した1行目の設定だけが無視されます" }, io06_settings_bom, io06_settings_bom_hidden },
     { { "안전한 저장", "安全なセーブ" }, { "저장에 실패하면 이전 세이브까지 날아간다", "保存に失敗すると前のセーブまで消えます" }, io07_safe_save, io07_safe_save_hidden },
     // 8부: 직렬화 (JSON/XML)
+    // [JA] 第8部: シリアライズ(JSON/XML)
     { { "펫 슬롯", "ペットスロット" }, { "펫이 없는데 소환 버튼이 켜진다", "ペットがいないのに召喚ボタンが有効になります" }, sz01_pet_slot,     sz01_pet_slot_hidden },
     { { "치명타 배율", "クリティカル倍率" }, { "배율 1.5가 1배로 들어간다", "倍率1.5が1倍で計算されます" }, sz02_crit_multiplier, sz02_crit_multiplier_hidden },
     { { "스킬 바", "スキルバー" }, { "스킬 바 순서가 뒤죽박죽이 된다", "スキルバーの順番がばらばらになります" }, sz03_skill_bar,    sz03_skill_bar_hidden },
@@ -98,6 +107,7 @@ constexpr LabEntry kLabs[] = {
     { { "몬스터 도감", "モンスター図鑑" }, { "패치 뒤 몬스터 HP가 전부 0이다", "パッチ後、モンスターのHPがすべて0です" }, sz06_bestiary,     sz06_bestiary_hidden },
     { { "길드 목록", "ギルド一覧" }, { "어떤 길드 이름이 있으면 목록이 통째로 안 열린다", "ある名前のギルドがあると一覧がまるごと開けません" }, sz07_guild_list, sz07_guild_list_hidden },
     // 9부: 포인터 오용
+    // [JA] 第9部: ポインターの誤用
     { { "랭킹 보드", "ランキングボード" }, { "랭킹 줄이 전부 깨져서 나온다", "ランキングの行がすべて化けて表示されます" }, pt01_ranking,      pt01_ranking_hidden },
     { { "현상금 사냥", "賞金稼ぎ" }, { "골드가 음수 수억이 된다", "ゴールドがマイナス数億になります" }, pt02_bounty,       pt02_bounty_hidden },
     { { "폭발 이펙트", "爆発エフェクト" }, { "이펙트가 끝날 때 멈춘다", "エフェクトが終わるときに止まります" }, pt03_particles,    pt03_particles_hidden },
@@ -106,12 +116,14 @@ constexpr LabEntry kLabs[] = {
     { { "길드 해산", "ギルド解散" }, { "길드를 내려도 메모리가 남는다", "ギルドを解散してもメモリが残ります" }, pt06_guild,        pt06_guild_hidden },
     { { "분노 버프", "怒りバフ" }, { "분노가 끝나도 공격력이 원래대로 안 돌아온다", "怒りが切れても攻撃力が元に戻りません" }, pt07_rage_timer, pt07_rage_timer_hidden },
     // 9부 끝: 스택/힙 오버플로
+    // [JA] 第9部の終わり: スタック/ヒープのオーバーフロー
     { { "미니맵", "ミニマップ" }, { "작은 지도인데도 미니맵을 열면 바로 죽는다", "小さいマップなのにミニマップを開くとすぐ落ちます" }, of01_minimap,  of01_minimap_hidden },
     { { "던전 생성기", "ダンジョン生成器" }, { "방이 많은 던전을 만들면 죽는다", "部屋の多いダンジョンを作ると落ちます" }, of02_dungeon_gen,  of02_dungeon_gen_hidden },
     { { "리플레이 녹화", "リプレイ録画" }, { "녹화를 끝내고 녹화기를 닫을 때 죽는다", "録画を終えて録画機を閉じるときに落ちます" }, of03_replay_buffer, of03_replay_buffer_hidden },
     { { "이름 패킷", "名前パケット" }, { "긴 이름이 잘리고 앞사람 이름이 붙는다", "長い名前が切れて、前の人の名前がくっつきます" }, of04_name_packet, of04_name_packet_hidden },
     { { "스킬 트리", "スキルツリー" }, { "스킬을 배웠더니 골드가 이상하게 바뀐다", "スキルを覚えたらゴールドがおかしく変わります" }, of05_skill_tree, of05_skill_tree_hidden },
     // 10부: 비동기와 동시성
+    // [JA] 第10部: 非同期と並行性
     { { "맵 로딩", "マップ読み込み" }, { "비동기로 불러오는데 로딩이 하나씩 진행된다", "非同期で読み込んでいるのに、読み込みが1つずつ進みます" }, as01_loading,      as01_loading_hidden },
     { { "대장간 일괄 제작", "鍛冶屋の一括製作" }, { "주문 하나가 실패하면 대장간이 통째로 멈춘다", "注文が1つ失敗すると鍛冶屋がまるごと止まります" }, as02_crafting,    as02_crafting_hidden },
     { { "레이드 입장 대기", "レイド入場待ち" }, { "모두 준비했는데 공대장이 입장하지 않는다", "全員が準備したのにレイドリーダーが入場しません" }, as03_raid_ready,   as03_raid_ready_hidden },
@@ -120,12 +132,14 @@ constexpr LabEntry kLabs[] = {
     { { "매치메이킹", "マッチメイキング" }, { "대기열 인원이 모자라면 서버가 죽는다", "キューの人数が足りないとサーバーが落ちます" }, as06_matchmaking,  as06_matchmaking_hidden },
     { { "컷신 대화", "カットシーンの会話" }, { "컷신의 호감도 숫자가 이상하다", "カットシーンの好感度の数字がおかしいです" }, as07_cutscene,     as07_cutscene_hidden },
     // 11부: 멈춤 - 무한루프와 데드락
+    // [JA] 第11部: 停止 - 無限ループとデッドロック
     { { "스킬 쿨다운", "スキルのクールダウン" }, { "파이어볼 쿨다운 계산에서 멈춘다", "ファイアボールのクールダウン計算で止まります" }, hg01_cooldown,     hg01_cooldown_hidden },
     { { "부활 카운트다운", "復活カウントダウン" }, { "부활 알림을 세다가 멈춘다", "復活通知を数えている途中で止まります" }, hg02_respawn,      hg02_respawn_hidden },
     { { "채팅 명령어", "チャットコマンド" }, { "명령어를 입력하면 멈춘다", "コマンドを入力すると止まります" }, hg03_chat_command, hg03_chat_command_hidden },
     { { "자동 이동 경로", "自動移動ルート" }, { "숲을 경로에 넣으면 멈춘다", "森をルートに入れると止まります" }, hg04_route,        hg04_route_hidden },
     { { "동시 거래", "同時トレード" }, { "두 사람이 서로 팔면 둘 다 멈춘다", "2人が互いに売ると2人とも止まります" }, hg05_trade,        hg05_trade_hidden },
     // 12부: 성능 - 틀리지 않지만 느리다
+    // [JA] 第12部: 性能 - 間違ってはいないが遅い
     { { "채팅 큐", "チャットキュー" }, { "메시지가 몰리면 서버가 굳는다", "メッセージが集中するとサーバーが固まります" }, pf01_chat_queue,   pf01_chat_queue_hidden },
     { { "장비 무게 HUD", "装備重量HUD" }, { "장비가 많으면 프레임이 떨어진다", "装備が多いとフレームレートが落ちます" }, pf02_loadout,      pf02_loadout_hidden },
     { { "전투 기록 내보내기", "戦闘記録のエクスポート" }, { "긴 레이드일수록 내보내기가 오래 걸린다", "長いレイドほどエクスポートに時間がかかります" }, pf03_combat_log, pf03_combat_log_hidden },
@@ -135,6 +149,8 @@ constexpr LabEntry kLabs[] = {
 };
 // 챌린지: 기본 부를 모두 끝낸 뒤 푸는 문제. 힌트가 없고, 블라인드(B)는 종류도 밝히지 않는다.
 // 채점 번호는 깊은 추적 C-n = 100 + n, 블라인드 B-n = 200 + n (grade-report.json의 id, BugHunt 네 판 공통)
+// [JA] チャレンジ: 基本の部をすべて終えてから解く問題です。ヒントはなく、ブラインド(B)はバグの種類も明かしません。
+// [JA] 採点番号は深い追跡 C-n = 100 + n、ブラインド B-n = 200 + n です(grade-report.json の id、BugHunt 4版共通)。
 struct ChallengeEntry
 {
     const char* code;
@@ -147,10 +163,12 @@ struct ChallengeEntry
 
 constexpr ChallengeEntry kChallenges[] = {
     // 깊은 추적
+    // [JA] 深い追跡
     { "C-1", 101, { "챌린지 C-1", "チャレンジ C-1" }, { "낙찰자와 금화가 엉뚱하게 정산된다", "落札者と金貨がおかしく精算されます" }, chC1_auction_night, chC1_auction_night_hidden },
     { "C-2", 102, { "챌린지 C-2", "チャレンジ C-2" }, { "무피격 연속 처치 칭호를 받지 못한다", "ノーダメージ連続撃破の称号がもらえません" }, chC2_raid_night,    chC2_raid_night_hidden },
     { "C-3", 103, { "챌린지 C-3", "チャレンジ C-3" }, { "부활하고 나면 피해량이 줄어든다", "復活するとダメージが減ります" }, chC3_shrine,        chC3_shrine_hidden },
     // 블라인드
+    // [JA] ブラインド
     { "B-1", 201, { "챌린지 B-1", "チャレンジ B-1" }, { "시장 진열대를 검사하다가 죽는다", "市場の陳列棚を検査している途中で落ちます" }, chB1, chB1_hidden },
     { "B-2", 202, { "챌린지 B-2", "チャレンジ B-2" }, { "공지 게시판의 작성자 이름이 깨진다", "お知らせ掲示板の作成者名が化けます" }, chB2, chB2_hidden },
     { "B-3", 203, { "챌린지 B-3", "チャレンジ B-3" }, { "넓은 지형에서 계산이 끝나지 않는다", "広い地形で計算が終わりません" }, chB3, chB3_hidden },
@@ -163,6 +181,7 @@ constexpr ChallengeEntry kChallenges[] = {
 constexpr int kLabCount = static_cast<int>(std::size(kLabs));
 
 // 부마다 마지막 랩 번호와 메뉴 머리말
+// [JA] 部ごとの最後のラボ番号とメニューの見出し
 struct PartEntry
 {
     int lastLab;
@@ -191,7 +210,7 @@ static_assert(i18n::allTranslated(kLabs, [](const LabEntry& e) { return e.title;
 static_assert(i18n::allTranslated(kChallenges, [](const ChallengeEntry& e) { return e.title; }) && i18n::allTranslated(kChallenges, [](const ChallengeEntry& e) { return e.symptom; }),
               "kChallenges에 빈 번역이 있다 / kChallenges に空の翻訳がある");
 
-constexpr int kChallengePart = 0;   // grade-report.json의 part. 챌린지는 0 (네 판 공통)
+constexpr int kChallengePart = 0;   // grade-report.json의 part. 챌린지는 0 (네 판 공통) [JA] grade-report.json の part。チャレンジは0(4版共通)
 
 int partOf(int labNumber)
 {
@@ -237,6 +256,7 @@ const ChallengeEntry* findChallenge(int gradeId)
 }
 
 // "7" → 7, "C-1" / "c1" / "101" → 101, "B-3" → 203. 알 수 없으면 0
+// [JA] "7" → 7、"C-1" / "c1" / "101" → 101、"B-3" → 203。分からなければ0
 int parseId(const std::string& text)
 {
     if (text.empty())
@@ -255,6 +275,7 @@ int parseId(const std::string& text)
 }
 
 // 대상: "" = 전부, "labs" = 기본 랩만, "challenges" = 챌린지만, 그 밖에는 번호 하나
+// [JA] 対象: "" = すべて、"labs" = 基本ラボのみ、"challenges" = チャレンジのみ、それ以外は番号1つ
 int grade(const std::string& what)
 {
     const bool all = what.empty();
@@ -325,18 +346,24 @@ int main(int argc, char** argv)
     platform::initConsole();
 
     // --lang ja|ko를 읽고 지운다 (환경 변수 BUGHUNT_LANG, 운영체제 언어 순으로 기본값). 나머지 인자로 아래를 처리한다.
+    // [JA] --lang ja|ko を読み取って取り除きます(既定値は環境変数 BUGHUNT_LANG、OSの言語の順)。残りの引数で以下を処理します。
     const std::vector<std::string> args = i18n::init(argc, argv);
     const int argCount = static_cast<int>(args.size());
 
     // 빌드 뒤 소스 검사: BugHunt.exe --check-i18n <src 폴더> (CMakeLists.txt와 BugHunt.vcxproj가 빌드할 때마다 실행)
+    // [JA] ビルド後のソース検査: BugHunt.exe --check-i18n <src フォルダー>(CMakeLists.txt と BugHunt.vcxproj がビルドのたびに実行)
+    // --strict-comments를 붙이면 일본어 짝이 없는 한글 주석도 실패로 친다 (관리자가 PR 전에 실행)
+    // [JA] --strict-comments を付けると、日本語の対がないハングルのコメントも失敗とみなします (メンテナーが PR の前に実行)
     if (argCount > 2 && args[1] == "--check-i18n")
-        return i18n::checkSources(args[2]);
+        return i18n::checkSources(args[2], argCount > 3 && args[3] == "--strict-comments");
 
     // 채점: BugHunt.exe --grade [번호 | C-1 | labs | challenges]
+    // [JA] 採点: BugHunt.exe --grade [番号 | C-1 | labs | challenges]
     if (argCount > 1 && args[1] == "--grade")
         return grade(argCount > 2 ? args[2] : "");
 
     // 채점기가 띄우는 자식 프로세스: BugHunt.exe --grade-child 채점번호 [--hidden]
+    // [JA] 採点器が起動する子プロセス: BugHunt.exe --grade-child 採点番号 [--hidden]
     if (argCount > 2 && args[1] == "--grade-child")
     {
         prepareGradeChild();

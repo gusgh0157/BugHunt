@@ -41,6 +41,7 @@ QuestDb loadQuests(const char* table)
 }
 
 // 이 퀘스트를 받기 전에 깨야 하는 퀘스트가 모두 몇 개인지 센다.
+// [JA] このクエストを受ける前にクリアしなければならないクエストが全部でいくつあるかを数えます。
 int countAllPrereqs(const QuestDb& db, const std::string& questId)
 {
     int count = 0;

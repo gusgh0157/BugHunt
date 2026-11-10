@@ -5,15 +5,18 @@
 namespace lang5
 {
 // 설정 파일에서 읽은 값 (lg05_stat_table.cpp)
+// [JA] 設定ファイルから読んだ値 (lg05_stat_table.cpp)
 int readStat(const char* key, int fallback);
 
 // lg05_stat_table.cpp: 기본값과 보스
+// [JA] lg05_stat_table.cpp: 基本値とボス
 int baseHp();
 int baseMana();
 int bossAttack();
 int eliteArmor();
 
 // lg05_class_stats.cpp: 기본값과 직업
+// [JA] lg05_class_stats.cpp: 基本値と職業
 int baseAttack();
 int baseArmor();
 int warriorHp();

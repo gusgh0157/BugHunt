@@ -23,6 +23,7 @@ enum class Lang
 };
 
 // 한 문구의 두 언어. 표(랩 목록 등)에 쓴다. 표는 static_assert로 빈 번역이 없는지 검사한다.
+// [JA] 1 つの文言の 2 言語。表(ラボ一覧など)に使います。表は static_assert で空の翻訳がないかを検査します。
 struct Text
 {
     const char* ko;
@@ -30,12 +31,14 @@ struct Text
 };
 
 // argv에서 --lang ja|ko(또는 --lang=ja)를 읽고 지운 나머지 인자를 돌려준다. argv[0]은 그대로 둔다.
+// [JA] argv から --lang ja|ko(または --lang=ja)を読み取り、それを除いた残りの引数を返します。argv[0] はそのまま残します。
 std::vector<std::string> init(int argc, char** argv);
 
 Lang current();
-const char* code();   // "ko" 또는 "ja" (자식 프로세스에 넘길 때)
+const char* code();   // "ko" 또는 "ja" (자식 프로세스에 넘길 때) [JA] "ko" または "ja" (子プロセスに渡すとき)
 
 // 고른 언어의 문구. 인자가 둘이라 한쪽을 빠뜨리면 컴파일 오류가 난다.
+// [JA] 選んだ言語の文言。引数が 2 つなので、片方を書き忘れるとコンパイルエラーになります。
 inline const char* L(const char* ko, const char* ja)
 {
     return current() == Lang::ja ? ja : ko;
@@ -48,11 +51,14 @@ inline const char* pick(const Text& t)
 
 // 소스 검사 (BugHunt.exe --check-i18n <src 폴더>, src/i18n/source_check.cpp). 빌드할 때마다 실행된다.
 // 한글 문자열 리터럴이 L("ko", "ja") 또는 { "ko", "ja" } 짝 밖에 있으면, 또는 일본어 쪽이 비었거나 한글이면 1을 돌려준다.
+// 한글 주석에 [JA] 일본어 짝이 없으면 알림만 출력한다. strictComments(--strict-comments)이면 그것도 1을 돌려준다.
 // [JA] ソース検査 (BugHunt.exe --check-i18n <src フォルダー>、src/i18n/source_check.cpp)。ビルドのたびに実行されます。
 // [JA] ハングルの文字列リテラルが L("ko", "ja") または { "ko", "ja" } の対の外にあるとき、または日本語側が空かハングルのときに 1 を返します。
-int checkSources(const std::string& dir);
+// [JA] ハングルのコメントに [JA] の日本語の対がないときは通知を出すだけです。strictComments(--strict-comments)ならそれも 1 を返します。
+int checkSources(const std::string& dir, bool strictComments = false);
 
 // 표에 빈 문구가 없는가 (static_assert용)
+// [JA] 表に空の文言がないか (static_assert 用)
 template <class T, std::size_t N, class Get>
 constexpr bool allTranslated(const T (&table)[N], Get get)
 {

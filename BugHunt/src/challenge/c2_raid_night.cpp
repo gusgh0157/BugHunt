@@ -65,14 +65,14 @@ void chC2_raid_night()
     LootSystem loot(raid.bus);
     TitleSystem titles(raid.bus, tracker);
 
-    raid.hit(7);          // 입구에서 한 대 맞고 시작
+    raid.hit(7);          // 입구에서 한 대 맞고 시작 [JA] 入口で1発くらってスタート
     raid.kill(i18n::L("늑대", "オオカミ"));
     raid.kill(i18n::L("늑대", "オオカミ"));
     raid.kill(i18n::L("늑대", "オオカミ"));
     raid.kill(i18n::L("멧돼지", "イノシシ"));
     raid.kill(i18n::L("멧돼지", "イノシシ"));
     raid.kill(i18n::L("늑대", "オオカミ"));
-    raid.hit(0);          // 방패로 막음
+    raid.hit(0);          // 방패로 막음 [JA] 盾で防いだ
     raid.kill(i18n::L("멧돼지", "イノシシ"));
     raid.kill(i18n::L("늑대", "オオカミ"));
     raid.end();
@@ -117,7 +117,7 @@ void chC2_raid_night_hidden()
         TitleSystem titles(raid.bus, tracker);
         for (int i = 0; i < 5; ++i)
             raid.kill(i18n::L("박쥐", "コウモリ"));
-        raid.hit(0);   // 막아도 연속 처치는 끊긴다 (기획서 4.2)
+        raid.hit(0);   // 막아도 연속 처치는 끊긴다 (기획서 4.2) [JA] 防いでも連続撃破は途切れる (企画書 4.2)
         for (int i = 0; i < 3; ++i)
             raid.kill(i18n::L("박쥐", "コウモリ"));
         raid.end();

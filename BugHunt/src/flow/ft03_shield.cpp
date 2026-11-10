@@ -8,7 +8,7 @@
 // [JA] 受けたダメージは必ず「シールドが吸収する」か「HPが減る」かのどちらかでなければなりません。
 namespace flow3
 {
-constexpr int kTicks = 600;          // 60틱 = 1초
+constexpr int kTicks = 600;          // 60틱 = 1초 [JA] 60ティック = 1秒
 constexpr int kMaxShield = 30;
 
 struct Unit
@@ -40,15 +40,15 @@ void ft03_shield()
     using namespace flow3;
 
     Unit tank;
-    int received = 0;   // 들어온 피해 합계
-    int absorbed = 0;   // 보호막이 줄어든 양
-    int hpLost = 0;     // HP가 줄어든 양
+    int received = 0;   // 들어온 피해 합계 [JA] 受けたダメージの合計
+    int absorbed = 0;   // 보호막이 줄어든 양 [JA] シールドが減った量
+    int hpLost = 0;     // HP가 줄어든 양 [JA] HPが減った量
 
     for (int tick = 1; tick <= kTicks; ++tick)
     {
         int damage = 0;
-        if (tick % 37 == 0) damage += 7;    // 오크의 도끼
-        if (tick % 50 == 0) damage += 4;    // 독 장판
+        if (tick % 37 == 0) damage += 7;    // 오크의 도끼 [JA] オークの斧
+        if (tick % 50 == 0) damage += 4;    // 독 장판 [JA] 毒の床
 
         if (damage > 0)
         {
@@ -102,22 +102,24 @@ void ft03_shield()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ft03_shield_hidden()
 {
     using namespace flow3;
 
-    Unit full;                       // 보호막 30이 피해 7을 전부 막는다
+    Unit full;                       // 보호막 30이 피해 7을 전부 막는다 [JA] シールド30がダメージ7をすべて防ぐ
     takeDamage(full, 7);
     expect(i18n::L("보호막 충분: 보호막", "シールド十分: シールド"), 23, full.shield);
     expect(i18n::L("보호막 충분: HP", "シールド十分: HP"), 200, full.hp);
 
-    Unit cracked;                    // 보호막 5가 피해 12 중 5만 막는다
+    Unit cracked;                    // 보호막 5가 피해 12 중 5만 막는다 [JA] シールド5がダメージ12のうち5だけ防ぐ
     cracked.shield = 5;
     takeDamage(cracked, 12);
     expect(i18n::L("보호막 부족: 보호막", "シールド不足: シールド"), 0, cracked.shield);
     expect(i18n::L("보호막 부족: HP", "シールド不足: HP"), 193, cracked.hp);
 
-    Unit bare;                       // 보호막이 없으면 전부 HP로
+    Unit bare;                       // 보호막이 없으면 전부 HP로 [JA] シールドがなければすべてHPへ
     bare.shield = 0;
     takeDamage(bare, 9);
     expect(i18n::L("보호막 없음: HP", "シールドなし: HP"), 191, bare.hp);

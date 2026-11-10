@@ -107,6 +107,8 @@ void ft06_repair()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(--grade)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(--grade)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ft06_repair_hidden()
 {
     flow6::Backpack backpack;
@@ -116,7 +118,7 @@ void ft06_repair_hidden()
     expect(i18n::L("갑옷 수리 후 골드", "鎧の修理後のゴールド"), 60, gold);
     expect(i18n::L("배낭 속 Leather Armor 내구도", "バックパック内の Leather Armor の耐久度"), 80, backpack.get("Leather Armor").durability);
 
-    int poorGold = 10;               // 골드가 모자라면 아무것도 바뀌지 않는다
+    int poorGold = 10;               // 골드가 모자라면 아무것도 바뀌지 않는다 [JA] ゴールドが足りなければ何も変わらない
     flow6::visitBlacksmith(backpack, poorGold, "Iron Sword");
     expect(i18n::L("골드 부족: 골드", "ゴールド不足: ゴールド"), 10, poorGold);
     expect(i18n::L("골드 부족: Iron Sword 내구도", "ゴールド不足: Iron Sword の耐久度"), 37, backpack.get("Iron Sword").durability);

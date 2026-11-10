@@ -12,7 +12,7 @@ void chC3_shrine()
     using namespace chal3;
 
     Hero aria("Aria", 1, 40);
-    aria.prestigeUp();          // 시즌 1, 2 만렙 달성
+    aria.prestigeUp();          // 시즌 1, 2 만렙 달성 [JA] シーズン1、2でレベル上限に到達
     aria.prestigeUp();
     aria.adoptPet("Fox", 6);
     aria.addBuff({ i18n::L("전투 함성", "雄叫び"), 10 });
@@ -21,11 +21,11 @@ void chC3_shrine()
     RespawnSystem respawns(checkpoints);
     DamageMeter meter;
 
-    checkpoints.save(aria);     // 보스방 앞 성소
+    checkpoints.save(aria);     // 보스방 앞 성소 [JA] ボス部屋の前の聖所
     meter.hit(aria, i18n::L("문지기", "門番"));
     const int beforeDeath = meter.lastHit();
 
-    aria.setHp(0);              // 보스의 광역기
+    aria.setHp(0);              // 보스의 광역기 [JA] ボスの範囲攻撃
     respawns.respawn(aria);
     meter.hit(aria, i18n::L("문지기", "門番"));
     const int afterRespawn = meter.lastHit();

@@ -18,11 +18,12 @@ struct Member
 
 struct Guild
 {
-    int lastId = 0;                 // 마지막으로 발급한 회원 번호
+    int lastId = 0;                 // 마지막으로 발급한 회원 번호 [JA] 最後に発行した会員番号
     std::vector<Member> members;
 };
 
 // 새 회원 번호를 발급한다. 발급한 번호는 lastId에 남는다.
+// [JA] 新しい会員番号を発行します。発行した番号は lastId に残ります。
 int issueId(Guild& guild)
 {
     return guild.lastId++;
@@ -50,6 +51,7 @@ void ft09_member_ids()
     using namespace flow9;
 
     // 세이브에서 불러온 길드: 지금까지 1007번까지 발급했다.
+    // [JA] セーブから読み込んだギルド: これまでに1007番まで発行しています。
     Guild guild;
     guild.lastId = 1007;
     guild.members = { { 1001, i18n::L("아린", "アリン") }, { 1004, i18n::L("보람", "ボラム") }, { 1007, i18n::L("도윤", "ドユン") } };
@@ -100,6 +102,8 @@ void ft09_member_ids()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void ft09_member_ids_hidden()
 {
     using namespace flow9;
@@ -115,7 +119,7 @@ void ft09_member_ids_hidden()
     expect(i18n::L("숨은 길드: 번호가 모두 다른가?", "隠しギルド: 番号はすべて異なるか?"), true, allIdsUnique(guild));
     expect(i18n::L("숨은 길드: 첫 신입 번호", "隠しギルド: 最初の新入りの番号"), 53, guild.members[1].id);
 
-    Guild fresh;                      // 아무도 없는 새 길드: 첫 번호는 1
+    Guild fresh;                      // 아무도 없는 새 길드: 첫 번호는 1 [JA] 誰もいない新しいギルド: 最初の番号は1
     join(fresh, i18n::L("첫 회원", "最初の会員"));
     expect(i18n::L("새 길드: 첫 번호", "新しいギルド: 最初の番号"), 1, fresh.members[0].id);
 }

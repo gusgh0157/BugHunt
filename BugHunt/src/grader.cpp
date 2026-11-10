@@ -15,16 +15,24 @@
 //   BugHunt.exe --grade-child N --hidden → 같은 랩을 화면에 나오지 않는 데이터로 실행 (숨은 케이스)
 // 자식이 크래시하거나 멈춰도 채점기와 다른 랩은 영향을 받지 않는다.
 // 판정은 자식의 종료 코드(labs.h의 kExit*)와 시간 제한으로만 한다.
+// [JA] 採点器の構造
+// [JA]   BugHunt.exe --grade            → 下の runGrader。ラボごとに子プロセスを起動します。
+// [JA]   BugHunt.exe --grade-child N    → ラボ N を通常のデータで実行
+// [JA]   BugHunt.exe --grade-child N --hidden → 同じラボを画面に出ないデータで実行 (隠しケース)
+// [JA] 子プロセスがクラッシュしたり止まったりしても、採点器とほかのラボは影響を受けません。
+// [JA] 判定は子プロセスの終了コード(labs.h の kExit*)と制限時間だけで行います。
 namespace
 {
-constexpr int kChildTimeoutMs = 15000;   // 랩 하나(케이스 하나)의 최대 실행 시간
+constexpr int kChildTimeoutMs = 15000;   // 랩 하나(케이스 하나)의 최대 실행 시간 [JA] ラボ 1 つ(ケース 1 つ)の最大実行時間
 
 using ChildResult = platform::ProcessResult;
 
 // 자식 프로세스 실행은 운영체제마다 다르므로 src/platform에 맡긴다.
+// [JA] 子プロセスの実行は OS ごとに異なるので、src/platform に任せます。
 ChildResult runChild(int labId, bool hiddenCase)
 {
     // 자식도 같은 언어로 출력하게 한다 (title, detail이 고른 언어로 나오도록)
+    // [JA] 子プロセスも同じ言語で出力させます (title、detail が選んだ言語で出るように)
     std::vector<std::string> args = { "--lang", i18n::code(), "--grade-child", std::to_string(labId) };
     if (hiddenCase)
         args.push_back("--hidden");
@@ -41,6 +49,7 @@ std::string trim(const std::string& s)
 }
 
 // output에서 needle이 들어 있는 첫 줄
+// [JA] output の中で needle を含む最初の行
 std::string firstLineWith(const std::string& output, const char* needle)
 {
     const size_t at = output.find(needle);
@@ -53,6 +62,7 @@ std::string firstLineWith(const std::string& output, const char* needle)
 }
 
 // 자식 출력은 깨진 문자열(랩 11 등)을 담을 수 있다. JSON이 깨지지 않도록 올바른 UTF-8만 남기고 길이를 줄인다.
+// [JA] 子プロセスの出力には壊れた文字列(ラボ 11 など)が含まれることがあります。JSON が壊れないよう、正しい UTF-8 だけを残して長さを縮めます。
 std::string cleanDetail(std::string s)
 {
     // "[CRASH] C:\...\include\vector(1949) : Assertion failed: ..." → "[CRASH] vector(1949) : ..."
@@ -107,6 +117,7 @@ struct Verdict
 Verdict judge(const ChildResult& r, bool hiddenCase)
 {
     // 평소 데이터는 통과했는데 숨은 케이스에서 실패 = 증상만 가린 수정 (BugHunt 네 판 공통 문구)
+    // [JA] 通常のデータでは通ったのに隠しケースで失敗 = 症状だけを隠した修正 (BugHunt 4 版共通の文言)
     const std::string prefix = hiddenCase ? i18n::L("증상은 사라졌지만 원인이 남아 있음 (숨은 케이스) ", "症状は消えたが原因が残っている (隠しケース) ") : "";
     if (r.timedOut)
         return { "TIMEOUT", prefix + i18n::L("채점기 시간 제한 ", "採点器の制限時間 ") + std::to_string(kChildTimeoutMs) + i18n::L(" ms 초과", " ms 超過") };
@@ -200,9 +211,11 @@ void writeJson(const char* path, const std::vector<LabRecord>& records, int pass
 void prepareGradeChild()
 {
     // 크래시 대화 상자, Debug 어설션 대화 상자, abort() 메시지 창을 모두 끈다. (운영체제별 코드는 src/platform)
+    // [JA] クラッシュダイアログ、Debug アサーションダイアログ、abort() のメッセージウィンドウをすべて無効にします。(OS 別のコードは src/platform)
     platform::prepareCrashExit();
 
     // 크래시 직전까지의 출력이 채점기에 전달되도록 버퍼를 쓰지 않는다.
+    // [JA] クラッシュ直前までの出力が採点器に届くよう、バッファーを使いません。
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     std::cout << std::unitbuf;
 }

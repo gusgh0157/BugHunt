@@ -29,6 +29,7 @@ public:
     }
 
     // 체력 바: 10칸 중 몇 칸이 차 있는가
+    // [JA] HPバー: 10マスのうち何マスが埋まっているか
     int barCells() const { return hp_ * 10 / maxHp_; }
 
 private:

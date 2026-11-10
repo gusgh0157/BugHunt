@@ -7,9 +7,13 @@
 // 12부(성능) 랩용 계측 도구.
 // 판정은 PC 속도에 흔들리지 않도록 "시간"이 아니라 "횟수"(할당 바이트, 복사, flush 등)로 한다.
 // 시간은 참고로만 출력한다. 실제 느린 곳은 Release + 프로파일러로 찾아보자. (README 12부)
+// [JA] 第12部(性能)のラボ用の計測ツールです。
+// [JA] 判定は PC の速度に左右されないよう、「時間」ではなく「回数」(割り当てバイト数、コピー、flush など)で行います。
+// [JA] 時間は参考として出力するだけです。実際に遅い箇所は Release + プロファイラーで探してみましょう。(README 第12部)
 namespace perf
 {
 // 이 할당자를 쓰는 컨테이너가 할당한 횟수와 바이트 수를 센다.
+// [JA] このアロケーターを使うコンテナーが割り当てた回数とバイト数を数えます。
 inline long long g_allocCount = 0;
 inline long long g_allocBytes = 0;
 
@@ -42,6 +46,7 @@ struct CountingAllocator
 };
 
 // 로그 "파일"을 흉내 내는 출력 버퍼. flush(sync)할 때마다 디스크에 쓰는 비용을 흉내 낸다.
+// [JA] ログ「ファイル」をまねた出力バッファーです。flush(sync)するたびにディスクに書き込むコストをまねます。
 class FakeLogFile : public std::streambuf
 {
 public:
@@ -60,6 +65,7 @@ protected:
     {
         ++flushes_;
         // 디스크 쓰기 흉내: 약 20마이크로초 바쁘게 기다린다.
+        // [JA] ディスク書き込みのまね: 約20マイクロ秒、ビジーウェイトします。
         const auto until = std::chrono::steady_clock::now() + std::chrono::microseconds(20);
         while (std::chrono::steady_clock::now() < until)
         {
@@ -73,6 +79,7 @@ private:
 };
 
 // 걸린 시간(밀리초)을 재는 작은 도구.
+// [JA] かかった時間(ミリ秒)を測る小さなツールです。
 class Stopwatch
 {
 public:

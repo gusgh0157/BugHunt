@@ -69,6 +69,7 @@ void startGame()
     createUi(game);
 
     // 플레이어가 피해를 입었다.
+    // [JA] プレイヤーがダメージを受けました。
     game.events.publishHpChanged(75);
 }
 }

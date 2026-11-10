@@ -41,6 +41,7 @@ void io06_settings_bom()
     iokit::LabDir lab("io06_settings_bom");
     const fs::path file = lab / "settings.ini";
     // 메모장 등 일부 편집기는 UTF-8로 저장할 때 맨 앞에 BOM(EF BB BF) 3바이트를 붙인다.
+    // [JA] メモ帳など一部のエディターは、UTF-8 で保存するときに先頭に BOM(EF BB BF) 3 バイトを付けます。
     iokit::writeBytes(file, "\xEF\xBB\xBF" "volume=30\nfullscreen=1\nlanguage=ko\n");
 
     const auto settings = loadSettings(file);
@@ -82,6 +83,8 @@ void io06_settings_bom()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void io06_settings_bom_hidden()
 {
     using namespace io6;
@@ -93,7 +96,7 @@ void io06_settings_bom_hidden()
     expect(i18n::L("BOM 있음: 시야각", "BOMあり: 視野角"), 95, getInt(withBom, "fov", 60));
     expect(i18n::L("BOM 있음: 음량", "BOMあり: 音量"), 12, getInt(withBom, "volume", 80));
 
-    iokit::writeBytes(lab / "plain.ini", "brightness=7\nvolume=55\n");   // BOM 없음
+    iokit::writeBytes(lab / "plain.ini", "brightness=7\nvolume=55\n");   // BOM 없음 [JA] BOM なし
     const auto plain = loadSettings(lab / "plain.ini");
     expect(i18n::L("BOM 없음: 밝기", "BOMなし: 明るさ"), 7, getInt(plain, "brightness", 5));
     expect(i18n::L("BOM 없음: 음량", "BOMなし: 音量"), 55, getInt(plain, "volume", 80));

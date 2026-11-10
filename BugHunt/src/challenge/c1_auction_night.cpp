@@ -111,9 +111,9 @@ void chC1_auction_night_hidden()
     panel.refresh(house);
     house.placeBid(b, 610);
     panel.refresh(house);
-    house.placeBid(b, 650);   // 자기 입찰 올리기
+    house.placeBid(b, 650);   // 자기 입찰 올리기 [JA] 自分の入札を引き上げる
     panel.refresh(house);
-    house.placeBid(c, 640);   // 최고가보다 낮아서 실패
+    house.placeBid(c, 640);   // 최고가보다 낮아서 실패 [JA] 最高額より低いので失敗
     house.close();
 
     expect(i18n::L("낙찰자 번호", "落札者の番号"), b, house.leader().value_or(99));

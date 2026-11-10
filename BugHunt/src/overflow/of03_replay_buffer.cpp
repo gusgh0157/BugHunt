@@ -11,7 +11,7 @@ namespace ovf3
 struct Frame
 {
     int tick;
-    std::uint32_t buttons;   // 눌린 버튼 비트
+    std::uint32_t buttons;   // 눌린 버튼 비트 [JA] 押されたボタンのビット
 };
 
 class ReplayRecorder
@@ -23,6 +23,7 @@ public:
     ReplayRecorder& operator=(const ReplayRecorder&) = delete;
 
     // 입력 장치에서 tick마다 버튼 상태를 읽어 기록한다
+    // [JA] 入力デバイスから tick ごとにボタンの状態を読んで記録します
     void recordAll(std::uint32_t seed)
     {
         for (int t = 0; t <= ticks_; ++t)
@@ -59,6 +60,7 @@ std::uint32_t expectedChecksum(std::uint32_t seed, int ticks)
 }
 
 // 녹화 한 판: 녹화하고, 체크섬을 돌려주고, 녹화기를 닫는다
+// [JA] 録画1回分: 録画し、チェックサムを返し、録画機を閉じます
 std::uint32_t recordMatch(int ticks, std::uint32_t seed, int& lastTick)
 {
     ReplayRecorder recorder(ticks);
@@ -117,6 +119,8 @@ void of03_replay_buffer()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void of03_replay_buffer_hidden()
 {
     using namespace ovf3;

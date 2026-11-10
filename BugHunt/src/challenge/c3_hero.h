@@ -17,7 +17,7 @@ struct Pet
 struct Buff
 {
     std::string name;
-    int attackPercent = 0;   // 공격력 +N%
+    int attackPercent = 0;   // 공격력 +N% [JA] 攻撃力 +N%
 };
 
 class Hero
@@ -26,6 +26,7 @@ public:
     Hero(std::string name, int level, int baseAttack);
 
     // 펫은 영웅마다 따로 가지므로 복사할 때 깊은 복사가 필요하다. 그래서 복사를 직접 만든다.
+    // [JA] ペットはヒーローごとに別々に持つので、コピー時にディープコピーが必要です。そのためコピーを自前で書きます。
     Hero(const Hero& other);
     Hero& operator=(Hero other);
     friend void swap(Hero& a, Hero& b) noexcept;
@@ -43,7 +44,7 @@ public:
     void addBuff(Buff buff) { buffs_.push_back(std::move(buff)); }
     void clearBuffs() { buffs_.clear(); }
     void adoptPet(std::string name, int bonusAttack);
-    void prestigeUp();   // 만렙에서 프레스티지: 레벨은 1로, 프레스티지 단계는 +1
+    void prestigeUp();   // 만렙에서 프레스티지: 레벨은 1로, 프레스티지 단계는 +1 [JA] 最大レベルでプレステージ: レベルは 1 に、プレステージ段階は +1
 
 private:
     std::string name_;
@@ -53,6 +54,6 @@ private:
     int baseAttack_ = 10;
     std::unique_ptr<Pet> pet_;
     std::vector<Buff> buffs_;
-    int prestige_ = 0;   // 시즌 2에서 추가: 프레스티지 단계마다 공격력 +5%
+    int prestige_ = 0;   // 시즌 2에서 추가: 프레스티지 단계마다 공격력 +5% [JA] シーズン 2 で追加: プレステージ段階ごとに攻撃力 +5%
 };
 }

@@ -19,6 +19,14 @@
 //   이중 해제, new[]/delete 짝 틀림, new로 받지 않은 주소 해제 → [CRASH] 메시지 후 abort()
 //
 // ASan 구성에서는 ASan이 같은 일을 더 정확하게 하므로 교체하지 않는다.
+// [JA] BugHunt のメモリ検査器です。標準が認めている「グローバル operator new/delete の置き換え」で作ります。
+// [JA] コンパイラーや Debug/Release 構成に関係なく同じ方法で動作するので、
+// [JA] メモリバグのラボの結果がコンパイラーのデバッグヒープ(埋める値など)によって変わりません。
+// [JA]   新しく割り当てたメモリ → 0xA5 で埋める (初期化していない値を読むと、とんでもなく大きな数になる)
+// [JA]   解放したメモリ         → 0xEE で上書きし、すぐには返さない (解放後に使うと、おかしな値が出る)
+// [JA]   ブロックの後ろ16バイト → 0xBD の境界。解放時に変わっていればバッファーオーバーランとして報告
+// [JA]   二重解放、new[]/delete の組み合わせ違い、new で受け取っていないアドレスの解放 → [CRASH] メッセージの後 abort()
+// [JA] ASan 構成では ASan が同じことをより正確に行うので、置き換えません。
 namespace
 {
 constexpr unsigned char kFreshByte = 0xA5;
@@ -40,7 +48,7 @@ void* bughunt::recycledStorage(std::size_t bytes)
     alignas(std::max_align_t) static unsigned char pool[4096];
     if (bytes > sizeof(pool))
         fail(i18n::L("recycledStorage: 요청이 너무 크다", "recycledStorage: 要求が大きすぎる"));
-    std::memset(pool, kFreshByte, bytes);   // 앞 사용자가 남긴 값
+    std::memset(pool, kFreshByte, bytes);   // 앞 사용자가 남긴 값 [JA] 前の利用者が残した値(のつもり)
     return pool;
 }
 
@@ -77,17 +85,20 @@ struct Header
     Kind kind;
 };
 // 사용자에게 주는 주소가 new의 기본 정렬을 지키도록 머리 크기를 정렬 단위의 배수로 잡는다.
+// [JA] 利用者に渡すアドレスが new の既定のアライメントを守るよう、ヘッダーのサイズをアライメント単位の倍数にします。
 constexpr std::size_t kHeaderSize = (sizeof(Header) + __STDCPP_DEFAULT_NEW_ALIGNMENT__ - 1) / __STDCPP_DEFAULT_NEW_ALIGNMENT__ * __STDCPP_DEFAULT_NEW_ALIGNMENT__;
 
 // 해제한 블록을 바로 돌려주지 않고 잠시 붙잡아 둔다. 곧바로 다른 할당에 재사용되면
 // 해제 후 사용이 우연히 "맞는 값"을 읽을 수 있기 때문이다. (ASan의 격리 구역과 같은 생각)
+// [JA] 解放したブロックはすぐには返さず、しばらく保持しておきます。すぐに別の割り当てで再利用されると、
+// [JA] 解放後の使用がたまたま「正しい値」を読んでしまうことがあるからです。(ASan の隔離領域(quarantine)と同じ考え方)
 constexpr std::size_t kQuarantineSlots = 4096;
 constexpr std::size_t kQuarantineBytes = 8u << 20;
 unsigned char* g_quarantine[kQuarantineSlots];
 std::size_t g_quarantineSizes[kQuarantineSlots];
 std::size_t g_quarantineNext = 0;
 std::size_t g_quarantineTotal = 0;
-std::atomic_flag g_lock = ATOMIC_FLAG_INIT;   // 정적 초기화 순서와 상관없이 쓸 수 있는 잠금
+std::atomic_flag g_lock = ATOMIC_FLAG_INIT;   // 정적 초기화 순서와 상관없이 쓸 수 있는 잠금 [JA] 静的初期化の順序に関係なく使えるロック
 
 struct LockGuard
 {
@@ -153,6 +164,7 @@ void release(void* p, Kind kind)
     g_quarantineNext = (g_quarantineNext + 1) % kQuarantineSlots;
 
     // 너무 많이 붙잡고 있으면 오래된 것부터 돌려준다.
+    // [JA] 保持しすぎたら、古いものから返します。
     for (std::size_t i = 0; g_quarantineTotal > kQuarantineBytes && i < kQuarantineSlots; ++i)
     {
         const std::size_t slot = (g_quarantineNext + i) % kQuarantineSlots;

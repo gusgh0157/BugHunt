@@ -63,7 +63,7 @@ void io07_safe_save()
     std::vector<Item> bag = { { i18n::L("포션", "ポーション"), 5 }, { i18n::L("해독제", "解毒剤"), 2 }, { i18n::L("귀환서", "帰還の書"), 1 }, { i18n::L("화살", "矢"), 40 }, { i18n::L("금화주머니", "金貨袋"), 3 } };
     expect(i18n::L("첫 저장 성공", "最初の保存成功"), true, saveInventory(file, bag));
 
-    bag[3].count = -1;                                   // 버그로 개수가 깨진 아이템
+    bag[3].count = -1;                                   // 버그로 개수가 깨진 아이템 [JA] バグで個数が壊れたアイテム
     expect(i18n::L("깨진 아이템이 있으면 저장 실패", "壊れたアイテムがあれば保存失敗"), false, saveInventory(file, bag));
 
     const std::vector<Item> loaded = loadInventory(file);
@@ -106,6 +106,8 @@ void io07_safe_save()
 #pragma region 채점용 숨은 테스트 / 採点用の隠しテスト (풀이에는 필요 없습니다. 고치지 마세요 / 解答には不要です - 変更しないでください)
 // 채점기(grade.bat)가 화면에 나오지 않는 다른 데이터로 같은 코드를 한 번 더 검사한다.
 // 기대값을 하드코딩해서 [PASS]를 만들면 여기서 걸린다.
+// [JA] 採点器(grade.bat)が、画面には表示されない別のデータで同じコードをもう一度検査します。
+// [JA] 期待値をハードコードして [PASS] にしても、ここで引っかかります。
 void io07_safe_save_hidden()
 {
     using namespace io7;
@@ -123,7 +125,7 @@ void io07_safe_save_hidden()
     loaded = loadInventory(file);
     expect(i18n::L("숨은: 덮어쓴 아이템 수", "隠し: 上書き後のアイテム数"), static_cast<size_t>(3), loaded.size());
 
-    size_t filesInFolder = 0;                            // 남은 임시 파일이 없어야 한다
+    size_t filesInFolder = 0;                            // 남은 임시 파일이 없어야 한다 [JA] 一時ファイルが残っていてはいけない
     for ([[maybe_unused]] const auto& entry : fs::directory_iterator(lab.path()))
         ++filesInFolder;
     expect(i18n::L("숨은: 폴더에 남은 파일 수", "隠し: フォルダーに残ったファイル数"), static_cast<size_t>(1), filesInFolder);
